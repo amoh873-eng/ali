@@ -1,0 +1,84 @@
+@* شريط التنقل الأفقي العلوي: روابط + قوائم منسدلة (CSS hover) *@
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResources> Loc
+
+<nav class="erp-topnav">
+    <a class="erp-nav-link @(IsHome ? "active" : "")" href="/">@Loc["Home"]</a>
+
+    <div class="erp-dropdown @(IsActive("/accounts", "/journal-entries") ? "active" : "")">
+        <a class="erp-nav-link" href="/accounts">@Loc["Accounting"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/accounts">@Loc["Accounts"]</a>
+            <a href="/journal-entries">@Loc["JournalEntries"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/inventory") ? "active" : "")">
+        <a class="erp-nav-link" href="/inventory/items">@Loc["Inventory"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/inventory/items">@Loc["Items"]</a>
+            <a href="/inventory/categories">@Loc["Categories"]</a>
+            <a href="/inventory/units">@Loc["Units"]</a>
+            <a href="/inventory/warehouses">@Loc["Warehouses"]</a>
+            <a href="/inventory/movements">@Loc["Movements"]</a>
+            <a href="/inventory/stockcounts">@Loc["StockCounts"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/sales") ? "active" : "")">
+        <a class="erp-nav-link" href="/sales/invoices">@Loc["Sales"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/sales/customers">@Loc["Customers"]</a>
+            <a href="/sales/quotes">@Loc["SalesQuotes"]</a>
+            <a href="/sales/invoices">@Loc["SalesInvoices"]</a>
+            <a href="/sales/returns">@Loc["SalesReturns"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/purchases") ? "active" : "")">
+        <a class="erp-nav-link" href="/purchases/invoices">@Loc["Purchases"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/purchases/suppliers">@Loc["Suppliers"]</a>
+            <a href="/purchases/orders">@Loc["PurchaseOrders"]</a>
+            <a href="/purchases/invoices">@Loc["PurchaseInvoices"]</a>
+            <a href="/purchases/returns">@Loc["PurchaseReturns"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/hr") ? "active" : "")">
+        <a class="erp-nav-link" href="/hr/employees">@Loc["HumanResources"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/hr/departments">@Loc["Departments"]</a>
+            <a href="/hr/positions">@Loc["Positions"]</a>
+            <a href="/hr/employees">@Loc["Employees"]</a>
+            <a href="/hr/leaves">@Loc["Leaves"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/trial-balance", "/general-ledger", "/financial-statements") ? "active" : "")">
+        <a class="erp-nav-link" href="/trial-balance">@Loc["Reports"] ▾</a>
+        <div class="erp-dropdown-menu">
+            <a href="/trial-balance">@Loc["TrialBalance"]</a>
+            <a href="/general-ledger">@Loc["GeneralLedger"]</a>
+            <a href="/financial-statements">@Loc["FinancialStatements"]</a>
+        </div>
+    </div>
+</nav>
+
+@code {
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');
+
+    private bool IsHome => CurrentPath == "/";
+
+    private bool IsActive(params string[] prefixes)
+    {
+        foreach (var prefix in prefixes)
+        {
+            var basePath = prefix.TrimEnd('/');
+            if (string.IsNullOrEmpty(basePath)) continue;
+            if (CurrentPath.Equals(basePath, StringComparison.OrdinalIgnoreCase)) return true;
+            if (CurrentPath.StartsWith(basePath + "/", StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+}

@@ -1,0 +1,13 @@
+@* بطاقة بسيطة: عنوان صغير رمادي أعلى + رقم كبير داكن *@
+
+<MudCard Elevation="0">
+    <MudCardContent Style="padding:18px 22px;">
+        <MudText Typo="Typo.caption" Style="color:var(--erp-muted);">@Label</MudText>
+        <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:6px; color:var(--erp-text);">@Value</MudText>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Label { get; set; } = "";
+}

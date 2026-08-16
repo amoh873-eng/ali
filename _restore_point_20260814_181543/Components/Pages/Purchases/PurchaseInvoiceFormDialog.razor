@@ -1,0 +1,171 @@
+@* نموذج حوار لإنشاء فاتورة مشتريات جديدة (المورد + البنود) *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="Guid" @bind-Value="_supplierId" Label="المورد" Required="true" RequiredError="المورد مطلوب" Variant="Variant.Outlined">
+                        @foreach (var s in _suppliers)
+                        {
+                            <MudSelectItem T="Guid" Value="@s.Id">@s.Code - @s.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="Guid" @bind-Value="_warehouseId" Label="المخزن" Required="true" RequiredError="المخزن مطلوب" Variant="Variant.Outlined">
+                        @foreach (var w in _warehouses)
+                        {
+                            <MudSelectItem T="Guid" Value="@w.Id">@w.Code - @w.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="int" @bind-Value="_invoiceType" Label="نوع الفاتورة" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">نقدي</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">آجل</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_invoiceDate" Label="التاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.subtitle2" Class="mt-4">البنود</MudText>
+
+            @foreach (var line in _lines)
+            {
+                <MudGrid Class="mb-1 align-items-center">
+                    <MudItem xs="12" sm="5">
+                        <MudSelect T="Guid" Value="@line.ItemId" ValueChanged="@(id => OnLineItemChanged(line, id))" Label="الصنف" Variant="Variant.Outlined" Dense="true">
+                            @foreach (var it in _items)
+                            {
+                                <MudSelectItem T="Guid" Value="@it.Id">@it.Code - @it.NameAr</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.Quantity" Label="الكمية" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.UnitCost" Label="تكلفة الوحدة" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="12" sm="1" Class="d-flex align-items-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(e => RemoveLine(line))" />
+                    </MudItem>
+                </MudGrid>
+            }
+
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLine" Class="mt-2">إضافة بند</MudButton>
+
+            <MudPaper Elevation="1" Class="pa-3 mt-4">
+                <MudText Typo="Typo.h6">الإجمالي: @_total.ToString("N2")</MudText>
+            </MudPaper>
+
+            <MudItem xs="12" Class="mt-3">
+                <MudTextField @bind-Value="_note" Label="ملاحظات" Lines="2" Variant="Variant.Outlined" />
+            </MudItem>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">حفظ الفاتورة</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject] private IPurchaseInvoiceService InvoiceService { get; set; } = default!;
+    [Inject] private ISupplierService SupplierService { get; set; } = default!;
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+    [Inject] private IItemService ItemService { get; set; } = default!;
+
+    private class LineEditor
+    {
+        public Guid ItemId { get; set; }
+        public decimal Quantity { get; set; } = 1;
+        public decimal UnitCost { get; set; }
+    }
+
+    private MudForm? _form;
+    private List<SupplierDto> _suppliers = new();
+    private List<WarehouseDto> _warehouses = new();
+    private List<ItemDto> _items = new();
+    private List<LineEditor> _lines = new();
+
+    private Guid _supplierId;
+    private Guid _warehouseId;
+    private int _invoiceType = 1;
+    private DateTime? _invoiceDate = DateTime.Today;
+    private string? _note;
+    private string? _error;
+
+    private decimal _total => Math.Round(_lines.Sum(l => l.Quantity * l.UnitCost), 2);
+
+    protected override async Task OnInitializedAsync()
+    {
+        _suppliers = await SupplierService.GetAllAsync();
+        _warehouses = await WarehouseService.GetAllAsync();
+        _items = await ItemService.GetAllAsync();
+
+        _supplierId = _suppliers.FirstOrDefault(s => s.IsActive)?.Id ?? Guid.Empty;
+        _warehouseId = _warehouses.FirstOrDefault(w => w.IsDefault)?.Id
+                       ?? _warehouses.FirstOrDefault()?.Id
+                       ?? Guid.Empty;
+
+        AddLine();
+    }
+
+    private void AddLine() => _lines.Add(new LineEditor());
+
+    private void RemoveLine(LineEditor line)
+    {
+        if (_lines.Count > 1) _lines.Remove(line);
+    }
+
+    private Task OnLineItemChanged(LineEditor line, Guid id)
+    {
+        line.ItemId = id;
+        var item = _items.FirstOrDefault(i => i.Id == id);
+        if (item is not null) line.UnitCost = item.CostPrice;
+        return Task.CompletedTask;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = "اختر الصنف لكل بند."; return; }
+        if (_lines.Any(l => l.Quantity <= 0)) { _error = "الكمية يجب أن تكون أكبر من صفر."; return; }
+
+        _error = null;
+        try
+        {
+            await InvoiceService.CreateAsync(new CreatePurchaseInvoiceDto
+            {
+                SupplierId = _supplierId,
+                WarehouseId = _warehouseId,
+                InvoiceDate = _invoiceDate ?? DateTime.Today,
+                InvoiceType = _invoiceType,
+                Note = _note,
+                Lines = _lines.Select(l => new CreatePurchaseInvoiceLineDto
+                {
+                    ItemId = l.ItemId,
+                    Quantity = l.Quantity,
+                    UnitCost = l.UnitCost
+                }).ToList()
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}
+

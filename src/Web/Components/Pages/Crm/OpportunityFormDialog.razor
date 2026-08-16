@@ -1,0 +1,133 @@
+@* نموذج حوار لإضافة/تعديل فرصة بيعية *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_title" Label="@Loc["Title"]" Required="true"
+                                  RequiredError="@Loc["RequiredField"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_customerId" Label="@Loc["Customer"]" T="Guid?"
+                               Variant="Variant.Outlined" Clearable="true">
+                        @foreach (var c in Customers)
+                        {
+                            <MudSelectItem T="Guid?" Value="@c.Id">@($"{c.Code} - {c.NameAr}")</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_leadId" Label="@Loc["Lead"]" T="Guid?"
+                               Variant="Variant.Outlined" Clearable="true">
+                        @foreach (var l in Leads)
+                        {
+                            <MudSelectItem T="Guid?" Value="@l.Id">@($"{l.Code} - {l.NameAr}")</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_stage" Label="@Loc["OpportunityStage"]" T="int" Variant="Variant.Outlined">
+                        <MudSelectItem Value="1">@Loc["StageProspecting"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["StageQualification"]</MudSelectItem>
+                        <MudSelectItem Value="3">@Loc["StageProposal"]</MudSelectItem>
+                        <MudSelectItem Value="4">@Loc["StageNegotiation"]</MudSelectItem>
+                        <MudSelectItem Value="5">@Loc["StageWon"]</MudSelectItem>
+                        <MudSelectItem Value="6">@Loc["StageLost"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField T="decimal" @bind-Value="_expectedValue" Label="@Loc["ExpectedValue"]"
+                                     Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_expectedCloseDate" Label="@Loc["ExpectedCloseDate"]"
+                                   Variant="Variant.Outlined" Clearable="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_notes" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditOpportunity is null ? Loc["Add"] : Loc["Edit"])
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IOpportunityService OpportunityService { get; set; } = default!;
+    [Parameter] public List<CustomerDto> Customers { get; set; } = new();
+    [Parameter] public List<LeadDto> Leads { get; set; } = new();
+    [Parameter] public OpportunityDto? EditOpportunity { get; set; }
+
+    private MudForm? _form;
+    private string _title = string.Empty;
+    private Guid? _customerId;
+    private Guid? _leadId;
+    private int _stage = 1;
+    private decimal _expectedValue;
+    private DateTime? _expectedCloseDate;
+    private string? _notes;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditOpportunity is not null)
+        {
+            _title = EditOpportunity.Title;
+            _customerId = EditOpportunity.CustomerId;
+            _leadId = EditOpportunity.LeadId;
+            _stage = EditOpportunity.Stage;
+            _expectedValue = EditOpportunity.ExpectedValue;
+            _expectedCloseDate = EditOpportunity.ExpectedCloseDate;
+            _notes = EditOpportunity.Notes;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditOpportunity is null)
+            {
+                await OpportunityService.CreateAsync(new CreateOpportunityDto
+                {
+                    Title = _title, CustomerId = _customerId, LeadId = _leadId,
+                    Stage = _stage, ExpectedValue = _expectedValue,
+                    ExpectedCloseDate = _expectedCloseDate, Notes = _notes
+                });
+            }
+            else
+            {
+                await OpportunityService.UpdateAsync(new UpdateOpportunityDto
+                {
+                    Id = EditOpportunity.Id, Title = _title, CustomerId = _customerId, LeadId = _leadId,
+                    Stage = _stage, ExpectedValue = _expectedValue,
+                    ExpectedCloseDate = _expectedCloseDate, Notes = _notes
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

@@ -1,0 +1,93 @@
+@* حوار كشف حساب مورد (فواتير ومردودات برصيد جارٍ) *@
+
+<MudDialog>
+    <DialogContent>
+        <MudGrid>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="_from" Label="من تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudDatePicker @bind-Date="_to" Label="إلى تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+            </MudItem>
+        </MudGrid>
+
+        <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="LoadAsync" Class="mt-2">
+            عرض الكشف
+        </MudButton>
+
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mt-3">@_error</MudAlert>
+        }
+        else if (_isLoading)
+        {
+            <MudProgressLinear Indeterminate="true" Class="my-4" />
+        }
+        else if (_statement is not null)
+        {
+            <MudText Typo="Typo.subtitle1" Class="mt-4">
+                @_statement.SupplierCode - @_statement.SupplierName
+            </MudText>
+
+            <MudTable Items="_statement.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-2">
+                <HeaderContent>
+                    <MudTh>التاريخ</MudTh>
+                    <MudTh>المستند</MudTh>
+                    <MudTh>النوع</MudTh>
+                    <MudTh>مدين</MudTh>
+                    <MudTh>دائن</MudTh>
+                    <MudTh>الرصيد</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Date.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd>@context.DocumentNumber</MudTd>
+                    <MudTd>@context.TypeNameAr</MudTd>
+                    <MudTd>@context.Debit.ToString("N2")</MudTd>
+                    <MudTd>@context.Credit.ToString("N2")</MudTd>
+                    <MudTd>@context.Balance.ToString("N2")</MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudText Typo="Typo.body2" Class="mt-3">
+                إجمالي مدين: <strong>@_statement.TotalDebit.ToString("N2")</strong> —
+                إجمالي دائن: <strong>@_statement.TotalCredit.ToString("N2")</strong> —
+                الرصيد المستحق: <strong>@_statement.ClosingBalance.ToString("N2")</strong>
+            </MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ISupplierService SupplierService { get; set; } = default!;
+    [Parameter] public SupplierDto Supplier { get; set; } = default!;
+
+    private DateTime? _from = DateTime.Today.AddMonths(-1);
+    private DateTime? _to = DateTime.Today;
+    private bool _isLoading;
+    private SupplierStatementDto? _statement;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _error = null;
+        try
+        {
+            _statement = await SupplierService.GetStatementAsync(
+                Supplier.Id,
+                _from ?? DateTime.Today.AddMonths(-1),
+                _to ?? DateTime.Today);
+        }
+        catch (Exception ex) { _error = ex.Message; _statement = null; }
+        finally { _isLoading = false; }
+    }
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

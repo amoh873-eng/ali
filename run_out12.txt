@@ -1,0 +1,1821 @@
+Using launch settings from src\Web\Properties\launchSettings.json...
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Supplier' has a global query filter defined and is the required end of a relationship with the entity 'PurchaseOrder'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Item' has a global query filter defined and is the required end of a relationship with the entity 'PurchaseOrderLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Customer' has a global query filter defined and is the required end of a relationship with the entity 'SalesQuote'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Item' has a global query filter defined and is the required end of a relationship with the entity 'SalesQuoteLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Warehouse' has a global query filter defined and is the required end of a relationship with the entity 'StockCount'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[10622]
+      Entity 'Item' has a global query filter defined and is the required end of a relationship with the entity 'StockCountLine'. This may lead to unexpected results when the required entity is filtered out. Either configure the navigation as optional, or define matching query filters for both entities in the navigation. See https://go.microsoft.com/fwlink/?linkid=2131316 for more information.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'DiscountAmount' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'DiscountPercentage' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'SubTotal' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TaxAmount' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TaxRate' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TotalAmount' on entity type 'PurchaseOrder'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'LineTotal' on entity type 'PurchaseOrderLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'Quantity' on entity type 'PurchaseOrderLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'UnitPrice' on entity type 'PurchaseOrderLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'DiscountAmount' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'DiscountPercentage' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'SubTotal' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TaxAmount' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TaxRate' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'TotalAmount' on entity type 'SalesQuote'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'LineTotal' on entity type 'SalesQuoteLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'Quantity' on entity type 'SalesQuoteLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'UnitPrice' on entity type 'SalesQuoteLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'CountedQuantity' on entity type 'StockCountLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'Difference' on entity type 'StockCountLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+warn: Microsoft.EntityFrameworkCore.Model.Validation[30000]
+      No store type was specified for the decimal property 'SystemQuantity' on entity type 'StockCountLine'. This will cause values to be silently truncated if they do not fit in the default precision and scale. Explicitly specify the SQL server column type that can accommodate all the values in 'OnModelCreating' using 'HasColumnType', specify precision and scale using 'HasPrecision', or configure a value converter using 'HasConversion'.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (29ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Migrations[20411]
+      Acquiring an exclusive lock for migration application. See https://aka.ms/efcore-docs-migrations-lock for more information if this takes too long.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (36ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_getapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session', @LockMode = 'Exclusive';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      IF OBJECT_ID(N'[__EFMigrationsHistory]') IS NULL
+      BEGIN
+          CREATE TABLE [__EFMigrationsHistory] (
+              [MigrationId] nvarchar(150) NOT NULL,
+              [ProductVersion] nvarchar(32) NOT NULL,
+              CONSTRAINT [PK___EFMigrationsHistory] PRIMARY KEY ([MigrationId])
+          );
+      END;
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT 1
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT OBJECT_ID(N'[__EFMigrationsHistory]');
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [MigrationId], [ProductVersion]
+      FROM [__EFMigrationsHistory]
+      ORDER BY [MigrationId];
+info: Microsoft.EntityFrameworkCore.Migrations[20405]
+      No migrations were applied. The database is already up to date.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      DECLARE @result int;
+      EXEC @result = sp_releaseapplock @Resource = '__EFMigrationsLock', @LockOwner = 'Session';
+      SELECT @result
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (579ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@normalizedEmail='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(2) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedEmail] = @normalizedEmail
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (0ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@d_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Departments] AS [d]
+              WHERE [d].[IsDeleted] = CAST(0 AS bit) AND [d].[Code] = @d_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@p_Item2='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT CASE
+          WHEN EXISTS (
+              SELECT 1
+              FROM [Positions] AS [p]
+              WHERE [p].[IsDeleted] = CAST(0 AS bit) AND [p].[Code] = @p_Item2) THEN CAST(1 AS bit)
+          ELSE CAST(0 AS bit)
+      END
+info: Microsoft.Hosting.Lifetime[14]
+      Now listening on: http://localhost:5186
+info: Microsoft.Hosting.Lifetime[0]
+      Application started. Press Ctrl+C to shut down.
+info: Microsoft.Hosting.Lifetime[0]
+      Hosting environment: Development
+info: Microsoft.Hosting.Lifetime[0]
+      Content root path: D:\ERPSystem\src\Web
+warn: Microsoft.AspNetCore.HttpsPolicy.HttpsRedirectionMiddleware[3]
+      Failed to determine the https port for redirect.
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (37ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (98ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (119ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (49ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (62ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (24ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (23ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (39ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (31ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (19ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (27ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (30ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (45ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (44ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (26ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (26ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (7ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (9ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (3ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@dto_CustomerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit) AND [c].[Id] = @dto_CustomerId AND [c].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@dto_WarehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit) AND [w].[Id] = @dto_WarehouseId AND [w].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@distinctItemIds1='?' (DbType = Guid), @distinctItemIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy]
+      FROM [Items] AS [i]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit) AND [i].[Id] IN (@distinctItemIds1, @distinctItemIds2) AND [i].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@itemId='?' (DbType = Guid), @warehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COALESCE(SUM([s].[Quantity]), 0.0)
+      FROM [StockMovements] AS [s]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s].[ItemId] = @itemId AND [s].[WarehouseId] = @warehouseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@dto_CustomerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit) AND [c].[Id] = @dto_CustomerId AND [c].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@dto_WarehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit) AND [w].[Id] = @dto_WarehouseId AND [w].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@distinctItemIds1='?' (DbType = Guid), @distinctItemIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy]
+      FROM [Items] AS [i]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit) AND [i].[Id] IN (@distinctItemIds1, @distinctItemIds2) AND [i].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@itemId='?' (DbType = Guid), @warehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COALESCE(SUM([s].[Quantity]), 0.0)
+      FROM [StockMovements] AS [s]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s].[ItemId] = @itemId AND [s].[WarehouseId] = @warehouseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (2ms) [Parameters=[@dto_CustomerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit) AND [c].[Id] = @dto_CustomerId AND [c].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@dto_WarehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit) AND [w].[Id] = @dto_WarehouseId AND [w].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@distinctItemIds1='?' (DbType = Guid), @distinctItemIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy]
+      FROM [Items] AS [i]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit) AND [i].[Id] IN (@distinctItemIds1, @distinctItemIds2) AND [i].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@itemId='?' (DbType = Guid), @warehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COALESCE(SUM([s].[Quantity]), 0.0)
+      FROM [StockMovements] AS [s]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s].[ItemId] = @itemId AND [s].[WarehouseId] = @warehouseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (35ms) [Parameters=[@dto_CustomerId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit) AND [c].[Id] = @dto_CustomerId AND [c].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@dto_WarehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit) AND [w].[Id] = @dto_WarehouseId AND [w].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@distinctItemIds1='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy]
+      FROM [Items] AS [i]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit) AND [i].[Id] = @distinctItemIds1 AND [i].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[@itemId='?' (DbType = Guid), @warehouseId='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT COALESCE(SUM([s].[Quantity]), 0.0)
+      FROM [StockMovements] AS [s]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit) AND [s].[ItemId] = @itemId AND [s].[WarehouseId] = @warehouseId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@code='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Code] = @code AND [a].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Code] = @code AND [a].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Code] = @code AND [a].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@accountIds1='?' (DbType = Guid), @accountIds2='?' (DbType = Guid), @accountIds3='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] IN (@accountIds1, @accountIds2, @accountIds3)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Code] = @code AND [a].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (1ms) [Parameters=[@code='?' (Size = 20)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Code] = @code AND [a].[IsDeleted] = CAST(0 AS bit)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@accountIds1='?' (DbType = Guid), @accountIds2='?' (DbType = Guid)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[Id], [a].[AccountType], [a].[Code], [a].[CreatedAt], [a].[CreatedBy], [a].[CurrentBalance], [a].[Description], [a].[HierarchyPath], [a].[IsActive], [a].[IsDeleted], [a].[IsSystem], [a].[Level], [a].[NameAr], [a].[NameEn], [a].[NormalBalance], [a].[ParentAccountId], [a].[UpdatedAt], [a].[UpdatedBy]
+      FROM [Accounts] AS [a]
+      WHERE [a].[IsDeleted] = CAST(0 AS bit) AND [a].[Id] IN (@accountIds1, @accountIds2)
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (151ms) [Parameters=[@p1='?' (DbType = Guid), @p0='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p3='?' (DbType = Guid), @p2='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p5='?' (DbType = Guid), @p4='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p7='?' (DbType = Guid), @p6='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p9='?' (DbType = Guid), @p8='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p12='?' (DbType = Guid), @p10='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p11='?' (DbType = DateTime2), @p15='?' (DbType = Guid), @p13='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p14='?' (DbType = DateTime2), @p16='?' (DbType = Guid), @p17='?' (DbType = DateTime2), @p18='?' (Size = 100), @p19='?' (Size = 500), @p20='?' (DbType = DateTime2), @p21='?' (Size = 50), @p22='?' (DbType = Int32), @p23='?' (DbType = Boolean), @p24='?' (Size = 100), @p25='?' (DbType = DateTime2), @p26='?' (Size = 100), @p27='?' (DbType = Guid), @p28='?' (DbType = DateTime2), @p29='?' (Size = 100), @p30='?' (Size = 500), @p31='?' (DbType = DateTime2), @p32='?' (Size = 50), @p33='?' (DbType = Int32), @p34='?' (DbType = Boolean), @p35='?' (Size = 100), @p36='?' (DbType = DateTime2), @p37='?' (Size = 100), @p38='?' (DbType = Guid), @p39='?' (DbType = Guid), @p40='?' (DbType = DateTime2), @p41='?' (Size = 100), @p42='?' (DbType = Guid), @p43='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p44='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p45='?' (DbType = DateTime2), @p46='?' (Size = 50), @p47='?' (DbType = Int32), @p48='?' (DbType = Boolean), @p49='?' (DbType = Boolean), @p50='?' (Size = 1000), @p51='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p52='?' (DbType = Guid), @p53='?' (DbType = Int32), @p54='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p55='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p56='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p57='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p58='?' (DbType = DateTime2), @p59='?' (Size = 100), @p60='?' (DbType = Guid), @p61='?' (DbType = Guid), @p62='?' (DbType = Guid), @p63='?' (DbType = DateTime2), @p64='?' (Size = 100), @p65='?' (DbType = Guid), @p66='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p67='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p68='?' (DbType = DateTime2), @p69='?' (Size = 50), @p70='?' (DbType = Int32), @p71='?' (DbType = Boolean), @p72='?' (DbType = Boolean), @p73='?' (Size = 1000), @p74='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p75='?' (DbType = Guid), @p76='?' (DbType = Int32), @p77='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p78='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p79='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p80='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p81='?' (DbType = DateTime2), @p82='?' (Size = 100), @p83='?' (DbType = Guid), @p84='?' (DbType = Guid), @p85='?' (DbType = Guid), @p86='?' (DbType = DateTime2), @p87='?' (Size = 100), @p88='?' (DbType = Guid), @p89='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p90='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p91='?' (DbType = DateTime2), @p92='?' (Size = 50), @p93='?' (DbType = Int32), @p94='?' (DbType = Boolean), @p95='?' (DbType = Boolean), @p96='?' (Size = 1000), @p97='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p98='?' (DbType = Guid), @p99='?' (DbType = Int32), @p100='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p101='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p102='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p103='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p104='?' (DbType = DateTime2), @p105='?' (Size = 100), @p106='?' (DbType = Guid), @p107='?' (DbType = Guid), @p108='?' (DbType = DateTime2), @p109='?' (Size = 100), @p110='?' (DbType = Boolean), @p111='?' (DbType = Guid), @p112='?' (DbType = DateTime2), @p113='?' (DbType = Int32), @p114='?' (Size = 500), @p115='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p116='?' (Size = 50), @p117='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p118='?' (DbType = DateTime2), @p119='?' (Size = 100), @p120='?' (DbType = Guid), @p121='?' (DbType = Guid), @p122='?' (DbType = Guid), @p123='?' (DbType = DateTime2), @p124='?' (Size = 100), @p125='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p126='?' (DbType = Boolean), @p127='?' (DbType = Guid), @p128='?' (Size = 500), @p129='?' (DbType = DateTime2), @p130='?' (Size = 100), @p131='?' (DbType = Guid), @p132='?' (DbType = Guid), @p133='?' (DbType = DateTime2), @p134='?' (Size = 100), @p135='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p136='?' (DbType = Boolean), @p137='?' (DbType = Guid), @p138='?' (Size = 500), @p139='?' (DbType = DateTime2), @p140='?' (Size = 100), @p141='?' (DbType = Guid), @p142='?' (DbType = Guid), @p143='?' (DbType = DateTime2), @p144='?' (Size = 100), @p145='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p146='?' (DbType = Boolean), @p147='?' (DbType = Guid), @p148='?' (Size = 500), @p149='?' (DbType = DateTime2), @p150='?' (Size = 100), @p151='?' (DbType = Guid), @p152='?' (DbType = Guid), @p153='?' (DbType = DateTime2), @p154='?' (Size = 100), @p155='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p156='?' (DbType = Boolean), @p157='?' (DbType = Guid), @p158='?' (Size = 500), @p159='?' (DbType = DateTime2), @p160='?' (Size = 100), @p161='?' (DbType = Guid), @p162='?' (DbType = Guid), @p163='?' (DbType = DateTime2), @p164='?' (Size = 100), @p165='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p166='?' (DbType = Boolean), @p167='?' (DbType = Guid), @p168='?' (Size = 500), @p169='?' (DbType = DateTime2), @p170='?' (Size = 100), @p171='?' (DbType = Guid), @p172='?' (DbType = DateTime2), @p173='?' (Size = 100), @p174='?' (DbType = Boolean), @p175='?' (DbType = Guid), @p176='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p177='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p178='?' (DbType = Guid), @p179='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p180='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p181='?' (DbType = DateTime2), @p182='?' (Size = 100), @p183='?' (DbType = Guid), @p184='?' (DbType = DateTime2), @p185='?' (Size = 100), @p186='?' (DbType = Boolean), @p187='?' (DbType = Guid), @p188='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p189='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p190='?' (DbType = Guid), @p191='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p192='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p193='?' (DbType = DateTime2), @p194='?' (Size = 100), @p195='?' (DbType = Guid), @p196='?' (DbType = DateTime2), @p197='?' (Size = 100), @p198='?' (DbType = Boolean), @p199='?' (DbType = Guid), @p200='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p201='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p202='?' (DbType = Guid), @p203='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p204='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p205='?' (DbType = DateTime2), @p206='?' (Size = 100), @p207='?' (DbType = Guid), @p208='?' (DbType = DateTime2), @p209='?' (Size = 100), @p210='?' (DbType = Boolean), @p211='?' (DbType = Guid), @p212='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p213='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p214='?' (DbType = Guid), @p215='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p216='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p217='?' (DbType = DateTime2), @p218='?' (Size = 100), @p219='?' (DbType = Guid), @p220='?' (DbType = DateTime2), @p221='?' (Size = 100), @p222='?' (DbType = Boolean), @p223='?' (DbType = Guid), @p224='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p225='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p226='?' (DbType = Guid), @p227='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p228='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p229='?' (DbType = DateTime2), @p230='?' (Size = 100), @p231='?' (DbType = Guid), @p232='?' (DbType = DateTime2), @p233='?' (Size = 100), @p234='?' (DbType = Boolean), @p235='?' (DbType = Guid), @p236='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p237='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p238='?' (DbType = Guid), @p239='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p240='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p241='?' (DbType = DateTime2), @p242='?' (Size = 100), @p243='?' (DbType = Guid), @p244='?' (DbType = Guid), @p245='?' (DbType = DateTime2), @p246='?' (Size = 100), @p247='?' (DbType = Guid), @p248='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p249='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p250='?' (DbType = DateTime2), @p251='?' (Size = 50), @p252='?' (DbType = Int32), @p253='?' (DbType = Boolean), @p254='?' (DbType = Boolean), @p255='?' (Size = 1000), @p256='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p257='?' (DbType = Guid), @p258='?' (DbType = Int32), @p259='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p260='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p261='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p262='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p263='?' (DbType = DateTime2), @p264='?' (Size = 100), @p265='?' (DbType = Guid), @p266='?' (DbType = Guid), @p267='?' (DbType = DateTime2), @p268='?' (Size = 100), @p269='?' (DbType = Boolean), @p270='?' (DbType = Guid), @p271='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p272='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p273='?' (DbType = Guid), @p274='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p275='?' (Precision = 18) (Scale = 2) (DbType = Decimal), @p276='?' (DbType = DateTime2), @p277='?' (Size = 100)], CommandType='Text', CommandTimeout='30']
+      SET NOCOUNT ON;
+      UPDATE [Accounts] SET [CurrentBalance] = @p0
+      OUTPUT 1
+      WHERE [Id] = @p1;
+      UPDATE [Accounts] SET [CurrentBalance] = @p2
+      OUTPUT 1
+      WHERE [Id] = @p3;
+      UPDATE [Accounts] SET [CurrentBalance] = @p4
+      OUTPUT 1
+      WHERE [Id] = @p5;
+      UPDATE [Accounts] SET [CurrentBalance] = @p6
+      OUTPUT 1
+      WHERE [Id] = @p7;
+      UPDATE [Accounts] SET [CurrentBalance] = @p8
+      OUTPUT 1
+      WHERE [Id] = @p9;
+      UPDATE [Customers] SET [CurrentBalance] = @p10, [UpdatedAt] = @p11
+      OUTPUT 1
+      WHERE [Id] = @p12;
+      UPDATE [Items] SET [CurrentStock] = @p13, [UpdatedAt] = @p14
+      OUTPUT 1
+      WHERE [Id] = @p15;
+      INSERT INTO [JournalEntries] ([Id], [CreatedAt], [CreatedBy], [Description], [EntryDate], [EntryNumber], [EntryType], [IsDeleted], [ReferenceNumber], [UpdatedAt], [UpdatedBy])
+      VALUES (@p16, @p17, @p18, @p19, @p20, @p21, @p22, @p23, @p24, @p25, @p26),
+      (@p27, @p28, @p29, @p30, @p31, @p32, @p33, @p34, @p35, @p36, @p37);
+      INSERT INTO [SalesInvoices] ([Id], [CogsJournalEntryId], [CreatedAt], [CreatedBy], [CustomerId], [DiscountAmount], [DiscountPercentage], [InvoiceDate], [InvoiceNumber], [InvoiceType], [IsDeleted], [IsPos], [Note], [PaidAmount], [SalesJournalEntryId], [Status], [SubTotal], [TaxAmount], [TaxRate], [TotalAmount], [UpdatedAt], [UpdatedBy], [WarehouseId])
+      VALUES (@p38, @p39, @p40, @p41, @p42, @p43, @p44, @p45, @p46, @p47, @p48, @p49, @p50, @p51, @p52, @p53, @p54, @p55, @p56, @p57, @p58, @p59, @p60),
+      (@p61, @p62, @p63, @p64, @p65, @p66, @p67, @p68, @p69, @p70, @p71, @p72, @p73, @p74, @p75, @p76, @p77, @p78, @p79, @p80, @p81, @p82, @p83),
+      (@p84, @p85, @p86, @p87, @p88, @p89, @p90, @p91, @p92, @p93, @p94, @p95, @p96, @p97, @p98, @p99, @p100, @p101, @p102, @p103, @p104, @p105, @p106);
+      INSERT INTO [StockMovements] ([Id], [CreatedAt], [CreatedBy], [IsDeleted], [ItemId], [MovementDate], [MovementType], [Note], [Quantity], [ReferenceNumber], [UnitCost], [UpdatedAt], [UpdatedBy], [WarehouseId])
+      VALUES (@p107, @p108, @p109, @p110, @p111, @p112, @p113, @p114, @p115, @p116, @p117, @p118, @p119, @p120);
+      INSERT INTO [JournalEntryLines] ([Id], [AccountId], [CreatedAt], [CreatedBy], [DebitAmount], [IsDeleted], [JournalEntryId], [Note], [UpdatedAt], [UpdatedBy])
+      OUTPUT INSERTED.[CreditAmount]
+      VALUES (@p121, @p122, @p123, @p124, @p125, @p126, @p127, @p128, @p129, @p130);
+      MERGE [JournalEntryLines] USING (
+      VALUES (@p131, @p132, @p133, @p134, @p135, @p136, @p137, @p138, @p139, @p140, 0),
+      (@p141, @p142, @p143, @p144, @p145, @p146, @p147, @p148, @p149, @p150, 1)) AS i ([Id], [AccountId], [CreatedAt], [CreatedBy], [CreditAmount], [IsDeleted], [JournalEntryId], [Note], [UpdatedAt], [UpdatedBy], _Position) ON 1=0
+      WHEN NOT MATCHED THEN
+      INSERT ([Id], [AccountId], [CreatedAt], [CreatedBy], [CreditAmount], [IsDeleted], [JournalEntryId], [Note], [UpdatedAt], [UpdatedBy])
+      VALUES (i.[Id], i.[AccountId], i.[CreatedAt], i.[CreatedBy], i.[CreditAmount], i.[IsDeleted], i.[JournalEntryId], i.[Note], i.[UpdatedAt], i.[UpdatedBy])
+      OUTPUT INSERTED.[DebitAmount], i._Position;
+      INSERT INTO [JournalEntryLines] ([Id], [AccountId], [CreatedAt], [CreatedBy], [DebitAmount], [IsDeleted], [JournalEntryId], [Note], [UpdatedAt], [UpdatedBy])
+      OUTPUT INSERTED.[CreditAmount]
+      VALUES (@p151, @p152, @p153, @p154, @p155, @p156, @p157, @p158, @p159, @p160);
+      INSERT INTO [JournalEntryLines] ([Id], [AccountId], [CreatedAt], [CreatedBy], [CreditAmount], [IsDeleted], [JournalEntryId], [Note], [UpdatedAt], [UpdatedBy])
+      OUTPUT INSERTED.[DebitAmount]
+      VALUES (@p161, @p162, @p163, @p164, @p165, @p166, @p167, @p168, @p169, @p170);
+      INSERT INTO [SalesInvoiceLines] ([Id], [CreatedAt], [CreatedBy], [IsDeleted], [ItemId], [LineTotal], [Quantity], [SalesInvoiceId], [UnitCost], [UnitPrice], [UpdatedAt], [UpdatedBy])
+      VALUES (@p171, @p172, @p173, @p174, @p175, @p176, @p177, @p178, @p179, @p180, @p181, @p182),
+      (@p183, @p184, @p185, @p186, @p187, @p188, @p189, @p190, @p191, @p192, @p193, @p194),
+      (@p195, @p196, @p197, @p198, @p199, @p200, @p201, @p202, @p203, @p204, @p205, @p206),
+      (@p207, @p208, @p209, @p210, @p211, @p212, @p213, @p214, @p215, @p216, @p217, @p218),
+      (@p219, @p220, @p221, @p222, @p223, @p224, @p225, @p226, @p227, @p228, @p229, @p230),
+      (@p231, @p232, @p233, @p234, @p235, @p236, @p237, @p238, @p239, @p240, @p241, @p242);
+      INSERT INTO [SalesInvoices] ([Id], [CogsJournalEntryId], [CreatedAt], [CreatedBy], [CustomerId], [DiscountAmount], [DiscountPercentage], [InvoiceDate], [InvoiceNumber], [InvoiceType], [IsDeleted], [IsPos], [Note], [PaidAmount], [SalesJournalEntryId], [Status], [SubTotal], [TaxAmount], [TaxRate], [TotalAmount], [UpdatedAt], [UpdatedBy], [WarehouseId])
+      VALUES (@p243, @p244, @p245, @p246, @p247, @p248, @p249, @p250, @p251, @p252, @p253, @p254, @p255, @p256, @p257, @p258, @p259, @p260, @p261, @p262, @p263, @p264, @p265);
+      INSERT INTO [SalesInvoiceLines] ([Id], [CreatedAt], [CreatedBy], [IsDeleted], [ItemId], [LineTotal], [Quantity], [SalesInvoiceId], [UnitCost], [UnitPrice], [UpdatedAt], [UpdatedBy])
+      VALUES (@p266, @p267, @p268, @p269, @p270, @p271, @p272, @p273, @p274, @p275, @p276, @p277);
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (31ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (5ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (8ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (239ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (276ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (112ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (229ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (100ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (75ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (50ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (74ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (28ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (31ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (33ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (42ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (42ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (22ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (55ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (118ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (21ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (161ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (162ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (166ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (179ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (67ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (57ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (83ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (96ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (46ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (69ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (166ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (170ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (137ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (40ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (187ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (16ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (14ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (26ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (154ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (29ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (18ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (4ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (186ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (11ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (15ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (463ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (229ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Categories] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (76ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+      FROM [Customers] AS [c]
+      WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [c].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (106ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+      FROM [Warehouses] AS [w]
+      WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [w].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (70ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (32ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (12ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (205ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy], [c0].[Id], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[Description], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[ParentCategoryId], [c0].[UpdatedAt], [c0].[UpdatedBy], [u0].[Id], [u0].[Code], [u0].[CreatedAt], [u0].[CreatedBy], [u0].[IsActive], [u0].[IsDeleted], [u0].[IsSystem], [u0].[NameAr], [u0].[NameEn], [u0].[UpdatedAt], [u0].[UpdatedBy]
+      FROM [Items] AS [i]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[Description], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[ParentCategoryId], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Categories] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [i].[CategoryId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [u].[Id], [u].[Code], [u].[CreatedAt], [u].[CreatedBy], [u].[IsActive], [u].[IsDeleted], [u].[IsSystem], [u].[NameAr], [u].[NameEn], [u].[UpdatedAt], [u].[UpdatedBy]
+          FROM [Units] AS [u]
+          WHERE [u].[IsDeleted] = CAST(0 AS bit)
+      ) AS [u0] ON [i].[UnitId] = [u0].[Id]
+      WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [i].[Code]
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (84ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CogsJournalEntryId], [s].[CreatedAt], [s].[CreatedBy], [s].[CustomerId], [s].[DiscountAmount], [s].[DiscountPercentage], [s].[InvoiceDate], [s].[InvoiceNumber], [s].[InvoiceType], [s].[IsDeleted], [s].[IsPos], [s].[Note], [s].[PaidAmount], [s].[SalesJournalEntryId], [s].[Status], [s].[SubTotal], [s].[TaxAmount], [s].[TaxRate], [s].[TotalAmount], [s].[UpdatedAt], [s].[UpdatedBy], [s].[WarehouseId], [c0].[Id], [c0].[Address], [c0].[Code], [c0].[CreatedAt], [c0].[CreatedBy], [c0].[CreditLimit], [c0].[CurrentBalance], [c0].[Email], [c0].[IsActive], [c0].[IsDeleted], [c0].[IsSystem], [c0].[NameAr], [c0].[NameEn], [c0].[Notes], [c0].[Phone], [c0].[TaxNumber], [c0].[UpdatedAt], [c0].[UpdatedBy], [w0].[Id], [w0].[Code], [w0].[CreatedAt], [w0].[CreatedBy], [w0].[IsActive], [w0].[IsDefault], [w0].[IsDeleted], [w0].[IsSystem], [w0].[Location], [w0].[NameAr], [w0].[NameEn], [w0].[UpdatedAt], [w0].[UpdatedBy]
+      FROM [SalesInvoices] AS [s]
+      INNER JOIN (
+          SELECT [c].[Id], [c].[Address], [c].[Code], [c].[CreatedAt], [c].[CreatedBy], [c].[CreditLimit], [c].[CurrentBalance], [c].[Email], [c].[IsActive], [c].[IsDeleted], [c].[IsSystem], [c].[NameAr], [c].[NameEn], [c].[Notes], [c].[Phone], [c].[TaxNumber], [c].[UpdatedAt], [c].[UpdatedBy]
+          FROM [Customers] AS [c]
+          WHERE [c].[IsDeleted] = CAST(0 AS bit)
+      ) AS [c0] ON [s].[CustomerId] = [c0].[Id]
+      INNER JOIN (
+          SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+          FROM [Warehouses] AS [w]
+          WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ) AS [w0] ON [s].[WarehouseId] = [w0].[Id]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [s].[InvoiceDate] DESC, [s].[CreatedAt] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (497ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [p].[Id], [p].[CreatedAt], [p].[CreatedBy], [p].[InvoiceDate], [p].[InvoiceNumber], [p].[InvoiceType], [p].[IsDeleted], [p].[JournalEntryId], [p].[Note], [p].[PaidAmount], [p].[Status], [p].[SubTotal], [p].[SupplierId], [p].[TotalAmount], [p].[UpdatedAt], [p].[UpdatedBy], [p].[WarehouseId], [s0].[Id], [s0].[Address], [s0].[Code], [s0].[CreatedAt], [s0].[CreatedBy], [s0].[CreditLimit], [s0].[CurrentBalance], [s0].[Email], [s0].[IsActive], [s0].[IsDeleted], [s0].[IsSystem], [s0].[NameAr], [s0].[NameEn], [s0].[Notes], [s0].[Phone], [s0].[TaxNumber], [s0].[UpdatedAt], [s0].[UpdatedBy], [w0].[Id], [w0].[Code], [w0].[CreatedAt], [w0].[CreatedBy], [w0].[IsActive], [w0].[IsDefault], [w0].[IsDeleted], [w0].[IsSystem], [w0].[Location], [w0].[NameAr], [w0].[NameEn], [w0].[UpdatedAt], [w0].[UpdatedBy]
+      FROM [PurchaseInvoices] AS [p]
+      INNER JOIN (
+          SELECT [s].[Id], [s].[Address], [s].[Code], [s].[CreatedAt], [s].[CreatedBy], [s].[CreditLimit], [s].[CurrentBalance], [s].[Email], [s].[IsActive], [s].[IsDeleted], [s].[IsSystem], [s].[NameAr], [s].[NameEn], [s].[Notes], [s].[Phone], [s].[TaxNumber], [s].[UpdatedAt], [s].[UpdatedBy]
+          FROM [Suppliers] AS [s]
+          WHERE [s].[IsDeleted] = CAST(0 AS bit)
+      ) AS [s0] ON [p].[SupplierId] = [s0].[Id]
+      INNER JOIN (
+          SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+          FROM [Warehouses] AS [w]
+          WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ) AS [w0] ON [p].[WarehouseId] = [w0].[Id]
+      WHERE [p].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [p].[InvoiceDate] DESC, [p].[CreatedAt] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (204ms) [Parameters=[], CommandType='Text', CommandTimeout='30']
+      SELECT [s].[Id], [s].[CreatedAt], [s].[CreatedBy], [s].[IsDeleted], [s].[ItemId], [s].[MovementDate], [s].[MovementType], [s].[Note], [s].[Quantity], [s].[ReferenceNumber], [s].[UnitCost], [s].[UpdatedAt], [s].[UpdatedBy], [s].[WarehouseId], [i0].[Id], [i0].[Barcode], [i0].[CategoryId], [i0].[Code], [i0].[CostPrice], [i0].[CreatedAt], [i0].[CreatedBy], [i0].[CurrentStock], [i0].[Description], [i0].[IsActive], [i0].[IsDeleted], [i0].[IsSystem], [i0].[MaxStockLevel], [i0].[MinStockLevel], [i0].[NameAr], [i0].[NameEn], [i0].[SalePrice], [i0].[UnitId], [i0].[UpdatedAt], [i0].[UpdatedBy], [w0].[Id], [w0].[Code], [w0].[CreatedAt], [w0].[CreatedBy], [w0].[IsActive], [w0].[IsDefault], [w0].[IsDeleted], [w0].[IsSystem], [w0].[Location], [w0].[NameAr], [w0].[NameEn], [w0].[UpdatedAt], [w0].[UpdatedBy]
+      FROM [StockMovements] AS [s]
+      INNER JOIN (
+          SELECT [i].[Id], [i].[Barcode], [i].[CategoryId], [i].[Code], [i].[CostPrice], [i].[CreatedAt], [i].[CreatedBy], [i].[CurrentStock], [i].[Description], [i].[IsActive], [i].[IsDeleted], [i].[IsSystem], [i].[MaxStockLevel], [i].[MinStockLevel], [i].[NameAr], [i].[NameEn], [i].[SalePrice], [i].[UnitId], [i].[UpdatedAt], [i].[UpdatedBy]
+          FROM [Items] AS [i]
+          WHERE [i].[IsDeleted] = CAST(0 AS bit)
+      ) AS [i0] ON [s].[ItemId] = [i0].[Id]
+      INNER JOIN (
+          SELECT [w].[Id], [w].[Code], [w].[CreatedAt], [w].[CreatedBy], [w].[IsActive], [w].[IsDefault], [w].[IsDeleted], [w].[IsSystem], [w].[Location], [w].[NameAr], [w].[NameEn], [w].[UpdatedAt], [w].[UpdatedBy]
+          FROM [Warehouses] AS [w]
+          WHERE [w].[IsDeleted] = CAST(0 AS bit)
+      ) AS [w0] ON [s].[WarehouseId] = [w0].[Id]
+      WHERE [s].[IsDeleted] = CAST(0 AS bit)
+      ORDER BY [s].[MovementDate] DESC, [s].[CreatedAt] DESC
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (148ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (150ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (177ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (59ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (191ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (174ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (36ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (218ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (13ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (10ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (210ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (381ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (107ms) [Parameters=[@normalizedUserName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[AccessFailedCount], [a].[ConcurrencyStamp], [a].[Email], [a].[EmailConfirmed], [a].[LockoutEnabled], [a].[LockoutEnd], [a].[NormalizedEmail], [a].[NormalizedUserName], [a].[PasswordHash], [a].[PhoneNumber], [a].[PhoneNumberConfirmed], [a].[SecurityStamp], [a].[TwoFactorEnabled], [a].[UserName]
+      FROM [AspNetUsers] AS [a]
+      WHERE [a].[NormalizedUserName] = @normalizedUserName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (37ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (141ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (157ms) [Parameters=[@userId='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a0].[Name]
+      FROM [AspNetUserRoles] AS [a]
+      INNER JOIN [AspNetRoles] AS [a0] ON [a].[RoleId] = [a0].[Id]
+      WHERE [a].[UserId] = @userId
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (159ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (17ms) [Parameters=[@normalizedName='?' (Size = 256)], CommandType='Text', CommandTimeout='30']
+      SELECT TOP(1) [a].[Id], [a].[ConcurrencyStamp], [a].[Name], [a].[NormalizedName]
+      FROM [AspNetRoles] AS [a]
+      WHERE [a].[NormalizedName] = @normalizedName
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (6ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (20ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id
+info: Microsoft.EntityFrameworkCore.Database.Command[20101]
+      Executed DbCommand (24ms) [Parameters=[@role_Id='?' (Size = 450)], CommandType='Text', CommandTimeout='30']
+      SELECT [a].[ClaimType], [a].[ClaimValue]
+      FROM [AspNetRoleClaims] AS [a]
+      WHERE [a].[RoleId] = @role_Id

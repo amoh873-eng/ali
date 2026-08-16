@@ -1,0 +1,92 @@
+@* حوار تحويل عميل محتمل إلى عميل فعلي *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudText Typo="Typo.body2" Class="mb-3 muted-text">@Loc["ConvertLeadConfirm"]</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr" Label="@Loc["NameAr"]" Required="true"
+                                  RequiredError="@Loc["RequiredField"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn" Label="@Loc["NameEn"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_phone" Label="@Loc["Phone"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_email" Label="@Loc["Email"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_address" Label="@Loc["Address"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_taxNumber" Label="@Loc["TaxNumber"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_notes" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @Loc["ConvertToCustomer"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ILeadService LeadService { get; set; } = default!;
+    [Parameter] public LeadDto Lead { get; set; } = default!;
+
+    private MudForm? _form;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _phone;
+    private string? _email;
+    private string? _address;
+    private string? _taxNumber;
+    private string? _notes;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        _nameAr = Lead.NameAr;
+        _nameEn = Lead.NameEn;
+        _phone = Lead.Phone;
+        _email = Lead.Email;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            await LeadService.ConvertToCustomerAsync(new ConvertLeadDto
+            {
+                LeadId = Lead.Id, NameAr = _nameAr, NameEn = _nameEn, Phone = _phone,
+                Email = _email, Address = _address, TaxNumber = _taxNumber, Notes = _notes
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

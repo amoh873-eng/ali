@@ -1,0 +1,170 @@
+@* نموذج حوار لتسجيل حركة مخزون (وارد/صادر/تسوية/رصيد افتتاحي) *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudSelect Value="@_itemId"
+                               ValueChanged="OnItemChanged"
+                               Label="الصنف"
+                               Required="true"
+                               RequiredError="الصنف مطلوب"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var item in _items)
+                        {
+                            <MudSelectItem Value="@item.Id">
+                                @item.Code - @item.NameAr (الرصيد: @item.CurrentStock.ToString("N0"))
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_warehouseId"
+                               Label="المخزن"
+                               Required="true"
+                               RequiredError="المخزن مطلوب"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var warehouse in _warehouses)
+                        {
+                            <MudSelectItem Value="@warehouse.Id">@warehouse.Code - @warehouse.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_movementType"
+                               Label="نوع الحركة"
+                               Required="true"
+                               Variant="Variant.Outlined"
+                               T="int">
+                        <MudSelectItem Value="1">وارد مشتريات</MudSelectItem>
+                        <MudSelectItem Value="2">صادر مبيعات</MudSelectItem>
+                        <MudSelectItem Value="3">رصيد افتتاحي</MudSelectItem>
+                        <MudSelectItem Value="4">تسوية إضافة</MudSelectItem>
+                        <MudSelectItem Value="5">تسوية خصم</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_quantity"
+                                     Label="الكمية"
+                                     Required="true"
+                                     RequiredError="الكمية مطلوبة"
+                                     Variant="Variant.Outlined"
+                                     T="decimal" DecimalPlaces="2" Format="0.00" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_unitCost"
+                                     Label="تكلفة الوحدة"
+                                     Variant="Variant.Outlined"
+                                     T="decimal" DecimalPlaces="2" Format="0.00" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_movementDate"
+                                   Label="التاريخ"
+                                   Variant="Variant.Outlined"
+                                   T="DateTime?"
+                                   AutoClose="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_referenceNumber"
+                                  Label="رقم المرجع (فاتورة / أمر شراء)"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_note"
+                                  Label="ملاحظات"
+                                  Lines="2"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">تسجيل الحركة</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IStockMovementService MovementService { get; set; } = default!;
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+
+    private MudForm? _form;
+    private List<ItemDto> _items = new();
+    private List<WarehouseDto> _warehouses = new();
+
+    private Guid _itemId;
+    private Guid _warehouseId;
+    private int _movementType = 1;
+    private decimal _quantity;
+    private decimal _unitCost;
+    private DateTime? _movementDate = DateTime.Today;
+    private string? _referenceNumber;
+    private string? _note;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _items = await ItemService.GetAllAsync();
+        _warehouses = await WarehouseService.GetAllAsync();
+        _itemId = _items.FirstOrDefault()?.Id ?? Guid.Empty;
+        _warehouseId = _warehouses.FirstOrDefault(w => w.IsDefault)?.Id
+                       ?? _warehouses.FirstOrDefault()?.Id
+                       ?? Guid.Empty;
+    }
+
+    private Task OnItemChanged(Guid id)
+    {
+        _itemId = id;
+        var item = _items.FirstOrDefault(i => i.Id == id);
+        if (item is not null)
+            _unitCost = item.CostPrice;
+        return Task.CompletedTask;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            await MovementService.CreateAsync(new CreateStockMovementDto
+            {
+                ItemId = _itemId,
+                WarehouseId = _warehouseId,
+                MovementType = _movementType,
+                Quantity = _quantity,
+                UnitCost = _unitCost,
+                ReferenceNumber = _referenceNumber,
+                Note = _note,
+                MovementDate = _movementDate ?? DateTime.Today
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

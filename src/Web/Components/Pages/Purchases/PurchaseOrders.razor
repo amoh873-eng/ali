@@ -1,0 +1,139 @@
+@page "/purchases/orders"
+
+@* صفحة أوامر الشراء - قائمة أوامر الشراء مع إمكانية التحويل إلى فواتير مشتريات *@
+
+<PageTitle>أوامر الشراء - نظام ERP</PageTitle>
+
+<PageHeader Title="أوامر الشراء" Icon="@Icons.Material.Filled.BorderColor" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        أمر شراء جديد
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">إجمالي الأوامر: @_orders.Count</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_orders.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">
+            لا توجد أوامر شراء. اضغط "أمر شراء جديد" لإنشاء أول أمر.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_orders" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>رقم الأمر</MudTh>
+                <MudTh>المورد</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>الإجمالي</MudTh>
+                <MudTh>الحالة</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.OrderNumber</MudTd>
+                <MudTd>@context.SupplierName</MudTd>
+                <MudTd>@context.OrderDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.TotalAmount.ToString("N2")</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(context.Status)">
+                        @context.StatusNameAr
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    @if (context.Status == 1)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                       Color="Color.Success" OnClick="@(e => ApproveOrder(context))" />
+                    }
+                    @if (context.Status == 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.SwapHoriz" Size="Size.Small"
+                                       Color="Color.Primary" OnClick="@(e => ConvertOrder(context))" />
+                    }
+                    @if (context.Status == 1 || context.Status == 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                       Color="Color.Error" OnClick="@(e => CancelOrder(context))" />
+                    }
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<PurchaseOrderDto> _orders = new();
+
+    [Inject] private IPurchaseOrderService OrderService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _orders = await OrderService.GetOrdersAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الأوامر: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private static Color GetStatusColor(int status) => status switch
+    {
+        1 => Color.Default,
+        2 => Color.Info,
+        3 => Color.Success,
+        4 => Color.Error,
+        _ => Color.Default
+    };
+
+    private async Task OpenCreateDialog()
+    {
+        var dialog = await DialogService.ShowAsync<PurchaseOrderFormDialog>(
+            "أمر شراء جديد", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ أمر الشراء بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task ApproveOrder(PurchaseOrderDto order)
+    {
+        try { await OrderService.ApproveAsync(order.Id); Snackbar.Add("تم اعتماد الأمر", Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task CancelOrder(PurchaseOrderDto order)
+    {
+        try { await OrderService.CancelAsync(order.Id); Snackbar.Add("تم إلغاء الأمر", Severity.Info); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task ConvertOrder(PurchaseOrderDto order)
+    {
+        var dialog = await DialogService.ShowAsync<PurchaseOrderConvertDialog>(
+            $"تحويل {order.OrderNumber} إلى فاتورة مشتريات", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true && result?.Data is PurchaseOrderConvertDialog.ConvertResult conv)
+        {
+            try
+            {
+                await OrderService.ConvertToInvoiceAsync(order.Id, conv.WarehouseId, conv.InvoiceType);
+                Snackbar.Add("تم التحويل إلى فاتورة مشتريات بنجاح", Severity.Success);
+                await LoadAsync();
+            }
+            catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        }
+    }
+}

@@ -1,0 +1,77 @@
+@page "/purchases/invoices"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة فواتير المشتريات *@
+
+<PageTitle>فواتير المشتريات - نظام ERP</PageTitle>
+
+<PageHeader Title="@Loc["PurchaseInvoices"]" Icon="@Icons.Material.Filled.ReceiptLong" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        فاتورة جديدة
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">إجمالي الفواتير: @_invoices.Count</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_invoices.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">لا توجد فواتير مشتريات. اضغط "فاتورة جديدة".</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_invoices" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>رقم الفاتورة</MudTh>
+                <MudTh>المورد</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>النوع</MudTh>
+                <MudTh>الإجمالي</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.InvoiceNumber</MudTd>
+                <MudTd>@context.SupplierName</MudTd>
+                <MudTd>@context.InvoiceDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.InvoiceTypeNameAr</MudTd>
+                <MudTd>@context.TotalAmount.ToString("N2")</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<PurchaseInvoiceDto> _invoices = new();
+
+    [Inject] private IPurchaseInvoiceService InvoiceService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _invoices = await InvoiceService.GetInvoicesAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الفواتير: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var dialog = await DialogService.ShowAsync<PurchaseInvoiceFormDialog>(
+            "فاتورة مشتريات جديدة", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الفاتورة بنجاح", Severity.Success); await LoadAsync(); }
+    }
+}

@@ -1,0 +1,113 @@
+@page "/system-admin/errors"
+@attribute [Authorize(Roles = "SuperAdmin")]
+@layout SystemAdminLayout
+
+<PageTitle>@Loc["ErrorLog"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["ErrorLog"]" Icon="@Icons.Material.Filled.ErrorOutline" />
+
+@* أدوات الفلترة *@
+<MudPaper Elevation="1" Class="pa-3 mb-4">
+    <div style="display:flex; flex-wrap:wrap; gap:12px; align-items:flex-end;">
+        <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Clearable="true" Style="width:180px;" />
+        <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Clearable="true" Style="width:180px;" />
+        <MudTextField @bind-Value="_typeFilter" Label="@Loc["ExceptionType"]" Variant="Variant.Outlined" Style="width:240px;" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ApplyFilter" StartIcon="@Icons.Material.Filled.Search">@Loc["ApplyFilter"]</MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ClearFilter">@Loc["ClearFilter"]</MudButton>
+    </div>
+</MudPaper>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_loadError != null)
+    {
+        <MudAlert Severity="Severity.Error" Class="ma-2">@_loadError</MudAlert>
+    }
+    else if (_errors.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoErrors"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_errors" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["Time"]</MudTh>
+                <MudTh>@Loc["ExceptionType"]</MudTh>
+                <MudTh>@Loc["Message"]</MudTh>
+                <MudTh>@Loc["User"]</MudTh>
+                <MudTh>@Loc["RequestPath"]</MudTh>
+                <MudTh>@Loc["Details"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.OccurredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</MudTd>
+                <MudTd>@context.ExceptionType</MudTd>
+                <MudTd Style="max-width:320px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap;">@Shorten(context.Message)</MudTd>
+                <MudTd>@(context.UserId ?? "-")</MudTd>
+                <MudTd>@context.RequestPath</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.OpenInNew" Size="Size.Small" Color="Color.Primary" OnClick="() => ShowDetail(context)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private string? _loadError;
+    private List<ExceptionLogDto> _errors = new();
+    private DateTime? _from;
+    private DateTime? _to;
+    private string _typeFilter = string.Empty;
+
+    [Inject] private ISystemAdminService AdminService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        _loadError = null;
+        try
+        {
+            _errors = await AdminService.GetErrorsAsync(_from, _to, _typeFilter);
+        }
+        catch (Exception ex)
+        {
+            _loadError = ex.Message;
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplyFilter() => await LoadAsync();
+
+    private async Task ClearFilter()
+    {
+        _from = null;
+        _to = null;
+        _typeFilter = string.Empty;
+        await LoadAsync();
+    }
+
+    private static string Shorten(string message) =>
+        message.Length <= 120 ? message : message[..120] + "…";
+
+    private async Task ShowDetail(ExceptionLogDto log)
+    {
+        var parameters = new DialogParameters { ["Log"] = log };
+        await DialogService.ShowAsync<ErrorDetailDialog>(
+            Loc["ErrorDetails"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+    }
+}

@@ -1,0 +1,128 @@
+@* نموذج حوار لإضافة/تعديل عميل *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code"
+                                  Label="كود العميل"
+                                  Required="true"
+                                  RequiredError="كود العميل مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr"
+                                  Label="اسم العميل (عربي)"
+                                  Required="true"
+                                  RequiredError="اسم العميل مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn" Label="اسم العميل (إنجليزي)" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_phone" Label="الهاتف" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_email" Label="البريد الإلكتروني" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_taxNumber" Label="الرقم الضريبي" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_creditLimit"
+                                     Label="الحد الائتماني (اختياري)"
+                                     Variant="Variant.Outlined"
+                                     T="decimal?"
+                                     Clearable="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_address" Label="العنوان" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_notes" Label="ملاحظات" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditCustomer is null ? "إضافة" : "تعديل")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ICustomerService CustomerService { get; set; } = default!;
+    [Parameter] public CustomerDto? EditCustomer { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _phone;
+    private string? _email;
+    private string? _address;
+    private string? _taxNumber;
+    private decimal? _creditLimit;
+    private string? _notes;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditCustomer is not null)
+        {
+            _code = EditCustomer.Code;
+            _nameAr = EditCustomer.NameAr;
+            _nameEn = EditCustomer.NameEn;
+            _phone = EditCustomer.Phone;
+            _email = EditCustomer.Email;
+            _address = EditCustomer.Address;
+            _taxNumber = EditCustomer.TaxNumber;
+            _creditLimit = EditCustomer.CreditLimit;
+            _notes = EditCustomer.Notes;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditCustomer is null)
+            {
+                await CustomerService.CreateAsync(new CreateCustomerDto
+                {
+                    Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    Phone = _phone, Email = _email, Address = _address,
+                    TaxNumber = _taxNumber, CreditLimit = _creditLimit, Notes = _notes
+                });
+            }
+            else
+            {
+                await CustomerService.UpdateAsync(new UpdateCustomerDto
+                {
+                    Id = EditCustomer.Id, Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    Phone = _phone, Email = _email, Address = _address,
+                    TaxNumber = _taxNumber, CreditLimit = _creditLimit, Notes = _notes,
+                    IsActive = EditCustomer.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}

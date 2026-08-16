@@ -1,0 +1,15 @@
+@* يعيد التوجيه: لمستخدم مُصادَق عليه بلا صلاحية → /access-denied، وغير المُصادَق → /login *@
+
+@inject NavigationManager Navigation
+@inject AuthenticationStateProvider AuthStateProvider
+
+@code {
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        if (auth.User.Identity?.IsAuthenticated == true)
+            Navigation.NavigateTo("/access-denied", forceLoad: true);
+        else
+            Navigation.NavigateTo("/login", forceLoad: true);
+    }
+}

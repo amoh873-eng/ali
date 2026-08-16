@@ -1,0 +1,97 @@
+@* حوار مصفوفة الصلاحيات: موديول × (عرض/إضافة/تعديل/حذف) *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Loc["EditPermissions"] - @Role.Name</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_isLoading)
+        {
+            <MudProgressLinear Indeterminate="true" Class="my-2" />
+        }
+        else
+        {
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-2">@_error</MudAlert>
+            }
+            <MudButton Variant="Variant.Text" Size="Size.Small" OnClick="SelectAll">@Loc["SelectAll"]</MudButton>
+            <table style="width:100%; border-collapse:collapse;">
+                <thead>
+                    <tr>
+                        <th style="text-align:start; padding:8px; border-bottom:1px solid var(--erp-border);">@Loc["Module"]</th>
+                        @foreach (var action in PermissionCatalog.Actions)
+                        {
+                            <th style="text-align:center; padding:8px; border-bottom:1px solid var(--erp-border);">@Loc[action]</th>
+                        }
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach (var module in PermissionCatalog.Modules)
+                    {
+                        <tr>
+                            <td style="padding:8px; border-bottom:1px solid #F1F2F6;">@Loc[module.LabelKey]</td>
+                            @foreach (var action in PermissionCatalog.Actions)
+                            {
+                                var perm = PermissionCatalog.Build(module.Key, action);
+                                <td style="text-align:center; padding:4px; border-bottom:1px solid #F1F2F6;">
+                                    <MudCheckBox T="bool" Checked="@_checks[perm]" CheckedChanged="@((bool v) => _checks[perm] = v)" />
+                                </td>
+                            }
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IRoleService RoleService { get; set; } = default!;
+    [Parameter] public RoleDto Role { get; set; } = default!;
+
+    private bool _isLoading = true;
+    private string? _error;
+    private Dictionary<string, bool> _checks = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        foreach (var perm in PermissionCatalog.AllPermissions())
+            _checks[perm] = false;
+
+        try
+        {
+            var current = await RoleService.GetRolePermissionsAsync(Role.Id);
+            foreach (var perm in current)
+                if (_checks.ContainsKey(perm)) _checks[perm] = true;
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _isLoading = false; }
+    }
+
+    private void SelectAll()
+    {
+        foreach (var key in _checks.Keys.ToList()) _checks[key] = true;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        _error = null;
+        try
+        {
+            var selected = _checks.Where(kv => kv.Value).Select(kv => kv.Key).ToList();
+            await RoleService.SetRolePermissionsAsync(Role.Id, selected);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}

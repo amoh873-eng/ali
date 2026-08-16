@@ -1,0 +1,18 @@
+@* بطاقة رسم بياني (Chart Card): عنوان + وصف + محتوى حر — قابلة لإعادة الاستخدام *@
+
+<MudCard Elevation="0">
+    <MudCardContent Style="padding:12px 16px;">
+        <MudText Typo="Typo.h6">@Title</MudText>
+        @if (!string.IsNullOrEmpty(Subtitle))
+        {
+            <MudText Typo="Typo.caption" Color="Color.Secondary" Class="mb-2">@Subtitle</MudText>
+        }
+        @ChildContent
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+}

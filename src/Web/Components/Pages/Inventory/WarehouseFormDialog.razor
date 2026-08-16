@@ -1,0 +1,109 @@
+@* نموذج حوار لإضافة/تعديل مخزن *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code"
+                                  Label="كود المخزن"
+                                  Required="true"
+                                  RequiredError="كود المخزن مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSwitch @bind-Value="_isDefault" Color="Color.Primary"
+                               Label="مخزن افتراضي" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_nameAr"
+                                  Label="اسم المخزن (عربي)"
+                                  Required="true"
+                                  RequiredError="الاسم العربي مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_nameEn"
+                                  Label="اسم المخزن (إنجليزي)"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_location"
+                                  Label="الموقع"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditWarehouse is null ? "إضافة" : "تعديل")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IWarehouseService WarehouseService { get; set; } = default!;
+    [Parameter] public WarehouseDto? EditWarehouse { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _location;
+    private bool _isDefault;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditWarehouse is not null)
+        {
+            _code = EditWarehouse.Code;
+            _nameAr = EditWarehouse.NameAr;
+            _nameEn = EditWarehouse.NameEn;
+            _location = EditWarehouse.Location;
+            _isDefault = EditWarehouse.IsDefault;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditWarehouse is null)
+            {
+                await WarehouseService.CreateAsync(new CreateWarehouseDto
+                {
+                    Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    Location = _location, IsDefault = _isDefault
+                });
+            }
+            else
+            {
+                await WarehouseService.UpdateAsync(new UpdateWarehouseDto
+                {
+                    Id = EditWarehouse.Id, Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    Location = _location, IsDefault = _isDefault, IsActive = EditWarehouse.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

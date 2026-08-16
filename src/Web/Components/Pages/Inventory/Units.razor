@@ -1,0 +1,127 @@
+@page "/inventory/units"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة وحدات القياس - جدول الوحدات (قطعة، كيلو جرام، لتر...) *@
+
+<PageTitle>وحدات القياس - نظام ERP</PageTitle>
+
+<PageHeader Title="@Loc["Units"]" Icon="@Icons.Material.Filled.Straighten" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreateDialog">
+        إضافة وحدة جديدة
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">العدد: @_units.Count وحدة</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_units.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">
+            لا توجد وحدات قياس. اضغط "إضافة وحدة جديدة" لإنشاء أول وحدة.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_units" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>الكود</MudTh>
+                <MudTh>الاسم (عربي)</MudTh>
+                <MudTh>الاسم (إنجليزي)</MudTh>
+                <MudTh>الحالة</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd>@context.NameEn</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">
+                        @(context.IsActive ? "نشط" : "غير نشط")
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                   Color="Color.Primary" OnClick="@(e => OpenEditDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ToggleOn" Size="Size.Small"
+                                   Color="Color.Secondary" OnClick="@(e => ToggleActive(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error" OnClick="@(e => DeleteUnit(context))"
+                                   Disabled="context.IsSystem" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<UnitDto> _units = new();
+
+    [Inject] private IUnitService UnitService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _units = await UnitService.GetAllAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الوحدات: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters { ["UnitService"] = UnitService };
+        var dialog = await DialogService.ShowAsync<UnitFormDialog>(
+            "إضافة وحدة قياس جديدة", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الوحدة بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task OpenEditDialog(UnitDto unit)
+    {
+        var parameters = new DialogParameters { ["UnitService"] = UnitService, ["EditUnit"] = unit };
+        var dialog = await DialogService.ShowAsync<UnitFormDialog>(
+            $"تعديل وحدة: {unit.NameAr}", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم تعديل الوحدة بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task DeleteUnit(UnitDto unit)
+    {
+        if (unit.IsSystem) { Snackbar.Add("لا يمكن حذف الوحدات النظامية", Severity.Warning); return; }
+        var confirmed = await DialogService.ShowMessageBox(
+            "تأكيد الحذف", $"هل أنت متأكد من حذف الوحدة '{unit.NameAr}'؟",
+            yesText: "حذف", cancelText: "إلغاء");
+        if (confirmed != true) return;
+        try { await UnitService.DeleteAsync(unit.Id); Snackbar.Add("تم حذف الوحدة بنجاح", Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task ToggleActive(UnitDto unit)
+    {
+        try
+        {
+            await UnitService.ToggleActiveAsync(unit.Id);
+            Snackbar.Add(unit.IsActive ? "تم تعطيل الوحدة" : "تم تفعيل الوحدة", Severity.Info);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

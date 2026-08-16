@@ -1,0 +1,137 @@
+@* شريط التنقل الأفقي العلوي: روابط + قوائم منسدلة (CSS hover) *@
+@inject NavigationManager Nav
+@inject IStringLocalizer<SharedResources> Loc
+
+<nav class="erp-topnav">
+    <a class="erp-nav-link @(IsHome ? "active" : "")" href="/">
+        <MudIcon Icon="@Icons.Material.Filled.Home" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Home"]
+    </a>
+
+    <AuthorizeView Policy="Permission:Pos.View">
+        <a class="erp-nav-link @(IsActive("/pos") ? "active" : "")" href="/pos">
+            <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Pos"]
+        </a>
+    </AuthorizeView>
+
+    <div class="erp-dropdown @(IsActive("/accounts", "/journal-entries") ? "active" : "")">
+        <a class="erp-nav-link" href="/accounts">
+            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Accounting"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/accounts"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Accounts"]</a>
+            <a href="/journal-entries"><MudIcon Icon="@Icons.Material.Filled.Book" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["JournalEntries"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/inventory") ? "active" : "")">
+        <a class="erp-nav-link" href="/inventory/items">
+            <MudIcon Icon="@Icons.Material.Filled.Inventory" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["Inventory"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/inventory/items"><MudIcon Icon="@Icons.Material.Filled.Inventory2" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["Items"]</a>
+            <a href="/inventory/categories"><MudIcon Icon="@Icons.Material.Filled.Category" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Categories"]</a>
+            <a href="/inventory/units"><MudIcon Icon="@Icons.Material.Filled.Straighten" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Units"]</a>
+            <a href="/inventory/warehouses"><MudIcon Icon="@Icons.Material.Filled.Warehouse" Class="erp-nav-icon" Style="color:#6366F1;" /> @Loc["Warehouses"]</a>
+            <a href="/inventory/movements"><MudIcon Icon="@Icons.Material.Filled.SwapVert" Class="erp-nav-icon" Style="color:#F472B6;" /> @Loc["Movements"]</a>
+            <a href="/inventory/stockcounts"><MudIcon Icon="@Icons.Material.Filled.FactCheck" Class="erp-nav-icon" Style="color:#EF4444;" /> @Loc["StockCounts"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/sales") ? "active" : "")">
+        <a class="erp-nav-link" href="/sales/invoices">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="erp-nav-icon" Style="color:#F472B6;" /> @Loc["Sales"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/sales/customers"><MudIcon Icon="@Icons.Material.Filled.People" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Customers"]</a>
+            <a href="/sales/quotes"><MudIcon Icon="@Icons.Material.Filled.RequestQuote" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["SalesQuotes"]</a>
+            <a href="/sales/invoices"><MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["SalesInvoices"]</a>
+            <a href="/sales/returns"><MudIcon Icon="@Icons.Material.Filled.Replay" Class="erp-nav-icon" Style="color:#EF4444;" /> @Loc["SalesReturns"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/purchases") ? "active" : "")">
+        <a class="erp-nav-link" href="/purchases/invoices">
+            <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Purchases"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/purchases/suppliers"><MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Suppliers"]</a>
+            <a href="/purchases/orders"><MudIcon Icon="@Icons.Material.Filled.BorderColor" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["PurchaseOrders"]</a>
+            <a href="/purchases/invoices"><MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["PurchaseInvoices"]</a>
+            <a href="/purchases/returns"><MudIcon Icon="@Icons.Material.Filled.Replay" Class="erp-nav-icon" Style="color:#EF4444;" /> @Loc["PurchaseReturns"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/hr") ? "active" : "")">
+        <a class="erp-nav-link" href="/hr/employees">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["HumanResources"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/hr/departments"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Departments"]</a>
+            <a href="/hr/positions"><MudIcon Icon="@Icons.Material.Filled.Badge" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Positions"]</a>
+            <a href="/hr/employees"><MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Employees"]</a>
+            <a href="/hr/leaves"><MudIcon Icon="@Icons.Material.Filled.EventAvailable" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Leaves"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/trial-balance", "/general-ledger", "/financial-statements") ? "active" : "")">
+        <a class="erp-nav-link" href="/trial-balance">
+            <MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" Style="color:#6366F1;" /> @Loc["Reports"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/trial-balance"><MudIcon Icon="@Icons.Material.Filled.Balance" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["TrialBalance"]</a>
+            <a href="/general-ledger"><MudIcon Icon="@Icons.Material.Filled.MenuBook" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["GeneralLedger"]</a>
+            <a href="/financial-statements"><MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["FinancialStatements"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/expenses") ? "active" : "")">
+        <a class="erp-nav-link" href="/expenses">
+            <MudIcon Icon="@Icons.Material.Filled.Payments" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Expenses"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/expenses"><MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["ExpenseEntries"]</a>
+            <a href="/expenses/categories"><MudIcon Icon="@Icons.Material.Filled.Category" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["ExpenseCategories"]</a>
+        </div>
+    </div>
+
+    <div class="erp-dropdown @(IsActive("/crm") ? "active" : "")">
+        <a class="erp-nav-link" href="/crm/leads">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Crm"] ▾
+        </a>
+        <div class="erp-dropdown-menu">
+            <a href="/crm/leads"><MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Leads"]</a>
+            <a href="/crm/opportunities"><MudIcon Icon="@Icons.Material.Filled.TrackChanges" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Opportunities"]</a>
+            <a href="/crm/activities"><MudIcon Icon="@Icons.Material.Filled.History" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Activities"]</a>
+        </div>
+    </div>
+
+    <AuthorizeView Policy="Permission:Permissions.View">
+        <div class="erp-dropdown @(IsActive("/permissions") ? "active" : "")">
+            <a class="erp-nav-link" href="/permissions/roles">
+                <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Permissions"] ▾
+            </a>
+            <div class="erp-dropdown-menu">
+                <a href="/permissions/roles"><MudIcon Icon="@Icons.Material.Filled.Badge" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Roles"]</a>
+                <a href="/permissions/users"><MudIcon Icon="@Icons.Material.Filled.People" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Users"]</a>
+            </div>
+        </div>
+    </AuthorizeView>
+</nav>
+
+@code {
+    private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');
+
+    private bool IsHome => CurrentPath == "/";
+
+    private bool IsActive(params string[] prefixes)
+    {
+        foreach (var prefix in prefixes)
+        {
+            var basePath = prefix.TrimEnd('/');
+            if (string.IsNullOrEmpty(basePath)) continue;
+            if (CurrentPath.Equals(basePath, StringComparison.OrdinalIgnoreCase)) return true;
+            if (CurrentPath.StartsWith(basePath + "/", StringComparison.OrdinalIgnoreCase)) return true;
+        }
+        return false;
+    }
+}

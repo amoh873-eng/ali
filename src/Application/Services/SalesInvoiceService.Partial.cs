@@ -1,0 +1,86 @@
+using ERPSystem.Application.DTOs.Sales;
+using ERPSystem.Domain.Entities;
+using Microsoft.EntityFrameworkCore;
+
+namespace ERPSystem.Application.Services;
+
+/// <summary>
+/// SalesInvoiceService — الأدوات المساعدة (الترقيم، التحقق من الرصيد، اعتماد الحسابات، التحويل).
+/// </summary>
+public partial class SalesInvoiceService
+{
+    private Task<string> NextInvoiceNumberAsync()
+        => NumberSequenceHelper.NextAsync(_context, "SI");
+
+    /// <summary>
+    /// يتحقق أن الرصيد المتاح (مجموع الحركات في قاعدة البيانات) يكفي للكمية المطلوبة.
+    /// لاحظ أنه يُستدعى قبل إضافة حركة الخروج لهذا البند، لذا لا يرى البند الحالي نفسه.
+    /// </summary>
+    private async Task EnsureEnoughStockAsync(Guid itemId, Guid warehouseId, decimal quantity)
+    {
+        var available = await _context.Set<StockMovement>()
+            .Where(m => m.ItemId == itemId && m.WarehouseId == warehouseId)
+            .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
+
+        if (available < quantity)
+            throw new InvalidOperationException(
+                $"الرصيد غير كافٍ للصنف. المتاح: {available:N0}، المطلوب: {quantity:N0}.");
+    }
+
+    /// <summary>
+    /// يبحث عن حساب نظامي في شجرة الحسابات حسب كوده الثابت.
+    /// هذه الحسابات مُزروعة مسبقاً في SeedSalesAccounts.
+    /// </summary>
+    private async Task<Account> GetAccountByCodeAsync(string code)
+    {
+        var account = await _context.Set<Account>()
+            .FirstOrDefaultAsync(a => a.Code == code && !a.IsDeleted);
+        if (account is null)
+            throw new InvalidOperationException($"الحساب النظامي '{code}' غير موجود في شجرة الحسابات.");
+        return account;
+    }
+
+    private static SalesInvoiceDto MapToDto(SalesInvoice invoice)
+    {
+        return new SalesInvoiceDto
+        {
+            Id = invoice.Id,
+            InvoiceNumber = invoice.InvoiceNumber,
+            CustomerId = invoice.CustomerId,
+            CustomerCode = invoice.Customer?.Code ?? "—",
+            CustomerName = invoice.Customer?.NameAr ?? "—",
+            WarehouseId = invoice.WarehouseId,
+            WarehouseName = invoice.Warehouse?.NameAr ?? "—",
+            InvoiceDate = invoice.InvoiceDate,
+            InvoiceType = (int)invoice.InvoiceType,
+            Status = (int)invoice.Status,
+            SubTotal = invoice.SubTotal,
+            DiscountPercentage = invoice.DiscountPercentage,
+            DiscountAmount = invoice.DiscountAmount,
+            TaxRate = invoice.TaxRate,
+            TaxAmount = invoice.TaxAmount,
+            TotalAmount = invoice.TotalAmount,
+            PaidAmount = invoice.PaidAmount,
+            Note = invoice.Note,
+            SalesJournalEntryId = invoice.SalesJournalEntryId,
+            CogsJournalEntryId = invoice.CogsJournalEntryId,
+            IsPos = invoice.IsPos,
+            Lines = invoice.Lines.Select(MapLineToDto).ToList()
+        };
+    }
+
+    private static SalesInvoiceLineDto MapLineToDto(SalesInvoiceLine line)
+    {
+        return new SalesInvoiceLineDto
+        {
+            Id = line.Id,
+            ItemId = line.ItemId,
+            ItemCode = line.Item?.Code ?? "—",
+            ItemNameAr = line.Item?.NameAr ?? "—",
+            Quantity = line.Quantity,
+            UnitPrice = line.UnitPrice,
+            UnitCost = line.UnitCost,
+            LineTotal = line.LineTotal
+        };
+    }
+}

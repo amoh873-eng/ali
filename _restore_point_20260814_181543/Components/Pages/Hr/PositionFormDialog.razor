@@ -1,0 +1,117 @@
+@* نموذج حوار لإضافة/تعديل مسمى وظيفي *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code"
+                                  Label="كود المسمى (مثال: ACC-MGR)"
+                                  Required="true"
+                                  RequiredError="كود المسمى مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="Guid" @bind-Value="_departmentId"
+                               Label="القسم"
+                               Required="true"
+                               RequiredError="القسم مطلوب"
+                               Variant="Variant.Outlined">
+                        @foreach (var d in Departments)
+                        {
+                            <MudSelectItem T="Guid" Value="@d.Id">@d.Code - @d.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr"
+                                  Label="اسم المسمى (عربي)"
+                                  Required="true"
+                                  RequiredError="الاسم العربي مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn"
+                                  Label="اسم المسمى (إنجليزي)"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditPosition is null ? "إضافة" : "تعديل")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IPositionService PositionService { get; set; } = default!;
+    [Parameter] public List<DepartmentDto> Departments { get; set; } = new();
+    [Parameter] public PositionDto? EditPosition { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private Guid _departmentId;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditPosition is not null)
+        {
+            _code = EditPosition.Code;
+            _nameAr = EditPosition.NameAr;
+            _nameEn = EditPosition.NameEn;
+            _departmentId = EditPosition.DepartmentId;
+        }
+        else if (Departments.Count > 0)
+        {
+            _departmentId = Departments.FirstOrDefault(d => d.IsActive)?.Id ?? Departments[0].Id;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditPosition is null)
+            {
+                await PositionService.CreateAsync(new CreatePositionDto
+                {
+                    Code = _code, NameAr = _nameAr, NameEn = _nameEn, DepartmentId = _departmentId
+                });
+            }
+            else
+            {
+                await PositionService.UpdateAsync(new UpdatePositionDto
+                {
+                    Id = EditPosition.Id, Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    DepartmentId = _departmentId, IsActive = EditPosition.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

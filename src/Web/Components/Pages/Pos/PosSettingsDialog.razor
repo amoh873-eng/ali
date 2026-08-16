@@ -1,0 +1,92 @@
+@* حوار إعدادات نقطة البيع: تحكم في الأعمدة والحجم واللون وعرض السلة (يُحفظ تلقائيًا) *@
+@inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime Js
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Loc["PosSettings"]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <div style="display:flex; flex-direction:column; gap:20px;">
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PosColumns"]: @_columns</MudText>
+                <MudSlider T="int" Min="4" Max="8" Step="1" @bind-Value="_columns" />
+            </div>
+
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PosButtonSize"]</MudText>
+                <MudSelect T="string" @bind-Value="_size" Variant="Variant.Outlined">
+                    <MudSelectItem T="string" Value="@("small")">@Loc["Small"]</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("medium")">@Loc["Medium"]</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("large")">@Loc["Large"]</MudSelectItem>
+                </MudSelect>
+            </div>
+
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PosAccentColor"]</MudText>
+                <div style="display:flex; gap:8px; flex-wrap:wrap;">
+                    @foreach (var c in _colors)
+                    {
+                        <button type="button" @onclick="() => _accent = c"
+                                style="width:38px; height:38px; border-radius:50%; border:3px solid @(_accent == c ? "#1F2937" : "transparent"); background:@c; cursor:pointer; padding:0;"></button>
+                    }
+                </div>
+            </div>
+
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PosCartWidth"]: @_cartWidth px</MudText>
+                <MudSlider T="int" Min="500" Max="800" Step="20" @bind-Value="_cartWidth" />
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public int Columns { get; set; } = 6;
+    [Parameter] public string Size { get; set; } = "medium";
+    [Parameter] public string Accent { get; set; } = "#6D5BD0";
+    [Parameter] public int CartWidth { get; set; } = 720;
+
+    private int _columns = 6;
+    private string _size = "medium";
+    private string _accent = "#6D5BD0";
+    private int _cartWidth = 720;
+
+    private static readonly string[] _colors = new[]
+    {
+        "#6D5BD0", "#3B82F6", "#14B8A6", "#F59E0B", "#EC4899", "#10B981"
+    };
+
+    protected override void OnInitialized()
+    {
+        _columns = Columns;
+        _size = Size;
+        _accent = Accent;
+        _cartWidth = CartWidth;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        var scale = _size switch { "small" => 0.85, "large" => 1.2, _ => 1.0 };
+        await Js.InvokeVoidAsync("erpApplyPosSettings", _columns, _cartWidth, _accent, scale);
+
+        var json = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            columns = _columns,
+            size = _size,
+            accent = _accent,
+            cartWidth = _cartWidth
+        });
+        await Js.InvokeVoidAsync("erpSavePosSettings", json);
+
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

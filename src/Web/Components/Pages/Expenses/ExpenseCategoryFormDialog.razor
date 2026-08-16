@@ -1,0 +1,107 @@
+@* نموذج حوار لإضافة/تعديل فئة مصروف *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code" Label="@Loc["Code"]" Required="true"
+                                  RequiredError="@Loc["RequiredField"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr" Label="@Loc["NameAr"]" Required="true"
+                                  RequiredError="@Loc["RequiredField"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn" Label="@Loc["NameEn"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_accountId" Label="@Loc["ExpenseAccount"]" T="Guid?"
+                               Variant="Variant.Outlined" Clearable="true" Required="true"
+                               RequiredError="@Loc["SelectExpenseAccount"]">
+                        @foreach (var account in ExpenseAccounts)
+                        {
+                            <MudSelectItem T="Guid?" Value="@account.Id">@($"{account.Code} - {account.NameAr}")</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_description" Label="@Loc["Description"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditCategory is null ? Loc["Add"] : Loc["Edit"])
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IExpenseCategoryService CategoryService { get; set; } = default!;
+    [Parameter] public List<AccountDto> ExpenseAccounts { get; set; } = new();
+    [Parameter] public ExpenseCategoryDto? EditCategory { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private Guid? _accountId;
+    private string? _description;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditCategory is not null)
+        {
+            _code = EditCategory.Code;
+            _nameAr = EditCategory.NameAr;
+            _nameEn = EditCategory.NameEn;
+            _accountId = EditCategory.AccountId;
+            _description = EditCategory.Description;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid || _accountId is null) return;
+
+        _error = null;
+        try
+        {
+            if (EditCategory is null)
+            {
+                await CategoryService.CreateAsync(new CreateExpenseCategoryDto
+                {
+                    Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    AccountId = _accountId.Value, Description = _description
+                });
+            }
+            else
+            {
+                await CategoryService.UpdateAsync(new UpdateExpenseCategoryDto
+                {
+                    Id = EditCategory.Id, Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    AccountId = _accountId.Value, Description = _description, IsActive = EditCategory.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

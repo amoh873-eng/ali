@@ -1,0 +1,147 @@
+@page "/expenses"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة سندات المصروف: قائمة السندات مع فلترة حسب الفئة والتاريخ *@
+
+<PageTitle>@Loc["ExpenseEntries"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["ExpenseEntries"]" Icon="@Icons.Material.Filled.ReceiptLong" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreateDialog">
+        @Loc["AddExpenseEntry"]
+    </MudButton>
+    <MudSpacer />
+    <MudSelect @bind-Value="_filterCategoryId" Label="@Loc["ExpenseCategory"]" T="Guid?"
+               Variant="Variant.Outlined" Clearable="true" Dense="true"
+               Class="mr-2" Style="min-width:220px;">
+        @foreach (var category in _categories)
+        {
+            <MudSelectItem T="Guid?" Value="@category.Id">@($"{category.Code} - {category.NameAr}")</MudSelectItem>
+        }
+    </MudSelect>
+    <MudDatePicker @bind-Date="_filterFrom" Label="@Loc["FromDate"]" Variant="Variant.Outlined"
+                   Clearable="true" Dense="true" Class="mr-2" />
+    <MudDatePicker @bind-Date="_filterTo" Label="@Loc["ToDate"]" Variant="Variant.Outlined"
+                   Clearable="true" Dense="true" Class="mr-2" />
+    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ApplyFilter" Class="mr-2">
+        @Loc["ApplyFilter"]
+    </MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ClearFilter">
+        @Loc["ClearFilter"]
+    </MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_entries.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoExpenseEntries"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_entries" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["EntryNumber"]</MudTh>
+                <MudTh>@Loc["ExpenseDate"]</MudTh>
+                <MudTh>@Loc["ExpenseCategory"]</MudTh>
+                <MudTh>@Loc["PaymentMethod"]</MudTh>
+                <MudTh>@Loc["Amount"]</MudTh>
+                <MudTh>@Loc["Description"]</MudTh>
+                <MudTh>@Loc["Attachment"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.EntryNumber</MudTd>
+                <MudTd>@context.ExpenseDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@($"{context.ExpenseCategoryCode} - {context.ExpenseCategoryName}")</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small"
+                             Color="@(context.PaymentMethod == 1 ? Color.Info : Color.Warning)">
+                        @(context.PaymentMethod == 1 ? Loc["Cash"] : Loc["Bank"])
+                    </MudChip>
+                </MudTd>
+                <MudTd>@context.Amount.ToString("N2")</MudTd>
+                <MudTd>@context.Description</MudTd>
+                <MudTd>
+                    @if (!string.IsNullOrEmpty(context.AttachmentPath))
+                    {
+                        <a href="@context.AttachmentPath" target="_blank" style="color:var(--erp-primary); text-decoration:none;">
+                            <MudIcon Icon="@Icons.Material.Filled.AttachFile" />
+                        </a>
+                    }
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<ExpenseEntryDto> _entries = new();
+    private List<ExpenseCategoryDto> _categories = new();
+    private Guid? _filterCategoryId;
+    private DateTime? _filterFrom;
+    private DateTime? _filterTo;
+
+    [Inject] private IExpenseService ExpenseService { get; set; } = default!;
+    [Inject] private IExpenseCategoryService CategoryService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _entries = await ExpenseService.GetEntriesAsync(_filterCategoryId, _filterFrom, _filterTo);
+            _categories = await CategoryService.GetAllAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task ApplyFilter() => await LoadAsync();
+
+    private async Task ClearFilter()
+    {
+        _filterCategoryId = null;
+        _filterFrom = null;
+        _filterTo = null;
+        await LoadAsync();
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["ExpenseService"] = ExpenseService,
+            ["Categories"] = _categories
+        };
+        var dialog = await DialogService.ShowAsync<ExpenseFormDialog>(
+            Loc["AddExpenseEntry"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true)
+        {
+            Snackbar.Add(Loc["EntrySaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+}

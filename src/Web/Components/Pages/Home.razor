@@ -1,0 +1,134 @@
+@page "/"
+
+<PageTitle>لوحة التحكم - نظام ERP</PageTitle>
+
+@* عنوان الصفحة *@
+<PageHeader Title="@Loc["Dashboard"]" />
+
+@* 3 بطاقات أرقام + بطاقة رسم *@
+<MudGrid Spacing="3">
+    @* الرسمان الدائريان في الأعلى (ظاهران مباشرة دون الحاجة للتمرير) *@
+    <MudItem xs="12" md="6">
+        <ChartCard Title="@Loc["InventoryMovement"]" Subtitle="@Loc["InventoryMovementSub"]">
+            <DonutChart Segments="_inventorySegments"
+                        CenterValue="@_totalMovementText"
+                        CenterLabel="@Loc["TotalMovement"]"
+                        EmptyText="@Loc["NoInventoryMovement"]" />
+        </ChartCard>
+    </MudItem>
+    <MudItem xs="12" md="6">
+        <ChartCard Title="@Loc["SalesVsPurchases"]" Subtitle="@Loc["SalesVsPurchasesTotal"]">
+            <DonutChart Segments="_salesPurchasesSegments"
+                        CenterValue="@_salesPurchasesTotalText"
+                        CenterLabel="@Loc["Total"]"
+                        EmptyText="@Loc["NoSalesPurchases"]" />
+        </ChartCard>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <StatCard Label="@Loc["NetSales"]" Value="@_salesTotal.ToString("N2")"
+                  Icon="@Icons.Material.Filled.ShoppingCart" IconBackground="#E8F5E9" IconColor="#10B981" />
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <StatCard Label="@Loc["NetPurchases"]" Value="@_purchasesTotal.ToString("N2")"
+                  Icon="@Icons.Material.Filled.LocalShipping" IconBackground="#FFF3E0" IconColor="#F59E0B" />
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <StatCard Label="@Loc["InventoryValue"]" Value="@_inventoryValue.ToString("N2")"
+                  Icon="@Icons.Material.Filled.Inventory" IconBackground="#F0EDFB" IconColor="#6D5BD0" />
+    </MudItem>
+</MudGrid>
+
+
+
+@code {
+    private decimal _salesTotal;
+    private decimal _purchasesTotal;
+    private decimal _inventoryValue;
+
+    private List<DonutSegment> _inventorySegments = new();
+    private List<DonutSegment> _salesPurchasesSegments = new();
+    private string _totalMovementText = "0";
+    private string _salesPurchasesTotalText = "0";
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
+    [Inject] private IPurchaseInvoiceService PurchaseInvoiceService { get; set; } = default!;
+    [Inject] private IStockMovementService StockMovementService { get; set; } = default!;
+    [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var items = await ItemService.GetAllAsync();
+            _inventoryValue = items.Sum(i => i.CurrentStock * i.CostPrice);
+
+            var sales = await SalesInvoiceService.GetInvoicesAsync();
+            _salesTotal = sales.Sum(i => i.TotalAmount);
+
+            var purchases = await PurchaseInvoiceService.GetInvoicesAsync();
+            _purchasesTotal = purchases.Sum(i => i.TotalAmount);
+
+            var movements = await StockMovementService.GetMovementsAsync();
+            BuildInventoryChart(movements);
+            BuildSalesPurchasesChart();
+        }
+        catch
+        {
+            // في حال فشل أي استدعاء نترك القيم صفراً ولا نعطّل الصفحة
+        }
+    }
+
+    /// <summary>
+    /// مجموعات أنواع الحركة: تسمية عربية + لون مميّز لكل نوع (مرتّبة حسب قيمة MovementType).
+    /// </summary>
+    private static readonly (int Type, string Label, string Color)[] MovementGroups =
+    {
+        (1, "وارد مشتريات", "#10B981"),
+        (2, "صادر مبيعات", "#EF4444"),
+        (3, "رصيد افتتاحي", "#6D5BD0"),
+        (4, "تسوية إضافة", "#14B8A6"),
+        (5, "تسوية خصم", "#F59E0B"),
+        (6, "تحويل وارد", "#3B82F6"),
+        (7, "تحويل صادر", "#6366F1"),
+        (8, "مردود مبيعات", "#F472B6"),
+        (9, "مردود مشتريات", "#EC4899"),
+    };
+
+    /// <summary>رسم دائري لتوزيع حركات المخزون (الكميات) حسب نوع الحركة.</summary>
+    private void BuildInventoryChart(List<StockMovementDto> movements)
+    {
+        var total = movements.Sum(m => Math.Abs(m.Quantity));
+        _totalMovementText = total.ToString("N0");
+
+        _inventorySegments = MovementGroups
+            .Select(g =>
+            {
+                var qty = movements.Where(m => m.MovementType == g.Type).Sum(m => Math.Abs(m.Quantity));
+                return new DonutSegment
+                {
+                    Label = g.Label,
+                    Color = g.Color,
+                    Value = (double)qty,
+                    ValueText = qty.ToString("N0")
+                };
+            })
+            .Where(s => s.Value > 0)
+            .ToList();
+    }
+
+    /// <summary>رسم دائري للمبيعات مقابل المشتريات (إجمالي القيم).</summary>
+    private void BuildSalesPurchasesChart()
+    {
+        var total = _salesTotal + _purchasesTotal;
+        _salesPurchasesTotalText = total.ToString("N0");
+
+        _salesPurchasesSegments = new List<DonutSegment>
+        {
+            new() { Label = Loc["Sales"].Value, Color = "#8B5CF6", Value = (double)_salesTotal, ValueText = _salesTotal.ToString("N2") },
+            new() { Label = Loc["Purchases"].Value, Color = "#F59E0B", Value = (double)_purchasesTotal, ValueText = _purchasesTotal.ToString("N2") },
+        }
+        .Where(s => s.Value > 0)
+        .ToList();
+    }
+}

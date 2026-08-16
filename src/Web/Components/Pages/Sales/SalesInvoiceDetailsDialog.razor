@@ -1,0 +1,54 @@
+@* حوار عرض تفاصيل فاتورة بيع (بنودها ومجاميعها) *@
+
+<MudDialog>
+    <DialogContent>
+        @if (Invoice is null)
+        {
+            <MudAlert Severity="Severity.Info">لا توجد بيانات.</MudAlert>
+        }
+        else
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">رقم الفاتورة</MudText><MudText>@Invoice.InvoiceNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">العميل</MudText><MudText>@Invoice.CustomerName</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">التاريخ</MudText><MudText>@Invoice.InvoiceDate.ToString("yyyy-MM-dd")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">النوع</MudText><MudText>@Invoice.InvoiceTypeNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">المخزن</MudText><MudText>@Invoice.WarehouseName</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">الحالة</MudText><MudText>@Invoice.StatusNameAr</MudText></MudItem>
+            </MudGrid>
+
+            <MudTable Items="Invoice.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-3">
+                <HeaderContent>
+                    <MudTh>الصنف</MudTh>
+                    <MudTh>الكمية</MudTh>
+                    <MudTh>السعر</MudTh>
+                    <MudTh>الإجمالي</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
+                    <MudTd>@context.Quantity.ToString("N0")</MudTd>
+                    <MudTd>@context.UnitPrice.ToString("N2")</MudTd>
+                    <MudTd>@context.LineTotal.ToString("N2")</MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudText Typo="Typo.body2" Class="mt-3">
+                الفرعي: @Invoice.SubTotal.ToString("N2") —
+                الخصم: @Invoice.DiscountAmount.ToString("N2") —
+                الضريبة: @Invoice.TaxAmount.ToString("N2")
+            </MudText>
+            <MudText Typo="Typo.h6" Class="mt-1">الإجمالي: @Invoice.TotalAmount.ToString("N2")</MudText>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public SalesInvoiceDto? Invoice { get; set; }
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

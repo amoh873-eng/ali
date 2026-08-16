@@ -1,0 +1,70 @@
+@page "/login"
+@using System.ComponentModel.DataAnnotations
+
+@* صفحة تسجيل الدخول (Static SSR لضمان عمل SignInManager مع HttpContext) *@
+
+<PageTitle>تسجيل الدخول - نظام ERP</PageTitle>
+
+<div style="display:flex; align-items:center; justify-content:center; min-height:80vh;">
+    <div style="background:#fff; border-radius:16px; box-shadow:0 20px 50px rgba(0,0,0,0.2); padding:32px; width:100%; max-width:380px;">
+        <h2 style="margin:0 0 8px 0; font-size:22px;">تسجيل الدخول</h2>
+        <p style="margin:0 0 20px 0; color:#888; font-size:14px;">نظام ERP المحاسبي</p>
+
+        @if (!string.IsNullOrEmpty(ErrorMessage))
+        {
+            <div style="background:#fdecea; color:#c0392b; padding:10px 14px; border-radius:8px; margin-bottom:16px; font-size:14px;">
+                @ErrorMessage
+            </div>
+        }
+
+        <form method="post" @formname="login">
+            <AntiforgeryToken />
+            <label style="display:block; margin-bottom:4px; font-size:14px;">البريد الإلكتروني</label>
+            <input name="Email" type="email" required
+                   style="width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:8px; margin-bottom:16px; font-size:15px;" />
+
+            <label style="display:block; margin-bottom:4px; font-size:14px;">كلمة المرور</label>
+            <input name="Password" type="password" required
+                   style="width:100%; padding:10px 12px; border:1px solid #ccc; border-radius:8px; margin-bottom:20px; font-size:15px;" />
+
+            <button type="submit"
+                    style="width:100%; padding:11px; background:#1565C0; color:#fff; border:none; border-radius:8px; font-size:16px; cursor:pointer;">
+                دخول
+            </button>
+        </form>
+
+        <p style="margin-top:20px; font-size:12px; color:#999;">
+            حساب تجريبي: admin@erp.com / Admin@123
+        </p>
+    </div>
+</div>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+    [Inject] private SignInManager<IdentityUser> SignInManager { get; set; } = default!;
+
+    [SupplyParameterFromForm] private LoginInput? Input { get; set; }
+
+    private string? ErrorMessage;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext is null || Input is null || !HttpMethods.IsPost(HttpContext.Request.Method))
+            return;
+
+        var result = await SignInManager.PasswordSignInAsync(Input.Email, Input.Password, false, false);
+        if (result.Succeeded)
+        {
+            HttpContext.Response.Redirect("/");
+            return;
+        }
+
+        ErrorMessage = "فشل تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.";
+    }
+
+    private sealed class LoginInput
+    {
+        [Required] public string Email { get; set; } = string.Empty;
+        [Required] public string Password { get; set; } = string.Empty;
+    }
+}

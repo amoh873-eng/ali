@@ -1,0 +1,126 @@
+@* نموذج حوار لتسجيل سند مصروف (ترحيل فوري مع قيد محاسبي تلقائي) *@
+@inject IStringLocalizer<SharedResources> Loc
+@inject IWebHostEnvironment Env
+@using Microsoft.AspNetCore.Hosting
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_categoryId" Label="@Loc["ExpenseCategory"]" T="Guid?"
+                               Variant="Variant.Outlined" Clearable="true" Required="true"
+                               RequiredError="@Loc["RequiredField"]">
+                        @foreach (var category in Categories)
+                        {
+                            <MudSelectItem T="Guid?" Value="@category.Id">@($"{category.Code} - {category.NameAr}")</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_expenseDate" Label="@Loc["ExpenseDate"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudNumericField T="decimal" @bind-Value="_amount" Label="@Loc["Amount"]"
+                                     Variant="Variant.Outlined" Min="0.01m" Required="true"
+                                     RequiredError="@Loc["RequiredField"]" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_paymentMethod" Label="@Loc["PaymentMethod"]" T="int" Variant="Variant.Outlined">
+                        <MudSelectItem Value="1">@Loc["Cash"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["Bank"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_description" Label="@Loc["Description"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudText Typo="Typo.body2" Class="mb-1 muted-text">@Loc["Attachment"]</MudText>
+                    <InputFile OnChange="OnFileSelected" />
+                    @if (!string.IsNullOrEmpty(_attachmentName))
+                    {
+                        <MudText Typo="Typo.caption" Class="muted-text mt-1">@_attachmentName</MudText>
+                    }
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IExpenseService ExpenseService { get; set; } = default!;
+    [Parameter] public List<ExpenseCategoryDto> Categories { get; set; } = new();
+
+    private MudForm? _form;
+    private Guid? _categoryId;
+    private DateTime? _expenseDate = DateTime.Today;
+    private decimal _amount;
+    private int _paymentMethod = 1;
+    private string? _description;
+    private string? _attachmentName;
+    private string? _attachmentPath;
+    private string? _error;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file is null) return;
+
+        const long maxBytes = 5 * 1024 * 1024;
+        if (file.Size > maxBytes)
+        {
+            _error = Loc["FileTooLarge"];
+            return;
+        }
+
+        var ext = Path.GetExtension(file.Name);
+        var safeName = Guid.NewGuid().ToString("N") + ext;
+        var uploadDir = Path.Combine(Env.WebRootPath, "uploads");
+        Directory.CreateDirectory(uploadDir);
+
+        await using (var fs = File.Create(Path.Combine(uploadDir, safeName)))
+        {
+            await file.OpenReadStream(maxBytes).CopyToAsync(fs);
+        }
+
+        _attachmentName = file.Name;
+        _attachmentPath = "uploads/" + safeName;
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid || _categoryId is null) return;
+
+        _error = null;
+        try
+        {
+            await ExpenseService.CreateAsync(new CreateExpenseEntryDto
+            {
+                ExpenseCategoryId = _categoryId.Value,
+                ExpenseDate = _expenseDate?.Date ?? DateTime.Today,
+                Amount = _amount,
+                PaymentMethod = _paymentMethod,
+                Description = _description,
+                AttachmentPath = _attachmentPath
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

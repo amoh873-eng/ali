@@ -1,0 +1,431 @@
+@page "/pos"
+@layout PosLayout
+@attribute [Authorize(Policy = "Permission:Pos.View")]
+@inject IStringLocalizer<SharedResources> Loc
+@inject NavigationManager Nav
+
+<div class="pos-root">
+    @* الشريط العلوي المصغّر *@
+    <div class="pos-topbar">
+        <div class="pos-brand">
+            <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Style="color:var(--erp-primary); font-size:1.8rem;" />
+            <span class="pos-brand-text">@Loc["Pos"]</span>
+        </div>
+        <div class="pos-search">
+            <MudTextField @bind-Value="_search" T="string" Placeholder="@Loc["PosSearchPlaceholder"]"
+                          Variant="Variant.Outlined" Adornment="Adornment.Start"
+                          AdornmentIcon="@Icons.Material.Filled.Search" Immediate="true"
+                          OnKeyDown="HandleSearchKeyDown" />
+        </div>
+        <div class="pos-topbar-right">
+            <MudText Typo="Typo.body2" Class="pos-muted">@Loc["PosCashier"]: @_cashierName</MudText>
+            <MudText Typo="Typo.body2" Class="pos-muted">@_clock</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" OnClick="OpenSettings" />
+            <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="ExitPos" />
+        </div>
+    </div>
+
+    <div class="pos-main">
+        <div class="pos-items">
+            <div class="pos-categories">
+                <button class="pos-cat @(_selectedCategoryId is null ? "active" : "")" style="--c:#6B7280;" @onclick="() => SelectCategory(null)">
+                    @Loc["All"]
+                </button>
+                @for (int i = 0; i < _categories.Count; i++)
+                {
+                    var cat = _categories[i];
+                    var color = CategoryColor(i);
+                    <button class="pos-cat @(_selectedCategoryId == cat.Id ? "active" : "")" style="--c:@color;" @onclick="() => SelectCategory(cat.Id)">
+                        @cat.NameAr
+                    </button>
+                }
+            </div>
+
+            <div class="pos-grid">
+                @foreach (var item in FilteredItems)
+                {
+                    <button class="pos-item" @onclick="() => AddItem(item)">
+                        <div class="pos-item-icon"><MudIcon Icon="@Icons.Material.Filled.Inventory2" /></div>
+                        <div class="pos-item-name">@item.NameAr</div>
+                        <div class="pos-item-price">@item.SalePrice.ToString("N2")</div>
+                    </button>
+                }
+                @if (FilteredItems.Count == 0)
+                {
+                    <MudText Class="pos-muted" Style="padding:16px;">@Loc["NoItems"]</MudText>
+                }
+            </div>
+        </div>
+        <div class="pos-cart">
+            <div class="pos-cart-left">
+            <div class="pos-cart-header">
+                <MudText Typo="Typo.subtitle1" Style="font-weight:700;">@Loc["PosCart"]</MudText>
+                <MudButton Variant="Variant.Text" Size="Size.Small" Color="Color.Error" OnClick="ClearCart">@Loc["PosClear"]</MudButton>
+            </div>
+
+            <MudAutocomplete T="CustomerDto" @bind-Value="_selectedCustomer" SearchFunc="@SearchCustomers"
+                             ToStringFunc="@(c => $"{c.Code} - {c.NameAr}")" Label="@Loc["Customer"]"
+                             Variant="Variant.Outlined" Dense="true" Margin="Margin.Dense" />
+
+            <div class="pos-cart-lines">
+                @foreach (var line in _cart)
+                {
+                    <div class="pos-line">
+                        <div class="pos-line-info">
+                            <div style="font-weight:600;">@line.Item.NameAr</div>
+                            <div class="pos-muted">@line.Item.SalePrice.ToString("N2")</div>
+                        </div>
+                        <div class="pos-line-qty">
+                            <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(line)" />
+                            <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
+                                   value="@line.Quantity.ToString("0.##")"
+                                   @onchange="@(e => SetQuantity(line, e.Value?.ToString()))" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(line)" />
+                        </div>
+                        <div class="pos-line-total">@line.LineTotal.ToString("N2")</div>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(line)" />
+                    </div>
+                }
+                @if (_cart.Count == 0)
+                {
+                    <MudText Class="pos-muted" Style="padding:16px;">@Loc["PosEmptyCart"]</MudText>
+                }
+            </div>
+
+            <div class="pos-discount">
+                <MudNumericField T="decimal" @bind-Value="_discountPercent" Label="@Loc["PosDiscountPercent"]"
+                                 Dense="true" Variant="Variant.Outlined" />
+            </div>
+
+            <div class="pos-totals">
+                <div class="pos-total-row"><span>@Loc["SubTotal"]</span><span>@SubTotal.ToString("N2")</span></div>
+                <div class="pos-total-row"><span>@Loc["DiscountAmount"]</span><span>@DiscountAmount.ToString("N2")</span></div>
+                <div class="pos-total-row"><span>@Loc["TaxAmount"]</span><span>@TaxAmount.ToString("N2")</span></div>
+                <div class="pos-total-row grand"><span>@Loc["Total"]</span><span>@TotalAmount.ToString("N2")</span></div>
+            </div>
+            </div>
+
+            <div class="pos-cart-right">
+            <div class="pos-payment">
+                <div class="pos-pay-methods">
+                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" @onclick="() => _paymentMethod = 1">@Loc["Cash"]</button>
+                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" @onclick="() => _paymentMethod = 2">@Loc["Card"]</button>
+                    <button class="pos-pay @(_paymentMethod == 3 ? "active" : "")" @onclick="() => _paymentMethod = 3">@Loc["PosCredit"]</button>
+                </div>
+
+                @if (_paymentMethod != 3)
+                {
+                    <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" ReadOnly="true" Variant="Variant.Outlined" Dense="true" />
+                    <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
+                    <div class="pos-keypad">
+                        @foreach (var key in KeypadKeys)
+                        {
+                            <button class="pos-key" @onclick="() => KeypadPress(key)">@key</button>
+                        }
+                    </div>
+                }
+
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy">
+                    <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
+                    @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))
+                </MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Success" FullWidth="true" Class="pos-new-invoice" OnClick="NewInvoice">
+                    <MudIcon Icon="@Icons.Material.Filled.Receipt" Class="mr-2" />
+                    @Loc["NewInvoice"]
+                </MudButton>
+            </div>
+            </div>
+        </div>
+    </div>
+</div>
+@code {
+    private class CartLine
+    {
+        public ItemDto Item { get; set; } = default!;
+        public decimal Quantity { get; set; } = 1;
+        public decimal LineTotal => Math.Round(Item.SalePrice * Quantity, 2);
+    }
+
+    private static readonly string[] CategoryColors = new[]
+    {
+        "#6D5BD0", "#3B82F6", "#14B8A6", "#F59E0B", "#F472B6", "#EF4444", "#8B5CF6", "#0EA5E9"
+    };
+
+    private static readonly string[] KeypadKeys = new[]
+    {
+        "1", "2", "3", "4", "5", "6", "7", "8", "9", "C", "0", "."
+    };
+
+    private bool _busy;
+    private string _search = string.Empty;
+    private string _receivedInput = string.Empty;
+    private string _cashierName = "?";
+    private string _clock = string.Empty;
+    private int _paymentMethod = 1;
+    private decimal _discountPercent;
+    private decimal _taxRate = 16;
+    private Guid? _selectedCategoryId;
+    private Guid? _defaultWarehouseId;
+
+    // إعدادات نقطة البيع (تُحفظ في localStorage وتُطبَّق كمتغيرات CSS)
+    private int _posColumns = 6;
+    private string _posSize = "medium";
+    private string _posAccent = "#6D5BD0";
+    private int _posCartWidth = 720;
+
+    private List<ItemDto> _items = new();
+    private List<CategoryDto> _categories = new();
+    private List<CustomerDto> _customers = new();
+    private CustomerDto? _walkInCustomer;
+    private CustomerDto? _selectedCustomer;
+    private readonly List<CartLine> _cart = new();
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private ICategoryService CategoryService { get; set; } = default!;
+    [Inject] private ICustomerService CustomerService { get; set; } = default!;
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+    [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private IJSRuntime Js { get; set; } = default!;
+
+    private List<ItemDto> FilteredItems
+    {
+        get
+        {
+            IEnumerable<ItemDto> query = _items;
+            if (_selectedCategoryId.HasValue)
+                query = query.Where(i => i.CategoryId == _selectedCategoryId.Value);
+            if (!string.IsNullOrWhiteSpace(_search))
+            {
+                var term = _search.Trim();
+                query = query.Where(i =>
+                    i.NameAr.Contains(term) ||
+                    (i.NameEn != null && i.NameEn.Contains(term, StringComparison.OrdinalIgnoreCase)) ||
+                    i.Code.Contains(term, StringComparison.OrdinalIgnoreCase) ||
+                    (i.Barcode != null && i.Barcode.Contains(term, StringComparison.OrdinalIgnoreCase)));
+            }
+            return query.ToList();
+        }
+    }
+
+    private decimal SubTotal => Math.Round(_cart.Sum(l => l.LineTotal), 2);
+    private decimal DiscountAmount => Math.Round(SubTotal * _discountPercent / 100m, 2);
+    private decimal TaxAmount => Math.Round((SubTotal - DiscountAmount) * _taxRate / 100m, 2);
+    private decimal TotalAmount => Math.Round(SubTotal - DiscountAmount + TaxAmount, 2);
+
+    private decimal ReceivedAmount => decimal.TryParse(_receivedInput, out var v) ? v : 0m;
+    private decimal Change => Math.Round(ReceivedAmount - TotalAmount, 2);
+    protected override async Task OnInitializedAsync()
+    {
+        _clock = DateTime.Now.ToString("yyyy-MM-dd HH:mm");
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            _cashierName = auth.User.Identity?.Name ?? "?";
+        }
+        catch { /* ignore */ }
+
+        await LoadPosSettingsAsync();
+        await LoadAsync();
+    }
+
+    private async Task LoadPosSettingsAsync()
+    {
+        try
+        {
+            var json = await Js.InvokeAsync<string?>("erpLoadPosSettings");
+            if (string.IsNullOrEmpty(json)) return;
+
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var root = doc.RootElement;
+            if (root.TryGetProperty("columns", out var c)) _posColumns = c.GetInt32();
+            if (root.TryGetProperty("size", out var s)) _posSize = s.GetString() ?? "medium";
+            if (root.TryGetProperty("accent", out var a)) _posAccent = a.GetString() ?? "#6D5BD0";
+            if (root.TryGetProperty("cartWidth", out var w)) _posCartWidth = w.GetInt32();
+
+            var scale = _posSize switch { "small" => 0.85, "large" => 1.2, _ => 1.0 };
+            await Js.InvokeVoidAsync("erpApplyPosSettings", _posColumns, _posCartWidth, _posAccent, scale);
+        }
+        catch { /* ignore */ }
+    }
+
+    private async Task OpenSettings()
+    {
+        var parameters = new DialogParameters
+        {
+            ["Columns"] = _posColumns,
+            ["Size"] = _posSize,
+            ["Accent"] = _posAccent,
+            ["CartWidth"] = _posCartWidth
+        };
+        var dialog = await DialogService.ShowAsync<PosSettingsDialog>(
+            Loc["PosSettings"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            await LoadPosSettingsAsync();
+        }
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _items = await ItemService.GetAllAsync();
+            _categories = await CategoryService.GetAllAsync();
+            _customers = await CustomerService.GetAllAsync();
+            var warehouses = await WarehouseService.GetAllAsync();
+            _defaultWarehouseId = warehouses.FirstOrDefault(w => w.IsDefault)?.Id ?? warehouses.FirstOrDefault()?.Id;
+            _walkInCustomer = _customers.FirstOrDefault(c => c.Code == "CASH");
+            _selectedCustomer ??= _walkInCustomer;
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private string CategoryColor(int index) => CategoryColors[index % CategoryColors.Length];
+
+    private void SelectCategory(Guid? categoryId) => _selectedCategoryId = categoryId;
+
+    private void AddItem(ItemDto item)
+    {
+        var line = _cart.FirstOrDefault(l => l.Item.Id == item.Id);
+        if (line is null) _cart.Add(new CartLine { Item = item, Quantity = 1 });
+        else line.Quantity += 1;
+    }
+
+    private void Increment(CartLine line) => line.Quantity += 1;
+    private void Decrement(CartLine line)
+    {
+        line.Quantity -= 1;
+        if (line.Quantity <= 0) _cart.Remove(line);
+    }
+
+    /// <summary>تحديث الكمية يدويًا من صندوق الكمية في سطر السلة.</summary>
+    private void SetQuantity(CartLine line, string? raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return;
+        var normalized = raw.Trim().Replace(',', '.');
+        if (decimal.TryParse(normalized, System.Globalization.CultureInfo.InvariantCulture, out var q))
+        {
+            if (q <= 0) _cart.Remove(line);
+            else line.Quantity = q;
+        }
+    }
+
+    private void Remove(CartLine line) => _cart.Remove(line);
+    private void ClearCart() => _cart.Clear();
+
+    /// <summary>بدء فاتورة جديدة: مسح السلة وإعادة ضبط الدفع والخصم والبحث.</summary>
+    private void NewInvoice()
+    {
+        ClearCart();
+        _receivedInput = string.Empty;
+        _paymentMethod = 1;
+        _search = string.Empty;
+        _discountPercent = 0;
+    }
+
+    private void KeypadPress(string key)
+    {
+        if (key == "C") { _receivedInput = string.Empty; return; }
+        if (key == "." && _receivedInput.Contains(".")) return;
+        _receivedInput += key;
+    }
+
+    private async Task HandleSearchKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key == "Enter")
+        {
+            var term = _search?.Trim();
+            var match = _items.FirstOrDefault(i => !string.IsNullOrEmpty(i.Barcode) && i.Barcode == term);
+            if (match is not null)
+            {
+                AddItem(match);
+                _search = string.Empty;
+            }
+        }
+    }
+
+    private Task<IEnumerable<CustomerDto>> SearchCustomers(string text, CancellationToken ct)
+    {
+        var q = string.IsNullOrWhiteSpace(text)
+            ? _customers
+            : _customers.Where(c =>
+                c.Code.Contains(text, StringComparison.OrdinalIgnoreCase) ||
+                c.NameAr.Contains(text) ||
+                (c.NameEn != null && c.NameEn.Contains(text, StringComparison.OrdinalIgnoreCase)));
+        return Task.FromResult(q.Take(50).AsEnumerable());
+    }
+
+    private void ExitPos() => Nav.NavigateTo("/");
+    private async Task CompleteSale()
+    {
+        if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
+        if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
+        if (_selectedCustomer is null) { Snackbar.Add(Loc["PosCreditNeedsCustomer"], Severity.Warning); return; }
+
+        var isCredit = _paymentMethod == 3;
+        if (isCredit && _selectedCustomer.Code == "CASH")
+        {
+            Snackbar.Add(Loc["PosCreditNeedsCustomer"], Severity.Warning);
+            return;
+        }
+
+        var total = TotalAmount;
+        if (!isCredit && ReceivedAmount < total)
+        {
+            Snackbar.Add(Loc["PosInsufficient"], Severity.Warning);
+            return;
+        }
+
+        _busy = true;
+        try
+        {
+            var dto = new CreateSalesInvoiceDto
+            {
+                CustomerId = _selectedCustomer.Id,
+                WarehouseId = _defaultWarehouseId.Value,
+                InvoiceDate = DateTime.Today,
+                InvoiceType = isCredit ? (int)SalesInvoiceType.OnAccount : (int)SalesInvoiceType.Cash,
+                DiscountPercentage = _discountPercent,
+                TaxRate = _taxRate,
+                Note = "POS",
+                IsPos = true,
+                Lines = _cart.Select(l => new CreateSalesInvoiceLineDto
+                {
+                    ItemId = l.Item.Id, Quantity = l.Quantity, UnitPrice = l.Item.SalePrice
+                }).ToList()
+            };
+
+            var invoice = await SalesInvoiceService.CreateAsync(dto);
+            var received = isCredit ? 0m : ReceivedAmount;
+            var change = isCredit ? 0m : Math.Round(received - total, 2);
+
+            ClearCart();
+            _receivedInput = string.Empty;
+            _search = string.Empty;
+
+            var paymentLabel = _paymentMethod switch { 1 => Loc["Cash"], 2 => Loc["Card"], 3 => Loc["PosCredit"], _ => "" };
+            _paymentMethod = 1;
+
+            Snackbar.Add($"{Loc["PosSaleDone"]} — {invoice.InvoiceNumber}", Severity.Success);
+            var receiptParams = new DialogParameters
+            {
+                ["Invoice"] = invoice,
+                ["PaymentMethodLabel"] = paymentLabel,
+                ["Received"] = received,
+                ["Change"] = change,
+                ["CashierName"] = _cashierName
+            };
+            await DialogService.ShowAsync<PosReceiptDialog>(
+                Loc["Receipt"], receiptParams,
+                new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, FullWidth = false });
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+}
+

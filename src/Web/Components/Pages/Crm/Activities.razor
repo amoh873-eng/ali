@@ -1,0 +1,148 @@
+@page "/crm/activities"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة سجل التواصل: قائمة الأنشطة مع فلترة حسب النوع والعميل *@
+
+<PageTitle>@Loc["Activities"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["Activities"]" Icon="@Icons.Material.Filled.History" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">@Loc["AddActivity"]</MudButton>
+    <MudSpacer />
+    <MudSelect @bind-Value="_filterType" Label="@Loc["ActivityType"]" T="int?" Variant="Variant.Outlined"
+               Clearable="true" Dense="true" Class="mr-2" Style="min-width:150px;">
+        <MudSelectItem T="int?" Value="1">@Loc["ActivityCall"]</MudSelectItem>
+        <MudSelectItem T="int?" Value="2">@Loc["ActivityMeeting"]</MudSelectItem>
+        <MudSelectItem T="int?" Value="3">@Loc["ActivityEmail"]</MudSelectItem>
+        <MudSelectItem T="int?" Value="4">@Loc["ActivityNote"]</MudSelectItem>
+    </MudSelect>
+    <MudSelect @bind-Value="_filterCustomerId" Label="@Loc["Customer"]" T="Guid?" Variant="Variant.Outlined"
+               Clearable="true" Dense="true" Class="mr-2" Style="min-width:200px;">
+        @foreach (var c in _customers)
+        {
+            <MudSelectItem T="Guid?" Value="@c.Id">@($"{c.Code} - {c.NameAr}")</MudSelectItem>
+        }
+    </MudSelect>
+    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" OnClick="ApplyFilter" Class="mr-2">@Loc["ApplyFilter"]</MudButton>
+    <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ClearFilter">@Loc["ClearFilter"]</MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_activities.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoActivities"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_activities" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["ActivityDate"]</MudTh>
+                <MudTh>@Loc["ActivityType"]</MudTh>
+                <MudTh>@Loc["Description"]</MudTh>
+                <MudTh>@Loc["Related"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.ActivityDate.ToString("yyyy-MM-dd HH:mm")</MudTd>
+                <MudTd>@TypeLabel(context.Type)</MudTd>
+                <MudTd>@context.Description</MudTd>
+                <MudTd>@SubjectLabel(context)</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteActivity(context)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+@code {
+    private bool _isLoading = true;
+    private List<ActivityDto> _activities = new();
+    private List<CustomerDto> _customers = new();
+    private List<LeadDto> _leads = new();
+    private List<OpportunityDto> _opportunities = new();
+    private int? _filterType;
+    private Guid? _filterCustomerId;
+
+    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private ICustomerService CustomerService { get; set; } = default!;
+    [Inject] private ILeadService LeadService { get; set; } = default!;
+    [Inject] private IOpportunityService OpportunityService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _activities = await ActivityService.GetAllAsync(_filterCustomerId, null, null, _filterType);
+            _customers = await CustomerService.GetAllAsync();
+            _leads = await LeadService.GetAllAsync();
+            _opportunities = await OpportunityService.GetAllAsync();
+        }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task ApplyFilter() => await LoadAsync();
+
+    private async Task ClearFilter()
+    {
+        _filterType = null;
+        _filterCustomerId = null;
+        await LoadAsync();
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["ActivityService"] = ActivityService,
+            ["Customers"] = _customers,
+            ["Leads"] = _leads,
+            ["Opportunities"] = _opportunities
+        };
+        var dialog = await DialogService.ShowAsync<ActivityFormDialog>(
+            Loc["AddActivity"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["ActivitySaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private string TypeLabel(int t) => t switch
+    {
+        1 => Loc["ActivityCall"], 2 => Loc["ActivityMeeting"], 3 => Loc["ActivityEmail"], 4 => Loc["ActivityNote"], _ => ""
+    };
+
+    private static string SubjectLabel(ActivityDto a)
+    {
+        var parts = new List<string>();
+        if (!string.IsNullOrEmpty(a.CustomerName)) parts.Add(a.CustomerName);
+        if (!string.IsNullOrEmpty(a.LeadName)) parts.Add(a.LeadName);
+        if (!string.IsNullOrEmpty(a.OpportunityTitle)) parts.Add(a.OpportunityTitle);
+        return string.Join(" / ", parts);
+    }
+
+    private async Task DeleteActivity(ActivityDto a)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"], Loc["DeleteConfirm"],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try { await ActivityService.DeleteAsync(a.Id); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

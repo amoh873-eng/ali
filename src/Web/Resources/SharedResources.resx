@@ -1,0 +1,289 @@
+<?xml version="1.0" encoding="utf-8"?>
+<root>
+  <resheader name="resmimetype">
+    <value>text/microsoft-resx</value>
+  </resheader>
+  <resheader name="version">
+    <value>2.0</value>
+  </resheader>
+  <resheader name="reader">
+    <value>System.Resources.ResXResourceReader, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <resheader name="writer">
+    <value>System.Resources.ResXResourceWriter, System.Windows.Forms, Version=4.0.0.0, Culture=neutral, PublicKeyToken=b77a5c561934e089</value>
+  </resheader>
+  <data name="AppName" xml:space="preserve"><value>نظام ERP المحاسبي</value></data>
+  <data name="Dashboard" xml:space="preserve"><value>لوحة التحكم</value></data>
+  <data name="Accounting" xml:space="preserve"><value>المحاسبة</value></data>
+  <data name="Accounts" xml:space="preserve"><value>شجرة الحسابات</value></data>
+  <data name="JournalEntries" xml:space="preserve"><value>القيود اليومية</value></data>
+  <data name="GeneralLedger" xml:space="preserve"><value>دفتر الأستاذ</value></data>
+  <data name="TrialBalance" xml:space="preserve"><value>ميزان المراجعة</value></data>
+  <data name="FinancialStatements" xml:space="preserve"><value>القوائم المالية</value></data>
+  <data name="Inventory" xml:space="preserve"><value>المخازن</value></data>
+  <data name="Items" xml:space="preserve"><value>الأصناف والمخزون</value></data>
+  <data name="Categories" xml:space="preserve"><value>فئات الأصناف</value></data>
+  <data name="Units" xml:space="preserve"><value>وحدات القياس</value></data>
+  <data name="Warehouses" xml:space="preserve"><value>المخازن</value></data>
+  <data name="Movements" xml:space="preserve"><value>حركات المخزون</value></data>
+  <data name="Sales" xml:space="preserve"><value>المبيعات</value></data>
+  <data name="Customers" xml:space="preserve"><value>العملاء</value></data>
+  <data name="SalesInvoices" xml:space="preserve"><value>فواتير المبيعات</value></data>
+  <data name="SalesReturns" xml:space="preserve"><value>مردودات المبيعات</value></data>
+  <data name="Purchases" xml:space="preserve"><value>المشتريات</value></data>
+  <data name="Suppliers" xml:space="preserve"><value>الموردون</value></data>
+  <data name="PurchaseInvoices" xml:space="preserve"><value>فواتير المشتريات</value></data>
+  <data name="PurchaseReturns" xml:space="preserve"><value>مردودات المشتريات</value></data>
+  <data name="SystemManager" xml:space="preserve"><value>مدير النظام</value></data>
+  <data name="NotLoggedIn" xml:space="preserve"><value>غير مسجّل الدخول</value></data>
+  <data name="Notifications" xml:space="preserve"><value>الإشعارات</value></data>
+  <data name="LowStockAlert" xml:space="preserve"><value>لديك {0} صنف تحت الحد الأدنى</value></data>
+  <data name="Language" xml:space="preserve"><value>اللغة</value></data>
+  <data name="DashboardSubtitle" xml:space="preserve"><value>نظرة عامة على مؤشرات الأداء الرئيسية</value></data>
+  <data name="NetSales" xml:space="preserve"><value>صافي المبيعات</value></data>
+  <data name="NetPurchases" xml:space="preserve"><value>صافي المشتريات</value></data>
+  <data name="InventoryValue" xml:space="preserve"><value>قيمة المخزون</value></data>
+  <data name="LowStockItems" xml:space="preserve"><value>أصناف تحت الحد الأدنى</value></data>
+  <data name="SalesToday" xml:space="preserve"><value>مبيعات اليوم</value></data>
+  <data name="SalesYesterday" xml:space="preserve"><value>مبيعات الأمس</value></data>
+  <data name="SalesVsPurchases" xml:space="preserve"><value>حركة المبيعات مقابل المشتريات</value></data>
+  <data name="Last7Days" xml:space="preserve"><value>آخر 7 أيام</value></data>
+  <data name="InventoryByCategory" xml:space="preserve"><value>توزيع المخزون حسب الفئة</value></data>
+  <data name="InventoryValuePerCategory" xml:space="preserve"><value>قيمة المخزون لكل فئة</value></data>
+  <data name="LatestInvoices" xml:space="preserve"><value>أحدث فواتير المبيعات</value></data>
+  <data name="Last5" xml:space="preserve"><value>آخر 5 فواتير</value></data>
+  <data name="InvoiceNumber" xml:space="preserve"><value>رقم الفاتورة</value></data>
+  <data name="Customer" xml:space="preserve"><value>العميل</value></data>
+  <data name="Date" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="Status" xml:space="preserve"><value>الحالة</value></data>
+  <data name="Total" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="Home" xml:space="preserve"><value>الرئيسية</value></data>
+  <data name="Reports" xml:space="preserve"><value>التقارير</value></data>
+  <data name="Logout" xml:space="preserve"><value>تسجيل الخروج</value></data>
+  <data name="Login" xml:space="preserve"><value>تسجيل الدخول</value></data>
+  <data name="SalesQuotes" xml:space="preserve"><value>عروض الأسعار</value></data>
+  <data name="PurchaseOrders" xml:space="preserve"><value>أوامر الشراء</value></data>
+  <data name="StockCounts" xml:space="preserve"><value>الجرد الدوري</value></data>
+  <data name="HumanResources" xml:space="preserve"><value>الموارد البشرية</value></data>
+  <data name="Departments" xml:space="preserve"><value>الأقسام</value></data>
+  <data name="Positions" xml:space="preserve"><value>المسميات الوظيفية</value></data>
+  <data name="Employees" xml:space="preserve"><value>الموظفون</value></data>
+  <data name="Leaves" xml:space="preserve"><value>الإجازات</value></data>
+  <data name="InventoryMovement" xml:space="preserve"><value>حركة المخزون</value></data>
+  <data name="InventoryMovementSub" xml:space="preserve"><value>توزيع الحركات الواردة والصادرة حسب النوع</value></data>
+  <data name="SalesVsPurchasesTotal" xml:space="preserve"><value>إجمالي المبيعات مقابل المشتريات</value></data>
+  <data name="TotalMovement" xml:space="preserve"><value>إجمالي الحركة</value></data>
+  <data name="NoInventoryMovement" xml:space="preserve"><value>لا توجد حركات مخزون بعد لعرض الرسم.</value></data>
+  <data name="NoSalesPurchases" xml:space="preserve"><value>لا توجد بيانات مبيعات أو مشتريات بعد لعرض الرسم.</value></data>
+  <data name="Expenses" xml:space="preserve"><value>المصاريف</value></data>
+  <data name="ExpenseCategories" xml:space="preserve"><value>فئات المصاريف</value></data>
+  <data name="ExpenseEntries" xml:space="preserve"><value>سندات المصروف</value></data>
+  <data name="AddExpenseCategory" xml:space="preserve"><value>إضافة فئة مصروف</value></data>
+  <data name="AddExpenseEntry" xml:space="preserve"><value>تسجيل سند مصروف</value></data>
+  <data name="EditExpenseCategory" xml:space="preserve"><value>تعديل فئة المصروف</value></data>
+  <data name="Code" xml:space="preserve"><value>الكود</value></data>
+  <data name="NameAr" xml:space="preserve"><value>الاسم (عربي)</value></data>
+  <data name="NameEn" xml:space="preserve"><value>الاسم (إنجليزي)</value></data>
+  <data name="Description" xml:space="preserve"><value>الوصف</value></data>
+  <data name="ExpenseAccount" xml:space="preserve"><value>حساب المصروف</value></data>
+  <data name="EntryNumber" xml:space="preserve"><value>رقم السند</value></data>
+  <data name="ExpenseDate" xml:space="preserve"><value>تاريخ المصروف</value></data>
+  <data name="Amount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="PaymentMethod" xml:space="preserve"><value>طريقة الدفع</value></data>
+  <data name="Cash" xml:space="preserve"><value>نقدًا</value></data>
+  <data name="Bank" xml:space="preserve"><value>بنك</value></data>
+  <data name="ExpenseCategory" xml:space="preserve"><value>فئة المصروف</value></data>
+  <data name="Attachment" xml:space="preserve"><value>المرفق</value></data>
+  <data name="Actions" xml:space="preserve"><value>إجراءات</value></data>
+  <data name="Save" xml:space="preserve"><value>حفظ</value></data>
+  <data name="Cancel" xml:space="preserve"><value>إلغاء</value></data>
+  <data name="Add" xml:space="preserve"><value>إضافة</value></data>
+  <data name="Edit" xml:space="preserve"><value>تعديل</value></data>
+  <data name="Delete" xml:space="preserve"><value>حذف</value></data>
+  <data name="DeleteConfirmation" xml:space="preserve"><value>تأكيد الحذف</value></data>
+  <data name="FromDate" xml:space="preserve"><value>من تاريخ</value></data>
+  <data name="ToDate" xml:space="preserve"><value>إلى تاريخ</value></data>
+  <data name="NoExpenseCategories" xml:space="preserve"><value>لا توجد فئات مصروف. اضغط زر الإضافة لإنشاء أول فئة.</value></data>
+  <data name="NoExpenseEntries" xml:space="preserve"><value>لا توجد سندات مصروف تطابق الفلترة.</value></data>
+  <data name="SelectExpenseAccount" xml:space="preserve"><value>اختر حساب المصروف</value></data>
+  <data name="RequiredField" xml:space="preserve"><value>هذا الحقل مطلوب</value></data>
+  <data name="DownloadAttachment" xml:space="preserve"><value>تحميل المرفق</value></data>
+  <data name="DeleteCategoryConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف فئة المصروف '{0}'؟</value></data>
+  <data name="CategorySaved" xml:space="preserve"><value>تم حفظ فئة المصروف بنجاح</value></data>
+  <data name="EntrySaved" xml:space="preserve"><value>تم ترحيل سند المصروف بنجاح</value></data>
+  <data name="CategoryUpdated" xml:space="preserve"><value>تم تعديل فئة المصروف بنجاح</value></data>
+  <data name="CategoryDeleted" xml:space="preserve"><value>تم حذف فئة المصروف بنجاح</value></data>
+  <data name="SystemCategoryEditWarning" xml:space="preserve"><value>لا يمكن تعديل الفئات النظامية</value></data>
+  <data name="SystemCategoryDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الفئات النظامية</value></data>
+  <data name="LoadError" xml:space="preserve"><value>خطأ في تحميل البيانات:</value></data>
+  <data name="CategoriesCount" xml:space="preserve"><value>{0} فئة</value></data>
+  <data name="RowsPerPage" xml:space="preserve"><value>صفوف لكل صفحة</value></data>
+  <data name="PagerInfo" xml:space="preserve"><value>{first_item}-{last_item} من {all_items}</value></data>
+  <data name="ApplyFilter" xml:space="preserve"><value>تطبيق الفلترة</value></data>
+  <data name="ClearFilter" xml:space="preserve"><value>مسح الفلترة</value></data>
+  <data name="FileTooLarge" xml:space="preserve"><value>حجم الملف كبير جداً (الحد الأقصى 5 م.ب)</value></data>
+  <data name="Crm" xml:space="preserve"><value>إدارة علاقات العملاء</value></data>
+  <data name="Leads" xml:space="preserve"><value>العملاء المحتملون</value></data>
+  <data name="Opportunities" xml:space="preserve"><value>الفرص البيعية</value></data>
+  <data name="Activities" xml:space="preserve"><value>سجل التواصل</value></data>
+  <data name="FollowUps" xml:space="preserve"><value>المتابعات</value></data>
+  <data name="AddLead" xml:space="preserve"><value>إضافة عميل محتمل</value></data>
+  <data name="EditLead" xml:space="preserve"><value>تعديل عميل محتمل</value></data>
+  <data name="ContactPerson" xml:space="preserve"><value>جهة الاتصال</value></data>
+  <data name="Phone" xml:space="preserve"><value>الهاتف</value></data>
+  <data name="Email" xml:space="preserve"><value>البريد الإلكتروني</value></data>
+  <data name="Address" xml:space="preserve"><value>العنوان</value></data>
+  <data name="TaxNumber" xml:space="preserve"><value>الرقم الضريبي</value></data>
+  <data name="Notes" xml:space="preserve"><value>ملاحظات</value></data>
+  <data name="LeadSource" xml:space="preserve"><value>المصدر</value></data>
+  <data name="ConvertToCustomer" xml:space="preserve"><value>تحويل لعميل</value></data>
+  <data name="ConvertLeadConfirm" xml:space="preserve"><value>سيتم إنشاء عميل جديد من هذا المحتمل وربطه به.</value></data>
+  <data name="LeadConverted" xml:space="preserve"><value>تم تحويل العميل المحتمل لعميل بنجاح</value></data>
+  <data name="LeadSaved" xml:space="preserve"><value>تم حفظ العميل المحتمل بنجاح</value></data>
+  <data name="LeadUpdated" xml:space="preserve"><value>تم تعديل العميل المحتمل بنجاح</value></data>
+  <data name="LeadDeleted" xml:space="preserve"><value>تم حذف العميل المحتمل بنجاح</value></data>
+  <data name="NoLeads" xml:space="preserve"><value>لا يوجد عملاء محتملون</value></data>
+  <data name="LeadNew" xml:space="preserve"><value>جديد</value></data>
+  <data name="LeadContacted" xml:space="preserve"><value>تم التواصل</value></data>
+  <data name="LeadQualified" xml:space="preserve"><value>مؤهّل</value></data>
+  <data name="LeadConvertedStatus" xml:space="preserve"><value>محوّل لعميل</value></data>
+  <data name="LeadRejected" xml:space="preserve"><value>مرفوض</value></data>
+  <data name="SourceWebsite" xml:space="preserve"><value>موقع إلكتروني</value></data>
+  <data name="SourcePhone" xml:space="preserve"><value>هاتف</value></data>
+  <data name="SourceReferral" xml:space="preserve"><value>إحالة</value></data>
+  <data name="SourceWalkIn" xml:space="preserve"><value>زيارة مباشرة</value></data>
+  <data name="SourceSocialMedia" xml:space="preserve"><value>وسائل التواصل</value></data>
+  <data name="SourceOther" xml:space="preserve"><value>أخرى</value></data>
+  <data name="AddOpportunity" xml:space="preserve"><value>إضافة فرصة بيعية</value></data>
+  <data name="EditOpportunity" xml:space="preserve"><value>تعديل الفرصة</value></data>
+  <data name="Title" xml:space="preserve"><value>العنوان</value></data>
+  <data name="ExpectedValue" xml:space="preserve"><value>القيمة المتوقعة</value></data>
+  <data name="OpportunityStage" xml:space="preserve"><value>مرحلة البيع</value></data>
+  <data name="ExpectedCloseDate" xml:space="preserve"><value>تاريخ الإغلاق المتوقع</value></data>
+  <data name="Lead" xml:space="preserve"><value>العميل المحتمل</value></data>
+  <data name="OpportunitySaved" xml:space="preserve"><value>تم حفظ الفرصة بنجاح</value></data>
+  <data name="OpportunityDeleted" xml:space="preserve"><value>تم حذف الفرصة بنجاح</value></data>
+  <data name="NoOpportunities" xml:space="preserve"><value>لا توجد فرص بيعية</value></data>
+  <data name="StageProspecting" xml:space="preserve"><value>استكشاف</value></data>
+  <data name="StageQualification" xml:space="preserve"><value>تأهيل</value></data>
+  <data name="StageProposal" xml:space="preserve"><value>عرض سعر</value></data>
+  <data name="StageNegotiation" xml:space="preserve"><value>تفاوض</value></data>
+  <data name="StageWon" xml:space="preserve"><value>فاز</value></data>
+  <data name="StageLost" xml:space="preserve"><value>خسر</value></data>
+  <data name="AddActivity" xml:space="preserve"><value>إضافة نشاط</value></data>
+  <data name="ActivityType" xml:space="preserve"><value>النوع</value></data>
+  <data name="ActivityDate" xml:space="preserve"><value>تاريخ النشاط</value></data>
+  <data name="ActivitySaved" xml:space="preserve"><value>تمت إضافة النشاط بنجاح</value></data>
+  <data name="NoActivities" xml:space="preserve"><value>لا توجد أنشطة</value></data>
+  <data name="ActivityCall" xml:space="preserve"><value>مكالمة</value></data>
+  <data name="ActivityMeeting" xml:space="preserve"><value>اجتماع</value></data>
+  <data name="ActivityEmail" xml:space="preserve"><value>بريد</value></data>
+  <data name="ActivityNote" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="AddFollowUp" xml:space="preserve"><value>إضافة متابعة</value></data>
+  <data name="FollowUpDate" xml:space="preserve"><value>تاريخ المتابعة</value></data>
+  <data name="MarkDone" xml:space="preserve"><value>إنجاز</value></data>
+  <data name="FollowUpSaved" xml:space="preserve"><value>تمت إضافة المتابعة بنجاح</value></data>
+  <data name="NoFollowUps" xml:space="preserve"><value>لا توجد متابعات</value></data>
+  <data name="FollowUpPending" xml:space="preserve"><value>معلّقة</value></data>
+  <data name="FollowUpDone" xml:space="preserve"><value>منجزة</value></data>
+  <data name="DeleteConfirm" xml:space="preserve"><value>هل أنت متأكد من الحذف؟</value></data>
+  <data name="Related" xml:space="preserve"><value>المرتبط بـ</value></data>
+  <data name="Pos" xml:space="preserve"><value>نقطة البيع</value></data>
+  <data name="PosSearchPlaceholder" xml:space="preserve"><value>ابحث بالاسم أو الكود أو الباركود…</value></data>
+  <data name="PosCashier" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="PosCart" xml:space="preserve"><value>السلة</value></data>
+  <data name="PosClear" xml:space="preserve"><value>مسح</value></data>
+  <data name="PosEmptyCart" xml:space="preserve"><value>السلة فارغة</value></data>
+  <data name="PosDiscountPercent" xml:space="preserve"><value>الخصم %</value></data>
+  <data name="PosReceived" xml:space="preserve"><value>المبلغ المستلم</value></data>
+  <data name="PosChange" xml:space="preserve"><value>الباقي</value></data>
+  <data name="PosCheckout" xml:space="preserve"><value>إتمام البيع</value></data>
+  <data name="PosCredit" xml:space="preserve"><value>آجل</value></data>
+  <data name="Card" xml:space="preserve"><value>بطاقة</value></data>
+  <data name="PosSaleDone" xml:space="preserve"><value>تم إتمام عملية البيع بنجاح</value></data>
+  <data name="NewInvoice" xml:space="preserve"><value>فاتورة جديدة</value></data>
+  <data name="PosSettings" xml:space="preserve"><value>إعدادات نقطة البيع</value></data>
+  <data name="PosColumns" xml:space="preserve"><value>عدد الأعمدة</value></data>
+  <data name="PosButtonSize" xml:space="preserve"><value>حجم الأزرار</value></data>
+  <data name="PosAccentColor" xml:space="preserve"><value>لون المنتجات</value></data>
+  <data name="PosCartWidth" xml:space="preserve"><value>عرض السلة</value></data>
+  <data name="Small" xml:space="preserve"><value>صغير</value></data>
+  <data name="Medium" xml:space="preserve"><value>متوسط</value></data>
+  <data name="Large" xml:space="preserve"><value>كبير</value></data>
+  <data name="PosInsufficient" xml:space="preserve"><value>المبلغ المستلم غير كافٍ</value></data>
+  <data name="PosCreditNeedsCustomer" xml:space="preserve"><value>البيع الآجل يتطلب اختيار عميل حقيقي</value></data>
+  <data name="PosNoWarehouse" xml:space="preserve"><value>لا يوجد مخزن افتراضي</value></data>
+  <data name="SubTotal" xml:space="preserve"><value>الإجمالي الفرعي</value></data>
+  <data name="DiscountAmount" xml:space="preserve"><value>الخصم</value></data>
+  <data name="TaxAmount" xml:space="preserve"><value>الضريبة</value></data>
+  <data name="All" xml:space="preserve"><value>الكل</value></data>
+  <data name="NoItems" xml:space="preserve"><value>لا توجد أصناف</value></data>
+  <data name="Ok" xml:space="preserve"><value>حسنًا</value></data>
+  <data name="Password" xml:space="preserve"><value>كلمة المرور</value></data>
+  <data name="RememberMe" xml:space="preserve"><value>تذكرني</value></data>
+  <data name="LoginFailed" xml:space="preserve"><value>فشل تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.</value></data>
+  <data name="LoginSubtitle" xml:space="preserve"><value>سجّل الدخول للمتابعة إلى النظام</value></data>
+  <data name="DemoCredentials" xml:space="preserve"><value>حساب تجريبي: admin@erp.com / Admin@123</value></data>
+  <data name="Permissions" xml:space="preserve"><value>الصلاحيات</value></data>
+  <data name="Roles" xml:space="preserve"><value>الأدوار</value></data>
+  <data name="Users" xml:space="preserve"><value>المستخدمون</value></data>
+  <data name="View" xml:space="preserve"><value>عرض</value></data>
+  <data name="RoleName" xml:space="preserve"><value>اسم الدور</value></data>
+  <data name="AddRole" xml:space="preserve"><value>إضافة دور</value></data>
+  <data name="EditPermissions" xml:space="preserve"><value>تعديل الصلاحيات</value></data>
+  <data name="Module" xml:space="preserve"><value>الموديول</value></data>
+  <data name="AssignRoles" xml:space="preserve"><value>تعيين الأدوار</value></data>
+  <data name="UserName" xml:space="preserve"><value>اسم المستخدم</value></data>
+  <data name="RoleSaved" xml:space="preserve"><value>تم حفظ الدور بنجاح</value></data>
+  <data name="PermissionsSaved" xml:space="preserve"><value>تم حفظ الصلاحيات بنجاح</value></data>
+  <data name="RoleDeleted" xml:space="preserve"><value>تم حذف الدور بنجاح</value></data>
+  <data name="RolesAssigned" xml:space="preserve"><value>تم تعيين الأدوار بنجاح</value></data>
+  <data name="NoRoles" xml:space="preserve"><value>لا توجد أدوار</value></data>
+  <data name="NoUsers" xml:space="preserve"><value>لا يوجد مستخدمون</value></data>
+  <data name="SelectAll" xml:space="preserve"><value>تحديد الكل</value></data>
+  <data name="AccessDenied" xml:space="preserve"><value>وصول مرفوض</value></data>
+  <data name="AccessDeniedMessage" xml:space="preserve"><value>لا تملك الصلاحية للوصول إلى هذه الصفحة.</value></data>
+  <data name="Receipt" xml:space="preserve"><value>إيصال بيع</value></data>
+  <data name="Print" xml:space="preserve"><value>طباعة</value></data>
+  <data name="ThankYou" xml:space="preserve"><value>شكراً لزيارتكم</value></data>
+  <data name="Item" xml:space="preserve"><value>الصنف</value></data>
+  <data name="Qty" xml:space="preserve"><value>الكمية</value></data>
+  <data name="Price" xml:space="preserve"><value>السعر</value></data>
+  <data name="AddUser" xml:space="preserve"><value>إضافة مستخدم</value></data>
+  <data name="ConfirmPassword" xml:space="preserve"><value>تأكيد كلمة المرور</value></data>
+  <data name="UserSaved" xml:space="preserve"><value>تم حفظ المستخدم بنجاح</value></data>
+  <data name="PasswordsDoNotMatch" xml:space="preserve"><value>كلمتا المرور غير متطابقتين</value></data>
+  <data name="UserDeleted" xml:space="preserve"><value>تم حذف المستخدم بنجاح</value></data>
+  <data name="SystemAdmin" xml:space="preserve"><value>إدارة النظام</value></data>
+  <data name="SystemAdminSub" xml:space="preserve"><value>مراقبة صحة النظام وسجل الأخطاء (صلاحية SuperAdmin فقط)</value></data>
+  <data name="SystemHealth" xml:space="preserve"><value>صحة النظام</value></data>
+  <data name="SystemHealthSub" xml:space="preserve"><value>حالة قاعدة البيانات والترحيلات ومعلومات البيئة</value></data>
+  <data name="ErrorLog" xml:space="preserve"><value>سجل الأخطاء</value></data>
+  <data name="ErrorLogSub" xml:space="preserve"><value>الاستثناءات غير المعالجة المسجلة تلقائياً</value></data>
+  <data name="Open" xml:space="preserve"><value>فتح</value></data>
+  <data name="Close" xml:space="preserve"><value>إغلاق</value></data>
+  <data name="DatabaseStatus" xml:space="preserve"><value>حالة قاعدة البيانات</value></data>
+  <data name="MigrationsStatus" xml:space="preserve"><value>حالة الترحيلات</value></data>
+  <data name="EnvironmentInfo" xml:space="preserve"><value>معلومات البيئة</value></data>
+  <data name="Last24hErrors" xml:space="preserve"><value>أخطاء آخر 24 ساعة</value></data>
+  <data name="Healthy" xml:space="preserve"><value>سليم</value></data>
+  <data name="Error" xml:space="preserve"><value>خطأ</value></data>
+  <data name="ResponseTime" xml:space="preserve"><value>زمن الاستجابة</value></data>
+  <data name="PendingMigrations" xml:space="preserve"><value>ترحيلات معلّقة</value></data>
+  <data name="NoPendingMigrations" xml:space="preserve"><value>لا توجد ترحيلات معلّقة</value></data>
+  <data name="DotNetVersion" xml:space="preserve"><value>إصدار .NET</value></data>
+  <data name="MachineName" xml:space="preserve"><value>اسم الجهاز</value></data>
+  <data name="ServerTime" xml:space="preserve"><value>وقت الخادم</value></data>
+  <data name="BrowserTime" xml:space="preserve"><value>وقت المتصفح</value></data>
+  <data name="ViewErrors" xml:space="preserve"><value>عرض السجل</value></data>
+  <data name="NoErrors" xml:space="preserve"><value>لا توجد أخطاء مسجلة</value></data>
+  <data name="ErrorDetails" xml:space="preserve"><value>تفاصيل الخطأ</value></data>
+  <data name="Details" xml:space="preserve"><value>التفاصيل</value></data>
+  <data name="User" xml:space="preserve"><value>المستخدم</value></data>
+  <data name="Time" xml:space="preserve"><value>التوقيت</value></data>
+  <data name="Message" xml:space="preserve"><value>الرسالة</value></data>
+  <data name="ExceptionType" xml:space="preserve"><value>نوع الاستثناء</value></data>
+  <data name="RequestPath" xml:space="preserve"><value>المسار</value></data>
+  <data name="StackTrace" xml:space="preserve"><value>تتبع الاستثناء</value></data>
+  <data name="AutoRefresh" xml:space="preserve"><value>تحديث تلقائي كل 30 ثانية</value></data>
+</root>

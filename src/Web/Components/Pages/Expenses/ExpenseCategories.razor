@@ -1,0 +1,156 @@
+@page "/expenses/categories"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة فئات المصاريف: قائمة الفئات المرتبطة بحسابات المصروفات في شجرة الحسابات *@
+
+<PageTitle>@Loc["ExpenseCategories"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["ExpenseCategories"]" Icon="@Icons.Material.Filled.Category" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="() => OpenCreateDialog()">
+        @Loc["AddExpenseCategory"]
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">@Loc["CategoriesCount", _categories.Count]</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_categories.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoExpenseCategories"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_categories" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["NameAr"]</MudTh>
+                <MudTh>@Loc["ExpenseAccount"]</MudTh>
+                <MudTh>@Loc["Description"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd>@($"{context.AccountCode} - {context.AccountName}")</MudTd>
+                <MudTd>@context.Description</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                   Color="Color.Primary" OnClick="() => OpenEditDialog(context)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error" OnClick="() => DeleteCategory(context)"
+                                   Disabled="context.IsSystem" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<ExpenseCategoryDto> _categories = new();
+    private List<AccountDto> _expenseAccounts = new();
+
+    [Inject] private IExpenseCategoryService CategoryService { get; set; } = default!;
+    [Inject] private IAccountService AccountService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _categories = await CategoryService.GetAllAsync();
+            var accounts = await AccountService.GetAllAccountsAsync();
+            _expenseAccounts = accounts.Where(a => a.AccountType == (int)AccountType.Expense).ToList();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error);
+        }
+        finally
+        {
+            _isLoading = false;
+        }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["CategoryService"] = CategoryService,
+            ["ExpenseAccounts"] = _expenseAccounts
+        };
+        var dialog = await DialogService.ShowAsync<ExpenseCategoryFormDialog>(
+            Loc["AddExpenseCategory"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true)
+        {
+            Snackbar.Add(Loc["CategorySaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditDialog(ExpenseCategoryDto category)
+    {
+        if (category.IsSystem)
+        {
+            Snackbar.Add(Loc["SystemCategoryEditWarning"], Severity.Warning);
+            return;
+        }
+        var parameters = new DialogParameters
+        {
+            ["CategoryService"] = CategoryService,
+            ["ExpenseAccounts"] = _expenseAccounts,
+            ["EditCategory"] = category
+        };
+        var dialog = await DialogService.ShowAsync<ExpenseCategoryFormDialog>(
+            Loc["EditExpenseCategory"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true)
+        {
+            Snackbar.Add(Loc["CategoryUpdated"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteCategory(ExpenseCategoryDto category)
+    {
+        if (category.IsSystem)
+        {
+            Snackbar.Add(Loc["SystemCategoryDeleteWarning"], Severity.Warning);
+            return;
+        }
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"],
+            Loc["DeleteCategoryConfirm", category.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try
+        {
+            await CategoryService.DeleteAsync(category.Id);
+            Snackbar.Add(Loc["CategoryDeleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+    }
+}

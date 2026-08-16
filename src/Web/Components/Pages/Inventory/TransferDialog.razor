@@ -1,0 +1,153 @@
+@* نموذج حوار لتحويل كمية من صنف بين مخزنين *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudSelect @bind-Value="_itemId"
+                               Label="الصنف"
+                               Required="true"
+                               RequiredError="الصنف مطلوب"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var item in _items)
+                        {
+                            <MudSelectItem Value="@item.Id">
+                                @item.Code - @item.NameAr
+                            </MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_sourceWarehouseId"
+                               Label="مخزن المصدر"
+                               Required="true"
+                               RequiredError="مخزن المصدر مطلوب"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var warehouse in _warehouses)
+                        {
+                            <MudSelectItem Value="@warehouse.Id">@warehouse.Code - @warehouse.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_destinationWarehouseId"
+                               Label="مخزن الوجهة"
+                               Required="true"
+                               RequiredError="مخزن الوجهة مطلوب"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var warehouse in _warehouses)
+                        {
+                            <MudSelectItem Value="@warehouse.Id">@warehouse.Code - @warehouse.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_quantity"
+                                     Label="الكمية"
+                                     Required="true"
+                                     RequiredError="الكمية مطلوبة"
+                                     Variant="Variant.Outlined"
+                                     T="decimal" DecimalPlaces="2" Format="0.00" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_movementDate"
+                                   Label="التاريخ"
+                                   Variant="Variant.Outlined"
+                                   T="DateTime?"
+                                   AutoClose="true" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_referenceNumber"
+                                  Label="رقم المرجع"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_note"
+                                  Label="ملاحظات"
+                                  Lines="2"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Secondary">تنفيذ التحويل</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IStockMovementService MovementService { get; set; } = default!;
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+
+    private MudForm? _form;
+    private List<ItemDto> _items = new();
+    private List<WarehouseDto> _warehouses = new();
+
+    private Guid _itemId;
+    private Guid _sourceWarehouseId;
+    private Guid _destinationWarehouseId;
+    private decimal _quantity;
+    private DateTime? _movementDate = DateTime.Today;
+    private string? _referenceNumber;
+    private string? _note;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _items = await ItemService.GetAllAsync();
+        _warehouses = await WarehouseService.GetAllAsync();
+        _itemId = _items.FirstOrDefault()?.Id ?? Guid.Empty;
+        _sourceWarehouseId = _warehouses.FirstOrDefault(w => w.IsDefault)?.Id
+                             ?? _warehouses.FirstOrDefault()?.Id
+                             ?? Guid.Empty;
+        _destinationWarehouseId = _warehouses.FirstOrDefault(w => w.Id != _sourceWarehouseId)?.Id
+                                  ?? Guid.Empty;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            await MovementService.CreateTransferAsync(new TransferStockDto
+            {
+                ItemId = _itemId,
+                SourceWarehouseId = _sourceWarehouseId,
+                DestinationWarehouseId = _destinationWarehouseId,
+                Quantity = _quantity,
+                ReferenceNumber = _referenceNumber,
+                Note = _note,
+                MovementDate = _movementDate ?? DateTime.Today
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

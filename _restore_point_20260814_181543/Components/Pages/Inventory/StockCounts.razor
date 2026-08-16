@@ -1,0 +1,95 @@
+@page "/inventory/stockcounts"
+
+@* صفحة الجرد الدوري - قائمة عمليات الجرد مع الفروقات *@
+
+<PageTitle>الجرد الدوري - نظام ERP</PageTitle>
+
+<PageHeader Title="الجرد الدوري" Icon="@Icons.Material.Filled.FactCheck" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        جرد جديد
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">إجمالي عمليات الجرد: @_counts.Count</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_counts.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">
+            لا توجد عمليات جرد. اضغط "جرد جديد" لإنشاء أول جرد.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_counts" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>رقم الجرد</MudTh>
+                <MudTh>المخزن</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>عدد البنود</MudTh>
+                <MudTh>فروق الجرد</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.StockCountNumber</MudTd>
+                <MudTd>@context.WarehouseName</MudTd>
+                <MudTd>@context.CountDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.LinesCount</MudTd>
+                <MudTd Class="@(context.TotalDifference != 0 ? "stock-out" : "")">
+                    @context.TotalDifference.ToString("N0")
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(e => ViewCount(context))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<StockCountDto> _counts = new();
+
+    [Inject] private IStockCountService CountService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _counts = await CountService.GetCountsAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الجرد: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var dialog = await DialogService.ShowAsync<StockCountFormDialog>(
+            "جرد دوري جديد", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الجرد بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task ViewCount(StockCountDto count)
+    {
+        var full = await CountService.GetByIdAsync(count.Id);
+        if (full is null) { Snackbar.Add("تعذر تحميل الجرد", Severity.Error); return; }
+        var parameters = new DialogParameters { ["Count"] = full };
+        await DialogService.ShowAsync<StockCountDetailsDialog>(
+            $"تفاصيل الجرد {full.StockCountNumber}", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+    }
+}

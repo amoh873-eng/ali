@@ -1,0 +1,129 @@
+@* نموذج حوار لإضافة/تعديل فئة صنف *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code"
+                                  Label="كود الفئة"
+                                  Required="true"
+                                  RequiredError="كود الفئة مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_parentCategoryId"
+                               Label="الفئة الأب (اختياري)"
+                               Variant="Variant.Outlined"
+                               T="Guid?"
+                               Clearable="true">
+                        @foreach (var cat in ParentCategories)
+                        {
+                            <MudSelectItem T="Guid?" Value="@cat.Id">@cat.Code - @cat.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr"
+                                  Label="اسم الفئة (عربي)"
+                                  Required="true"
+                                  RequiredError="الاسم العربي مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn"
+                                  Label="اسم الفئة (إنجليزي)"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_description"
+                                  Label="وصف"
+                                  Lines="2"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditCategory is null ? "إضافة" : "تعديل")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ICategoryService CategoryService { get; set; } = default!;
+    [Parameter] public List<CategoryDto> ParentCategories { get; set; } = new();
+    [Parameter] public CategoryDto? EditCategory { get; set; }
+    [Parameter] public Guid? DefaultParentId { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _description;
+    private Guid? _parentCategoryId;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditCategory is not null)
+        {
+            _code = EditCategory.Code;
+            _nameAr = EditCategory.NameAr;
+            _nameEn = EditCategory.NameEn;
+            _description = EditCategory.Description;
+            _parentCategoryId = EditCategory.ParentCategoryId;
+        }
+        else if (DefaultParentId.HasValue)
+        {
+            _parentCategoryId = DefaultParentId;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditCategory is null)
+            {
+                await CategoryService.CreateAsync(new CreateCategoryDto
+                {
+                    Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    ParentCategoryId = _parentCategoryId, Description = _description
+                });
+            }
+            else
+            {
+                await CategoryService.UpdateAsync(new UpdateCategoryDto
+                {
+                    Id = EditCategory.Id, Code = _code, NameAr = _nameAr, NameEn = _nameEn,
+                    ParentCategoryId = _parentCategoryId, Description = _description,
+                    IsActive = EditCategory.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

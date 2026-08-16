@@ -1,0 +1,31 @@
+.pos-receipt { font-size: 0.85rem; color: #111; max-width: 320px; margin: 0 auto; }
+.rc-shop { text-align: center; font-weight: 800; font-size: 1.1rem; }
+.rc-title { text-align: center; font-weight: 700; margin: 4px 0; }
+.rc-sep { border-top: 1px dashed #999; margin: 8px 0; }
+.rc-row { display: flex; justify-content: space-between; padding: 2px 0; }
+.rc-row span:first-child { color: #555; }
+.rc-items { width: 100%; border-collapse: collapse; margin: 4px 0; }
+.rc-items th, .rc-items td { text-align: start; padding: 3px 4px; border-bottom: 1px dotted #ddd; }
+.rc-items th { font-size: 0.75rem; color: #555; }
+.rc-items td:last-child, .rc-items th:last-child { text-align: end; }
+.rc-grand { display: flex; justify-content: space-between; font-weight: 800; font-size: 1.05rem; margin-top: 4px; }
+.rc-thanks { text-align: center; font-weight: 700; margin-top: 6px; }
+
+/* زر الطباعة الخام (يستدعي window.print مباشرة) */
+.erp-print-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: linear-gradient(135deg, #8B5CF6 0%, #6D5BD0 100%);
+    color: #fff;
+    border: none;
+    border-radius: 10px;
+    padding: 8px 18px;
+    font-weight: 600;
+    font-size: 0.875rem;
+    cursor: pointer;
+    font-family: inherit;
+    box-shadow: 0 4px 14px rgba(109, 91, 208, 0.32);
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+.erp-print-btn:hover { box-shadow: 0 6px 20px rgba(109, 91, 208, 0.5); transform: translateY(-1px); }

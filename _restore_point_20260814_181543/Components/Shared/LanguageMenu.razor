@@ -1,0 +1,32 @@
+@* قائمة تبديل اللغة (عربي/إنجليزي) — تحدّث كوكيز الثقافة عبر /culture/set ثم تعيد تحميل الصفحة *@
+
+<MudMenu Icon="@Icons.Material.Filled.Translate"
+         Color="Color.Inherit"
+         AnchorOrigin="Origin.BottomLeft"
+         TransformOrigin="Origin.TopLeft">
+    <MudMenuItem OnClick="@((MouseEventArgs e) => SetCulture("ar"))">
+        <MudIcon Icon="@Icons.Material.Filled.Translate" Class="mr-2" />
+        العربية
+    </MudMenuItem>
+    <MudMenuItem OnClick="@((MouseEventArgs e) => SetCulture("en"))">
+        <MudIcon Icon="@Icons.Material.Filled.Translate" Class="mr-2" />
+        English
+    </MudMenuItem>
+</MudMenu>
+
+@code {
+    [Inject] private NavigationManager NavigationManager { get; set; } = default!;
+
+    private void SetCulture(string culture)
+    {
+        var path = NavigationManager.ToBaseRelativePath(NavigationManager.Uri);
+        if (string.IsNullOrEmpty(path))
+            path = "/";
+        else if (!path.StartsWith('/'))
+            path = "/" + path;
+
+        NavigationManager.NavigateTo(
+            $"/culture/set?culture={culture}&redirectUri={Uri.EscapeDataString(path)}",
+            forceLoad: true);
+    }
+}

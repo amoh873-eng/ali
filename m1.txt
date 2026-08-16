@@ -1,0 +1,3 @@
+﻿Build started...
+Build failed. Use dotnet build to see the errors.
+EXIT=1

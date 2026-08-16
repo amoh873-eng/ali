@@ -1,0 +1,123 @@
+@page "/permissions/users"
+@attribute [Authorize(Policy = "Permission:Permissions.View")]
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["Users"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["Users"]" Icon="@Icons.Material.Filled.People" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">@Loc["AddUser"]</MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_users.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoUsers"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_users" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["UserName"]</MudTh>
+                <MudTh>@Loc["Email"]</MudTh>
+                <MudTh>@Loc["Roles"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.UserName</MudTd>
+                <MudTd>@context.Email</MudTd>
+                <MudTd>@string.Join(", ", context.Roles)</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Badge" Size="Size.Small" Color="Color.Primary" OnClick="() => OpenRolesDialog(context)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteUser(context)" Disabled="@(context.UserName == _currentUserName)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<UserDto> _users = new();
+
+    [Inject] private IUserService UserService { get; set; } = default!;
+    [Inject] private IRoleService RoleService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    private string? _currentUserName;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _currentUserName = (await AuthStateProvider.GetAuthenticationStateAsync()).User.Identity?.Name; }
+        catch { /* ignore */ }
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _users = await UserService.GetUsersAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenRolesDialog(UserDto user)
+    {
+        var parameters = new DialogParameters
+        {
+            ["UserService"] = UserService,
+            ["RoleService"] = RoleService,
+            ["User"] = user
+        };
+        var dialog = await DialogService.ShowAsync<UserRolesDialog>(
+            Loc["AssignRoles"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["RolesAssigned"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["UserService"] = UserService,
+            ["RoleService"] = RoleService
+        };
+        var dialog = await DialogService.ShowAsync<UserFormDialog>(
+            Loc["AddUser"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["UserSaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteUser(UserDto user)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"], Loc["DeleteConfirm"],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try
+        {
+            await UserService.DeleteUserAsync(user.Id);
+            Snackbar.Add(Loc["UserDeleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

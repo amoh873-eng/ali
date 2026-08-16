@@ -1,0 +1,139 @@
+@page "/sales/quotes"
+
+@* صفحة عروض الأسعار - قائمة عروض الأسعار مع إمكانية التحويل إلى فواتير *@
+
+<PageTitle>عروض الأسعار - نظام ERP</PageTitle>
+
+<PageHeader Title="عروض الأسعار" Icon="@Icons.Material.Filled.RequestQuote" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        عرض سعر جديد
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">إجمالي العروض: @_quotes.Count</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_quotes.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">
+            لا توجد عروض أسعار. اضغط "عرض سعر جديد" لإنشاء أول عرض.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_quotes" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>رقم العرض</MudTh>
+                <MudTh>العميل</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>الإجمالي</MudTh>
+                <MudTh>الحالة</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.QuoteNumber</MudTd>
+                <MudTd>@context.CustomerName</MudTd>
+                <MudTd>@context.QuoteDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.TotalAmount.ToString("N2")</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@GetStatusColor(context.Status)">
+                        @context.StatusNameAr
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    @if (context.Status == 1)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small"
+                                       Color="Color.Success" OnClick="@(e => ApproveQuote(context))" />
+                    }
+                    @if (context.Status == 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.SwapHoriz" Size="Size.Small"
+                                       Color="Color.Primary" OnClick="@(e => ConvertQuote(context))" />
+                    }
+                    @if (context.Status == 1 || context.Status == 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.Cancel" Size="Size.Small"
+                                       Color="Color.Error" OnClick="@(e => CancelQuote(context))" />
+                    }
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<SalesQuoteDto> _quotes = new();
+
+    [Inject] private ISalesQuoteService QuoteService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _quotes = await QuoteService.GetQuotesAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل العروض: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private static Color GetStatusColor(int status) => status switch
+    {
+        1 => Color.Default,
+        2 => Color.Info,
+        3 => Color.Success,
+        4 => Color.Error,
+        _ => Color.Default
+    };
+
+    private async Task OpenCreateDialog()
+    {
+        var dialog = await DialogService.ShowAsync<SalesQuoteFormDialog>(
+            "عرض سعر جديد", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ عرض السعر بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task ApproveQuote(SalesQuoteDto quote)
+    {
+        try { await QuoteService.ApproveAsync(quote.Id); Snackbar.Add("تم اعتماد العرض", Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task CancelQuote(SalesQuoteDto quote)
+    {
+        try { await QuoteService.CancelAsync(quote.Id); Snackbar.Add("تم إلغاء العرض", Severity.Info); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task ConvertQuote(SalesQuoteDto quote)
+    {
+        var dialog = await DialogService.ShowAsync<SalesQuoteConvertDialog>(
+            $"تحويل {quote.QuoteNumber} إلى فاتورة", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true && result?.Data is SalesQuoteConvertDialog.ConvertResult conv)
+        {
+            try
+            {
+                await QuoteService.ConvertToInvoiceAsync(quote.Id, conv.WarehouseId, conv.InvoiceType);
+                Snackbar.Add("تم التحويل إلى فاتورة بنجاح", Severity.Success);
+                await LoadAsync();
+            }
+            catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        }
+    }
+}

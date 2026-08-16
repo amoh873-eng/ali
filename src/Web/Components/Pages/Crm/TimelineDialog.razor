@@ -1,0 +1,202 @@
+@* حوار سجل التواصل: الأنشطة والمتابعات لعميل/محتمل/فرصة *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Loc["Activities"] - @SubjectName</MudText>
+    </TitleContent>
+    <DialogContent>
+        @if (_isLoading)
+        {
+            <MudProgressLinear Indeterminate="true" Class="my-2" />
+        }
+        else
+        {
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700;">@Loc["Activities"]</MudText>
+            @if (_activities.Count == 0)
+            {
+                <MudText Class="muted-text my-2">@Loc["NoActivities"]</MudText>
+            }
+            else
+            {
+                @foreach (var a in _activities)
+                {
+                    <div style="display:flex; align-items:flex-start; gap:8px; padding:6px 0; border-bottom:1px solid var(--erp-border);">
+                        <MudIcon Icon="@TypeIcon(a.Type)" Style="color:var(--erp-primary);" />
+                        <div style="flex:1;">
+                            <MudText Typo="Typo.body2" Style="font-weight:600;">@TypeLabel(a.Type)</MudText>
+                            <MudText Typo="Typo.body2">@a.Description</MudText>
+                            <MudText Typo="Typo.caption" Class="muted-text">@a.ActivityDate.ToString("yyyy-MM-dd HH:mm")</MudText>
+                        </div>
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteActivity(a)" />
+                    </div>
+                }
+            }
+
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700; margin-top:16px;">@Loc["FollowUps"]</MudText>
+            @if (_followUps.Count == 0)
+            {
+                <MudText Class="muted-text my-2">@Loc["NoFollowUps"]</MudText>
+            }
+            else
+            {
+                @foreach (var f in _followUps)
+                {
+                    <div style="display:flex; align-items:center; gap:8px; padding:6px 0; border-bottom:1px solid var(--erp-border);">
+                        <div style="flex:1;">
+                            <MudText Typo="Typo.body2" Style="font-weight:600;">@f.Title</MudText>
+                            <MudText Typo="Typo.caption" Class="muted-text">@f.FollowUpDate.ToString("yyyy-MM-dd") - @(f.Status == 1 ? Loc["FollowUpPending"] : Loc["FollowUpDone"])</MudText>
+                        </div>
+                        @if (f.Status == 1)
+                        {
+                            <MudButton Variant="Variant.Text" Color="Color.Success" Size="Size.Small" OnClick="() => MarkDone(f)">@Loc["MarkDone"]</MudButton>
+                        }
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteFollowUp(f)" />
+                    </div>
+                }
+            }
+
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700; margin-top:16px;">@Loc["AddActivity"]</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="3">
+                    <MudSelect @bind-Value="_newActivityType" T="int" Variant="Variant.Outlined" Dense="true" Label="@Loc["ActivityType"]">
+                        <MudSelectItem Value="1">@Loc["ActivityCall"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["ActivityMeeting"]</MudSelectItem>
+                        <MudSelectItem Value="3">@Loc["ActivityEmail"]</MudSelectItem>
+                        <MudSelectItem Value="4">@Loc["ActivityNote"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudDatePicker @bind-Date="_newActivityDate" Label="@Loc["ActivityDate"]" Variant="Variant.Outlined" Dense="true" />
+                </MudItem>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="_newActivityDescription" Label="@Loc["Description"]" Variant="Variant.Outlined" Dense="true" />
+                </MudItem>
+                <MudItem xs="12" sm="2">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddActivity" FullWidth="true">@Loc["Add"]</MudButton>
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700; margin-top:16px;">@Loc["AddFollowUp"]</MudText>
+            <MudGrid>
+                <MudItem xs="12" sm="4">
+                    <MudTextField @bind-Value="_newFollowUpTitle" Label="@Loc["Title"]" Variant="Variant.Outlined" Dense="true" />
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudDatePicker @bind-Date="_newFollowUpDate" Label="@Loc["FollowUpDate"]" Variant="Variant.Outlined" Dense="true" />
+                </MudItem>
+                <MudItem xs="12" sm="3">
+                    <MudTextField @bind-Value="_newFollowUpNotes" Label="@Loc["Notes"]" Variant="Variant.Outlined" Dense="true" />
+                </MudItem>
+                <MudItem xs="12" sm="2">
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="AddFollowUp" FullWidth="true">@Loc["Add"]</MudButton>
+                </MudItem>
+            </MudGrid>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IActivityService ActivityService { get; set; } = default!;
+    [Parameter] public IFollowUpService FollowUpService { get; set; } = default!;
+    [Parameter] public Guid? CustomerId { get; set; }
+    [Parameter] public Guid? LeadId { get; set; }
+    [Parameter] public Guid? OpportunityId { get; set; }
+    [Parameter] public string SubjectName { get; set; } = string.Empty;
+
+    private bool _isLoading = true;
+    private List<ActivityDto> _activities = new();
+    private List<FollowUpDto> _followUps = new();
+
+    private int _newActivityType = 1;
+    private DateTime? _newActivityDate = DateTime.Today;
+    private string _newActivityDescription = string.Empty;
+
+    private string _newFollowUpTitle = string.Empty;
+    private DateTime? _newFollowUpDate = DateTime.Today;
+    private string? _newFollowUpNotes;
+
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _activities = await ActivityService.GetAllAsync(CustomerId, LeadId, OpportunityId);
+            _followUps = await FollowUpService.GetBySubjectAsync(CustomerId, LeadId, OpportunityId);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private string TypeLabel(int t) => t switch
+    {
+        1 => Loc["ActivityCall"], 2 => Loc["ActivityMeeting"], 3 => Loc["ActivityEmail"], 4 => Loc["ActivityNote"], _ => ""
+    };
+
+    private string TypeIcon(int t) => t switch
+    {
+        1 => Icons.Material.Filled.Call, 2 => Icons.Material.Filled.Group,
+        3 => Icons.Material.Filled.Email, _ => Icons.Material.Filled.Note
+    };
+
+    private async Task AddActivity()
+    {
+        if (string.IsNullOrWhiteSpace(_newActivityDescription)) return;
+        try
+        {
+            await ActivityService.CreateAsync(new CreateActivityDto
+            {
+                Type = _newActivityType, ActivityDate = _newActivityDate ?? DateTime.Today,
+                Description = _newActivityDescription, CustomerId = CustomerId, LeadId = LeadId, OpportunityId = OpportunityId
+            });
+            _newActivityDescription = string.Empty;
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task AddFollowUp()
+    {
+        if (string.IsNullOrWhiteSpace(_newFollowUpTitle)) return;
+        try
+        {
+            await FollowUpService.CreateAsync(new CreateFollowUpDto
+            {
+                Title = _newFollowUpTitle, FollowUpDate = _newFollowUpDate ?? DateTime.Today,
+                Notes = _newFollowUpNotes, CustomerId = CustomerId, LeadId = LeadId, OpportunityId = OpportunityId
+            });
+            _newFollowUpTitle = string.Empty;
+            _newFollowUpNotes = null;
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task MarkDone(FollowUpDto f)
+    {
+        try { await FollowUpService.MarkDoneAsync(f.Id); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task DeleteActivity(ActivityDto a)
+    {
+        try { await ActivityService.DeleteAsync(a.Id); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task DeleteFollowUp(FollowUpDto f)
+    {
+        try { await FollowUpService.DeleteAsync(f.Id); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

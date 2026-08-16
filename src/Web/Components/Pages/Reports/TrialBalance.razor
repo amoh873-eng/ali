@@ -1,0 +1,81 @@
+@page "/trial-balance"
+@attribute [Authorize(Policy = "Permission:Reports.View")]
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة ميزان المراجعة - أرصدة الحسابات وإجمالي المدين والدائن *@
+
+<PageTitle>ميزان المراجعة - نظام ERP</PageTitle>
+
+<PageHeader Title="@Loc["TrialBalance"]" Icon="@Icons.Material.Filled.Balance" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">تحديث</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Success" Href="/export/trial-balance/excel"
+               StartIcon="@Icons.Material.Filled.Download" Class="ms-2">Excel</MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/export/trial-balance/pdf"
+               StartIcon="@Icons.Material.Filled.PictureAsPdf" Class="ms-2">PDF</MudButton>
+    <MudSpacer />
+    @if (_trialBalance is not null)
+    {
+        <MudChip T="string" Size="Size.Small"
+                 Color="@(_trialBalance.IsBalanced ? Color.Success : Color.Error)">
+            @(_trialBalance.IsBalanced ? "متوازن" : "غير متوازن")
+        </MudChip>
+    }
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_trialBalance is null || _trialBalance.Lines.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">لا توجد حركات محاسبية بعد.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_trialBalance.Lines" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>الكود</MudTh>
+                <MudTh>الحساب</MudTh>
+                <MudTh>مدين</MudTh>
+                <MudTh>دائن</MudTh>
+                <MudTh>الرصيد</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.AccountCode</MudTd>
+                <MudTd>@context.AccountNameAr</MudTd>
+                <MudTd>@context.TotalDebit.ToString("N2")</MudTd>
+                <MudTd>@context.TotalCredit.ToString("N2")</MudTd>
+                <MudTd>@context.Balance.ToString("N2")</MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+
+        <MudText Typo="Typo.body2" Class="pa-4">
+            إجمالي المدين: <strong>@_trialBalance.TotalDebit.ToString("N2")</strong> —
+            إجمالي الدائن: <strong>@_trialBalance.TotalCredit.ToString("N2")</strong>
+        </MudText>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private TrialBalanceDto? _trialBalance;
+
+    [Inject] private IReportService ReportService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _trialBalance = await ReportService.GetTrialBalanceAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _isLoading = false; }
+    }
+}

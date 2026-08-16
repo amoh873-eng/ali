@@ -1,0 +1,350 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Call Center KPI Dashboard</title>
+<style>
+  :root {
+    --purple: #8B5CF6;
+    --teal: #0F766E;
+    --cyan: #06B6D4;
+    --orchid: #C084FC;
+    --gray-blue: #64748B;
+    --green: #22C55E;
+    --yellow: #F59E0B;
+    --red: #EF4444;
+    --label: #6B7280;
+    --value: #111827;
+    --border: #E5E7EB;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    font-family: "Segoe UI", system-ui, -apple-system, "Helvetica Neue", Arial, sans-serif;
+    background: #ffffff;
+    color: var(--value);
+    -webkit-font-smoothing: antialiased;
+  }
+
+  .dashboard { max-width: 1260px; margin: 0 auto; padding: 18px 28px 40px; }
+
+  /* ---------- Header ---------- */
+  .dashboard-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 4px 2px 18px;
+  }
+  .header-left { display: flex; align-items: center; gap: 10px; }
+  .dashboard-title { font-size: 22px; font-weight: 600; letter-spacing: -0.2px; color: var(--value); }
+  .icon-btn { display: inline-flex; align-items: center; justify-content: center; color: var(--label); }
+  .header-actions { display: flex; align-items: center; gap: 18px; }
+
+  /* ---------- Cards ---------- */
+  .card {
+    background: #ffffff;
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 18px;
+  }
+  .card-title { font-size: 13px; font-weight: 600; color: #374151; }
+
+  /* ---------- Top row ---------- */
+  .top-row { display: flex; gap: 16px; margin-bottom: 16px; }
+  .kpi-area {
+    flex: 1 1 60%;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    grid-template-rows: repeat(2, 1fr);
+    gap: 16px;
+  }
+  .gauge-card { flex: 1 1 20%; display: flex; flex-direction: column; }
+  .gauge-card .card-title { margin-bottom: 4px; }
+  .gauge { width: 100%; height: auto; display: block; }
+
+  /* ---------- KPI cards ---------- */
+  .kpi-card { display: flex; flex-direction: column; justify-content: center; }
+  .kpi-label {
+    font-size: 11px;
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.4px;
+    color: var(--label);
+    margin-bottom: 12px;
+  }
+  .kpi-value { font-size: 27px; font-weight: 600; color: var(--value); line-height: 1.1; }
+  .kpi-value.accent { color: var(--purple); }
+
+  /* Month filter */
+  .month-box { position: relative; }
+  .month-box select {
+    width: 100%;
+    appearance: none;
+    -webkit-appearance: none;
+    border: 1px solid #D1D5DB;
+    border-radius: 4px;
+    padding: 9px 34px 9px 12px;
+    font-size: 13px;
+    color: var(--label);
+    background: #ffffff;
+    font-family: inherit;
+    cursor: pointer;
+  }
+  .month-box .chevron { position: absolute; right: 11px; top: 50%; transform: translateY(-50%); pointer-events: none; }
+
+  /* ---------- SVG shared ---------- */
+  .axis-label { font-size: 10px; fill: var(--label); }
+  .tick-label { font-size: 9.5px; fill: var(--label); }
+  .gauge-value { font-size: 20px; font-weight: 600; fill: var(--value); }
+  .data-label { font-size: 10px; font-weight: 600; fill: var(--value); }
+  .x-label { font-size: 11px; fill: var(--label); }
+  .donut-label { font-size: 10.5px; font-weight: 600; fill: #374151; }
+
+  /* ---------- Bottom row ---------- */
+  .bottom-row { display: flex; gap: 16px; }
+  .chart-card { flex: 1 1 50%; }
+
+  /* ---------- Legends ---------- */
+  .legend {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-wrap: wrap;
+    gap: 10px 18px;
+    margin: 6px 0 4px;
+  }
+  .legend-item { display: inline-flex; align-items: center; gap: 6px; font-size: 12px; color: var(--label); }
+  .legend-swatch { width: 10px; height: 10px; border-radius: 2px; }
+
+  .col-chart { width: 100%; height: auto; display: block; }
+  .donut { width: 100%; height: auto; display: block; max-width: 330px; margin: 2px auto 0; }
+</style>
+</head>
+<body>
+<div class="dashboard">
+
+  <!-- ===================== HEADER ===================== -->
+  <header class="dashboard-header">
+    <div class="header-left">
+      <h1 class="dashboard-title">Call Center KPI Dashboard</h1>
+      <span class="icon-btn" title="About this report">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7">
+          <circle cx="12" cy="12" r="9"/>
+          <path d="M12 11v5" stroke-linecap="round"/>
+          <circle cx="12" cy="8" r="1" fill="currentColor" stroke="none"/>
+        </svg>
+      </span>
+    </div>
+    <div class="header-actions">
+      <span class="icon-btn" title="Refresh">
+        <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M21 12a9 9 0 1 1-2.64-6.36"/>
+          <path d="M21 3v6h-6"/>
+        </svg>
+      </span>
+      <span class="icon-btn" title="More options">
+        <svg viewBox="0 0 24 24" width="20" height="20" fill="currentColor">
+          <circle cx="5" cy="12" r="1.8"/>
+          <circle cx="12" cy="12" r="1.8"/>
+          <circle cx="19" cy="12" r="1.8"/>
+        </svg>
+      </span>
+    </div>
+  </header>
+
+  <!-- ===================== TOP ROW ===================== -->
+  <div class="top-row">
+
+    <!-- ---- Left: 2x3 KPI grid ---- -->
+    <div class="kpi-area">
+
+      <div class="card kpi-card">
+        <div class="kpi-label">Month</div>
+        <div class="month-box">
+          <select aria-label="Select month">
+            <option selected disabled>Select Month</option>
+            <option>January</option>
+            <option>February</option>
+            <option>March</option>
+            <option>April</option>
+            <option>May</option>
+            <option>June</option>
+            <option>July</option>
+            <option>August</option>
+            <option>September</option>
+            <option>October</option>
+            <option>November</option>
+            <option>December</option>
+          </select>
+          <span class="chevron">
+            <svg viewBox="0 0 24 24" width="15" height="15" fill="none" stroke="#6B7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <path d="M6 9l6 6 6-6"/>
+            </svg>
+          </span>
+        </div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-label">First Call Resolution Rate</div>
+        <div class="kpi-value">82.47 %</div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-label">Avg. Talk Time</div>
+        <div class="kpi-value">5.03 Min</div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-label">Total Calls</div>
+        <div class="kpi-value accent">126,473</div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-label">Avg. Resolution Time</div>
+        <div class="kpi-value">3.96 Min</div>
+      </div>
+
+      <div class="card kpi-card">
+        <div class="kpi-label">Avg. Wait Time</div>
+        <div class="kpi-value">25.02 Sec</div>
+      </div>
+    </div>
+
+    <!-- ---- Right: two gauges ---- -->
+    <div class="card gauge-card">
+      <div class="card-title">Call Abandonment Rate</div>
+      <svg class="gauge" viewBox="0 0 220 132" role="img" aria-label="Call Abandonment Rate, 4.06 percent">
+        <path d="M 32 100 A 78 78 0 0 1 70.3 32.8" fill="none" stroke="#22C55E" stroke-width="16"/>
+        <path d="M 70.3 32.8 A 78 78 0 0 1 147.58 31.65" fill="none" stroke="#F59E0B" stroke-width="16"/>
+        <path d="M 147.58 31.65 A 78 78 0 0 1 188 100" fill="none" stroke="#EF4444" stroke-width="16"/>
+        <line x1="32" y1="100" x2="188" y2="100" stroke="#E5E7EB" stroke-width="1"/>
+        <line x1="32" y1="100" x2="26" y2="100" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="46.9" y1="54.15" x2="42.04" y2="50.62" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="85.9" y1="25.82" x2="84.04" y2="20.11" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="134.1" y1="25.82" x2="135.96" y2="20.11" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="173.1" y1="54.15" x2="177.96" y2="50.62" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="188" y1="100" x2="194" y2="100" stroke="#9CA3AF" stroke-width="1"/>
+        <text x="16" y="104" text-anchor="middle" class="tick-label">0</text>
+        <text x="33.95" y="48.5" text-anchor="middle" class="tick-label">20</text>
+        <text x="80.95" y="14.5" text-anchor="middle" class="tick-label">40</text>
+        <text x="139.05" y="14.5" text-anchor="middle" class="tick-label">60</text>
+        <text x="186.05" y="48.5" text-anchor="middle" class="tick-label">80</text>
+        <text x="204" y="104" text-anchor="middle" class="tick-label">100</text>
+        <polygon points="52.47,92.62 110.83,93.55 109.17,106.45" fill="#1F2937"/>
+        <circle cx="110" cy="100" r="6" fill="#1F2937"/>
+        <circle cx="110" cy="100" r="2.6" fill="#ffffff"/>
+        <text x="110" y="127" text-anchor="middle" class="gauge-value">4.06 %</text>
+      </svg>
+    </div>
+
+    <div class="card gauge-card">
+      <div class="card-title">Customer Satisfaction Rate</div>
+      <svg class="gauge" viewBox="0 0 220 132" role="img" aria-label="Customer Satisfaction Rate, 89.02 percent">
+        <path d="M 32 100 A 78 78 0 0 1 70.3 32.8" fill="none" stroke="#EF4444" stroke-width="16"/>
+        <path d="M 70.3 32.8 A 78 78 0 0 1 147.58 31.65" fill="none" stroke="#F59E0B" stroke-width="16"/>
+        <path d="M 147.58 31.65 A 78 78 0 0 1 188 100" fill="none" stroke="#22C55E" stroke-width="16"/>
+        <line x1="32" y1="100" x2="188" y2="100" stroke="#E5E7EB" stroke-width="1"/>
+        <line x1="32" y1="100" x2="26" y2="100" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="46.9" y1="54.15" x2="42.04" y2="50.62" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="85.9" y1="25.82" x2="84.04" y2="20.11" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="134.1" y1="25.82" x2="135.96" y2="20.11" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="173.1" y1="54.15" x2="177.96" y2="50.62" stroke="#9CA3AF" stroke-width="1"/>
+        <line x1="188" y1="100" x2="194" y2="100" stroke="#9CA3AF" stroke-width="1"/>
+        <text x="16" y="104" text-anchor="middle" class="tick-label">0</text>
+        <text x="33.95" y="48.5" text-anchor="middle" class="tick-label">20</text>
+        <text x="80.95" y="14.5" text-anchor="middle" class="tick-label">40</text>
+        <text x="139.05" y="14.5" text-anchor="middle" class="tick-label">60</text>
+        <text x="186.05" y="48.5" text-anchor="middle" class="tick-label">80</text>
+        <text x="204" y="104" text-anchor="middle" class="tick-label">100</text>
+        <polygon points="164.59,80.4 112.2,106.12 107.8,93.88" fill="#1F2937"/>
+        <circle cx="110" cy="100" r="6" fill="#1F2937"/>
+        <circle cx="110" cy="100" r="2.6" fill="#ffffff"/>
+        <text x="110" y="127" text-anchor="middle" class="gauge-value">89.02 %</text>
+      </svg>
+    </div>
+  </div>
+
+  <!-- ===================== BOTTOM ROW ===================== -->
+  <div class="bottom-row">
+
+    <!-- Column chart -->
+    <div class="card chart-card">
+      <div class="card-title" style="text-align:center;">Inbound vs. Outbound Calls</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:#8B5CF6;"></span>Inbound Calls</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#0F766E;"></span>Outbound Calls</span>
+      </div>
+      <svg class="col-chart" viewBox="0 0 545 265" role="img" aria-label="Inbound versus outbound calls grouped column chart">
+        <line x1="45" y1="235" x2="545" y2="235" stroke="#E5E7EB" stroke-width="1"/>
+        <line x1="45" y1="210.56" x2="545" y2="210.56" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="186.11" x2="545" y2="186.11" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="161.67" x2="545" y2="161.67" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="137.22" x2="545" y2="137.22" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="112.78" x2="545" y2="112.78" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="88.33" x2="545" y2="88.33" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="63.89" x2="545" y2="63.89" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="39.44" x2="545" y2="39.44" stroke="#EDF0F3" stroke-width="1"/>
+        <line x1="45" y1="15" x2="545" y2="15" stroke="#EDF0F3" stroke-width="1"/>
+        <text x="40" y="238.5" text-anchor="end" class="axis-label">0</text>
+        <text x="40" y="213.6" text-anchor="end" class="axis-label">2K</text>
+        <text x="40" y="189.1" text-anchor="end" class="axis-label">4K</text>
+        <text x="40" y="164.7" text-anchor="end" class="axis-label">6K</text>
+        <text x="40" y="140.2" text-anchor="end" class="axis-label">8K</text>
+        <text x="40" y="115.8" text-anchor="end" class="axis-label">10K</text>
+        <text x="40" y="91.3" text-anchor="end" class="axis-label">12K</text>
+        <text x="40" y="66.9" text-anchor="end" class="axis-label">14K</text>
+        <text x="40" y="42.4" text-anchor="end" class="axis-label">16K</text>
+        <text x="40" y="18" text-anchor="end" class="axis-label">18K</text>
+        <rect x="86" y="53.52" width="34" height="181.48" fill="#8B5CF6"/>
+        <rect x="136" y="157.24" width="34" height="77.76" fill="#0F766E"/>
+        <rect x="253" y="120.91" width="34" height="114.09" fill="#8B5CF6"/>
+        <rect x="303" y="186.09" width="34" height="48.91" fill="#0F766E"/>
+        <rect x="420" y="119.50" width="34" height="115.50" fill="#8B5CF6"/>
+        <rect x="470" y="185.49" width="34" height="49.51" fill="#0F766E"/>
+        <text x="103" y="48.5" text-anchor="middle" class="data-label">14,848</text>
+        <text x="153" y="152.2" text-anchor="middle" class="data-label">6,362</text>
+        <text x="270" y="115.9" text-anchor="middle" class="data-label">9,335</text>
+        <text x="320" y="181.1" text-anchor="middle" class="data-label">4,002</text>
+        <text x="437" y="114.5" text-anchor="middle" class="data-label">9,450</text>
+        <text x="487" y="180.5" text-anchor="middle" class="data-label">4,051</text>
+        <text x="128" y="254" text-anchor="middle" class="x-label">Jan</text>
+        <text x="295" y="254" text-anchor="middle" class="x-label">Feb</text>
+        <text x="462" y="254" text-anchor="middle" class="x-label">Mar</text>
+      </svg>
+    </div>
+
+    <!-- Donut chart -->
+    <div class="card chart-card">
+      <div class="card-title" style="text-align:center;">Calls by Call Type</div>
+      <div class="legend">
+        <span class="legend-item"><span class="legend-swatch" style="background:#8B5CF6;"></span>General Inquiry</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#06B6D4;"></span>Sales</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#0F766E;"></span>Billing</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#C084FC;"></span>Support</span>
+        <span class="legend-item"><span class="legend-swatch" style="background:#64748B;"></span>Technical</span>
+      </div>
+      <svg class="donut" viewBox="0 0 240 240" role="img" aria-label="Calls by call type donut chart">
+        <circle cx="120" cy="120" r="65" fill="none" stroke="#8B5CF6" stroke-width="34"
+          stroke-dasharray="98.18 408.41" stroke-dashoffset="0" transform="rotate(-90 120 120)"/>
+        <circle cx="120" cy="120" r="65" fill="none" stroke="#06B6D4" stroke-width="34"
+          stroke-dasharray="92.75 408.41" stroke-dashoffset="-98.18" transform="rotate(-90 120 120)"/>
+        <circle cx="120" cy="120" r="65" fill="none" stroke="#0F766E" stroke-width="34"
+          stroke-dasharray="80.42 408.41" stroke-dashoffset="-190.93" transform="rotate(-90 120 120)"/>
+        <circle cx="120" cy="120" r="65" fill="none" stroke="#C084FC" stroke-width="34"
+          stroke-dasharray="72.37 408.41" stroke-dashoffset="-271.35" transform="rotate(-90 120 120)"/>
+        <circle cx="120" cy="120" r="65" fill="none" stroke="#64748B" stroke-width="34"
+          stroke-dasharray="64.69 408.41" stroke-dashoffset="-343.72" transform="rotate(-90 120 120)"/>
+        <text x="186.5" y="52.9" text-anchor="middle" class="donut-label">24.04%</text>
+        <text x="197.1" y="182.4" text-anchor="middle" class="donut-label">22.71%</text>
+        <text x="81.0" y="212.3" text-anchor="middle" class="donut-label">19.69%</text>
+        <text x="23.0" y="121.7" text-anchor="middle" class="donut-label">17.72%</text>
+        <text x="73.7" y="38.3" text-anchor="middle" class="donut-label">15.84%</text>
+      </svg>
+    </div>
+  </div>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,139 @@
+@* نموذج حوار لإنشاء قيد محاسبي (سطر مدين/سطر دائن) *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_entryDate" Label="تاريخ القيد"
+                                   Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_reference" Label="المرجع / المستند (اختياري)" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_description" Label="الوصف / البيان" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+
+            <MudText Typo="Typo.subtitle2" Class="mt-4">سطور القيد</MudText>
+
+            @foreach (var leg in _legs)
+            {
+                <MudGrid Class="mb-1 align-items-center">
+                    <MudItem xs="12" sm="4">
+                        <MudSelect T="Guid" @bind-Value="leg.AccountId"
+                                   Label="الحساب" Variant="Variant.Outlined" Dense="true">
+                            @foreach (var acc in _accounts)
+                            {
+                                <MudSelectItem T="Guid" Value="@acc.Id">@acc.Code - @acc.NameAr</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="leg.Debit"
+                                         Label="مدين" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="6" sm="3">
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="leg.Credit"
+                                         Label="دائن" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                    </MudItem>
+                    <MudItem xs="12" sm="2" Class="d-flex align-items-center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                       Color="Color.Error" OnClick="@(e => RemoveLeg(leg))" />
+                    </MudItem>
+                </MudGrid>
+            }
+
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLeg" Class="mt-2">
+                إضافة سطر
+            </MudButton>
+
+            <MudPaper Elevation="1" Class="pa-3 mt-4">
+                <MudText Typo="Typo.body2">مجموع المدين: @_totalDebit.ToString("N2")</MudText>
+                <MudText Typo="Typo.body2">مجموع الدائن: @_totalCredit.ToString("N2")</MudText>
+                <MudText Typo="Typo.body2" Color="@(_isBalanced ? Color.Success : Color.Error)">
+                    الفرق: @_difference.ToString("N2") @(_isBalanced ? "متوازن" : "غير متوازن")
+                </MudText>
+            </MudPaper>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">حفظ القيد</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Inject] private IJournalEntryService JournalService { get; set; } = default!;
+    [Inject] private IAccountService AccountService { get; set; } = default!;
+
+    private class LegEditor
+    {
+        public Guid AccountId { get; set; }
+        public decimal Debit { get; set; }
+        public decimal Credit { get; set; }
+    }
+
+    private MudForm? _form;
+    private List<AccountDto> _accounts = new();
+    private List<LegEditor> _legs = new();
+
+    private DateTime? _entryDate = DateTime.Today;
+    private string? _reference;
+    private string? _description;
+    private string? _error;
+
+    private decimal _totalDebit => Math.Round(_legs.Sum(l => l.Debit), 2);
+    private decimal _totalCredit => Math.Round(_legs.Sum(l => l.Credit), 2);
+    private decimal _difference => Math.Abs(_totalDebit - _totalCredit);
+    private bool _isBalanced => _totalDebit == _totalCredit;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _accounts = await AccountService.GetAllAccountsAsync();
+        AddLeg();
+        AddLeg();
+    }
+
+    private void AddLeg() => _legs.Add(new LegEditor());
+
+    private void RemoveLeg(LegEditor leg)
+    {
+        if (_legs.Count > 2) _legs.Remove(leg);
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        if (_legs.Any(l => l.AccountId == Guid.Empty)) { _error = "اختر الحساب لكل سطر."; return; }
+        if (!_isBalanced) { _error = $"القيد غير متوازن: الفرق {_difference:N2}. يجب أن يتساوى المدين مع الدائن."; return; }
+        if (_totalDebit == 0) { _error = "لا يمكن حفظ قيد بدون مبالغ."; return; }
+
+        _error = null;
+        try
+        {
+            await JournalService.CreateManualEntryAsync(
+                _entryDate ?? DateTime.Today,
+                _reference,
+                _description,
+                _legs.Select(l => new JournalEntryLegInput
+                {
+                    AccountId = l.AccountId,
+                    DebitAmount = l.Debit,
+                    CreditAmount = l.Credit
+                }).ToList());
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}
+

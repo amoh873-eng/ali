@@ -1,0 +1,24 @@
+@* بطاقة إحصائية: أيقونة ملوّنة (اختيارية) + عنوان صغير رمادي + رقم كبير داكن *@
+
+<MudCard Elevation="0">
+    <MudCardContent Style="padding:18px 22px; display:flex; align-items:center; gap:16px;">
+        @if (!string.IsNullOrEmpty(Icon))
+        {
+            <div class="erp-stat-icon" style="@($"background:{IconBackground};")">
+                <MudIcon Icon="@Icon" Style="@($"color:{IconColor};")" />
+            </div>
+        }
+        <div>
+            <MudText Typo="Typo.caption" Style="color:var(--erp-muted);">@Label</MudText>
+            <MudText Typo="Typo.h5" Style="font-weight:700; margin-top:4px; color:var(--erp-text);">@Value</MudText>
+        </div>
+    </MudCardContent>
+</MudCard>
+
+@code {
+    [Parameter] public string Value { get; set; } = "";
+    [Parameter] public string Label { get; set; } = "";
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public string IconBackground { get; set; } = "#F0EDFB";
+    [Parameter] public string IconColor { get; set; } = "#6D5BD0";
+}

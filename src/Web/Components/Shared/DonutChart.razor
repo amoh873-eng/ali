@@ -1,0 +1,76 @@
+@using System.Globalization
+@* رسم دائري (Donut) حديث + وسيلة إيضاح ملوّنة بمقاييس نسبية — قابلة لإعادة الاستخدام *@
+
+<div class="erp-donut">
+    @if (Segments.Count > 0)
+    {
+        <div class="erp-donut-chart">
+            <MudChart ChartType="ChartType.Donut"
+                      ChartSeries="_series"
+                      InputLabels="_labels"
+                      ChartOptions="_options"
+                      Width="100%"
+                      Height="@Height" />
+            @if (!string.IsNullOrEmpty(CenterValue))
+            {
+                <div class="erp-donut-center">
+                    <span class="erp-donut-center-value">@CenterValue</span>
+                    <span class="erp-donut-center-label">@CenterLabel</span>
+                </div>
+            }
+        </div>
+
+        <div class="erp-donut-legend">
+            @foreach (var seg in Segments)
+            {
+                var pct = _total > 0 ? seg.Value / _total * 100.0 : 0;
+                <div class="erp-donut-legend-item">
+                    <div class="erp-donut-legend-row">
+                        <span class="erp-donut-dot" style="background:@seg.Color;"></span>
+                        <span class="erp-donut-label">@seg.Label</span>
+                        <span class="erp-donut-amount">@seg.ValueText</span>
+                        <span class="erp-donut-pct">@pct.ToString("0", CultureInfo.InvariantCulture)%</span>
+                    </div>
+                    <div class="erp-donut-bar">
+                        <div class="erp-donut-bar-fill" style="width:@(pct.ToString("0.##", CultureInfo.InvariantCulture))%; background:@seg.Color;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Style="color:var(--erp-muted); padding:16px 0;">@EmptyText</MudText>
+    }
+</div>
+
+@code {
+    [Parameter] public List<DonutSegment> Segments { get; set; } = new();
+    [Parameter] public string Height { get; set; } = "220px";
+    [Parameter] public string CenterValue { get; set; } = "";
+    [Parameter] public string CenterLabel { get; set; } = "";
+    [Parameter] public string EmptyText { get; set; } = "";
+
+    private double _total => Segments.Sum(s => s.Value);
+    private List<ChartSeries> _series => new() { new ChartSeries { Data = Segments.Select(s => s.Value).ToArray() } };
+
+    /// <summary>
+    /// تسميات تُعرض داخل تلميحة MudChart. تُضمَّن النسبة المئوية لكل شريحة
+    /// لتعرض التلميحة (التسمية + النسبة) ثم القيمة الدقيقة بعد النقطتين.
+    /// </summary>
+    private string[] _labels => Segments
+        .Select(s =>
+        {
+            var pct = _total > 0 ? s.Value / _total * 100.0 : 0;
+            return $"{s.Label} ({pct.ToString("0", CultureInfo.InvariantCulture)}%)";
+        })
+        .ToArray();
+
+    private ChartOptions _options => new()
+    {
+        ChartPalette = Segments.Select(s => s.Color).ToArray(),
+        ShowLegend = false,
+        ShowToolTips = true,
+        DefaultDataMarkerTooltipTitleFormat = "{{Y_VALUE}}: {{X_VALUE}}"
+    };
+}

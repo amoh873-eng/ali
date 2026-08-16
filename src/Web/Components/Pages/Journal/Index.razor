@@ -1,0 +1,94 @@
+@page "/journal-entries"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة القيود اليومية - قائمة القيود (دفتر اليومية) *@
+
+<PageTitle>القيود اليومية - نظام ERP</PageTitle>
+
+<PageHeader Title="@Loc["JournalEntries"]" Icon="@Icons.Material.Filled.Book" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        قيد محاسبي جديد
+    </MudButton>
+    <MudSpacer />
+    <MudText Class="align-self-center muted-text">إجمالي القيود: @_entries.Count</MudText>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_entries.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">
+            لا توجد قيود. تُنشأ القيود تلقائياً عند ترحيل الفواتير ويمكن إضافتها يدوياً.
+        </MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_entries" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>رقم القيد</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>النوع</MudTh>
+                <MudTh>الوصف</MudTh>
+                <MudTh>مدين</MudTh>
+                <MudTh>دائن</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.EntryNumber</MudTd>
+                <MudTd>@context.EntryDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.EntryTypeNameAr</MudTd>
+                <MudTd>@context.Description</MudTd>
+                <MudTd>@context.TotalDebit.ToString("N2")</MudTd>
+                <MudTd>@context.TotalCredit.ToString("N2")</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(e => ViewEntry(context))" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<JournalEntryDto> _entries = new();
+
+    [Inject] private IJournalEntryService JournalService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _entries = await JournalService.GetEntriesAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل القيود: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var dialog = await DialogService.ShowAsync<JournalEntryFormDialog>(
+            "قيد محاسبي جديد", new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ القيد بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task ViewEntry(JournalEntryDto entry)
+    {
+        var parameters = new DialogParameters { ["Entry"] = entry };
+        await DialogService.ShowAsync<JournalEntryDetailsDialog>(
+            $"تفاصيل القيد {entry.EntryNumber}", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+}

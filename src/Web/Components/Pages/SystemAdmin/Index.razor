@@ -1,0 +1,42 @@
+@page "/system-admin"
+@attribute [Authorize(Roles = "SuperAdmin")]
+@layout SystemAdminLayout
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["SystemAdmin"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["SystemAdmin"]" Icon="@Icons.Material.Filled.AdminPanelSettings" />
+
+<MudText Typo="Typo.body1" Class="muted-text mb-4">@Loc["SystemAdminSub"]</MudText>
+
+<MudGrid Spacing="3">
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <MudIcon Icon="@Icons.Material.Filled.MonitorHeart" Style="font-size:2.4rem; color:var(--erp-primary);" />
+                    <div style="flex:1; min-width:180px;">
+                        <MudText Typo="Typo.h6">@Loc["SystemHealth"]</MudText>
+                        <MudText Typo="Typo.body2" Class="muted-text">@Loc["SystemHealthSub"]</MudText>
+                    </div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/system-admin/health">@Loc["Open"]</MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <div style="display:flex; align-items:center; gap:16px; flex-wrap:wrap;">
+                    <MudIcon Icon="@Icons.Material.Filled.ErrorOutline" Style="font-size:2.4rem; color:var(--erp-error);" />
+                    <div style="flex:1; min-width:180px;">
+                        <MudText Typo="Typo.h6">@Loc["ErrorLog"]</MudText>
+                        <MudText Typo="Typo.body2" Class="muted-text">@Loc["ErrorLogSub"]</MudText>
+                    </div>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/system-admin/errors">@Loc["Open"]</MudButton>
+                </div>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>

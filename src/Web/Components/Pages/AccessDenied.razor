@@ -1,0 +1,13 @@
+@page "/access-denied"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة رفض الوصول *@
+
+<PageTitle>@Loc["AccessDenied"] - @Loc["AppName"]</PageTitle>
+
+<div style="display:flex; flex-direction:column; align-items:center; justify-content:center; min-height:60vh; gap:16px; text-align:center;">
+    <MudIcon Icon="@Icons.Material.Filled.Block" Style="font-size:4rem; color:var(--erp-error);" />
+    <MudText Typo="Typo.h5" Style="font-weight:700;">@Loc["AccessDenied"]</MudText>
+    <MudText Typo="Typo.body1" Class="muted-text">@Loc["AccessDeniedMessage"]</MudText>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Href="/">@Loc["Home"]</MudButton>
+</div>

@@ -1,0 +1,136 @@
+/* =====================================================================
+   app.css — الطبقة الرقيقة الوحيدة فوق ثيم MudBlazor
+   ---------------------------------------------------------------------
+   هذا الملف يحتوي فقط على تخصيصات فوق ثيم MudBlazor المعرّف في MainLayout.razor.
+   أي تعديل تصميمي مستقبلي يجب أن يعدّل هنا أو في MudTheme مباشرة،
+   ولا يُسمح بإضافة طبقة تصميم جديدة فوق القديمة دون حذف ما قبلها.
+   المصدر الوحيد للألوان والقياسات الأساسية هو MudTheme في MainLayout.razor.
+   ===================================================================== */
+
+/* متغيرات الهوية — يجب أن تبقى مطابقة تماماً لـ MudTheme في MainLayout.razor */
+:root {
+    --erp-bg: #F5F6F8;
+    --erp-card: #FFFFFF;
+    --erp-primary: #475b86;
+    --erp-secondary: #6B7280;
+    --erp-text: #1F2937;
+    --erp-muted: #6B7280;
+    --erp-border: #E5E7EB;
+    --erp-success: #16A34A;
+    --erp-warning: #D97706;
+    --erp-error: #DC2626;
+}
+
+html, body {
+    font-family: 'Cairo', 'Tajawal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+    color: var(--erp-primary);
+}
+
+/* نص ثانوي */
+.muted-text {
+    color: var(--erp-muted);
+    font-size: 0.875rem;
+}
+
+/* كميات حركات المخزون (وارد أخضر / صادر أحمر) */
+td.stock-in {
+    color: var(--erp-success);
+    font-weight: 600;
+}
+
+td.stock-out {
+    color: var(--erp-error);
+    font-weight: 600;
+}
+
+/* الشريط العلوي: بلا ظل + خط سفلي خفيف */
+.mud-appbar {
+    box-shadow: none;
+    border-bottom: 1px solid var(--erp-border);
+}
+
+/* البطاقات: ظل خفيف + حدود خفيفة */
+.mud-card {
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+    border: 1px solid var(--erp-border);
+}
+
+/* شريط التنقل الأفقي العلوي */
+.erp-topnav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: 24px;
+}
+
+.erp-nav-link {
+    padding: 8px 14px;
+    color: var(--erp-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color .15s ease, border-bottom-color .15s ease;
+}
+
+.erp-nav-link:hover {
+    color: var(--erp-text);
+}
+
+.erp-nav-link.active {
+    color: var(--erp-primary);
+    border-bottom-color: var(--erp-primary);
+    font-weight: 600;
+}
+
+/* قوائم التنقل المنسدلة (CSS hover — بدون JavaScript) */
+.erp-dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.erp-dropdown .erp-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    min-width: 210px;
+    background: var(--erp-card);
+    border: 1px solid var(--erp-border);
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
+    padding: 6px 0;
+    z-index: 1100;
+}
+
+.erp-dropdown:hover .erp-dropdown-menu {
+    display: block;
+}
+
+.erp-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--erp-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.erp-dropdown-menu a:hover {
+    background: var(--erp-bg);
+    color: var(--erp-primary);
+}
+
+.erp-dropdown.active .erp-nav-link {
+    color: var(--erp-primary);
+    border-bottom-color: var(--erp-primary);
+    font-weight: 600;
+}
+
+/* خلفية منطقة المحتوى */
+.mud-main-content {
+    background: var(--erp-bg);
+}

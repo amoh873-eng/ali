@@ -1,0 +1,71 @@
+﻿@* حوار تحويل أمر شراء إلى فاتورة مشتريات: اختيار المخزن ونوع الفاتورة *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="Guid" @bind-Value="_warehouseId"
+                               Label="المخزن" Required="true" RequiredError="المخزن مطلوب"
+                               Variant="Variant.Outlined">
+                        @foreach (var w in _warehouses)
+                        {
+                            <MudSelectItem T="Guid" Value="@w.Id">@w.Code - @w.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="int" @bind-Value="_invoiceType"
+                               Label="نوع الفاتورة" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">نقدي</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">آجل</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">إلغاء</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Confirm">تحويل</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    /// <summary>
+    /// النتيجة التي يعيدها حوار التحويل: المخزن ونوع الفاتورة المختاران.
+    /// </summary>
+    public class ConvertResult
+    {
+        public Guid WarehouseId { get; init; }
+        public int InvoiceType { get; init; }
+    }
+
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private MudForm? _form;
+    private List<WarehouseDto> _warehouses = new();
+    private Guid _warehouseId;
+    private int _invoiceType = 1;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _warehouses = await WarehouseService.GetAllAsync();
+        _warehouseId = _warehouses.FirstOrDefault(w => w.IsDefault)?.Id
+                       ?? _warehouses.FirstOrDefault()?.Id
+                       ?? Guid.Empty;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task Confirm()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+        MudDialog.Close(DialogResult.Ok(new ConvertResult
+        {
+            WarehouseId = _warehouseId,
+            InvoiceType = _invoiceType
+        }));
+    }
+}

@@ -1,0 +1,83 @@
+@* حوار إضافة مستخدم جديد (البريد يُستخدم كاسم مستخدم ليتوافق مع شاشة تسجيل الدخول) *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Loc["AddUser"]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+
+            <MudTextField @bind-Value="_email" Label="@Loc["Email"]" Variant="Variant.Outlined"
+                          Required="true" RequiredError="@Loc["RequiredField"]" />
+            <MudTextField @bind-Value="_password" Label="@Loc["Password"]" Variant="Variant.Outlined"
+                          InputType="InputType.Password" Required="true" RequiredError="@Loc["RequiredField"]" />
+            <MudTextField @bind-Value="_confirmPassword" Label="@Loc["ConfirmPassword"]" Variant="Variant.Outlined"
+                          InputType="InputType.Password" Required="true" RequiredError="@Loc["RequiredField"]" />
+
+            <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">@Loc["Roles"]</MudText>
+            @foreach (var role in _allRoles)
+            {
+                <MudCheckBox T="bool" Checked="@_selected[role.Name]" CheckedChanged="@((bool v) => _selected[role.Name] = v)" Label="@role.Name" />
+            }
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IUserService UserService { get; set; } = default!;
+    [Parameter] public IRoleService RoleService { get; set; } = default!;
+
+    private MudForm? _form;
+    private string _email = string.Empty;
+    private string _password = string.Empty;
+    private string _confirmPassword = string.Empty;
+    private string? _error;
+    private List<RoleDto> _allRoles = new();
+    private readonly Dictionary<string, bool> _selected = new();
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _allRoles = await RoleService.GetRolesAsync();
+            foreach (var role in _allRoles)
+                _selected[role.Name] = false;
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        if (_password != _confirmPassword)
+        {
+            _error = Loc["PasswordsDoNotMatch"];
+            return;
+        }
+
+        _error = null;
+        try
+        {
+            var roles = _selected.Where(kv => kv.Value).Select(kv => kv.Key).ToList();
+            // البريد يُستخدم كاسم مستخدم ليتمكن المستخدم من تسجيل الدخول به
+            await UserService.CreateUserAsync(_email.Trim(), _email.Trim(), _password, roles);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}

@@ -1,0 +1,150 @@
+@page "/system-admin/health"
+@attribute [Authorize(Roles = "SuperAdmin")]
+@layout SystemAdminLayout
+@implements IDisposable
+
+<PageTitle>@Loc["SystemHealth"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["SystemHealth"]" Icon="@Icons.Material.Filled.MonitorHeart" />
+
+<MudText Typo="Typo.caption" Class="muted-text mb-3">@Loc["AutoRefresh"]</MudText>
+
+<MudGrid Spacing="3">
+    @* 1) حالة قاعدة البيانات *@
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <MudText Typo="Typo.h6" Class="mb-2">@Loc["DatabaseStatus"]</MudText>
+                @if (_db == null)
+                {
+                    <MudProgressLinear Indeterminate="true" />
+                }
+                else if (_db.Ok)
+                {
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#D1FAE5; color:#065F46; padding:4px 12px; border-radius:999px; font-size:0.85rem; font-weight:600;">
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" />@Loc["Healthy"]
+                    </span>
+                }
+                else
+                {
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#FEE2E2; color:#991B1B; padding:4px 12px; border-radius:999px; font-size:0.85rem; font-weight:600;">
+                        <MudIcon Icon="@Icons.Material.Filled.Error" Size="Size.Small" />@Loc["Error"]
+                    </span>
+                }
+                <MudText Typo="Typo.body2" Class="muted-text mt-2">@Loc["ResponseTime"]: @_db?.ElapsedMs ms</MudText>
+                @if (_db is { Ok: false })
+                {
+                    <MudText Typo="Typo.caption" Style="word-break:break-all; color:var(--erp-error);">@_db.Error</MudText>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    @* 2) حالة الترحيلات *@
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <MudText Typo="Typo.h6" Class="mb-2">@Loc["MigrationsStatus"]</MudText>
+                @if (_pendingMigrations == null)
+                {
+                    <MudProgressLinear Indeterminate="true" />
+                }
+                else if (_pendingMigrations.Count == 0)
+                {
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#D1FAE5; color:#065F46; padding:4px 12px; border-radius:999px; font-size:0.85rem; font-weight:600;">
+                        <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" />@Loc["NoPendingMigrations"]
+                    </span>
+                }
+                else
+                {
+                    <span style="display:inline-flex; align-items:center; gap:6px; background:#FEF3C7; color:#92400E; padding:4px 12px; border-radius:999px; font-size:0.85rem; font-weight:600;">
+                        <MudIcon Icon="@Icons.Material.Filled.Warning" Size="Size.Small" />@Loc["PendingMigrations"] (@_pendingMigrations.Count)
+                    </span>
+                    @foreach (var m in _pendingMigrations)
+                    {
+                        <MudText Typo="Typo.caption" Class="muted-text">@m</MudText>
+                    }
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    @* 3) معلومات البيئة *@
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <MudText Typo="Typo.h6" Class="mb-2">@Loc["EnvironmentInfo"]</MudText>
+                <MudText Typo="Typo.body2">@Loc["DotNetVersion"]: @_dotnetVersion</MudText>
+                <MudText Typo="Typo.body2">@Loc["MachineName"]: @_machineName</MudText>
+                <MudText Typo="Typo.body2">@Loc["ServerTime"]: @_serverTime</MudText>
+                <MudText Typo="Typo.body2">@Loc["BrowserTime"]: @(_browserTime ?? "-")</MudText>
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+
+    @* 4) أخطاء آخر 24 ساعة *@
+    <MudItem xs="12" md="6">
+        <MudCard Elevation="1">
+            <MudCardContent>
+                <MudText Typo="Typo.h6" Class="mb-2">@Loc["Last24hErrors"]</MudText>
+                <MudText Typo="Typo.h4" Style="@("font-weight:800; color:" + _errorCountColor + ";")">@_errors24h</MudText>
+                @if (_errors24h > 0)
+                {
+                    <MudButton Variant="Variant.Text" Color="Color.Primary" Href="/system-admin/errors" StartIcon="@Icons.Material.Filled.ArrowForward">@Loc["ViewErrors"]</MudButton>
+                }
+            </MudCardContent>
+        </MudCard>
+    </MudItem>
+</MudGrid>
+
+@code {
+    private DatabaseHealthDto? _db;
+    private List<string>? _pendingMigrations;
+    private int _errors24h;
+    private readonly string _dotnetVersion = Environment.Version.ToString();
+    private readonly string _machineName = Environment.MachineName;
+    private string _serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+    private string? _browserTime;
+    private System.Threading.Timer? _timer;
+
+    private string _errorCountColor => _errors24h > 0 ? "var(--erp-error)" : "var(--erp-primary)";
+
+    [Inject] private ISystemAdminService AdminService { get; set; } = default!;
+    [Inject] private IJSRuntime Js { get; set; } = default!;
+    [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+        _timer = new System.Threading.Timer(_ => _ = OnTimerTickAsync(), null, TimeSpan.FromSeconds(30), TimeSpan.FromSeconds(30));
+    }
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _db = await AdminService.CheckDatabaseAsync();
+            _pendingMigrations = await AdminService.GetPendingMigrationsAsync();
+            _errors24h = await AdminService.GetErrorCountSinceAsync(DateTime.UtcNow.AddHours(-24));
+            _serverTime = DateTime.Now.ToString("yyyy-MM-dd HH:mm:ss");
+
+            try { _browserTime = await Js.InvokeAsync<string>("eval", "new Date().toString()"); }
+            catch { _browserTime = null; }
+        }
+        catch
+        {
+            // لا نعطّل الصفحة عند فشل أي فحص
+        }
+    }
+
+    private async Task OnTimerTickAsync()
+    {
+        await InvokeAsync(async () =>
+        {
+            await LoadAsync();
+            StateHasChanged();
+        });
+    }
+
+    public void Dispose() => _timer?.Dispose();
+}

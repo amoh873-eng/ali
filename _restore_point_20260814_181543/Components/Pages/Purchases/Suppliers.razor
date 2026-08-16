@@ -1,0 +1,128 @@
+@page "/purchases/suppliers"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة الموردين *@
+
+<PageTitle>الموردون - نظام ERP</PageTitle>
+
+<PageHeader Title="@Loc["Suppliers"]" Icon="@Icons.Material.Filled.LocalShipping" />
+
+<MudToolBar Class="mb-4">
+    <MudTextField @bind-Value="_search" Placeholder="ابحث بالاسم أو الكود..." Adornment="Adornment.Start"
+                  AdornmentIcon="@Icons.Material.Filled.Search" Class="flex-grow-1" />
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
+        إضافة مورد
+    </MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_suppliers.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">لا يوجد موردون. اضغط "إضافة مورد" لإنشاء أول مورد.</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_filteredSuppliers" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>الكود</MudTh>
+                <MudTh>الاسم</MudTh>
+                <MudTh>الهاتف</MudTh>
+                <MudTh>الرصيد</MudTh>
+                <MudTh>الحالة</MudTh>
+                <MudTh>إجراءات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd>@context.Phone</MudTd>
+                <MudTd>@context.CurrentBalance.ToString("N2")</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">
+                        @(context.IsActive ? "نشط" : "غير نشط")
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Receipt" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(e => OpenStatementDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small" Color="Color.Primary" OnClick="@(e => OpenEditDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.ToggleOn" Size="Size.Small" Color="Color.Secondary" OnClick="@(e => ToggleActive(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(e => DeleteSupplier(context))" Disabled="context.IsSystem" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private List<SupplierDto> _suppliers = new();
+    private string _search = string.Empty;
+
+    private IEnumerable<SupplierDto> _filteredSuppliers =>
+        string.IsNullOrWhiteSpace(_search)
+            ? _suppliers
+            : _suppliers.Where(s => s.Code.Contains(_search, StringComparison.OrdinalIgnoreCase)
+                                     || s.NameAr.Contains(_search, StringComparison.OrdinalIgnoreCase));
+
+    [Inject] private ISupplierService SupplierService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _suppliers = await SupplierService.GetAllAsync(); }
+        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الموردين: {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters { ["SupplierService"] = SupplierService };
+        var dialog = await DialogService.ShowAsync<SupplierFormDialog>("إضافة مورد جديد", parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم حفظ المورد بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task OpenEditDialog(SupplierDto supplier)
+    {
+        var parameters = new DialogParameters { ["SupplierService"] = SupplierService, ["EditSupplier"] = supplier };
+        var dialog = await DialogService.ShowAsync<SupplierFormDialog>($"تعديل مورد: {supplier.NameAr}", parameters, new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) { Snackbar.Add("تم تعديل المورد بنجاح", Severity.Success); await LoadAsync(); }
+    }
+
+    private async Task OpenStatementDialog(SupplierDto supplier)
+    {
+        var parameters = new DialogParameters { ["SupplierService"] = SupplierService, ["Supplier"] = supplier };
+        await DialogService.ShowAsync<SupplierStatementDialog>(
+            $"كشف حساب: {supplier.NameAr}", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+    }
+
+    private async Task DeleteSupplier(SupplierDto supplier)
+    {
+        if (supplier.IsSystem) { Snackbar.Add("لا يمكن حذف الموردين النظاميين", Severity.Warning); return; }
+        var confirmed = await DialogService.ShowMessageBox("تأكيد الحذف", $"هل أنت متأكد من حذف المورد '{supplier.NameAr}'؟", yesText: "حذف", cancelText: "إلغاء");
+        if (confirmed != true) return;
+        try { await SupplierService.DeleteAsync(supplier.Id); Snackbar.Add("تم حذف المورد بنجاح", Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task ToggleActive(SupplierDto supplier)
+    {
+        try { await SupplierService.ToggleActiveAsync(supplier.Id); Snackbar.Add(supplier.IsActive ? "تم تعطيل المورد" : "تم تفعيل المورد", Severity.Info); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}
+

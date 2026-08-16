@@ -1,0 +1,70 @@
+@inject IStringLocalizer<SharedResources> Loc
+
+@* إيصال بيع نقطة البيع (قابل للطباعة) *@
+
+<MudDialog>
+    <DialogContent>
+        <div class="pos-receipt">
+            <div class="rc-shop">@Loc["AppName"]</div>
+            <div class="rc-title">@Loc["Receipt"]</div>
+            <div class="rc-sep"></div>
+
+            <div class="rc-row"><span>@Loc["InvoiceNumber"]</span><span>@Invoice.InvoiceNumber</span></div>
+            <div class="rc-row"><span>@Loc["Date"]</span><span>@Invoice.InvoiceDate.ToString("yyyy-MM-dd HH:mm")</span></div>
+            <div class="rc-row"><span>@Loc["PosCashier"]</span><span>@CashierName</span></div>
+            <div class="rc-row"><span>@Loc["Customer"]</span><span>@Invoice.CustomerName</span></div>
+            <div class="rc-row"><span>@Loc["PaymentMethod"]</span><span>@PaymentMethodLabel</span></div>
+
+            <div class="rc-sep"></div>
+
+            <table class="rc-items">
+                <thead>
+                    <tr><th>@Loc["Item"]</th><th>@Loc["Qty"]</th><th>@Loc["Price"]</th><th>@Loc["Total"]</th></tr>
+                </thead>
+                <tbody>
+                    @foreach (var line in Invoice.Lines)
+                    {
+                        <tr>
+                            <td>@line.ItemNameAr</td>
+                            <td>@line.Quantity.ToString("0.##")</td>
+                            <td>@line.UnitPrice.ToString("N2")</td>
+                            <td>@line.LineTotal.ToString("N2")</td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+
+            <div class="rc-sep"></div>
+
+            <div class="rc-row"><span>@Loc["SubTotal"]</span><span>@Invoice.SubTotal.ToString("N2")</span></div>
+            <div class="rc-row"><span>@Loc["DiscountAmount"]</span><span>@Invoice.DiscountAmount.ToString("N2")</span></div>
+            <div class="rc-row"><span>@Loc["TaxAmount"]</span><span>@Invoice.TaxAmount.ToString("N2")</span></div>
+            <div class="rc-grand"><span>@Loc["Total"]</span><span>@Invoice.TotalAmount.ToString("N2")</span></div>
+            <div class="rc-row"><span>@Loc["PosReceived"]</span><span>@Received.ToString("N2")</span></div>
+            <div class="rc-row"><span>@Loc["PosChange"]</span><span>@Change.ToString("N2")</span></div>
+
+            <div class="rc-sep"></div>
+            <div class="rc-thanks">@Loc["ThankYou"]</div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        @* زر طباعة خام يستدعي window.print() مباشرة في المتصفح — أكثر موثوقية من جسر JS عبر SignalR *@
+        <button type="button" class="erp-print-btn" onclick="window.print()">
+            <MudIcon Icon="@Icons.Material.Filled.Print" />
+            @Loc["Print"]
+        </button>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Cancel"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public SalesInvoiceDto Invoice { get; set; } = default!;
+    [Parameter] public string PaymentMethodLabel { get; set; } = string.Empty;
+    [Parameter] public decimal Received { get; set; }
+    [Parameter] public decimal Change { get; set; }
+    [Parameter] public string CashierName { get; set; } = string.Empty;
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

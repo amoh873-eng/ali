@@ -1,0 +1,152 @@
+﻿@* نموذج حوار لإضافة/تعديل حساب - يستخدم في MudDialog *@
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_code"
+                                  Label="كود الحساب"
+                                  Required="true"
+                                  RequiredError="كود الحساب مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="int"
+                               @bind-Value="_accountType"
+                               Label="نوع الحساب"
+                               Required="true"
+                               Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">أصول</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">خصوم</MudSelectItem>
+                        <MudSelectItem T="int" Value="3">حقوق ملكية</MudSelectItem>
+                        <MudSelectItem T="int" Value="4">إيرادات</MudSelectItem>
+                        <MudSelectItem T="int" Value="5">مصروفات</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr"
+                                  Label="اسم الحساب (عربي)"
+                                  Required="true"
+                                  RequiredError="الاسم العربي مطلوب"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn"
+                                  Label="اسم الحساب (إنجليزي)"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_parentAccountId"
+                               Label="الحساب الأب (اختياري)"
+                               Variant="Variant.Outlined"
+                               T="Guid?"
+                               Clearable="true">
+                        @foreach (var acc in ParentAccounts)
+                        {
+                            <MudSelectItem Value="@acc.Id">@acc.Code - @acc.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_description"
+                                  Label="وصف"
+                                  Lines="2"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="SubmitAsync"
+                   Variant="Variant.Filled"
+                   Color="Color.Primary">
+            @(EditAccount is null ? "إضافة" : "تعديل")
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IAccountService AccountService { get; set; } = default!;
+    [Parameter] public List<AccountDto> ParentAccounts { get; set; } = new();
+    [Parameter] public AccountDto? EditAccount { get; set; }
+
+    private MudForm? _form;
+    private string _code = string.Empty;
+    private int _accountType = 1;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _description;
+    private Guid? _parentAccountId;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditAccount is not null)
+        {
+            _code = EditAccount.Code;
+            _accountType = EditAccount.AccountType;
+            _nameAr = EditAccount.NameAr;
+            _nameEn = EditAccount.NameEn;
+            _description = EditAccount.Description;
+            _parentAccountId = EditAccount.ParentAccountId;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditAccount is null)
+            {
+                await AccountService.CreateAsync(new CreateAccountDto
+                {
+                    Code = _code,
+                    NameAr = _nameAr,
+                    NameEn = _nameEn,
+                    AccountType = _accountType,
+                    ParentAccountId = _parentAccountId,
+                    Description = _description
+                });
+            }
+            else
+            {
+                await AccountService.UpdateAsync(new UpdateAccountDto
+                {
+                    Id = EditAccount.Id,
+                    Code = _code,
+                    NameAr = _nameAr,
+                    NameEn = _nameEn,
+                    AccountType = _accountType,
+                    ParentAccountId = _parentAccountId,
+                    Description = _description,
+                    IsActive = EditAccount.IsActive
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

@@ -1,0 +1,32 @@
+@* عرض تفاصيل خطأ كامل (رسالة + تتبع الاستثناء) في نافذة منبثقة *@
+
+<MudDialog>
+    <TitleContent>
+        <MudText Typo="Typo.h6">@Loc["ErrorDetails"]</MudText>
+    </TitleContent>
+    <DialogContent>
+        <MudText Typo="Typo.body2"><b>@Loc["ExceptionType"]:</b> @Log.ExceptionType</MudText>
+        <MudText Typo="Typo.body2"><b>@Loc["Time"]:</b> @Log.OccurredAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm:ss")</MudText>
+        <MudText Typo="Typo.body2"><b>@Loc["User"]:</b> @(Log.UserId ?? "-")</MudText>
+        <MudText Typo="Typo.body2"><b>@Loc["RequestPath"]:</b> @Log.RequestPath</MudText>
+
+        <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">@Loc["Message"]</MudText>
+        <pre style="white-space:pre-wrap; word-break:break-word; background:#f4f5f9; padding:12px; border-radius:8px; margin:0;">@Log.Message</pre>
+
+        <MudText Typo="Typo.subtitle2" Class="mt-3 mb-1">@Loc["StackTrace"]</MudText>
+        <pre style="white-space:pre-wrap; word-break:break-word; max-height:420px; overflow:auto; background:#f4f5f9; padding:12px; border-radius:8px; margin:0; direction:ltr; text-align:left;">@Log.StackTrace</pre>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Variant="Variant.Filled" Color="Color.Primary">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ExceptionLogDto Log { get; set; } = default!;
+
+    [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

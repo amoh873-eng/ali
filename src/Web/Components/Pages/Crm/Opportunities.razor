@@ -1,0 +1,168 @@
+@page "/crm/opportunities"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* لوحة الفرص البيعية: أعمدة مجمّعة حسب مرحلة البيع *@
+
+<PageTitle>@Loc["Opportunities"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["Opportunities"]" Icon="@Icons.Material.Filled.TrackChanges" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreateDialog">
+        @Loc["AddOpportunity"]
+    </MudButton>
+</MudToolBar>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="my-4" />
+}
+else if (_opportunities.Count == 0)
+{
+    <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoOpportunities"]</MudAlert>
+}
+else
+{
+    <div style="display:flex; gap:12px; overflow-x:auto; align-items:flex-start;">
+        @for (int stage = 1; stage <= 6; stage++)
+        {
+            var stageList = _opportunities.Where(o => o.Stage == stage).ToList();
+            <div style="flex:1; min-width:215px; background:var(--erp-bg); border-radius:10px; padding:10px;">
+                <MudText Typo="Typo.subtitle2" Style="font-weight:700; margin-bottom:8px;">
+                    @StageLabel(stage) <span class="muted-text">(@stageList.Count)</span>
+                </MudText>
+                @foreach (var o in stageList)
+                {
+                    <MudPaper Elevation="1" Class="pa-3 mb-2">
+                        <MudText Typo="Typo.body1" Style="font-weight:600;">@o.Title</MudText>
+                        <MudText Typo="Typo.caption" Style="color:var(--erp-primary); font-weight:700;">@o.ExpectedValue.ToString("N2")</MudText>
+                        @if (!string.IsNullOrEmpty(o.CustomerName))
+                        {
+                            <MudText Typo="Typo.caption" Class="muted-text">@o.CustomerName</MudText>
+                        }
+                        else if (!string.IsNullOrEmpty(o.LeadName))
+                        {
+                            <MudText Typo="Typo.caption" Class="muted-text">@o.LeadName</MudText>
+                        }
+                        @if (o.ExpectedCloseDate.HasValue)
+                        {
+                            <MudText Typo="Typo.caption" Class="muted-text">@o.ExpectedCloseDate.Value.ToString("yyyy-MM-dd")</MudText>
+                        }
+                        <div style="margin-top:6px;">
+                            <MudIconButton Icon="@Icons.Material.Filled.History" Size="Size.Small"
+                                           Color="Color.Default" OnClick="() => OpenTimelineDialog(o)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                           Color="Color.Primary" OnClick="() => OpenEditDialog(o)" />
+                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                           Color="Color.Error" OnClick="() => DeleteOpportunity(o)" />
+                        </div>
+                    </MudPaper>
+                }
+            </div>
+        }
+    </div>
+}
+@code {
+    private bool _isLoading = true;
+    private List<OpportunityDto> _opportunities = new();
+    private List<CustomerDto> _customers = new();
+    private List<LeadDto> _leads = new();
+
+    [Inject] private IOpportunityService OpportunityService { get; set; } = default!;
+    [Inject] private ICustomerService CustomerService { get; set; } = default!;
+    [Inject] private ILeadService LeadService { get; set; } = default!;
+    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IFollowUpService FollowUpService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _opportunities = await OpportunityService.GetAllAsync();
+            _customers = await CustomerService.GetAllAsync();
+            _leads = await LeadService.GetAllAsync();
+        }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private string StageLabel(int s) => s switch
+    {
+        1 => Loc["StageProspecting"], 2 => Loc["StageQualification"], 3 => Loc["StageProposal"],
+        4 => Loc["StageNegotiation"], 5 => Loc["StageWon"], 6 => Loc["StageLost"], _ => ""
+    };
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters
+        {
+            ["OpportunityService"] = OpportunityService,
+            ["Customers"] = _customers,
+            ["Leads"] = _leads
+        };
+        var dialog = await DialogService.ShowAsync<OpportunityFormDialog>(
+            Loc["AddOpportunity"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["OpportunitySaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditDialog(OpportunityDto opportunity)
+    {
+        var parameters = new DialogParameters
+        {
+            ["OpportunityService"] = OpportunityService,
+            ["Customers"] = _customers,
+            ["Leads"] = _leads,
+            ["EditOpportunity"] = opportunity
+        };
+        var dialog = await DialogService.ShowAsync<OpportunityFormDialog>(
+            Loc["EditOpportunity"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["OpportunitySaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenTimelineDialog(OpportunityDto opportunity)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ActivityService"] = ActivityService,
+            ["FollowUpService"] = FollowUpService,
+            ["OpportunityId"] = opportunity.Id,
+            ["SubjectName"] = opportunity.Title
+        };
+        await DialogService.ShowAsync<TimelineDialog>(
+            Loc["Activities"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+
+    private async Task DeleteOpportunity(OpportunityDto opportunity)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"], Loc["DeleteConfirm"],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try
+        {
+            await OpportunityService.DeleteAsync(opportunity.Id);
+            Snackbar.Add(Loc["OpportunityDeleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

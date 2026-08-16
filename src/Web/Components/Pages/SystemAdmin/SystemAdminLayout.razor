@@ -1,0 +1,71 @@
+@inherits LayoutComponentBase
+@inject IStringLocalizer<SharedResources> Loc
+
+@* تخطيط منفصل للوحة إدارة النظام (شريط جانبي + محتوى) — منفصل بصريًا عن الواجهة اليومية *@
+<MudRTLProvider RightToLeft="true">
+<MudThemeProvider Theme="_theme" IsDarkMode="false" />
+<MudPopoverProvider />
+<MudDialogProvider />
+<MudSnackbarProvider />
+
+<div style="display:flex; min-height:100vh; background:var(--erp-bg, #F4F5F9);">
+    <aside style="width:240px; flex-shrink:0; background:#fff; border-inline-end:1px solid #E5E7EB; padding:16px; display:flex; flex-direction:column; gap:4px;">
+        <div style="display:flex; align-items:center; gap:8px; margin-bottom:16px;">
+            <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Style="color:var(--erp-primary); font-size:1.6rem;" />
+            <MudText Typo="Typo.subtitle1" Style="font-weight:800; color:var(--erp-primary);">@Loc["SystemAdmin"]</MudText>
+        </div>
+
+        <MudNavMenu>
+            <MudNavLink Href="/system-admin/health" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.MonitorHeart">@Loc["SystemHealth"]</MudNavLink>
+            <MudNavLink Href="/system-admin/errors" Match="NavLinkMatch.Prefix" Icon="@Icons.Material.Filled.ErrorOutline">@Loc["ErrorLog"]</MudNavLink>
+        </MudNavMenu>
+
+        <MudDivider Class="my-3" />
+
+        <MudNavMenu>
+            <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@Loc["Home"]</MudNavLink>
+            <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout">@Loc["Logout"]</MudNavLink>
+        </MudNavMenu>
+    </aside>
+
+    <main style="flex:1; padding:24px; min-width:0;">
+        @Body
+    </main>
+</div>
+</MudRTLProvider>
+
+@code {
+    private readonly MudTheme _theme = new()
+    {
+        PaletteLight = new PaletteLight
+        {
+            Primary = "#6D5BD0",
+            Secondary = "#6B7280",
+            Info = "#6D5BD0",
+            Success = "#10B981",
+            Warning = "#F59E0B",
+            Error = "#EF4444",
+            Background = "#F4F5F9",
+            Surface = "#FFFFFF",
+            AppbarBackground = "#FFFFFF",
+            AppbarText = "#1F2937",
+            DrawerBackground = "#FFFFFF",
+            DrawerText = "#1F2937",
+            TextPrimary = "#1F2937",
+            TextSecondary = "#6B7280",
+            ActionDefault = "#1F2937",
+            LinesDefault = "#E5E7EB",
+            LinesInputs = "#C7C5F4",
+            TableLines = "#E5E7EB"
+        },
+        LayoutProperties = new LayoutProperties { DefaultBorderRadius = "10px" },
+        Typography = new Typography
+        {
+            Default = new DefaultTypography
+            {
+                FontFamily = new[] { "Cairo", "Tajawal", "Roboto", "Arial", "sans-serif" },
+                FontSize = "0.9375rem"
+            }
+        }
+    };
+}

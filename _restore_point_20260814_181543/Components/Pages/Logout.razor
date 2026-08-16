@@ -1,0 +1,17 @@
+@page "/logout"
+
+@* صفحة تسجيل الخروج (Static SSR) — تنفذ الخروج عبر HTTP ثم تعيد التوجيه *@
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+    [Inject] private SignInManager<IdentityUser> SignInManager { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (HttpContext is not null)
+        {
+            await SignInManager.SignOutAsync();
+            HttpContext.Response.Redirect("/");
+        }
+    }
+}

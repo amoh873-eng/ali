@@ -1,0 +1,107 @@
+@page "/permissions/roles"
+@attribute [Authorize(Policy = "Permission:Permissions.View")]
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["Roles"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["Roles"]" Icon="@Icons.Material.Filled.Badge" />
+
+<MudToolBar Class="mb-4">
+    <MudTextField @bind-Value="_newRoleName" Label="@Loc["RoleName"]" Variant="Variant.Outlined" Dense="true" Style="width:240px;" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="CreateRole">@Loc["AddRole"]</MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_roles.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoRoles"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_roles" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["RoleName"]</MudTh>
+                <MudTh>@Loc["Users"]</MudTh>
+                <MudTh>@Loc["Permissions"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Name</MudTd>
+                <MudTd>@context.UsersCount</MudTd>
+                <MudTd>@context.PermissionsCount</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Color="Color.Primary" OnClick="() => OpenPermissionsDialog(context)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteRole(context)" Disabled="@(context.Name == "Admin")" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+
+@code {
+    private bool _isLoading = true;
+    private string _newRoleName = string.Empty;
+    private List<RoleDto> _roles = new();
+
+    [Inject] private IRoleService RoleService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _roles = await RoleService.GetRolesAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task CreateRole()
+    {
+        if (string.IsNullOrWhiteSpace(_newRoleName)) return;
+        try
+        {
+            await RoleService.CreateRoleAsync(_newRoleName.Trim());
+            _newRoleName = string.Empty;
+            Snackbar.Add(Loc["RoleSaved"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task OpenPermissionsDialog(RoleDto role)
+    {
+        var parameters = new DialogParameters { ["RoleService"] = RoleService, ["Role"] = role };
+        var dialog = await DialogService.ShowAsync<RolePermissionsDialog>(
+            Loc["EditPermissions"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["PermissionsSaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task DeleteRole(RoleDto role)
+    {
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"], Loc["DeleteConfirm"],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try
+        {
+            await RoleService.DeleteRoleAsync(role.Id);
+            Snackbar.Add(Loc["RoleDeleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

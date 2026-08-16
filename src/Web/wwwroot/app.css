@@ -1,0 +1,407 @@
+/* =====================================================================
+   app.css — الطبقة الرقيقة الوحيدة فوق ثيم MudBlazor
+   ---------------------------------------------------------------------
+   هذا الملف يحتوي فقط على تخصيصات فوق ثيم MudBlazor المعرّف في MainLayout.razor.
+   أي تعديل تصميمي مستقبلي يجب أن يعدّل هنا أو في MudTheme مباشرة،
+   ولا يُسمح بإضافة طبقة تصميم جديدة فوق القديمة دون حذف ما قبلها.
+   المصدر الوحيد للألوان والقياسات الأساسية هو MudTheme في MainLayout.razor.
+   ===================================================================== */
+
+/* متغيرات الهوية — يجب أن تبقى مطابقة تماماً لـ MudTheme في MainLayout.razor */
+:root {
+    --erp-bg: #F4F5F9;
+    --erp-card: #FFFFFF;
+    --erp-primary: #6D5BD0;
+    --erp-primary-light: #F0EDFB;
+    --erp-secondary: #6B7280;
+    --erp-text: #1F2937;
+    --erp-muted: #6B7280;
+    --erp-border: #E5E7EB;
+    --erp-table-header: #F9FAFB;
+    --erp-success: #10B981;
+    --erp-warning: #F59E0B;
+    --erp-error: #EF4444;
+}
+
+html, body {
+    font-family: 'Cairo', 'Tajawal', 'Helvetica Neue', Helvetica, Arial, sans-serif;
+}
+
+a, .btn-link {
+    color: var(--erp-primary);
+}
+
+/* نص ثانوي */
+.muted-text {
+    color: var(--erp-muted);
+    font-size: 0.875rem;
+}
+
+/* كميات حركات المخزون (وارد أخضر / صادر أحمر) */
+td.stock-in {
+    color: var(--erp-success);
+    font-weight: 600;
+}
+
+td.stock-out {
+    color: var(--erp-error);
+    font-weight: 600;
+}
+
+/* الشريط العلوي: بلا ظل + خط سفلي خفيف */
+.mud-appbar {
+    box-shadow: none;
+    border-bottom: 1px solid var(--erp-border);
+}
+
+/* البطاقات: ظل خفيف + حدود خفيفة */
+.mud-card {
+    box-shadow: 0 1px 3px rgba(16, 24, 40, 0.06);
+    border: 1px solid var(--erp-border);
+}
+
+/* شريط التنقل الأفقي العلوي */
+.erp-topnav {
+    display: flex;
+    align-items: center;
+    gap: 4px;
+    margin-inline-start: 24px;
+}
+
+.erp-nav-link {
+    padding: 8px 14px;
+    color: var(--erp-muted);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 500;
+    border-bottom: 2px solid transparent;
+    transition: color .15s ease, border-bottom-color .15s ease;
+}
+
+.erp-nav-link:hover {
+    color: var(--erp-text);
+}
+
+.erp-nav-link.active {
+    color: var(--erp-primary);
+    background: var(--erp-primary-light);
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* قوائم التنقل المنسدلة (CSS hover — بدون JavaScript) */
+.erp-dropdown {
+    position: relative;
+    display: inline-flex;
+}
+
+.erp-dropdown .erp-dropdown-menu {
+    display: none;
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    min-width: 210px;
+    background: var(--erp-card);
+    border: 1px solid var(--erp-border);
+    border-radius: 6px;
+    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
+    padding: 6px 0;
+    z-index: 1100;
+}
+
+.erp-dropdown:hover .erp-dropdown-menu {
+    display: block;
+}
+
+.erp-dropdown-menu a {
+    display: block;
+    padding: 8px 16px;
+    color: var(--erp-text);
+    text-decoration: none;
+    font-size: 0.875rem;
+    white-space: nowrap;
+}
+
+.erp-dropdown-menu a:hover {
+    background: var(--erp-bg);
+    color: var(--erp-primary);
+}
+
+.erp-dropdown.active .erp-nav-link {
+    color: var(--erp-primary);
+    background: var(--erp-primary-light);
+    border-radius: 8px;
+    font-weight: 600;
+}
+
+/* خلفية منطقة المحتوى: تدرّج بنفسجي فاتح يُضفي حيوية */
+.mud-main-content {
+    background: linear-gradient(135deg, #F1EEFB 0%, #E5DFF8 50%, #EAF2FB 100%);
+}
+
+/* رأس الجداول: خلفية فاتحة ونص رمادي واضح */
+.mud-table-head th {
+    background: var(--erp-table-header) !important;
+    color: var(--erp-secondary);
+    font-weight: 600;
+    font-size: 0.8125rem;
+}
+
+/* تأثير تمرير خفيف فوق صفوف الجداول */
+.mud-table tbody tr:hover {
+    background: #DDD3F4;
+}
+
+/* تمييز الأسطر بالتناوب (Zebra) في كل الجداول — لون أوضح وأكثر تبايناً */
+.mud-table tbody tr:nth-child(even) {
+    background: #EAE3FA;
+}
+
+/* فاصل ملوّن واضح بين أسطر الجداول */
+.mud-table tbody tr:not(:last-child) {
+    border-bottom: 1px solid #C9BBEE;
+}
+
+/* أيقونة بطاقات الإحصائيات: مربع ملوّن بزوايا دائرية */
+.erp-stat-icon {
+    width: 48px;
+    height: 48px;
+    border-radius: 12px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+/* أزرار أساسية حديثة: تدرّج بنفسجي + ظل ملوّن + رفع خفيف عند التمرير */
+.mud-button-filled.mud-button-filled-primary {
+    background: linear-gradient(135deg, #8B5CF6 0%, #6D5BD0 100%) !important;
+    box-shadow: 0 4px 14px rgba(109, 91, 208, 0.32);
+    border-radius: 10px;
+    transition: box-shadow .2s ease, transform .2s ease;
+}
+
+.mud-button-filled.mud-button-filled-primary:hover {
+    box-shadow: 0 6px 20px rgba(109, 91, 208, 0.5);
+    transform: translateY(-1px);
+}
+
+/* ===== زر إتمام البيع: ذهبي مميز (يتجاوز تدرّج الأساسي البنفسجي) ===== */
+.mud-button-filled.mud-button-filled-primary.pos-checkout {
+    padding: 18px !important;
+    font-size: 1.45rem !important;
+    background: linear-gradient(180deg, #FBBF24 0%, #F59E0B 100%) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 0 #B45309, 0 10px 18px rgba(245, 158, 11, .4) !important;
+    transition: transform .1s ease, box-shadow .1s ease, background .1s ease !important;
+}
+.mud-button-filled.mud-button-filled-primary.pos-checkout:hover {
+    background: linear-gradient(180deg, #FCD34D 0%, #FBBF24 100%) !important;
+    box-shadow: 0 5px 0 #B45309, 0 12px 22px rgba(245, 158, 11, .5) !important;
+    transform: translateY(-2px);
+}
+.mud-button-filled.mud-button-filled-primary.pos-checkout:disabled {
+    background: #9CA3AF !important;
+    color: #F3F4F6 !important;
+    box-shadow: 0 4px 0 #6B7280 !important;
+    transform: none !important;
+}
+
+/* ===== زر فاتورة جديدة: تركوازي مميز ===== */
+.mud-button-filled.mud-button-filled-success.pos-new-invoice {
+    padding: 16px !important;
+    font-size: 1.25rem !important;
+    background: linear-gradient(180deg, #2DD4BF 0%, #14B8A6 100%) !important;
+    color: #fff !important;
+    border-radius: 12px !important;
+    box-shadow: 0 5px 0 #0F766E, 0 10px 18px rgba(20, 184, 166, .35) !important;
+    transition: transform .1s ease, box-shadow .1s ease, background .1s ease !important;
+}
+.mud-button-filled.mud-button-filled-success.pos-new-invoice:hover {
+    background: linear-gradient(180deg, #5EEAD4 0%, #2DD4BF 100%) !important;
+    box-shadow: 0 5px 0 #0F766E, 0 12px 22px rgba(20, 184, 166, .45) !important;
+    transform: translateY(-2px);
+}
+
+/* أيقونات روابط التنقل */
+.erp-nav-icon {
+    display: inline-flex;
+    vertical-align: middle;
+    margin-inline-end: 6px;
+    font-size: 1.1rem;
+}
+
+/* ===== الرسم الدائري (Donut) ===== */
+.erp-donut {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.erp-donut-chart {
+    position: relative;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+/* القيمة المركزية داخل فراغ الدونات */
+.erp-donut-center {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    pointer-events: none;
+    text-align: center;
+    line-height: 1.2;
+}
+
+.erp-donut-center-value {
+    font-size: 1rem;
+    font-weight: 800;
+    color: var(--erp-text);
+}
+
+.erp-donut-center-label {
+    font-size: 0.65rem;
+    color: var(--erp-muted);
+    margin-top: 2px;
+}
+
+/* وسيلة الإيضاح الملوّنة */
+.erp-donut-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.erp-donut-legend-item {
+    display: flex;
+    flex-direction: column;
+    gap: 4px;
+}
+
+.erp-donut-legend-row {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+}
+
+.erp-donut-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.erp-donut-label {
+    color: var(--erp-text);
+    flex: 1;
+    text-align: start;
+}
+
+.erp-donut-amount {
+    color: var(--erp-text);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.erp-donut-pct {
+    color: var(--erp-muted);
+    min-width: 40px;
+    text-align: end;
+}
+
+/* شريط نسبي ملوّن لكل شريحة */
+.erp-donut-bar {
+    height: 5px;
+    border-radius: 5px;
+    background: var(--erp-bg);
+    overflow: hidden;
+    margin-inline-start: 18px;
+}
+
+.erp-donut-bar-fill {
+    height: 100%;
+    border-radius: 5px;
+    transition: width .4s ease;
+}
+
+/* ===== تفاعلية الرسم الدائري (MudChart Donut): حركة دخول + تكبير/ظل عند التمرير ===== */
+/* الشرائح هي <path class="mud-chart-serie"> داخل <svg class="mud-chart-donut">.
+   التحويل يُقاس من مركز الدائرة (view-box) لتكون الحركة طبيعية من المنتصف. */
+.mud-chart-donut .mud-chart-serie {
+    transform-box: view-box;
+    transform-origin: center;
+    animation: erp-donut-slice-in .55s cubic-bezier(.22, .9, .36, 1) backwards;
+    transition: transform .22s ease, filter .22s ease;
+}
+
+@keyframes erp-donut-slice-in {
+    from { opacity: 0; transform: scale(.4); }
+    to   { opacity: 1; transform: scale(1); }
+}
+
+/* تأخير متدرّج بين الشرائح يعطي إحساس "الرسم التدريجي" للدائرة */
+.mud-chart-donut .mud-chart-serie:nth-child(1) { animation-delay: .05s; }
+.mud-chart-donut .mud-chart-serie:nth-child(2) { animation-delay: .10s; }
+.mud-chart-donut .mud-chart-serie:nth-child(3) { animation-delay: .15s; }
+.mud-chart-donut .mud-chart-serie:nth-child(4) { animation-delay: .20s; }
+.mud-chart-donut .mud-chart-serie:nth-child(5) { animation-delay: .25s; }
+.mud-chart-donut .mud-chart-serie:nth-child(6) { animation-delay: .30s; }
+.mud-chart-donut .mud-chart-serie:nth-child(7) { animation-delay: .35s; }
+.mud-chart-donut .mud-chart-serie:nth-child(8) { animation-delay: .40s; }
+.mud-chart-donut .mud-chart-serie:nth-child(9) { animation-delay: .45s; }
+
+/* التمرير: تكبير خفيف + ظل + سطوع — يتجاوز فلتر lighten الافتراضي في MudBlazor */
+.mud-chart-donut .mud-chart-serie:hover {
+    transform: scale(1.05);
+    filter: drop-shadow(0 6px 12px rgba(16, 24, 40, .30)) brightness(1.06);
+}
+
+/* ظهور ناعم للنص المركزي بعد اكتمال رسم الشرائح */
+.erp-donut-center {
+    animation: erp-donut-center-in .6s ease .3s backwards;
+}
+
+@keyframes erp-donut-center-in {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
+/* ===== طباعة إيصال نقطة البيع: إظهار الإيصال فقط عند الطباعة ===== */
+@media print {
+    body * { visibility: hidden !important; }
+
+    /* إبطال تموضع/تحويل نافذة MudBlazor بالكامل حتى يُطبع الإيصال أعلى الصفحة */
+    .mud-dialog-container, .mud-dialog, .mud-overlay,
+    .mud-dialog-title, .mud-dialog-content, .mud-dialog-actions {
+        position: static !important;
+        transform: none !important;
+        overflow: visible !important;
+        background: none !important;
+        box-shadow: none !important;
+        width: auto !important;
+        max-width: none !important;
+        max-height: none !important;
+        border: none !important;
+    }
+
+    .pos-receipt, .pos-receipt * { visibility: visible !important; }
+    .pos-receipt {
+        position: fixed !important;
+        left: 0 !important;
+        top: 0 !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        margin: 0 !important;
+        font-size: 12px !important;
+        color: #000 !important;
+    }
+}

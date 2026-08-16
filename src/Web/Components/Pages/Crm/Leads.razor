@@ -1,0 +1,179 @@
+@page "/crm/leads"
+@inject IStringLocalizer<SharedResources> Loc
+
+@* صفحة العملاء المحتملون: قائمة + تحويل سريع لعميل + سجل تواصل *@
+
+<PageTitle>@Loc["Leads"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["Leads"]" Icon="@Icons.Material.Filled.PersonAdd" />
+
+<MudToolBar Class="mb-4">
+    <MudButton Variant="Variant.Filled"
+               Color="Color.Primary"
+               StartIcon="@Icons.Material.Filled.Add"
+               OnClick="OpenCreateDialog">
+        @Loc["AddLead"]
+    </MudButton>
+</MudToolBar>
+
+<MudPaper Elevation="1">
+    @if (_isLoading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_leads.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="ma-2">@Loc["NoLeads"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_leads" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["NameAr"]</MudTh>
+                <MudTh>@Loc["Phone"]</MudTh>
+                <MudTh>@Loc["LeadSource"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd>@context.Phone</MudTd>
+                <MudTd>@SourceLabel(context.Source)</MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">
+                        @StatusLabel(context.Status)
+                    </MudChip>
+                </MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.History" Size="Size.Small"
+                                   Color="Color.Default" OnClick="() => OpenTimelineDialog(context)" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
+                                   Color="Color.Primary" OnClick="() => OpenEditDialog(context)" />
+                    @if (context.Status != 4)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.SwapHoriz" Size="Size.Small"
+                                       Color="Color.Success" OnClick="() => OpenConvertDialog(context)" />
+                    }
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
+                                   Color="Color.Error" OnClick="() => DeleteLead(context)"
+                                   Disabled="@(context.Status == 4)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager RowsPerPageString="@Loc["RowsPerPage"]" InfoFormat="@Loc["PagerInfo"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+@code {
+    private bool _isLoading = true;
+    private List<LeadDto> _leads = new();
+
+    [Inject] private ILeadService LeadService { get; set; } = default!;
+    [Inject] private IActivityService ActivityService { get; set; } = default!;
+    [Inject] private IFollowUpService FollowUpService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _leads = await LeadService.GetAllAsync(); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private string SourceLabel(int s) => s switch
+    {
+        1 => Loc["SourceWebsite"], 2 => Loc["SourcePhone"], 3 => Loc["SourceReferral"],
+        4 => Loc["SourceWalkIn"], 5 => Loc["SourceSocialMedia"], 6 => Loc["SourceOther"], _ => ""
+    };
+
+    private string StatusLabel(int s) => s switch
+    {
+        1 => Loc["LeadNew"], 2 => Loc["LeadContacted"], 3 => Loc["LeadQualified"],
+        4 => Loc["LeadConvertedStatus"], 5 => Loc["LeadRejected"], _ => ""
+    };
+
+    private Color StatusColor(int s) => s switch
+    {
+        2 => Color.Info, 3 => Color.Warning, 4 => Color.Success, 5 => Color.Error, _ => Color.Default
+    };
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters { ["LeadService"] = LeadService };
+        var dialog = await DialogService.ShowAsync<LeadFormDialog>(
+            Loc["AddLead"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["LeadSaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenEditDialog(LeadDto lead)
+    {
+        var parameters = new DialogParameters { ["LeadService"] = LeadService, ["EditLead"] = lead };
+        var dialog = await DialogService.ShowAsync<LeadFormDialog>(
+            Loc["EditLead"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["LeadUpdated"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenConvertDialog(LeadDto lead)
+    {
+        var parameters = new DialogParameters { ["LeadService"] = LeadService, ["Lead"] = lead };
+        var dialog = await DialogService.ShowAsync<LeadConvertDialog>(
+            Loc["ConvertToCustomer"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+        {
+            Snackbar.Add(Loc["LeadConverted"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenTimelineDialog(LeadDto lead)
+    {
+        var parameters = new DialogParameters
+        {
+            ["ActivityService"] = ActivityService,
+            ["FollowUpService"] = FollowUpService,
+            ["LeadId"] = lead.Id,
+            ["SubjectName"] = lead.NameAr
+        };
+        await DialogService.ShowAsync<TimelineDialog>(
+            Loc["Activities"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+
+    private async Task DeleteLead(LeadDto lead)
+    {
+        if (lead.Status == 4)
+        {
+            Snackbar.Add(Loc["LeadConverted"], Severity.Warning);
+            return;
+        }
+        var confirmed = await DialogService.ShowMessageBox(
+            Loc["DeleteConfirmation"], Loc["DeleteConfirm"],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
+        if (confirmed != true) return;
+        try
+        {
+            await LeadService.DeleteAsync(lead.Id);
+            Snackbar.Add(Loc["LeadDeleted"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}

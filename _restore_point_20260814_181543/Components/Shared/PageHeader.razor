@@ -1,0 +1,16 @@
+@* رأس صفحة (Page Header): عنوان داكن بسيط + وصف رمادي اختياري *@
+
+<div class="mb-3">
+    <MudText Typo="Typo.h5" Style="font-weight:700; color:var(--erp-text);">@Title</MudText>
+    @if (!string.IsNullOrEmpty(Subtitle))
+    {
+        <MudText Typo="Typo.body2" Style="color:var(--erp-muted); margin-top:2px;">@Subtitle</MudText>
+    }
+</div>
+
+@code {
+    [Parameter] public string Title { get; set; } = "";
+    [Parameter] public string Subtitle { get; set; } = "";
+    [Parameter] public string Icon { get; set; } = "";
+    [Parameter] public RenderFragment? Indicators { get; set; }
+}

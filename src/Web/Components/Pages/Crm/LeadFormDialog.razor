@@ -1,0 +1,129 @@
+@* نموذج حوار لإضافة/تعديل عميل محتمل *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameAr" Label="@Loc["NameAr"]" Required="true"
+                                  RequiredError="@Loc["RequiredField"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_nameEn" Label="@Loc["NameEn"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_contactPerson" Label="@Loc["ContactPerson"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_phone" Label="@Loc["Phone"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_email" Label="@Loc["Email"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_source" Label="@Loc["LeadSource"]" T="int" Variant="Variant.Outlined">
+                        <MudSelectItem Value="1">@Loc["SourceWebsite"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["SourcePhone"]</MudSelectItem>
+                        <MudSelectItem Value="3">@Loc["SourceReferral"]</MudSelectItem>
+                        <MudSelectItem Value="4">@Loc["SourceWalkIn"]</MudSelectItem>
+                        <MudSelectItem Value="5">@Loc["SourceSocialMedia"]</MudSelectItem>
+                        <MudSelectItem Value="6">@Loc["SourceOther"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                @if (EditLead is not null)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect @bind-Value="_status" Label="@Loc["Status"]" T="int" Variant="Variant.Outlined">
+                            <MudSelectItem Value="1">@Loc["LeadNew"]</MudSelectItem>
+                            <MudSelectItem Value="2">@Loc["LeadContacted"]</MudSelectItem>
+                            <MudSelectItem Value="3">@Loc["LeadQualified"]</MudSelectItem>
+                            <MudSelectItem Value="4">@Loc["LeadConverted"]</MudSelectItem>
+                            <MudSelectItem Value="5">@Loc["LeadRejected"]</MudSelectItem>
+                        </MudSelect>
+                    </MudItem>
+                }
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_notes" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
+            @(EditLead is null ? Loc["Add"] : Loc["Edit"])
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public ILeadService LeadService { get; set; } = default!;
+    [Parameter] public LeadDto? EditLead { get; set; }
+
+    private MudForm? _form;
+    private string _nameAr = string.Empty;
+    private string? _nameEn;
+    private string? _contactPerson;
+    private string? _phone;
+    private string? _email;
+    private int _source = 1;
+    private int _status = 1;
+    private string? _notes;
+    private string? _error;
+
+    protected override void OnInitialized()
+    {
+        if (EditLead is not null)
+        {
+            _nameAr = EditLead.NameAr;
+            _nameEn = EditLead.NameEn;
+            _contactPerson = EditLead.ContactPerson;
+            _phone = EditLead.Phone;
+            _email = EditLead.Email;
+            _source = EditLead.Source;
+            _status = EditLead.Status;
+            _notes = EditLead.Notes;
+        }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        try
+        {
+            if (EditLead is null)
+            {
+                await LeadService.CreateAsync(new CreateLeadDto
+                {
+                    NameAr = _nameAr, NameEn = _nameEn, ContactPerson = _contactPerson,
+                    Phone = _phone, Email = _email, Source = _source, Notes = _notes
+                });
+            }
+            else
+            {
+                await LeadService.UpdateAsync(new UpdateLeadDto
+                {
+                    Id = EditLead.Id, NameAr = _nameAr, NameEn = _nameEn, ContactPerson = _contactPerson,
+                    Phone = _phone, Email = _email, Source = _source, Status = _status, Notes = _notes
+                });
+            }
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}
