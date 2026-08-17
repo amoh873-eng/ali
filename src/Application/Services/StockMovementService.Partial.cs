@@ -67,20 +67,6 @@ public partial class StockMovementService : IStockMovementService
     // ==================== Helper Methods ====================
 
     /// <summary>
-    /// Checks that the available stock of (item, warehouse) is enough for an outbound movement.
-    /// </summary>
-    private async Task EnsureEnoughStockAsync(Guid itemId, Guid warehouseId, decimal quantity)
-    {
-        var available = await _context.Set<StockMovement>()
-            .Where(m => m.ItemId == itemId && m.WarehouseId == warehouseId)
-            .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
-
-        if (available < quantity)
-            throw new InvalidOperationException(
-                $"الرصيد غير كافٍ. المتاح: {available:N0}، المطلوب: {quantity:N0}.");
-    }
-
-    /// <summary>
     /// Determines the sign of a movement from its type (+ inbound, - outbound).
     /// </summary>
     private static int GetSign(MovementType type)

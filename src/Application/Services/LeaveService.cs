@@ -47,6 +47,16 @@ public class LeaveService : ILeaveService
         if (dto.EndDate < dto.StartDate)
             throw new InvalidOperationException("تاريخ نهاية الإجازة لا يسبق تاريخ بدايتها");
 
+        // منع تداخل طلب الإجازة الجديد مع طلب آخر معلّق/معتمد لنفس الموظف في نفس الفترة
+        var overlapping = await _context.Set<Leave>()
+            .AnyAsync(l => l.EmployeeId == dto.EmployeeId
+                           && !l.IsDeleted
+                           && (l.Status == LeaveStatus.Pending || l.Status == LeaveStatus.Approved)
+                           && l.StartDate <= dto.EndDate
+                           && l.EndDate >= dto.StartDate);
+        if (overlapping)
+            throw new InvalidOperationException("يوجد طلب إجازة آخر متداخل مع هذه الفترة لنفس الموظف.");
+
         var leave = new Leave
         {
             Id = Guid.NewGuid(),

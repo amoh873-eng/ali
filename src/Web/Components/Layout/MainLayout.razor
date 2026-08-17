@@ -52,7 +52,7 @@ MudLayout: التخطيط الرئيسي للصفحة.
             <ChildContent>
                 <AuthorizeView>
                     <Authorized>
-                        <MudMenuItem Href="/logout">
+                        <MudMenuItem OnClick="Logout">
                             <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />
                             @Loc["Logout"]
                         </MudMenuItem>
@@ -80,6 +80,10 @@ MudLayout: التخطيط الرئيسي للصفحة.
 
 @code {
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    /// <summary>تسجيل الخروج عبر تحميل كامل للصفحة (طلب HTTP حقيقي) لضمان توفر HttpContext.</summary>
+    private void Logout() => Nav.NavigateTo("/logout", forceLoad: true);
 
     /// <summary>
     /// السمة الضوئية (Light) — هوية "عصري نظيف": لون أساسي بنفسجي #6D5BD0 وخلفية #F4F5F9.

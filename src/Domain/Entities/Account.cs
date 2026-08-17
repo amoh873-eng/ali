@@ -87,6 +87,11 @@ public class Account : BaseEntity
     public decimal CurrentBalance { get; set; }
 
     /// <summary>
+    /// Concurrency token (SQL Server rowversion) — detects lost updates to the account balance.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+    /// <summary>
     /// Helper property: Returns the indentation level in the tree.
     /// Root accounts have Level 0, their children Level 1, etc.
     /// Used for UI display (indentation in tree views).

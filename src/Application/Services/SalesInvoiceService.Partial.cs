@@ -13,21 +13,6 @@ public partial class SalesInvoiceService
         => NumberSequenceHelper.NextAsync(_context, "SI");
 
     /// <summary>
-    /// يتحقق أن الرصيد المتاح (مجموع الحركات في قاعدة البيانات) يكفي للكمية المطلوبة.
-    /// لاحظ أنه يُستدعى قبل إضافة حركة الخروج لهذا البند، لذا لا يرى البند الحالي نفسه.
-    /// </summary>
-    private async Task EnsureEnoughStockAsync(Guid itemId, Guid warehouseId, decimal quantity)
-    {
-        var available = await _context.Set<StockMovement>()
-            .Where(m => m.ItemId == itemId && m.WarehouseId == warehouseId)
-            .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
-
-        if (available < quantity)
-            throw new InvalidOperationException(
-                $"الرصيد غير كافٍ للصنف. المتاح: {available:N0}، المطلوب: {quantity:N0}.");
-    }
-
-    /// <summary>
     /// يبحث عن حساب نظامي في شجرة الحسابات حسب كوده الثابت.
     /// هذه الحسابات مُزروعة مسبقاً في SeedSalesAccounts.
     /// </summary>

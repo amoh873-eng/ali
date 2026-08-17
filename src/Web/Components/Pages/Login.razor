@@ -32,7 +32,7 @@
             <div class="login-error">@ErrorMessage</div>
         }
 
-        <form method="post" @formname="login">
+        <form method="post" @formname="login" data-enhance="false">
             <AntiforgeryToken />
             <div class="login-field">
                 <label>@Loc["Email"]</label>

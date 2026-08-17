@@ -1,5 +1,0 @@
-﻿  Determining projects to restore...
-  All projects are up-to-date for restore.
-  ERPSystem.Domain -> D:\ERPSystem\src\Domain\bin\Debug\net10.0\ERPSystem.Domain.dll
-  ERPSystem.Application -> D:\ERPSystem\src\Application\bin\Debug\net10.0\ERPSystem.Application.dll
-  ERPSystem.Infrastructure -> D:\ERPSystem\src\Infrastructure\bin\Debug\net10.0\ERPSystem.Infrastructure.dll

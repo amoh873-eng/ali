@@ -91,6 +91,12 @@ public class Item : BaseEntity
     public decimal CurrentStock { get; set; }
 
     /// <summary>
+    /// Concurrency token (SQL Server rowversion) — detects lost updates to stock
+    /// when two writers change CurrentStock/CostPrice concurrently.
+    /// </summary>
+    public byte[] RowVersion { get; set; } = Array.Empty<byte>();
+
+    /// <summary>
     /// Stock movement history for this item.
     /// </summary>
     public ICollection<StockMovement> StockMovements { get; set; } = new List<StockMovement>();

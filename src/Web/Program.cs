@@ -44,8 +44,11 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     options.Password.RequireDigit = true;
     options.Password.RequireLowercase = true;
     options.Password.RequireUppercase = true;
-    options.Password.RequiredLength = 6;
-    options.Password.RequireNonAlphanumeric = false;
+    options.Password.RequiredLength = 10;
+    options.Password.RequireNonAlphanumeric = true;
+    options.Lockout.MaxFailedAccessAttempts = 5;
+    options.Lockout.DefaultLockoutTimeSpan = TimeSpan.FromMinutes(15);
+    options.Lockout.AllowedForNewUsers = true;
 })
     .AddEntityFrameworkStores<ERPSystem.Infrastructure.Data.AppDbContext>()
     .AddDefaultTokenProviders();
@@ -165,10 +168,10 @@ using (var scope = app.Services.CreateScope())
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
 
     // Seed the default admin only when a password is supplied (config/env).
-    // In Development we fall back to "Admin@123"; in Production no admin is created unless a password is configured explicitly.
+    // In Development we fall back to "Admin@1234"; in Production no admin is created unless a password is configured explicitly.
     var seedAdminPassword = builder.Configuration["SeedAdmin:Password"];
     if (string.IsNullOrWhiteSpace(seedAdminPassword) && app.Environment.IsDevelopment())
-        seedAdminPassword = "Admin@123";
+        seedAdminPassword = "Admin@1234";
     await SeedIdentityAsync(roleManager, userManager, seedAdminPassword);
     await SeedHrAsync(dbContext);
 }

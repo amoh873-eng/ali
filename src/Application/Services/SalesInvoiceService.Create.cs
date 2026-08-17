@@ -101,7 +101,7 @@ public partial class SalesInvoiceService
         // 4) حركات المخزون: "صادر مبيعات" لكل بند (مع التحقق من كفاية الرصيد)
         foreach (var line in lines)
         {
-            await EnsureEnoughStockAsync(line.ItemId, warehouse.Id, line.Quantity);
+            await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
 
             _context.Set<StockMovement>().Add(new StockMovement
             {

@@ -225,7 +225,7 @@
   <data name="RememberMe" xml:space="preserve"><value>Remember me</value></data>
   <data name="LoginFailed" xml:space="preserve"><value>Login failed. Please check your email and password.</value></data>
   <data name="LoginSubtitle" xml:space="preserve"><value>Sign in to continue to the system</value></data>
-  <data name="DemoCredentials" xml:space="preserve"><value>Demo account: admin@erp.com / Admin@123</value></data>
+  <data name="DemoCredentials" xml:space="preserve"><value>Demo account: admin@erp.com / Admin@1234</value></data>
   <data name="Permissions" xml:space="preserve"><value>Permissions</value></data>
   <data name="Roles" xml:space="preserve"><value>Roles</value></data>
   <data name="Users" xml:space="preserve"><value>Users</value></data>

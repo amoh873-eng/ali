@@ -54,11 +54,13 @@ public class ReportService : IReportService
 
     public async Task<IncomeStatementDto> GetIncomeStatementAsync(DateTime from, DateTime to)
     {
-        var relevant = (await LoadAllLinesAsync())
-            .Where(l => l.JournalEntry is not null
-                        && l.JournalEntry.EntryDate.Date >= from.Date
-                        && l.JournalEntry.EntryDate.Date <= to.Date)
-            .ToList();
+        var relevant = await _context.Set<JournalEntryLine>()
+            .Include(l => l.Account)
+            .Include(l => l.JournalEntry)
+            .Where(l => l.JournalEntry != null
+                        && l.JournalEntry.EntryDate >= from.Date
+                        && l.JournalEntry.EntryDate < to.Date.AddDays(1))
+            .ToListAsync();
 
         var revenues = AggregateByAccount(relevant, AccountType.Revenue, creditNormal: true);
         var expenses = AggregateByAccount(relevant, AccountType.Expense, creditNormal: false);
@@ -76,10 +78,12 @@ public class ReportService : IReportService
 
     public async Task<BalanceSheetDto> GetBalanceSheetAsync(DateTime asOf)
     {
-        var relevant = (await LoadAllLinesAsync())
-            .Where(l => l.JournalEntry is not null
-                        && l.JournalEntry.EntryDate.Date <= asOf.Date)
-            .ToList();
+        var relevant = await _context.Set<JournalEntryLine>()
+            .Include(l => l.Account)
+            .Include(l => l.JournalEntry)
+            .Where(l => l.JournalEntry != null
+                        && l.JournalEntry.EntryDate < asOf.Date.AddDays(1))
+            .ToListAsync();
 
         var assets = AggregateByAccount(relevant, AccountType.Asset, creditNormal: false);
         var liabilities = AggregateByAccount(relevant, AccountType.Liability, creditNormal: true);
@@ -122,7 +126,9 @@ public class ReportService : IReportService
 
         var lines = await _context.Set<JournalEntryLine>()
             .Include(l => l.JournalEntry)
-            .Where(l => l.AccountId == accountId)
+            .Where(l => l.AccountId == accountId
+                        && l.JournalEntry != null
+                        && l.JournalEntry.EntryDate < to.Date.AddDays(1))
             .ToListAsync();
 
         // أثر كل حركة على رصيد الحساب حسب طبيعته: المدين يزيد الحسابات المدينة،

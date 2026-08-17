@@ -241,6 +241,10 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new FollowUpConfiguration());
         modelBuilder.ApplyConfiguration(new ExceptionLogConfiguration());
 
+        // Concurrency tokens (SQL Server rowversion) — catch lost updates to stock and account balances.
+        modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
+        modelBuilder.Entity<Account>().Property(a => a.RowVersion).IsRowVersion();
+
         // ==================== Seed Data ====================
         // بذور أولية لشجرة الحسابات - هذه الحسابات الأساسية ستنشأ تلقائياً
         // عند أول ترحيل (Migration) لقاعدة البيانات.

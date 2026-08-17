@@ -225,7 +225,7 @@
   <data name="RememberMe" xml:space="preserve"><value>تذكرني</value></data>
   <data name="LoginFailed" xml:space="preserve"><value>فشل تسجيل الدخول. تحقق من البريد الإلكتروني وكلمة المرور.</value></data>
   <data name="LoginSubtitle" xml:space="preserve"><value>سجّل الدخول للمتابعة إلى النظام</value></data>
-  <data name="DemoCredentials" xml:space="preserve"><value>حساب تجريبي: admin@erp.com / Admin@123</value></data>
+  <data name="DemoCredentials" xml:space="preserve"><value>حساب تجريبي: admin@erp.com / Admin@1234</value></data>
   <data name="Permissions" xml:space="preserve"><value>الصلاحيات</value></data>
   <data name="Roles" xml:space="preserve"><value>الأدوار</value></data>
   <data name="Users" xml:space="preserve"><value>المستخدمون</value></data>

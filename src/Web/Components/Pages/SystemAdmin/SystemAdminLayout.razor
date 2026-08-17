@@ -1,5 +1,6 @@
 @inherits LayoutComponentBase
 @inject IStringLocalizer<SharedResources> Loc
+@inject NavigationManager Nav
 
 @* تخطيط منفصل للوحة إدارة النظام (شريط جانبي + محتوى) — منفصل بصريًا عن الواجهة اليومية *@
 <MudRTLProvider RightToLeft="true">
@@ -24,7 +25,7 @@
 
         <MudNavMenu>
             <MudNavLink Href="/" Match="NavLinkMatch.All" Icon="@Icons.Material.Filled.Home">@Loc["Home"]</MudNavLink>
-            <MudNavLink Href="/logout" Icon="@Icons.Material.Filled.Logout">@Loc["Logout"]</MudNavLink>
+            <MudNavLink OnClick="Logout" Icon="@Icons.Material.Filled.Logout">@Loc["Logout"]</MudNavLink>
         </MudNavMenu>
     </aside>
 
@@ -35,6 +36,8 @@
 </MudRTLProvider>
 
 @code {
+    private void Logout() => Nav.NavigateTo("/logout", forceLoad: true);
+
     private readonly MudTheme _theme = new()
     {
         PaletteLight = new PaletteLight

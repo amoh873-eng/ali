@@ -43,7 +43,7 @@ public partial class StockMovementService : IStockMovementService
 
         // الحركات الصادرة تتطلب رصيداً كافياً
         if (signedQuantity < 0)
-            await EnsureEnoughStockAsync(dto.ItemId, dto.WarehouseId, dto.Quantity);
+            await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.WarehouseId, dto.Quantity);
 
         var movement = new StockMovement
         {
@@ -97,7 +97,7 @@ public partial class StockMovementService : IStockMovementService
         if (destination is null)
             throw new InvalidOperationException("مخزن الوجهة غير موجود");
 
-        await EnsureEnoughStockAsync(dto.ItemId, dto.SourceWarehouseId, dto.Quantity);
+        await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.SourceWarehouseId, dto.Quantity);
 
         var reference = string.IsNullOrWhiteSpace(dto.ReferenceNumber)
             ? $"TR-{DateTime.Now:yyyyMMddHHmmss}"
