@@ -12,4 +12,7 @@
   <Folder Name="/src/Web/">
     <Project Path="src/Web/ERPSystem.Web.csproj" />
   </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/ERPSystem.Tests/ERPSystem.Tests.csproj" />
+  </Folder>
 </Solution>

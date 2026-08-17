@@ -41,9 +41,12 @@ public partial class StockMovementService : IStockMovementService
         var type = (MovementType)dto.MovementType;
         var signedQuantity = GetSign(type) * dto.Quantity;
 
-        // الحركات الصادرة تتطلب رصيداً كافياً
-        if (signedQuantity < 0)
-            await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.WarehouseId, dto.Quantity);
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            // الحركات الصادرة تتطلب رصيداً كافياً
+            if (signedQuantity < 0)
+                await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.WarehouseId, dto.Quantity);
 
         var movement = new StockMovement
         {
@@ -72,9 +75,16 @@ public partial class StockMovementService : IStockMovementService
         item.CurrentStock += signedQuantity;
         item.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
 
-        return MapToDto(movement, item.Code, item.NameAr, warehouse.NameAr);
+            return MapToDto(movement, item.Code, item.NameAr, warehouse.NameAr);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await tx.RollbackAsync();
+            throw new InvalidOperationException("تعارض في تحديث بيانات المخزون — حاول مرة أخرى.");
+        }
     }
 
     public async Task<(StockMovementDto Out, StockMovementDto In)> CreateTransferAsync(TransferStockDto dto)
@@ -97,7 +107,10 @@ public partial class StockMovementService : IStockMovementService
         if (destination is null)
             throw new InvalidOperationException("مخزن الوجهة غير موجود");
 
-        await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.SourceWarehouseId, dto.Quantity);
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        try
+        {
+            await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, dto.ItemId, dto.SourceWarehouseId, dto.Quantity);
 
         var reference = string.IsNullOrWhiteSpace(dto.ReferenceNumber)
             ? $"TR-{DateTime.Now:yyyyMMddHHmmss}"
@@ -135,10 +148,17 @@ public partial class StockMovementService : IStockMovementService
         _context.Set<StockMovement>().AddRange(outMovement, inMovement);
         // الرصيد الإجمالي للصنف لا يتغير في التحويلات (صفر صافي)
 
-        await _context.SaveChangesAsync();
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
 
-        return (
-            MapToDto(outMovement, item.Code, item.NameAr, source.NameAr),
-            MapToDto(inMovement, item.Code, item.NameAr, destination.NameAr));
+            return (
+                MapToDto(outMovement, item.Code, item.NameAr, source.NameAr),
+                MapToDto(inMovement, item.Code, item.NameAr, destination.NameAr));
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await tx.RollbackAsync();
+            throw new InvalidOperationException("تعارض في تحديث بيانات المخزون — حاول مرة أخرى.");
+        }
     }
 }

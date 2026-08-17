@@ -121,9 +121,15 @@ public class PurchaseReturnService : IPurchaseReturnService
         var items = await _context.Set<Item>().Where(i => itemIds.Contains(i.Id)).ToListAsync();
         var itemDict = items.ToDictionary(i => i.Id);
 
-        foreach (var line in lines)
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        try
         {
-            _context.Set<StockMovement>().Add(new StockMovement
+            foreach (var line in lines)
+            {
+                // تحقق من كفاية رصيد الصنف في المخزن قبل إخراج البضاعة (مردود للمورد)
+                await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
+
+                _context.Set<StockMovement>().Add(new StockMovement
             {
                 Id = Guid.NewGuid(),
                 ItemId = line.ItemId,
@@ -162,8 +168,15 @@ public class PurchaseReturnService : IPurchaseReturnService
         supplier!.CurrentBalance -= purchaseReturn.TotalAmount;
         supplier.UpdatedAt = DateTime.UtcNow;
 
-        await _context.SaveChangesAsync();
-        return MapToDto(purchaseReturn);
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
+            return MapToDto(purchaseReturn);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await tx.RollbackAsync();
+            throw new InvalidOperationException("تعارض في تحديث بيانات المخزون — حاول مرة أخرى.");
+        }
     }
 
     private Task<string> NextReturnNumberAsync()

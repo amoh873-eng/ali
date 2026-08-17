@@ -98,10 +98,13 @@ public partial class SalesInvoiceService
         _context.Set<SalesInvoice>().Add(invoice);
         _context.Set<SalesInvoiceLine>().AddRange(lines);
 
-        // 4) حركات المخزون: "صادر مبيعات" لكل بند (مع التحقق من كفاية الرصيد)
-        foreach (var line in lines)
+        await using var tx = await _context.Database.BeginTransactionAsync();
+        try
         {
-            await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
+            // 4) حركات المخزون: "صادر مبيعات" لكل بند (مع التحقق من كفاية الرصيد)
+            foreach (var line in lines)
+            {
+                await StockAvailabilityHelper.EnsureEnoughStockAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
 
             _context.Set<StockMovement>().Add(new StockMovement
             {
@@ -163,9 +166,16 @@ public partial class SalesInvoiceService
         customer.CurrentBalance += invoice.TotalAmount;
         customer.UpdatedAt = DateTime.UtcNow;
 
-        // SaveChanges واحدة تحفظ كل شيء معاً (ذرية): الفاتورة بنودها حركاتها وقيودها وأرصدتها
-        await _context.SaveChangesAsync();
+            // SaveChanges واحدة تحفظ كل شيء معاً (ذرية): الفاتورة بنودها حركاتها وقيودها وأرصدتها
+            await _context.SaveChangesAsync();
+            await tx.CommitAsync();
 
-        return MapToDto(invoice);
+            return MapToDto(invoice);
+        }
+        catch (DbUpdateConcurrencyException)
+        {
+            await tx.RollbackAsync();
+            throw new InvalidOperationException("تعارض في تحديث بيانات الفاتورة — حاول مرة أخرى.");
+        }
     }
 }
