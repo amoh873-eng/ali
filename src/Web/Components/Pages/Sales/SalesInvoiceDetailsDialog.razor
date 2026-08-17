@@ -1,28 +1,29 @@
 @* حوار عرض تفاصيل فاتورة بيع (بنودها ومجاميعها) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
         @if (Invoice is null)
         {
-            <MudAlert Severity="Severity.Info">لا توجد بيانات.</MudAlert>
+            <MudAlert Severity="Severity.Info">@Loc["NoData"]</MudAlert>
         }
         else
         {
             <MudGrid>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">رقم الفاتورة</MudText><MudText>@Invoice.InvoiceNumber</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">العميل</MudText><MudText>@Invoice.CustomerName</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">التاريخ</MudText><MudText>@Invoice.InvoiceDate.ToString("yyyy-MM-dd")</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">النوع</MudText><MudText>@Invoice.InvoiceTypeNameAr</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">المخزن</MudText><MudText>@Invoice.WarehouseName</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">الحالة</MudText><MudText>@Invoice.StatusNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["InvoiceNumber"]</MudText><MudText>@Invoice.InvoiceNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Customer"]</MudText><MudText>@Invoice.CustomerName</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Date"]</MudText><MudText>@Invoice.InvoiceDate.ToString("yyyy-MM-dd")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Type"]</MudText><MudText>@Invoice.InvoiceTypeNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Warehouse"]</MudText><MudText>@Invoice.WarehouseName</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Status"]</MudText><MudText>@Invoice.StatusNameAr</MudText></MudItem>
             </MudGrid>
 
             <MudTable Items="Invoice.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-3">
                 <HeaderContent>
-                    <MudTh>الصنف</MudTh>
-                    <MudTh>الكمية</MudTh>
-                    <MudTh>السعر</MudTh>
-                    <MudTh>الإجمالي</MudTh>
+                    <MudTh>@Loc["Item"]</MudTh>
+                    <MudTh>@Loc["Qty"]</MudTh>
+                    <MudTh>@Loc["Price"]</MudTh>
+                    <MudTh>@Loc["Total"]</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
@@ -33,15 +34,15 @@
             </MudTable>
 
             <MudText Typo="Typo.body2" Class="mt-3">
-                الفرعي: @Invoice.SubTotal.ToString("N2") —
-                الخصم: @Invoice.DiscountAmount.ToString("N2") —
-                الضريبة: @Invoice.TaxAmount.ToString("N2")
+                @Loc["SubTotal"]: @Invoice.SubTotal.ToString("N2") —
+                @Loc["DiscountAmount"]: @Invoice.DiscountAmount.ToString("N2") —
+                @Loc["TaxAmount"]: @Invoice.TaxAmount.ToString("N2")
             </MudText>
-            <MudText Typo="Typo.h6" Class="mt-1">الإجمالي: @Invoice.TotalAmount.ToString("N2")</MudText>
+            <MudText Typo="Typo.h6" Class="mt-1">@Loc["Total"]: @Invoice.TotalAmount.ToString("N2")</MudText>
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
 

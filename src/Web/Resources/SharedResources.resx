@@ -75,6 +75,8 @@
   <data name="TotalMovement" xml:space="preserve"><value>إجمالي الحركة</value></data>
   <data name="NoInventoryMovement" xml:space="preserve"><value>لا توجد حركات مخزون بعد لعرض الرسم.</value></data>
   <data name="NoSalesPurchases" xml:space="preserve"><value>لا توجد بيانات مبيعات أو مشتريات بعد لعرض الرسم.</value></data>
+  <data name="SalesVsPurchasesTrend" xml:space="preserve"><value>اتجاه المبيعات مقابل المشتريات</value></data>
+  <data name="Last12Months" xml:space="preserve"><value>آخر 12 شهرًا</value></data>
   <data name="Expenses" xml:space="preserve"><value>المصاريف</value></data>
   <data name="ExpenseCategories" xml:space="preserve"><value>فئات المصاريف</value></data>
   <data name="ExpenseEntries" xml:space="preserve"><value>سندات المصروف</value></data>
@@ -286,4 +288,395 @@
   <data name="RequestPath" xml:space="preserve"><value>المسار</value></data>
   <data name="StackTrace" xml:space="preserve"><value>تتبع الاستثناء</value></data>
   <data name="AutoRefresh" xml:space="preserve"><value>تحديث تلقائي كل 30 ثانية</value></data>
+  <data name="AddDepartment" xml:space="preserve"><value>إضافة قسم</value></data>
+  <data name="DepartmentsCount" xml:space="preserve"><value>{0} قسم</value></data>
+  <data name="NoDepartments" xml:space="preserve"><value>لا توجد أقسام. اضغط "إضافة قسم" لإنشاء أول قسم.</value></data>
+  <data name="DepartmentSaved" xml:space="preserve"><value>تم حفظ القسم بنجاح</value></data>
+  <data name="SystemDepartmentEditWarning" xml:space="preserve"><value>لا يمكن تعديل الأقسام النظامية</value></data>
+  <data name="EditDepartmentTitle" xml:space="preserve"><value>تعديل قسم: {0}</value></data>
+  <data name="DepartmentUpdated" xml:space="preserve"><value>تم تعديل القسم بنجاح</value></data>
+  <data name="SystemDepartmentDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الأقسام النظامية</value></data>
+  <data name="DeleteDepartmentConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف القسم '{0}'؟</value></data>
+  <data name="DepartmentDeleted" xml:space="preserve"><value>تم حذف القسم بنجاح</value></data>
+  <data name="DepartmentCode" xml:space="preserve"><value>كود القسم (مثال: HR)</value></data>
+  <data name="DepartmentCodeRequired" xml:space="preserve"><value>كود القسم مطلوب</value></data>
+  <data name="ParentDepartment" xml:space="preserve"><value>القسم الأب (اختياري)</value></data>
+  <data name="DepartmentNameAr" xml:space="preserve"><value>اسم القسم (عربي)</value></data>
+  <data name="NameArRequired" xml:space="preserve"><value>الاسم العربي مطلوب</value></data>
+  <data name="DepartmentNameEn" xml:space="preserve"><value>اسم القسم (إنجليزي)</value></data>
+  <data name="Department" xml:space="preserve"><value>القسم</value></data>
+  <data name="DepartmentRequired" xml:space="preserve"><value>القسم مطلوب</value></data>
+  <data name="AddPosition" xml:space="preserve"><value>إضافة مسمى</value></data>
+  <data name="AddPositionTitle" xml:space="preserve"><value>إضافة مسمى وظيفي جديد</value></data>
+  <data name="EditPositionTitle" xml:space="preserve"><value>تعديل مسمى: {0}</value></data>
+  <data name="PositionsCount" xml:space="preserve"><value>{0} مسمى</value></data>
+  <data name="NoPositions" xml:space="preserve"><value>لا توجد مسميات وظيفية. اضغط "إضافة مسمى" للبدء.</value></data>
+  <data name="PositionSaved" xml:space="preserve"><value>تم حفظ المسمى بنجاح</value></data>
+  <data name="PositionUpdated" xml:space="preserve"><value>تم تعديل المسمى بنجاح</value></data>
+  <data name="PositionDeleted" xml:space="preserve"><value>تم حذف المسمى بنجاح</value></data>
+  <data name="SystemPositionDeleteWarning" xml:space="preserve"><value>لا يمكن حذف المسميات النظامية</value></data>
+  <data name="DeletePositionConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف المسمى '{0}'؟</value></data>
+  <data name="PositionActivated" xml:space="preserve"><value>تم تفعيل المسمى</value></data>
+  <data name="PositionDeactivated" xml:space="preserve"><value>تم تعطيل المسمى</value></data>
+  <data name="PositionCode" xml:space="preserve"><value>كود المسمى (مثال: ACC-MGR)</value></data>
+  <data name="PositionCodeRequired" xml:space="preserve"><value>كود المسمى مطلوب</value></data>
+  <data name="PositionNameAr" xml:space="preserve"><value>اسم المسمى (عربي)</value></data>
+  <data name="PositionNameEn" xml:space="preserve"><value>اسم المسمى (إنجليزي)</value></data>
+  <data name="Position" xml:space="preserve"><value>المسمى الوظيفي</value></data>
+  <data name="PositionRequired" xml:space="preserve"><value>المسمى الوظيفي مطلوب</value></data>
+  <data name="Employee" xml:space="preserve"><value>الموظف</value></data>
+  <data name="EmployeeRequired" xml:space="preserve"><value>الموظف مطلوب</value></data>
+  <data name="LeaveType" xml:space="preserve"><value>نوع الإجازة</value></data>
+  <data name="LeaveAnnual" xml:space="preserve"><value>سنوية</value></data>
+  <data name="LeaveSick" xml:space="preserve"><value>مرضية</value></data>
+  <data name="LeaveUnpaid" xml:space="preserve"><value>بدون راتب</value></data>
+  <data name="LeaveEmergency" xml:space="preserve"><value>طارئة</value></data>
+  <data name="StartDate" xml:space="preserve"><value>تاريخ البداية</value></data>
+  <data name="EndDate" xml:space="preserve"><value>تاريخ النهاية</value></data>
+  <data name="LeaveReason" xml:space="preserve"><value>السبب / ملاحظة</value></data>
+  <data name="LeaveEndBeforeStart" xml:space="preserve"><value>تاريخ نهاية الإجازة لا يسبق تاريخ بدايتها</value></data>
+  <data name="AddLeave" xml:space="preserve"><value>إضافة إجازة</value></data>
+  <data name="AddLeaveTitle" xml:space="preserve"><value>إضافة طلب إجازة</value></data>
+  <data name="LeavesCount" xml:space="preserve"><value>{0} طلب</value></data>
+  <data name="NoLeaves" xml:space="preserve"><value>لا توجد طلبات إجازة. اضغط "إضافة إجازة" للبدء.</value></data>
+  <data name="LeaveSaved" xml:space="preserve"><value>تم حفظ طلب الإجازة بنجاح</value></data>
+  <data name="LeaveStatusUpdated" xml:space="preserve"><value>تم تحديث حالة الطلب</value></data>
+  <data name="DeleteLeaveConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف طلب الإجازة؟</value></data>
+  <data name="LeaveDeleted" xml:space="preserve"><value>تم حذف الطلب بنجاح</value></data>
+  <data name="LeavePending" xml:space="preserve"><value>معلّقة</value></data>
+  <data name="LeaveApproved" xml:space="preserve"><value>موافق عليها</value></data>
+  <data name="LeaveRejected" xml:space="preserve"><value>مرفوضة</value></data>
+  <data name="EmployeeNumber" xml:space="preserve"><value>الرقم الوظيفي</value></data>
+  <data name="EmployeeNumberRequired" xml:space="preserve"><value>الرقم الوظيفي مطلوب</value></data>
+  <data name="HireDate" xml:space="preserve"><value>تاريخ التعيين</value></data>
+  <data name="EmployeeNameAr" xml:space="preserve"><value>اسم الموظف (عربي)</value></data>
+  <data name="EmployeeNameEn" xml:space="preserve"><value>اسم الموظف (إنجليزي)</value></data>
+  <data name="BasicSalary" xml:space="preserve"><value>الراتب الأساسي</value></data>
+  <data name="Salary" xml:space="preserve"><value>الراتب</value></data>
+  <data name="Active" xml:space="preserve"><value>نشط</value></data>
+  <data name="Inactive" xml:space="preserve"><value>غير نشط</value></data>
+  <data name="Suspended" xml:space="preserve"><value>موقوف</value></data>
+  <data name="Terminated" xml:space="preserve"><value>منتهي الخدمة</value></data>
+  <data name="AddEmployee" xml:space="preserve"><value>إضافة موظف</value></data>
+  <data name="AddEmployeeTitle" xml:space="preserve"><value>إضافة موظف جديد</value></data>
+  <data name="EditEmployeeTitle" xml:space="preserve"><value>تعديل موظف: {0}</value></data>
+  <data name="NoEmployees" xml:space="preserve"><value>لا يوجد موظفون مطابقون. اضغط "إضافة موظف" للبدء.</value></data>
+  <data name="FilterByStatus" xml:space="preserve"><value>تصفية بالحالة</value></data>
+  <data name="SearchByEmployee" xml:space="preserve"><value>ابحث بالاسم أو الرقم الوظيفي...</value></data>
+  <data name="EmployeeSaved" xml:space="preserve"><value>تم حفظ الموظف بنجاح</value></data>
+  <data name="EmployeeUpdated" xml:space="preserve"><value>تم تعديل الموظف بنجاح</value></data>
+  <data name="DeleteEmployeeConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف الموظف '{0}'؟</value></data>
+  <data name="EmployeeDeleted" xml:space="preserve"><value>تم حذف الموظف بنجاح</value></data>
+  <data name="EmployeeStatusUpdated" xml:space="preserve"><value>تم تحديث حالة الموظف</value></data>
+  <data name="Name" xml:space="preserve"><value>الاسم</value></data>
+  <data name="AddCategory" xml:space="preserve"><value>إضافة فئة جديدة</value></data>
+  <data name="NoCategories" xml:space="preserve"><value>لا توجد فئات. اضغط "إضافة فئة جديدة" لإنشاء أول فئة.</value></data>
+  <data name="ItemCategorySaved" xml:space="preserve"><value>تم حفظ الفئة بنجاح</value></data>
+  <data name="ItemCategoryUpdated" xml:space="preserve"><value>تم تعديل الفئة بنجاح</value></data>
+  <data name="ItemCategoryDeleted" xml:space="preserve"><value>تم حذف الفئة بنجاح</value></data>
+  <data name="EditCategoryTitle" xml:space="preserve"><value>تعديل فئة: {0}</value></data>
+  <data name="CategoryCode" xml:space="preserve"><value>كود الفئة</value></data>
+  <data name="CategoryCodeRequired" xml:space="preserve"><value>كود الفئة مطلوب</value></data>
+  <data name="ParentCategory" xml:space="preserve"><value>الفئة الأب (اختياري)</value></data>
+  <data name="CategoryNameAr" xml:space="preserve"><value>اسم الفئة (عربي)</value></data>
+  <data name="CategoryNameEn" xml:space="preserve"><value>اسم الفئة (إنجليزي)</value></data>
+  <data name="AddUnit" xml:space="preserve"><value>إضافة وحدة جديدة</value></data>
+  <data name="UnitsCount" xml:space="preserve"><value>{0} وحدة</value></data>
+  <data name="NoUnits" xml:space="preserve"><value>لا توجد وحدات قياس. اضغط "إضافة وحدة جديدة" لإنشاء أول وحدة.</value></data>
+  <data name="UnitSaved" xml:space="preserve"><value>تم حفظ الوحدة بنجاح</value></data>
+  <data name="UnitUpdated" xml:space="preserve"><value>تم تعديل الوحدة بنجاح</value></data>
+  <data name="UnitDeleted" xml:space="preserve"><value>تم حذف الوحدة بنجاح</value></data>
+  <data name="SystemUnitDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الوحدات النظامية</value></data>
+  <data name="DeleteUnitConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف الوحدة '{0}'؟</value></data>
+  <data name="UnitActivated" xml:space="preserve"><value>تم تفعيل الوحدة</value></data>
+  <data name="UnitDeactivated" xml:space="preserve"><value>تم تعطيل الوحدة</value></data>
+  <data name="AddUnitTitle" xml:space="preserve"><value>إضافة وحدة قياس جديدة</value></data>
+  <data name="EditUnitTitle" xml:space="preserve"><value>تعديل وحدة: {0}</value></data>
+  <data name="UnitCode" xml:space="preserve"><value>كود الوحدة (مثال: PCS)</value></data>
+  <data name="UnitCodeRequired" xml:space="preserve"><value>كود الوحدة مطلوب</value></data>
+  <data name="UnitNameAr" xml:space="preserve"><value>اسم الوحدة (عربي)</value></data>
+  <data name="UnitNameEn" xml:space="preserve"><value>اسم الوحدة (إنجليزي)</value></data>
+  <data name="AddWarehouse" xml:space="preserve"><value>إضافة مخزن جديد</value></data>
+  <data name="WarehousesCount" xml:space="preserve"><value>{0} مخزن</value></data>
+  <data name="NoWarehouses" xml:space="preserve"><value>لا توجد مخازن. اضغط "إضافة مخزن جديد" لإنشاء أول مخزن.</value></data>
+  <data name="WarehouseName" xml:space="preserve"><value>اسم المخزن</value></data>
+  <data name="Location" xml:space="preserve"><value>الموقع</value></data>
+  <data name="IsDefault" xml:space="preserve"><value>الافتراضي</value></data>
+  <data name="Default" xml:space="preserve"><value>افتراضي</value></data>
+  <data name="SetAsDefault" xml:space="preserve"><value>تعيين كمخزن افتراضي</value></data>
+  <data name="DefaultWarehouse" xml:space="preserve"><value>مخزن افتراضي</value></data>
+  <data name="SetDefaultSuccess" xml:space="preserve"><value>تم تعيين '{0}' كمخزن افتراضي</value></data>
+  <data name="WarehouseSaved" xml:space="preserve"><value>تم حفظ المخزن بنجاح</value></data>
+  <data name="WarehouseUpdated" xml:space="preserve"><value>تم تعديل المخزن بنجاح</value></data>
+  <data name="WarehouseDeleted" xml:space="preserve"><value>تم حذف المخزن بنجاح</value></data>
+  <data name="SystemWarehouseEditWarning" xml:space="preserve"><value>لا يمكن تعديل المخازن النظامية</value></data>
+  <data name="SystemWarehouseDeleteWarning" xml:space="preserve"><value>لا يمكن حذف المخازن النظامية</value></data>
+  <data name="DeleteWarehouseConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف المخزن '{0}'؟</value></data>
+  <data name="WarehouseActivated" xml:space="preserve"><value>تم تفعيل المخزن</value></data>
+  <data name="WarehouseDeactivated" xml:space="preserve"><value>تم تعطيل المخزن</value></data>
+  <data name="EditWarehouseTitle" xml:space="preserve"><value>تعديل مخزن: {0}</value></data>
+  <data name="WarehouseCode" xml:space="preserve"><value>كود المخزن</value></data>
+  <data name="WarehouseCodeRequired" xml:space="preserve"><value>كود المخزن مطلوب</value></data>
+  <data name="WarehouseNameAr" xml:space="preserve"><value>اسم المخزن (عربي)</value></data>
+  <data name="WarehouseNameEn" xml:space="preserve"><value>اسم المخزن (إنجليزي)</value></data>
+  <data name="AddItem" xml:space="preserve"><value>إضافة صنف</value></data>
+  <data name="SearchItems" xml:space="preserve"><value>ابحث بالكود أو الاسم أو الباركود...</value></data>
+  <data name="ItemsLowStock" xml:space="preserve"><value>يوجد {0} صنف تحت الحد الأدنى للمخزون الحالي.</value></data>
+  <data name="NoItemsHint" xml:space="preserve"><value>لا توجد أصناف. اضغط "إضافة صنف" لإنشاء أول صنف.</value></data>
+  <data name="ItemName" xml:space="preserve"><value>اسم الصنف</value></data>
+  <data name="Category" xml:space="preserve"><value>الفئة</value></data>
+  <data name="Unit" xml:space="preserve"><value>الوحدة</value></data>
+  <data name="Cost" xml:space="preserve"><value>تكلفة</value></data>
+  <data name="Balance" xml:space="preserve"><value>الرصيد</value></data>
+  <data name="ItemSaved" xml:space="preserve"><value>تم حفظ الصنف بنجاح</value></data>
+  <data name="ItemUpdated" xml:space="preserve"><value>تم تعديل الصنف بنجاح</value></data>
+  <data name="ItemDeleted" xml:space="preserve"><value>تم حذف الصنف بنجاح</value></data>
+  <data name="SystemItemDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الأصناف النظامية</value></data>
+  <data name="DeleteItemConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف الصنف '{0}'؟</value></data>
+  <data name="AddItemTitle" xml:space="preserve"><value>إضافة صنف جديد</value></data>
+  <data name="EditItemTitle" xml:space="preserve"><value>تعديل صنف: {0}</value></data>
+  <data name="ItemCode" xml:space="preserve"><value>كود الصنف</value></data>
+  <data name="ItemCodeRequired" xml:space="preserve"><value>كود الصنف مطلوب</value></data>
+  <data name="Barcode" xml:space="preserve"><value>الباركود</value></data>
+  <data name="ItemNameAr" xml:space="preserve"><value>اسم الصنف (عربي)</value></data>
+  <data name="ItemNameEn" xml:space="preserve"><value>اسم الصنف (إنجليزي)</value></data>
+  <data name="CategoryRequired" xml:space="preserve"><value>الفئة مطلوبة</value></data>
+  <data name="UnitRequired" xml:space="preserve"><value>الوحدة مطلوبة</value></data>
+  <data name="CostPrice" xml:space="preserve"><value>سعر التكلفة</value></data>
+  <data name="SalePrice" xml:space="preserve"><value>سعر البيع</value></data>
+  <data name="MinStockLevel" xml:space="preserve"><value>حد أدنى للمخزون</value></data>
+  <data name="MaxStockLevel" xml:space="preserve"><value>حد أقصى للمخزون</value></data>
+  <data name="AddMovement" xml:space="preserve"><value>إضافة حركة</value></data>
+  <data name="TransferBetweenWarehouses" xml:space="preserve"><value>تحويل بين المخازن</value></data>
+  <data name="TotalMovements" xml:space="preserve"><value>إجمالي الحركات: {0}</value></data>
+  <data name="MovementLog" xml:space="preserve"><value>سجل الحركات</value></data>
+  <data name="NoMovements" xml:space="preserve"><value>لا توجد حركات مخزون حتى الآن. اضغط "إضافة حركة" لبدء التسجيل.</value></data>
+  <data name="StockBalances" xml:space="preserve"><value>أرصدة المخزون</value></data>
+  <data name="NoStockBalances" xml:space="preserve"><value>لا توجد أرصدة مخزون. قم بتسجيل حركة مخزون أولاً لبدء الأرصدة.</value></data>
+  <data name="Reference" xml:space="preserve"><value>المرجع</value></data>
+  <data name="Warehouse" xml:space="preserve"><value>المخزن</value></data>
+  <data name="MovementType" xml:space="preserve"><value>نوع الحركة</value></data>
+  <data name="UnitCost" xml:space="preserve"><value>تكلفة الوحدة</value></data>
+  <data name="AddMovementTitle" xml:space="preserve"><value>إضافة حركة مخزون</value></data>
+  <data name="MovementSaved" xml:space="preserve"><value>تم تسجيل الحركة بنجاح</value></data>
+  <data name="TransferSaved" xml:space="preserve"><value>تم تسجيل التحويل بنجاح</value></data>
+  <data name="ItemRequired" xml:space="preserve"><value>الصنف مطلوب</value></data>
+  <data name="ItemBalance" xml:space="preserve"><value>الرصيد: {0}</value></data>
+  <data name="WarehouseRequired" xml:space="preserve"><value>المخزن مطلوب</value></data>
+  <data name="MovementTypeInPurchase" xml:space="preserve"><value>وارد مشتريات</value></data>
+  <data name="MovementTypeOutSale" xml:space="preserve"><value>صادر مبيعات</value></data>
+  <data name="MovementTypeOpening" xml:space="preserve"><value>رصيد افتتاحي</value></data>
+  <data name="MovementTypeAdjustIn" xml:space="preserve"><value>تسوية إضافة</value></data>
+  <data name="MovementTypeAdjustOut" xml:space="preserve"><value>تسوية خصم</value></data>
+  <data name="MovementTypeTransferIn" xml:space="preserve"><value>تحويل وارد</value></data>
+  <data name="MovementTypeTransferOut" xml:space="preserve"><value>تحويل صادر</value></data>
+  <data name="MovementTypeSalesReturn" xml:space="preserve"><value>مردود مبيعات</value></data>
+  <data name="MovementTypePurchaseReturn" xml:space="preserve"><value>مردود مشتريات</value></data>
+  <data name="QuantityRequired" xml:space="preserve"><value>الكمية مطلوبة</value></data>
+  <data name="ReferenceNumber" xml:space="preserve"><value>رقم المرجع</value></data>
+  <data name="ReferenceNumberInvoice" xml:space="preserve"><value>رقم المرجع (فاتورة / أمر شراء)</value></data>
+  <data name="RegisterMovement" xml:space="preserve"><value>تسجيل الحركة</value></data>
+  <data name="SourceWarehouse" xml:space="preserve"><value>مخزن المصدر</value></data>
+  <data name="SourceWarehouseRequired" xml:space="preserve"><value>مخزن المصدر مطلوب</value></data>
+  <data name="DestinationWarehouse" xml:space="preserve"><value>مخزن الوجهة</value></data>
+  <data name="DestinationWarehouseRequired" xml:space="preserve"><value>مخزن الوجهة مطلوب</value></data>
+  <data name="ExecuteTransfer" xml:space="preserve"><value>تنفيذ التحويل</value></data>
+  <data name="AddStockCount" xml:space="preserve"><value>جرد جديد</value></data>
+  <data name="TotalStockCounts" xml:space="preserve"><value>إجمالي عمليات الجرد: {0}</value></data>
+  <data name="NoStockCounts" xml:space="preserve"><value>لا توجد عمليات جرد. اضغط "جرد جديد" لإنشاء أول جرد.</value></data>
+  <data name="StockCountNumber" xml:space="preserve"><value>رقم الجرد</value></data>
+  <data name="LinesCount" xml:space="preserve"><value>عدد البنود</value></data>
+  <data name="StockCountDifference" xml:space="preserve"><value>فروق الجرد</value></data>
+  <data name="AddStockCountTitle" xml:space="preserve"><value>جرد دوري جديد</value></data>
+  <data name="StockCountSaved" xml:space="preserve"><value>تم حفظ الجرد بنجاح</value></data>
+  <data name="StockCountLoadFailed" xml:space="preserve"><value>تعذر تحميل الجرد</value></data>
+  <data name="StockCountDetailsTitle" xml:space="preserve"><value>تفاصيل الجرد {0}</value></data>
+  <data name="CountDate" xml:space="preserve"><value>تاريخ الجرد</value></data>
+  <data name="SelectWarehouseHint" xml:space="preserve"><value>اختر مخزناً لعرض الأصناف.</value></data>
+  <data name="EnterCountedQuantities" xml:space="preserve"><value>أدخل الكميات المعدودة فعلياً (اترك القيمة كما هي إن لم تعدّ الصنف)</value></data>
+  <data name="SystemStock" xml:space="preserve"><value>الرصيد النظامي</value></data>
+  <data name="CountedQuantity" xml:space="preserve"><value>الكمية المعدودة</value></data>
+  <data name="PostStockCount" xml:space="preserve"><value>ترحيل الجرد</value></data>
+  <data name="Difference" xml:space="preserve"><value>الفرق</value></data>
+  <data name="AddCustomer" xml:space="preserve"><value>إضافة عميل</value></data>
+  <data name="SearchCustomers" xml:space="preserve"><value>ابحث بالاسم أو الكود...</value></data>
+  <data name="NoCustomers" xml:space="preserve"><value>لا يوجد عملاء. اضغط "إضافة عميل" لإنشاء أول عميل.</value></data>
+  <data name="CreditLimit" xml:space="preserve"><value>الحد الائتماني</value></data>
+  <data name="NoLimit" xml:space="preserve"><value>غير محدد</value></data>
+  <data name="CustomerSaved" xml:space="preserve"><value>تم حفظ العميل بنجاح</value></data>
+  <data name="CustomerUpdated" xml:space="preserve"><value>تم تعديل العميل بنجاح</value></data>
+  <data name="CustomerDeleted" xml:space="preserve"><value>تم حذف العميل بنجاح</value></data>
+  <data name="SystemCustomerDeleteWarning" xml:space="preserve"><value>لا يمكن حذف العملاء النظاميين</value></data>
+  <data name="DeleteCustomerConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف العميل '{0}'؟</value></data>
+  <data name="CustomerActivated" xml:space="preserve"><value>تم تفعيل العميل</value></data>
+  <data name="CustomerDeactivated" xml:space="preserve"><value>تم تعطيل العميل</value></data>
+  <data name="AddCustomerTitle" xml:space="preserve"><value>إضافة عميل جديد</value></data>
+  <data name="EditCustomerTitle" xml:space="preserve"><value>تعديل عميل: {0}</value></data>
+  <data name="StatementTitle" xml:space="preserve"><value>كشف حساب: {0}</value></data>
+  <data name="CustomerCode" xml:space="preserve"><value>كود العميل</value></data>
+  <data name="CustomerCodeRequired" xml:space="preserve"><value>كود العميل مطلوب</value></data>
+  <data name="CustomerNameAr" xml:space="preserve"><value>اسم العميل (عربي)</value></data>
+  <data name="CustomerNameRequired" xml:space="preserve"><value>اسم العميل مطلوب</value></data>
+  <data name="CustomerNameEn" xml:space="preserve"><value>اسم العميل (إنجليزي)</value></data>
+  <data name="CreditLimitOptional" xml:space="preserve"><value>الحد الائتماني (اختياري)</value></data>
+  <data name="ShowStatement" xml:space="preserve"><value>عرض الكشف</value></data>
+  <data name="Document" xml:space="preserve"><value>المستند</value></data>
+  <data name="Type" xml:space="preserve"><value>النوع</value></data>
+  <data name="Debit" xml:space="preserve"><value>مدين</value></data>
+  <data name="Credit" xml:space="preserve"><value>دائن</value></data>
+  <data name="TotalDebit" xml:space="preserve"><value>إجمالي مدين</value></data>
+  <data name="TotalCredit" xml:space="preserve"><value>إجمالي دائن</value></data>
+  <data name="ClosingBalance" xml:space="preserve"><value>الرصيد الختامي</value></data>
+  <data name="TotalInvoices" xml:space="preserve"><value>إجمالي الفواتير: {0}</value></data>
+  <data name="NoInvoices" xml:space="preserve"><value>لا توجد فواتير. اضغط "فاتورة جديدة" لإنشاء أول فاتورة.</value></data>
+  <data name="InvoiceSaved" xml:space="preserve"><value>تم حفظ الفاتورة بنجاح</value></data>
+  <data name="InvoiceLoadFailed" xml:space="preserve"><value>تعذر تحميل الفاتورة</value></data>
+  <data name="InvoiceDetailsTitle" xml:space="preserve"><value>تفاصيل الفاتورة {0}</value></data>
+  <data name="CustomerRequired" xml:space="preserve"><value>العميل مطلوب</value></data>
+  <data name="InvoiceType" xml:space="preserve"><value>نوع الفاتورة</value></data>
+  <data name="InvoiceTypeCash" xml:space="preserve"><value>نقدي</value></data>
+  <data name="InvoiceTypeCredit" xml:space="preserve"><value>آجل</value></data>
+  <data name="InvoiceDate" xml:space="preserve"><value>تاريخ الفاتورة</value></data>
+  <data name="DiscountPercent" xml:space="preserve"><value>نسبة الخصم %</value></data>
+  <data name="TaxPercent" xml:space="preserve"><value>نسبة الضريبة %</value></data>
+  <data name="Lines" xml:space="preserve"><value>البنود</value></data>
+  <data name="UnitPrice" xml:space="preserve"><value>سعر الوحدة</value></data>
+  <data name="AddLine" xml:space="preserve"><value>إضافة بند</value></data>
+  <data name="SaveInvoice" xml:space="preserve"><value>حفظ الفاتورة</value></data>
+  <data name="LineRequired" xml:space="preserve"><value>يجب إضافة بند واحد على الأقل.</value></data>
+  <data name="LineItemRequired" xml:space="preserve"><value>اختر الصنف لكل بند.</value></data>
+  <data name="QuantityPositive" xml:space="preserve"><value>الكمية يجب أن تكون أكبر من صفر.</value></data>
+  <data name="NoData" xml:space="preserve"><value>لا توجد بيانات.</value></data>
+  <data name="AddQuote" xml:space="preserve"><value>عرض سعر جديد</value></data>
+  <data name="TotalQuotes" xml:space="preserve"><value>إجمالي العروض: {0}</value></data>
+  <data name="NoQuotes" xml:space="preserve"><value>لا توجد عروض أسعار. اضغط "عرض سعر جديد" لإنشاء أول عرض.</value></data>
+  <data name="QuoteNumber" xml:space="preserve"><value>رقم العرض</value></data>
+  <data name="QuoteSaved" xml:space="preserve"><value>تم حفظ عرض السعر بنجاح</value></data>
+  <data name="QuoteApproved" xml:space="preserve"><value>تم اعتماد العرض</value></data>
+  <data name="QuoteCancelled" xml:space="preserve"><value>تم إلغاء العرض</value></data>
+  <data name="ConvertQuoteTitle" xml:space="preserve"><value>تحويل {0} إلى فاتورة</value></data>
+  <data name="QuoteConverted" xml:space="preserve"><value>تم التحويل إلى فاتورة بنجاح</value></data>
+  <data name="QuoteDate" xml:space="preserve"><value>تاريخ العرض</value></data>
+  <data name="ExpiryDate" xml:space="preserve"><value>تاريخ الانتهاء (اختياري)</value></data>
+  <data name="Convert" xml:space="preserve"><value>تحويل</value></data>
+  <data name="AddReturn" xml:space="preserve"><value>مردود جديد</value></data>
+  <data name="TotalReturns" xml:space="preserve"><value>إجمالي المردودات: {0}</value></data>
+  <data name="NoReturns" xml:space="preserve"><value>لا توجد مردودات. اضغط "مردود جديد" لإنشاء أول مردود.</value></data>
+  <data name="ReturnNumber" xml:space="preserve"><value>رقم المردود</value></data>
+  <data name="OriginalInvoice" xml:space="preserve"><value>الفاتورة الأصلية</value></data>
+  <data name="ReturnSaved" xml:space="preserve"><value>تم حفظ المردود بنجاح</value></data>
+  <data name="ReturnLoadFailed" xml:space="preserve"><value>تعذر تحميل المردود</value></data>
+  <data name="ReturnDetailsTitle" xml:space="preserve"><value>تفاصيل المردود {0}</value></data>
+  <data name="AddReturnTitle" xml:space="preserve"><value>مردود مبيعات جديد</value></data>
+  <data name="OriginalInvoiceRequired" xml:space="preserve"><value>الفاتورة مطلوبة</value></data>
+  <data name="ReceivingWarehouse" xml:space="preserve"><value>المخزن المستلم</value></data>
+  <data name="ReturnItemsHint" xml:space="preserve"><value>اختر الأصناف المراد ردّها وحدد الكميات</value></data>
+  <data name="QuantitySold" xml:space="preserve"><value>كمية مباعة</value></data>
+  <data name="ReturnQuantity" xml:space="preserve"><value>كمية المردود</value></data>
+  <data name="TotalReturn" xml:space="preserve"><value>إجمالي المردود</value></data>
+  <data name="SaveAndPost" xml:space="preserve"><value>حفظ وترحيل</value></data>
+  <data name="SelectOriginalInvoice" xml:space="preserve"><value>يرجى اختيار الفاتورة الأصلية.</value></data>
+  <data name="SelectReturnQuantity" xml:space="preserve"><value>يرجى تحديد كمية مردود لصنف واحد على الأقل.</value></data>
+  <data name="Supplier" xml:space="preserve"><value>المورد</value></data>
+  <data name="SupplierRequired" xml:space="preserve"><value>المورد مطلوب</value></data>
+  <data name="AddSupplier" xml:space="preserve"><value>إضافة مورد</value></data>
+  <data name="NoSuppliers" xml:space="preserve"><value>لا يوجد موردون. اضغط "إضافة مورد" لإنشاء أول مورد.</value></data>
+  <data name="SupplierSaved" xml:space="preserve"><value>تم حفظ المورد بنجاح</value></data>
+  <data name="SupplierUpdated" xml:space="preserve"><value>تم تعديل المورد بنجاح</value></data>
+  <data name="SupplierDeleted" xml:space="preserve"><value>تم حذف المورد بنجاح</value></data>
+  <data name="SystemSupplierDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الموردين النظاميين</value></data>
+  <data name="DeleteSupplierConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف المورد '{0}'؟</value></data>
+  <data name="SupplierActivated" xml:space="preserve"><value>تم تفعيل المورد</value></data>
+  <data name="SupplierDeactivated" xml:space="preserve"><value>تم تعطيل المورد</value></data>
+  <data name="AddSupplierTitle" xml:space="preserve"><value>إضافة مورد جديد</value></data>
+  <data name="EditSupplierTitle" xml:space="preserve"><value>تعديل مورد: {0}</value></data>
+  <data name="SupplierCode" xml:space="preserve"><value>كود المورد</value></data>
+  <data name="SupplierCodeRequired" xml:space="preserve"><value>كود المورد مطلوب</value></data>
+  <data name="SupplierNameAr" xml:space="preserve"><value>اسم المورد (عربي)</value></data>
+  <data name="SupplierNameRequired" xml:space="preserve"><value>اسم المورد مطلوب</value></data>
+  <data name="SupplierNameEn" xml:space="preserve"><value>اسم المورد (إنجليزي)</value></data>
+  <data name="AmountDue" xml:space="preserve"><value>الرصيد المستحق</value></data>
+  <data name="NoPurchaseInvoices" xml:space="preserve"><value>لا توجد فواتير مشتريات. اضغط "فاتورة جديدة".</value></data>
+  <data name="AddPurchaseInvoiceTitle" xml:space="preserve"><value>فاتورة مشتريات جديدة</value></data>
+  <data name="AddPurchaseOrder" xml:space="preserve"><value>أمر شراء جديد</value></data>
+  <data name="TotalPurchaseOrders" xml:space="preserve"><value>إجمالي الأوامر: {0}</value></data>
+  <data name="NoPurchaseOrders" xml:space="preserve"><value>لا توجد أوامر شراء. اضغط "أمر شراء جديد" لإنشاء أول أمر.</value></data>
+  <data name="OrderNumber" xml:space="preserve"><value>رقم الأمر</value></data>
+  <data name="PurchaseOrderSaved" xml:space="preserve"><value>تم حفظ أمر الشراء بنجاح</value></data>
+  <data name="PurchaseOrderApproved" xml:space="preserve"><value>تم اعتماد الأمر</value></data>
+  <data name="PurchaseOrderCancelled" xml:space="preserve"><value>تم إلغاء الأمر</value></data>
+  <data name="ConvertOrderTitle" xml:space="preserve"><value>تحويل {0} إلى فاتورة مشتريات</value></data>
+  <data name="PurchaseOrderConverted" xml:space="preserve"><value>تم التحويل إلى فاتورة مشتريات بنجاح</value></data>
+  <data name="OrderDate" xml:space="preserve"><value>تاريخ الأمر</value></data>
+  <data name="ExpectedDate" xml:space="preserve"><value>تاريخ الاستلام (متوقع)</value></data>
+  <data name="NoPurchaseReturns" xml:space="preserve"><value>لا توجد مردودات مشتريات.</value></data>
+  <data name="AddPurchaseReturnTitle" xml:space="preserve"><value>مردود مشتريات جديد</value></data>
+  <data name="QuantityPurchased" xml:space="preserve"><value>كمية مشتراة</value></data>
+  <data name="Account" xml:space="preserve"><value>الحساب</value></data>
+  <data name="AccountName" xml:space="preserve"><value>اسم الحساب</value></data>
+  <data name="Nature" xml:space="preserve"><value>الطبيعة</value></data>
+  <data name="AddAccount" xml:space="preserve"><value>إضافة حساب جديد</value></data>
+  <data name="TreeView" xml:space="preserve"><value>عرض شجري</value></data>
+  <data name="ListView" xml:space="preserve"><value>عرض قائمة</value></data>
+  <data name="NoAccounts" xml:space="preserve"><value>لا توجد حسابات. اضغط "إضافة حساب جديد" لبدء بناء شجرة الحسابات.</value></data>
+  <data name="AccountSaved" xml:space="preserve"><value>تم حفظ الحساب بنجاح</value></data>
+  <data name="AccountUpdated" xml:space="preserve"><value>تم تعديل الحساب بنجاح</value></data>
+  <data name="AccountDeleted" xml:space="preserve"><value>تم حذف الحساب بنجاح</value></data>
+  <data name="SystemAccountEditWarning" xml:space="preserve"><value>لا يمكن تعديل الحسابات النظامية</value></data>
+  <data name="SystemAccountDeleteWarning" xml:space="preserve"><value>لا يمكن حذف الحسابات النظامية</value></data>
+  <data name="DeleteAccountConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف الحساب '{0}'؟</value></data>
+  <data name="EditAccountTitle" xml:space="preserve"><value>تعديل حساب: {0}</value></data>
+  <data name="AccountActivated" xml:space="preserve"><value>تم تفعيل الحساب</value></data>
+  <data name="AccountDeactivated" xml:space="preserve"><value>تم تعطيل الحساب</value></data>
+  <data name="AccountCode" xml:space="preserve"><value>كود الحساب</value></data>
+  <data name="AccountCodeRequired" xml:space="preserve"><value>كود الحساب مطلوب</value></data>
+  <data name="AccountType" xml:space="preserve"><value>نوع الحساب</value></data>
+  <data name="AccountTypeAsset" xml:space="preserve"><value>أصول</value></data>
+  <data name="AccountTypeLiability" xml:space="preserve"><value>خصوم</value></data>
+  <data name="AccountTypeEquity" xml:space="preserve"><value>حقوق ملكية</value></data>
+  <data name="AccountTypeRevenue" xml:space="preserve"><value>إيرادات</value></data>
+  <data name="AccountTypeExpense" xml:space="preserve"><value>مصروفات</value></data>
+  <data name="AccountNameAr" xml:space="preserve"><value>اسم الحساب (عربي)</value></data>
+  <data name="AccountNameEn" xml:space="preserve"><value>اسم الحساب (إنجليزي)</value></data>
+  <data name="ParentAccount" xml:space="preserve"><value>الحساب الأب (اختياري)</value></data>
+  <data name="AddJournalEntry" xml:space="preserve"><value>قيد محاسبي جديد</value></data>
+  <data name="TotalJournalEntries" xml:space="preserve"><value>إجمالي القيود: {0}</value></data>
+  <data name="NoJournalEntries" xml:space="preserve"><value>لا توجد قيود. تُنشأ القيود تلقائياً عند ترحيل الفواتير ويمكن إضافتها يدوياً.</value></data>
+  <data name="JournalEntryNumber" xml:space="preserve"><value>رقم القيد</value></data>
+  <data name="JournalEntrySaved" xml:space="preserve"><value>تم حفظ القيد بنجاح</value></data>
+  <data name="JournalEntryDetailsTitle" xml:space="preserve"><value>تفاصيل القيد {0}</value></data>
+  <data name="EntryDate" xml:space="preserve"><value>تاريخ القيد</value></data>
+  <data name="ReferenceDocument" xml:space="preserve"><value>المرجع / المستند (اختياري)</value></data>
+  <data name="DescriptionStatement" xml:space="preserve"><value>الوصف / البيان</value></data>
+  <data name="EntryLines" xml:space="preserve"><value>سطور القيد</value></data>
+  <data name="AddLeg" xml:space="preserve"><value>إضافة سطر</value></data>
+  <data name="DebitTotal" xml:space="preserve"><value>مجموع المدين</value></data>
+  <data name="CreditTotal" xml:space="preserve"><value>مجموع الدائن</value></data>
+  <data name="Balanced" xml:space="preserve"><value>متوازن</value></data>
+  <data name="Unbalanced" xml:space="preserve"><value>غير متوازن</value></data>
+  <data name="SaveEntry" xml:space="preserve"><value>حفظ القيد</value></data>
+  <data name="SelectAccountPerLeg" xml:space="preserve"><value>اختر الحساب لكل سطر.</value></data>
+  <data name="UnbalancedEntry" xml:space="preserve"><value>القيد غير متوازن: الفرق {0}. يجب أن يتساوى المدين مع الدائن.</value></data>
+  <data name="NoAmounts" xml:space="preserve"><value>لا يمكن حفظ قيد بدون مبالغ.</value></data>
+  <data name="Statement" xml:space="preserve"><value>البيان</value></data>
+  <data name="Refresh" xml:space="preserve"><value>تحديث</value></data>
+  <data name="NoJournalMovement" xml:space="preserve"><value>لا توجد حركات محاسبية بعد.</value></data>
+  <data name="OpeningBalance" xml:space="preserve"><value>الرصيد الافتتاحي</value></data>
+  <data name="IncomeStatement" xml:space="preserve"><value>قائمة الدخل</value></data>
+  <data name="BalanceSheet" xml:space="preserve"><value>الميزانية العمومية</value></data>
+  <data name="Revenues" xml:space="preserve"><value>الإيرادات</value></data>
+  <data name="TotalRevenue" xml:space="preserve"><value>إجمالي الإيرادات</value></data>
+  <data name="TotalExpenses" xml:space="preserve"><value>إجمالي المصروفات</value></data>
+  <data name="NetIncome" xml:space="preserve"><value>صافي الدخل</value></data>
+  <data name="Assets" xml:space="preserve"><value>الأصول</value></data>
+  <data name="Liabilities" xml:space="preserve"><value>الخصوم</value></data>
+  <data name="Equity" xml:space="preserve"><value>حقوق الملكية</value></data>
+  <data name="TotalAssets" xml:space="preserve"><value>إجمالي الأصول</value></data>
+  <data name="TotalLiabilities" xml:space="preserve"><value>إجمالي الخصوم</value></data>
+  <data name="TotalEquity" xml:space="preserve"><value>إجمالي حقوق الملكية</value></data>
+  <data name="BalanceSheetBalanced" xml:space="preserve"><value>الميزانية متوازنة ✓</value></data>
+  <data name="BalanceSheetUnbalanced" xml:space="preserve"><value>الميزانية غير متوازنة ✗</value></data>
+  <data name="AsOfDate" xml:space="preserve"><value>كما في تاريخ</value></data>
+  <data name="BrandName" xml:space="preserve"><value>نظام النبالي المحاسبي</value></data>
+  <data name="Arabic" xml:space="preserve"><value>العربية</value></data>
 </root>

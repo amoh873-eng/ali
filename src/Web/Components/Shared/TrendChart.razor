@@ -1,0 +1,193 @@
+@using System.Globalization
+@using System.Text
+@using Microsoft.AspNetCore.Components
+@* مخطط اتجاه (خط/مساحة) حديث: منحنى ناعم + تعبئة متدرّجة + نقاط + حركة رسم — قابل لإعادة الاستخدام *@
+
+<div class="erp-trend">
+    @if (_hasData)
+    {
+        <div class="erp-trend-legend">
+            @foreach (var s in Series)
+            {
+                <div class="erp-trend-legend-item">
+                    <span class="erp-trend-dot" style="background:@s.Color;"></span>
+                    <span class="erp-trend-legend-name">@s.Name</span>
+                </div>
+            }
+        </div>
+
+        <svg class="erp-trend-svg" viewBox="@($"0 0 {_F(_width)} {_F(_height)}")" preserveAspectRatio="xMidYMid meet" style="width:100%; height:auto; display:block;">
+            <defs>
+                @foreach (var s in Series)
+                {
+                    var idx = Series.IndexOf(s);
+                    <linearGradient id="erp-trend-grad-@_id-@idx" x1="0" y1="0" x2="0" y2="1">
+                        <stop offset="0%" stop-color="@s.Color" stop-opacity="0.28" />
+                        <stop offset="100%" stop-color="@s.Color" stop-opacity="0" />
+                    </linearGradient>
+                }
+            </defs>
+
+            @foreach (var g in _grid)
+            {
+                <line x1="@_F(_padLeft)" y1="@_F(g.Y)" x2="@_F(_width - _padRight)" y2="@_F(g.Y)" class="erp-trend-gridline" />
+                @_Text(0, g.Y + 3.5, g.Label, "erp-trend-ylab")
+            }
+
+            @foreach (var s in Series)
+            {
+                var idx = Series.IndexOf(s);
+                <path d="@_AreaPath(s.Values)" fill="url(#erp-trend-grad-@_id-@idx)" class="erp-trend-area" />
+            }
+
+            @foreach (var s in Series)
+            {
+                <path d="@_LinePath(s.Values)" pathLength="1" class="erp-trend-line" style="stroke:@s.Color;" />
+            }
+
+            @foreach (var s in Series)
+            {
+                @for (int i = 0; i < s.Values.Count; i++)
+                {
+                    <circle cx="@_F(_Xs[i])" cy="@_F(_Y(s.Values[i]))" r="3.5" class="erp-trend-point" style="fill:@s.Color;" />
+                }
+            }
+
+            @for (int i = 0; i < Labels.Count; i++)
+            {
+                @_Text(_Xs[i], _height - 7, Labels[i], "erp-trend-xlab", true)
+            }
+        </svg>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Style="color:var(--erp-muted); padding:16px 0;">@EmptyText</MudText>
+    }
+</div>
+
+@code {
+    [Parameter] public List<TrendSeries> Series { get; set; } = new();
+    [Parameter] public List<string> Labels { get; set; } = new();
+    [Parameter] public string EmptyText { get; set; } = "";
+
+    private const double _width = 640;
+    private const double _height = 260;
+    private const double _padLeft = 48;
+    private const double _padRight = 14;
+    private const double _padTop = 14;
+    private const double _padBottom = 26;
+
+    private static readonly CultureInfo Inv = CultureInfo.InvariantCulture;
+    private readonly string _id = Guid.NewGuid().ToString("N");
+
+    private bool _hasData => Series.Any(s => s.Values.Any(v => v > 0));
+    private double _maxVal => Math.Max(1, Series.SelectMany(s => s.Values).DefaultIfEmpty(0).Max());
+
+    private int _pointCount
+    {
+        get
+        {
+            var n = Labels.Count;
+            foreach (var s in Series)
+            {
+                n = Math.Max(n, s.Values.Count);
+            }
+            return n;
+        }
+    }
+
+    private double[] _Xs
+    {
+        get
+        {
+            var n = _pointCount;
+            var plotW = _width - _padLeft - _padRight;
+            var xs = new double[n];
+            for (var i = 0; i < n; i++)
+            {
+                xs[i] = n <= 1 ? _padLeft + plotW / 2 : _padLeft + plotW * i / (n - 1);
+            }
+            return xs;
+        }
+    }
+
+    private static string _F(double v) => v.ToString(Inv);
+
+    /// <summary>يولّد عنصر نص SVG (حيث إن الوسم &lt;text&gt; محجوز في Razor).</summary>
+    private MarkupString _Text(double x, double y, string content, string cssClass, bool anchorMiddle = false)
+    {
+        var anchor = anchorMiddle ? " text-anchor=\"middle\"" : "";
+        var safe = System.Net.WebUtility.HtmlEncode(content);
+        return (MarkupString)$"<text x=\"{_F(x)}\" y=\"{_F(y)}\" class=\"{cssClass}\"{anchor}>{safe}</text>";
+    }
+
+    private double _Y(double v)
+    {
+        var plotH = _height - _padTop - _padBottom;
+        return _padTop + (1 - v / _maxVal) * plotH;
+    }
+
+    private (double Y, string Label)[] _grid
+    {
+        get
+        {
+            var plotH = _height - _padTop - _padBottom;
+            var items = new (double, string)[5];
+            for (var i = 0; i < 5; i++)
+            {
+                var frac = i / 4.0;
+                items[i] = (_padTop + (1 - frac) * plotH, _FormatCompact(_maxVal * frac));
+            }
+            return items;
+        }
+    }
+
+    private static string _FormatCompact(double v)
+    {
+        if (v >= 1_000_000) return (v / 1_000_000).ToString("0.#", Inv) + "M";
+        if (v >= 1_000) return (v / 1_000).ToString("0.#", Inv) + "K";
+        if (v >= 10) return v.ToString("0", Inv);
+        return v.ToString("0.#", Inv);
+    }
+
+    private string _LinePath(List<double> values)
+    {
+        var xs = _Xs;
+        var pts = values.Take(xs.Length).Select((v, i) => (x: xs[i], y: _Y(v))).ToList();
+        return _SmoothPath(pts);
+    }
+
+    private string _AreaPath(List<double> values)
+    {
+        var line = _LinePath(values);
+        var baseline = _padTop + (_height - _padTop - _padBottom);
+        var xs = _Xs;
+        var firstX = xs.Length > 0 ? xs[0] : _padLeft;
+        var lastX = xs.Length > 0 ? xs[^1] : _padLeft;
+        return $"{line} L {_F(lastX)} {_F(baseline)} L {_F(firstX)} {_F(baseline)} Z";
+    }
+
+    private static string _SmoothPath(List<(double x, double y)> pts)
+    {
+        if (pts.Count == 0) return "";
+        if (pts.Count == 1) return $"M {_F(pts[0].x)} {_F(pts[0].y)}";
+
+        var sb = new StringBuilder();
+        sb.Append($"M {_F(pts[0].x)} {_F(pts[0].y)}");
+        for (var i = 0; i < pts.Count - 1; i++)
+        {
+            var p0 = pts[Math.Max(i - 1, 0)];
+            var p1 = pts[i];
+            var p2 = pts[i + 1];
+            var p3 = pts[Math.Min(i + 2, pts.Count - 1)];
+            var c1x = p1.x + (p2.x - p0.x) / 6;
+            var c1y = p1.y + (p2.y - p0.y) / 6;
+            var c2x = p2.x - (p3.x - p1.x) / 6;
+            var c2y = p2.y - (p3.y - p1.y) / 6;
+            sb.Append($" C {_F(c1x)} {_F(c1y)}, {_F(c2x)} {_F(c2y)}, {_F(p2.x)} {_F(p2.y)}");
+        }
+        return sb.ToString();
+    }
+
+}
+

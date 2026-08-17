@@ -1,18 +1,19 @@
 @* حوار كشف حساب مورد (فواتير ومردودات برصيد جارٍ) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
         <MudGrid>
             <MudItem xs="12" sm="6">
-                <MudDatePicker @bind-Date="_from" Label="من تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
             </MudItem>
             <MudItem xs="12" sm="6">
-                <MudDatePicker @bind-Date="_to" Label="إلى تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
             </MudItem>
         </MudGrid>
 
         <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="LoadAsync" Class="mt-2">
-            عرض الكشف
+            @Loc["ShowStatement"]
         </MudButton>
 
         @if (_error is not null)
@@ -31,12 +32,12 @@
 
             <MudTable Items="_statement.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-2">
                 <HeaderContent>
-                    <MudTh>التاريخ</MudTh>
-                    <MudTh>المستند</MudTh>
-                    <MudTh>النوع</MudTh>
-                    <MudTh>مدين</MudTh>
-                    <MudTh>دائن</MudTh>
-                    <MudTh>الرصيد</MudTh>
+                    <MudTh>@Loc["Date"]</MudTh>
+                    <MudTh>@Loc["Document"]</MudTh>
+                    <MudTh>@Loc["Type"]</MudTh>
+                    <MudTh>@Loc["Debit"]</MudTh>
+                    <MudTh>@Loc["Credit"]</MudTh>
+                    <MudTh>@Loc["Balance"]</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.Date.ToString("yyyy-MM-dd")</MudTd>
@@ -49,14 +50,14 @@
             </MudTable>
 
             <MudText Typo="Typo.body2" Class="mt-3">
-                إجمالي مدين: <strong>@_statement.TotalDebit.ToString("N2")</strong> —
-                إجمالي دائن: <strong>@_statement.TotalCredit.ToString("N2")</strong> —
-                الرصيد المستحق: <strong>@_statement.ClosingBalance.ToString("N2")</strong>
+                @Loc["TotalDebit"]: <strong>@_statement.TotalDebit.ToString("N2")</strong> —
+                @Loc["TotalCredit"]: <strong>@_statement.TotalCredit.ToString("N2")</strong> —
+                @Loc["AmountDue"]: <strong>@_statement.ClosingBalance.ToString("N2")</strong>
             </MudText>
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
 

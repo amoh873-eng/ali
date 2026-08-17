@@ -1,29 +1,14 @@
 @page "/"
+@using System.Globalization
 
-<PageTitle>لوحة التحكم - نظام ERP</PageTitle>
+<PageTitle>@Loc["Dashboard"] - @Loc["AppName"]</PageTitle>
 
 @* عنوان الصفحة *@
 <PageHeader Title="@Loc["Dashboard"]" />
 
-@* 3 بطاقات أرقام + بطاقة رسم *@
-<MudGrid Spacing="3">
-    @* الرسمان الدائريان في الأعلى (ظاهران مباشرة دون الحاجة للتمرير) *@
-    <MudItem xs="12" md="6">
-        <ChartCard Title="@Loc["InventoryMovement"]" Subtitle="@Loc["InventoryMovementSub"]">
-            <DonutChart Segments="_inventorySegments"
-                        CenterValue="@_totalMovementText"
-                        CenterLabel="@Loc["TotalMovement"]"
-                        EmptyText="@Loc["NoInventoryMovement"]" />
-        </ChartCard>
-    </MudItem>
-    <MudItem xs="12" md="6">
-        <ChartCard Title="@Loc["SalesVsPurchases"]" Subtitle="@Loc["SalesVsPurchasesTotal"]">
-            <DonutChart Segments="_salesPurchasesSegments"
-                        CenterValue="@_salesPurchasesTotalText"
-                        CenterLabel="@Loc["Total"]"
-                        EmptyText="@Loc["NoSalesPurchases"]" />
-        </ChartCard>
-    </MudItem>
+@* 3 بطاقات أرقام + مخططات حديثة *@
+<MudGrid Spacing="4" RowSpacing="5" ColumnSpacing="4">
+    @* بطاقات المؤشرات الرئيسية في الأعلى *@
     <MudItem xs="12" md="4">
         <StatCard Label="@Loc["NetSales"]" Value="@_salesTotal.ToString("N2")"
                   Icon="@Icons.Material.Filled.ShoppingCart" IconBackground="#E8F5E9" IconColor="#10B981" />
@@ -36,6 +21,28 @@
         <StatCard Label="@Loc["InventoryValue"]" Value="@_inventoryValue.ToString("N2")"
                   Icon="@Icons.Material.Filled.Inventory" IconBackground="#F0EDFB" IconColor="#6D5BD0" />
     </MudItem>
+
+    @* اتجاه شهري حديث (خط/مساحة) + دونات النِّسَب *@
+    <MudItem xs="12" md="8">
+        <ChartCard Title="@Loc["SalesVsPurchasesTrend"]" Subtitle="@Loc["Last12Months"]">
+            <TrendChart Series="_trendSeries" Labels="_trendLabels" EmptyText="@Loc["NoSalesPurchases"]" />
+        </ChartCard>
+    </MudItem>
+    <MudItem xs="12" md="4">
+        <ChartCard Title="@Loc["SalesVsPurchases"]" Subtitle="@Loc["SalesVsPurchasesTotal"]">
+            <DonutChart Segments="_salesPurchasesSegments"
+                        CenterValue="@_salesPurchasesTotalText"
+                        CenterLabel="@Loc["Total"]"
+                        EmptyText="@Loc["NoSalesPurchases"]" />
+        </ChartCard>
+    </MudItem>
+
+    @* توزيع حركات المخزون (أعمدة أفقية حديثة) *@
+    <MudItem xs="12">
+        <ChartCard Title="@Loc["InventoryMovement"]" Subtitle="@Loc["InventoryMovementSub"]">
+            <BarChart Items="_inventorySegments" EmptyText="@Loc["NoInventoryMovement"]" />
+        </ChartCard>
+    </MudItem>
 </MudGrid>
 
 
@@ -47,8 +54,10 @@
 
     private List<DonutSegment> _inventorySegments = new();
     private List<DonutSegment> _salesPurchasesSegments = new();
-    private string _totalMovementText = "0";
     private string _salesPurchasesTotalText = "0";
+
+    private List<TrendSeries> _trendSeries = new();
+    private List<string> _trendLabels = new();
 
     [Inject] private IItemService ItemService { get; set; } = default!;
     [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
@@ -72,6 +81,7 @@
             var movements = await StockMovementService.GetMovementsAsync();
             BuildInventoryChart(movements);
             BuildSalesPurchasesChart();
+            BuildTrendChart(sales, purchases);
         }
         catch
         {
@@ -82,25 +92,23 @@
     /// <summary>
     /// مجموعات أنواع الحركة: تسمية عربية + لون مميّز لكل نوع (مرتّبة حسب قيمة MovementType).
     /// </summary>
-    private static readonly (int Type, string Label, string Color)[] MovementGroups =
-    {
-        (1, "وارد مشتريات", "#10B981"),
-        (2, "صادر مبيعات", "#EF4444"),
-        (3, "رصيد افتتاحي", "#6D5BD0"),
-        (4, "تسوية إضافة", "#14B8A6"),
-        (5, "تسوية خصم", "#F59E0B"),
-        (6, "تحويل وارد", "#3B82F6"),
-        (7, "تحويل صادر", "#6366F1"),
-        (8, "مردود مبيعات", "#F472B6"),
-        (9, "مردود مشتريات", "#EC4899"),
-    };
+    private (int Type, string Label, string Color)[] MovementGroups =>
+        new (int Type, string Label, string Color)[]
+        {
+            (1, Loc["MovementTypeInPurchase"], "#10B981"),
+            (2, Loc["MovementTypeOutSale"], "#EF4444"),
+            (3, Loc["MovementTypeOpening"], "#6D5BD0"),
+            (4, Loc["MovementTypeAdjustIn"], "#14B8A6"),
+            (5, Loc["MovementTypeAdjustOut"], "#F59E0B"),
+            (6, Loc["MovementTypeTransferIn"], "#3B82F6"),
+            (7, Loc["MovementTypeTransferOut"], "#6366F1"),
+            (8, Loc["MovementTypeSalesReturn"], "#F472B6"),
+            (9, Loc["MovementTypePurchaseReturn"], "#EC4899"),
+        };
 
-    /// <summary>رسم دائري لتوزيع حركات المخزون (الكميات) حسب نوع الحركة.</summary>
+    /// <summary>مخطط أفقي لتوزيع حركات المخزون (الكميات) حسب نوع الحركة.</summary>
     private void BuildInventoryChart(List<StockMovementDto> movements)
     {
-        var total = movements.Sum(m => Math.Abs(m.Quantity));
-        _totalMovementText = total.ToString("N0");
-
         _inventorySegments = MovementGroups
             .Select(g =>
             {
@@ -130,5 +138,42 @@
         }
         .Where(s => s.Value > 0)
         .ToList();
+    }
+
+    /// <summary>مخطط اتجاه شهري (خط/مساحة) للمبيعات والمشتريات لآخر 12 شهرًا.</summary>
+    private void BuildTrendChart(List<SalesInvoiceDto> sales, List<PurchaseInvoiceDto> purchases)
+    {
+        var now = DateTime.Today;
+        var months = Enumerable.Range(0, 12)
+            .Select(i => new DateTime(now.Year, now.Month, 1).AddMonths(i - 11))
+            .ToList();
+
+        _trendLabels = months
+            .Select(m => m.ToString("MMM", CultureInfo.CurrentCulture))
+            .ToList();
+
+        _trendSeries = new List<TrendSeries>
+        {
+            new()
+            {
+                Name = Loc["Sales"].Value,
+                Color = "#8B5CF6",
+                Values = months
+                    .Select(m => (double)sales
+                        .Where(s => s.InvoiceDate.Year == m.Year && s.InvoiceDate.Month == m.Month)
+                        .Sum(s => s.TotalAmount))
+                    .ToList()
+            },
+            new()
+            {
+                Name = Loc["Purchases"].Value,
+                Color = "#F59E0B",
+                Values = months
+                    .Select(m => (double)purchases
+                        .Where(p => p.InvoiceDate.Year == m.Year && p.InvoiceDate.Month == m.Month)
+                        .Sum(p => p.TotalAmount))
+                    .ToList()
+            }
+        };
     }
 }

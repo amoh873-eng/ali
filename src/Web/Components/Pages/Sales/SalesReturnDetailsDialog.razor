@@ -1,26 +1,27 @@
 @* حوار عرض تفاصيل مردود مبيعات *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
         @if (SalesReturn is null)
         {
-            <MudAlert Severity="Severity.Info">لا توجد بيانات.</MudAlert>
+            <MudAlert Severity="Severity.Info">@Loc["NoData"]</MudAlert>
         }
         else
         {
             <MudGrid>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">رقم المردود</MudText><MudText>@SalesReturn.ReturnNumber</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">الفاتورة الأصلية</MudText><MudText>@SalesReturn.InvoiceNumber</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">العميل</MudText><MudText>@SalesReturn.CustomerName</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">التاريخ</MudText><MudText>@SalesReturn.ReturnDate.ToString("yyyy-MM-dd")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["ReturnNumber"]</MudText><MudText>@SalesReturn.ReturnNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["OriginalInvoice"]</MudText><MudText>@SalesReturn.InvoiceNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Customer"]</MudText><MudText>@SalesReturn.CustomerName</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Date"]</MudText><MudText>@SalesReturn.ReturnDate.ToString("yyyy-MM-dd")</MudText></MudItem>
             </MudGrid>
 
             <MudTable Items="SalesReturn.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-3">
                 <HeaderContent>
-                    <MudTh>الصنف</MudTh>
-                    <MudTh>الكمية</MudTh>
-                    <MudTh>السعر</MudTh>
-                    <MudTh>الإجمالي</MudTh>
+                    <MudTh>@Loc["Item"]</MudTh>
+                    <MudTh>@Loc["Qty"]</MudTh>
+                    <MudTh>@Loc["Price"]</MudTh>
+                    <MudTh>@Loc["Total"]</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
@@ -30,11 +31,11 @@
                 </RowTemplate>
             </MudTable>
 
-            <MudText Typo="Typo.h6" Class="mt-3">الإجمالي المردود: @SalesReturn.TotalAmount.ToString("N2")</MudText>
+            <MudText Typo="Typo.h6" Class="mt-3">@Loc["TotalReturn"]: @SalesReturn.TotalAmount.ToString("N2")</MudText>
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
 

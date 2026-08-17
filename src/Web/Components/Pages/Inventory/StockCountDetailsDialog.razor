@@ -1,14 +1,15 @@
 ﻿@* حوار عرض تفاصيل جرد دوري (قراءة فقط) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
         <MudTable Items="_count.Lines" Hover="true" Dense="true" Elevation="0">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>الصنف</MudTh>
-                <MudTh>الرصيد النظامي</MudTh>
-                <MudTh>الكمية المعدودة</MudTh>
-                <MudTh>الفرق</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["Item"]</MudTh>
+                <MudTh>@Loc["SystemStock"]</MudTh>
+                <MudTh>@Loc["CountedQuantity"]</MudTh>
+                <MudTh>@Loc["Difference"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.ItemCode</MudTd>
@@ -20,12 +21,12 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close">إغلاق</MudButton>
+        <MudButton OnClick="Close">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
 

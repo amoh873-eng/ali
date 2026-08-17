@@ -1,4 +1,5 @@
 @* نموذج حوار لإنشاء عرض سعر جديد (العميل + البنود) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,7 +11,7 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="Guid" @bind-Value="_customerId"
-                               Label="العميل" Required="true" RequiredError="العميل مطلوب"
+                               Label="@Loc["Customer"]" Required="true" RequiredError="@Loc["CustomerRequired"]"
                                Variant="Variant.Outlined">
                         @foreach (var c in _customers)
                         {
@@ -19,24 +20,24 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="3">
-                    <MudDatePicker @bind-Date="_quoteDate" Label="تاريخ العرض"
+                    <MudDatePicker @bind-Date="_quoteDate" Label="@Loc["QuoteDate"]"
                                    Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
                 </MudItem>
                 <MudItem xs="12" sm="3">
-                    <MudDatePicker @bind-Date="_expiryDate" Label="تاريخ الانتهاء (اختياري)"
+                    <MudDatePicker @bind-Date="_expiryDate" Label="@Loc["ExpiryDate"]"
                                    Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="_discountPercentage"
-                                     Label="نسبة الخصم %" Variant="Variant.Outlined" />
+                                     Label="@Loc["DiscountPercent"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="_taxRate"
-                                     Label="نسبة الضريبة %" Variant="Variant.Outlined" />
+                                     Label="@Loc["TaxPercent"]" Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
 
-            <MudText Typo="Typo.subtitle2" Class="mt-4">البنود</MudText>
+            <MudText Typo="Typo.subtitle2" Class="mt-4">@Loc["Lines"]</MudText>
 
             @foreach (var line in _lines)
             {
@@ -44,7 +45,7 @@
                     <MudItem xs="12" sm="5">
                         <MudSelect T="Guid" Value="@line.ItemId"
                                    ValueChanged="@(id => OnLineItemChanged(line, id))"
-                                   Label="الصنف" Variant="Variant.Outlined" Dense="true">
+                                   Label="@Loc["Item"]" Variant="Variant.Outlined" Dense="true">
                             @foreach (var it in _items)
                             {
                                 <MudSelectItem T="Guid" Value="@it.Id">@it.Code - @it.NameAr</MudSelectItem>
@@ -53,11 +54,11 @@
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.Quantity"
-                                         Label="الكمية" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                         Label="@Loc["Qty"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.UnitPrice"
-                                         Label="سعر الوحدة" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                         Label="@Loc["UnitPrice"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="12" sm="1" Class="d-flex align-items-center">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
@@ -67,26 +68,26 @@
             }
 
             <MudButton Variant="Variant.Text" Color="Color.Primary"
-                       StartIcon="@Icons.Material.Filled.Add" OnClick="AddLine">إضافة بند</MudButton>
+                       StartIcon="@Icons.Material.Filled.Add" OnClick="AddLine">@Loc["AddLine"]</MudButton>
 
             <MudDivider Class="my-4" />
 
             <MudGrid>
                 <MudItem xs="12" sm="8"></MudItem>
                 <MudItem xs="12" sm="4">
-                    <MudText Typo="Typo.body2">المجموع الفرعي: @_subTotal.ToString("N2")</MudText>
-                    <MudText Typo="Typo.body2">الخصم: @_discountAmount.ToString("N2")</MudText>
-                    <MudText Typo="Typo.body2">الضريبة: @_taxAmount.ToString("N2")</MudText>
-                    <MudText Typo="Typo.h6">الإجمالي: @_total.ToString("N2")</MudText>
+                    <MudText Typo="Typo.body2">@Loc["SubTotal"]: @_subTotal.ToString("N2")</MudText>
+                    <MudText Typo="Typo.body2">@Loc["DiscountAmount"]: @_discountAmount.ToString("N2")</MudText>
+                    <MudText Typo="Typo.body2">@Loc["TaxAmount"]: @_taxAmount.ToString("N2")</MudText>
+                    <MudText Typo="Typo.h6">@Loc["Total"]: @_total.ToString("N2")</MudText>
                 </MudItem>
             </MudGrid>
 
-            <MudTextField @bind-Value="_note" Label="ملاحظات" Variant="Variant.Outlined" Lines="2" Class="mt-4" />
+            <MudTextField @bind-Value="_note" Label="@Loc["Notes"]" Variant="Variant.Outlined" Lines="2" Class="mt-4" />
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">إلغاء</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync">حفظ</MudButton>
+        <MudButton OnClick="Cancel">@Loc["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync">@Loc["Save"]</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -151,9 +152,9 @@
         await _form!.Validate();
         if (!_form.IsValid) return;
 
-        if (_lines.Count == 0) { _error = "يجب إضافة بند واحد على الأقل."; return; }
-        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = "اختر الصنف لكل بند."; return; }
-        if (_lines.Any(l => l.Quantity <= 0)) { _error = "الكمية يجب أن تكون أكبر من صفر."; return; }
+        if (_lines.Count == 0) { _error = Loc["LineRequired"]; return; }
+        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = Loc["LineItemRequired"]; return; }
+        if (_lines.Any(l => l.Quantity <= 0)) { _error = Loc["QuantityPositive"]; return; }
 
         _error = null;
         try

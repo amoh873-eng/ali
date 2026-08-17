@@ -1,4 +1,5 @@
 ﻿@* حوار تحويل أمر شراء إلى فاتورة مشتريات: اختيار المخزن ونوع الفاتورة *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -6,7 +7,7 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="Guid" @bind-Value="_warehouseId"
-                               Label="المخزن" Required="true" RequiredError="المخزن مطلوب"
+                               Label="@Loc["Warehouse"]" Required="true" RequiredError="@Loc["WarehouseRequired"]"
                                Variant="Variant.Outlined">
                         @foreach (var w in _warehouses)
                         {
@@ -16,17 +17,17 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="int" @bind-Value="_invoiceType"
-                               Label="نوع الفاتورة" Required="true" Variant="Variant.Outlined">
-                        <MudSelectItem T="int" Value="1">نقدي</MudSelectItem>
-                        <MudSelectItem T="int" Value="2">آجل</MudSelectItem>
+                               Label="@Loc["InvoiceType"]" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">@Loc["InvoiceTypeCash"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">@Loc["InvoiceTypeCredit"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">إلغاء</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Confirm">تحويل</MudButton>
+        <MudButton OnClick="Cancel">@Loc["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Confirm">@Loc["Convert"]</MudButton>
     </DialogActions>
 </MudDialog>
 

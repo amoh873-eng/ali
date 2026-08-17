@@ -1,17 +1,18 @@
 @page "/sales/quotes"
+@inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة عروض الأسعار - قائمة عروض الأسعار مع إمكانية التحويل إلى فواتير *@
 
-<PageTitle>عروض الأسعار - نظام ERP</PageTitle>
+<PageTitle>@Loc["SalesQuotes"] - @Loc["AppName"]</PageTitle>
 
-<PageHeader Title="عروض الأسعار" Icon="@Icons.Material.Filled.RequestQuote" />
+<PageHeader Title="@Loc["SalesQuotes"]" Icon="@Icons.Material.Filled.RequestQuote" />
 
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
-        عرض سعر جديد
+        @Loc["AddQuote"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">إجمالي العروض: @_quotes.Count</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["TotalQuotes", _quotes.Count]</MudText>
 </MudToolBar>
 
 <MudPaper Elevation="1">
@@ -22,19 +23,19 @@
     else if (_quotes.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا توجد عروض أسعار. اضغط "عرض سعر جديد" لإنشاء أول عرض.
+            @Loc["NoQuotes"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_quotes" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>رقم العرض</MudTh>
-                <MudTh>العميل</MudTh>
-                <MudTh>التاريخ</MudTh>
-                <MudTh>الإجمالي</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["QuoteNumber"]</MudTh>
+                <MudTh>@Loc["Customer"]</MudTh>
+                <MudTh>@Loc["Date"]</MudTh>
+                <MudTh>@Loc["Total"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.QuoteNumber</MudTd>
@@ -65,7 +66,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -85,7 +86,7 @@
     {
         _isLoading = true;
         try { _quotes = await QuoteService.GetQuotesAsync(); }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل العروض: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -101,28 +102,28 @@
     private async Task OpenCreateDialog()
     {
         var dialog = await DialogService.ShowAsync<SalesQuoteFormDialog>(
-            "عرض سعر جديد", new DialogParameters(),
+            Loc["AddQuote"], new DialogParameters(),
             new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ عرض السعر بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["QuoteSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task ApproveQuote(SalesQuoteDto quote)
     {
-        try { await QuoteService.ApproveAsync(quote.Id); Snackbar.Add("تم اعتماد العرض", Severity.Success); await LoadAsync(); }
+        try { await QuoteService.ApproveAsync(quote.Id); Snackbar.Add(Loc["QuoteApproved"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
     private async Task CancelQuote(SalesQuoteDto quote)
     {
-        try { await QuoteService.CancelAsync(quote.Id); Snackbar.Add("تم إلغاء العرض", Severity.Info); await LoadAsync(); }
+        try { await QuoteService.CancelAsync(quote.Id); Snackbar.Add(Loc["QuoteCancelled"], Severity.Info); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
     private async Task ConvertQuote(SalesQuoteDto quote)
     {
         var dialog = await DialogService.ShowAsync<SalesQuoteConvertDialog>(
-            $"تحويل {quote.QuoteNumber} إلى فاتورة", new DialogParameters(),
+            Loc["ConvertQuoteTitle", quote.QuoteNumber], new DialogParameters(),
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
         if (result?.Canceled != true && result?.Data is SalesQuoteConvertDialog.ConvertResult conv)
@@ -130,7 +131,7 @@
             try
             {
                 await QuoteService.ConvertToInvoiceAsync(quote.Id, conv.WarehouseId, conv.InvoiceType);
-                Snackbar.Add("تم التحويل إلى فاتورة بنجاح", Severity.Success);
+                Snackbar.Add(Loc["QuoteConverted"], Severity.Success);
                 await LoadAsync();
             }
             catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }

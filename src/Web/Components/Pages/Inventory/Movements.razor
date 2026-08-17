@@ -3,7 +3,7 @@
 
 @* صفحة حركات المخزون - سجل الحركات (وارد/صادر/تحويل/تسوية) بين المخازن *@
 
-<PageTitle>حركات المخزون - نظام ERP</PageTitle>
+<PageTitle>@Loc["Movements"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Movements"]" Icon="@Icons.Material.Filled.SwapVert" />
 
@@ -12,21 +12,21 @@
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateDialog">
-        إضافة حركة
+        @Loc["AddMovement"]
     </MudButton>
     <MudButton Variant="Variant.Outlined"
                Color="Color.Secondary"
                StartIcon="@Icons.Material.Filled.SwapHoriz"
                OnClick="OpenTransferDialog"
                Class="ms-2">
-        تحويل بين المخازن
+        @Loc["TransferBetweenWarehouses"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">إجمالي الحركات: @_movements.Count</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["TotalMovements", _movements.Count]</MudText>
 </MudToolBar>
 
 <MudTabs Class="mb-4" Rounded="true" Outlined="true" Position="Position.Top">
-    <MudTabPanel Text="سجل الحركات" Icon="@Icons.Material.Filled.ReceiptLong">
+    <MudTabPanel Text="@Loc["MovementLog"]" Icon="@Icons.Material.Filled.ReceiptLong">
         <MudPaper Elevation="1" Class="mt-4">
             @if (_isLoading)
             {
@@ -35,21 +35,21 @@
             else if (_movements.Count == 0)
             {
                 <MudAlert Severity="Severity.Info" Class="m-4">
-                    لا توجد حركات مخزون حتى الآن. اضغط "إضافة حركة" لبدء التسجيل.
+                    @Loc["NoMovements"]
                 </MudAlert>
             }
             else
             {
                 <MudTable Items="_movements" Hover="true" Dense="true">
                     <HeaderContent>
-                        <MudTh>التاريخ</MudTh>
-                        <MudTh>المرجع</MudTh>
-                        <MudTh>الصنف</MudTh>
-                        <MudTh>المخزن</MudTh>
-                        <MudTh>نوع الحركة</MudTh>
-                        <MudTh>الكمية</MudTh>
-                        <MudTh>تكلفة الوحدة</MudTh>
-                        <MudTh>الإجمالي</MudTh>
+                        <MudTh>@Loc["Date"]</MudTh>
+                        <MudTh>@Loc["Reference"]</MudTh>
+                        <MudTh>@Loc["Item"]</MudTh>
+                        <MudTh>@Loc["Warehouse"]</MudTh>
+                        <MudTh>@Loc["MovementType"]</MudTh>
+                        <MudTh>@Loc["Qty"]</MudTh>
+                        <MudTh>@Loc["UnitCost"]</MudTh>
+                        <MudTh>@Loc["Total"]</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.MovementDate.ToString("yyyy-MM-dd")</MudTd>
@@ -66,14 +66,14 @@
                         <MudTd>@context.Total.ToString("N2")</MudTd>
                     </RowTemplate>
                     <PagerContent>
-                        <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                        <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
                     </PagerContent>
                 </MudTable>
             }
         </MudPaper>
     </MudTabPanel>
 
-    <MudTabPanel Text="أرصدة المخزون" Icon="@Icons.Material.Filled.Storefront">
+    <MudTabPanel Text="@Loc["StockBalances"]" Icon="@Icons.Material.Filled.Storefront">
         <MudPaper Elevation="1" Class="mt-4">
             @if (_isLoading)
             {
@@ -82,18 +82,18 @@
             else if (_balances.Count == 0)
             {
                 <MudAlert Severity="Severity.Info" Class="m-4">
-                    لا توجد أرصدة مخزون. قم بتسجيل حركة مخزون أولاً لبدء الأرصدة.
+                    @Loc["NoStockBalances"]
                 </MudAlert>
             }
             else
             {
                 <MudTable Items="_balances" Hover="true" Dense="true">
                     <HeaderContent>
-                        <MudTh>الصنف</MudTh>
-                        <MudTh>المخزن</MudTh>
-                        <MudTh>الكمية</MudTh>
-                        <MudTh>تكلفة الوحدة</MudTh>
-                        <MudTh>قيمة المخزون</MudTh>
+                        <MudTh>@Loc["Item"]</MudTh>
+                        <MudTh>@Loc["Warehouse"]</MudTh>
+                        <MudTh>@Loc["Qty"]</MudTh>
+                        <MudTh>@Loc["UnitCost"]</MudTh>
+                        <MudTh>@Loc["InventoryValue"]</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
@@ -105,7 +105,7 @@
                         <MudTd>@context.TotalValue.ToString("N2")</MudTd>
                     </RowTemplate>
                     <PagerContent>
-                        <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                        <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
                     </PagerContent>
                 </MudTable>
             }
@@ -132,7 +132,7 @@
             _movements = await MovementService.GetMovementsAsync();
             _balances = await MovementService.GetStockBalancesAsync();
         }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الحركات: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -144,20 +144,20 @@
     {
         var parameters = new DialogParameters { ["MovementService"] = MovementService };
         var dialog = await DialogService.ShowAsync<MovementFormDialog>(
-            "إضافة حركة مخزون", parameters,
+            Loc["AddMovementTitle"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تسجيل الحركة بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["MovementSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenTransferDialog()
     {
         var parameters = new DialogParameters { ["MovementService"] = MovementService };
         var dialog = await DialogService.ShowAsync<TransferDialog>(
-            "تحويل بين المخازن", parameters,
+            Loc["TransferBetweenWarehouses"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تسجيل التحويل بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["TransferSaved"], Severity.Success); await LoadAsync(); }
     }
 }
 

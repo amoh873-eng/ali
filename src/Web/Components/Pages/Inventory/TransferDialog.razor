@@ -1,4 +1,5 @@
 @* نموذج حوار لتحويل كمية من صنف بين مخزنين *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,9 +11,9 @@
             <MudGrid>
                 <MudItem xs="12">
                     <MudSelect @bind-Value="_itemId"
-                               Label="الصنف"
+                               Label="@Loc["Item"]"
                                Required="true"
-                               RequiredError="الصنف مطلوب"
+                               RequiredError="@Loc["ItemRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var item in _items)
@@ -26,9 +27,9 @@
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_sourceWarehouseId"
-                               Label="مخزن المصدر"
+                               Label="@Loc["SourceWarehouse"]"
                                Required="true"
-                               RequiredError="مخزن المصدر مطلوب"
+                               RequiredError="@Loc["SourceWarehouseRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var warehouse in _warehouses)
@@ -40,9 +41,9 @@
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_destinationWarehouseId"
-                               Label="مخزن الوجهة"
+                               Label="@Loc["DestinationWarehouse"]"
                                Required="true"
-                               RequiredError="مخزن الوجهة مطلوب"
+                               RequiredError="@Loc["DestinationWarehouseRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var warehouse in _warehouses)
@@ -54,16 +55,16 @@
 
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_quantity"
-                                     Label="الكمية"
+                                     Label="@Loc["Qty"]"
                                      Required="true"
-                                     RequiredError="الكمية مطلوبة"
+                                     RequiredError="@Loc["QuantityRequired"]"
                                      Variant="Variant.Outlined"
                                      T="decimal" DecimalPlaces="2" Format="0.00" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudDatePicker @bind-Date="_movementDate"
-                                   Label="التاريخ"
+                                   Label="@Loc["Date"]"
                                    Variant="Variant.Outlined"
                                    T="DateTime?"
                                    AutoClose="true" />
@@ -71,13 +72,13 @@
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_referenceNumber"
-                                  Label="رقم المرجع"
+                                  Label="@Loc["ReferenceNumber"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_note"
-                                  Label="ملاحظات"
+                                  Label="@Loc["Notes"]"
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
@@ -85,8 +86,8 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Secondary">تنفيذ التحويل</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Secondary">@Loc["ExecuteTransfer"]</MudButton>
     </DialogActions>
 </MudDialog>
 

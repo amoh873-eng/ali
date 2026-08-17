@@ -1,4 +1,5 @@
 ﻿@* نموذج حوار لإضافة/تعديل حساب - يستخدم في MudDialog *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,43 +11,43 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود الحساب"
+                                  Label="@Loc["AccountCode"]"
                                   Required="true"
-                                  RequiredError="كود الحساب مطلوب"
+                                  RequiredError="@Loc["AccountCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudSelect T="int"
                                @bind-Value="_accountType"
-                               Label="نوع الحساب"
+                               Label="@Loc["AccountType"]"
                                Required="true"
                                Variant="Variant.Outlined">
-                        <MudSelectItem T="int" Value="1">أصول</MudSelectItem>
-                        <MudSelectItem T="int" Value="2">خصوم</MudSelectItem>
-                        <MudSelectItem T="int" Value="3">حقوق ملكية</MudSelectItem>
-                        <MudSelectItem T="int" Value="4">إيرادات</MudSelectItem>
-                        <MudSelectItem T="int" Value="5">مصروفات</MudSelectItem>
+                        <MudSelectItem T="int" Value="1">@Loc["AccountTypeAsset"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">@Loc["AccountTypeLiability"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="3">@Loc["AccountTypeEquity"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="4">@Loc["AccountTypeRevenue"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="5">@Loc["AccountTypeExpense"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم الحساب (عربي)"
+                                  Label="@Loc["AccountNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم الحساب (إنجليزي)"
+                                  Label="@Loc["AccountNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_parentAccountId"
-                               Label="الحساب الأب (اختياري)"
+                               Label="@Loc["ParentAccount"]"
                                Variant="Variant.Outlined"
                                T="Guid?"
                                Clearable="true">
@@ -59,7 +60,7 @@
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_description"
-                                  Label="وصف"
+                                  Label="@Loc["Description"]"
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
@@ -68,11 +69,11 @@
     </DialogContent>
 
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync"
                    Variant="Variant.Filled"
                    Color="Color.Primary">
-            @(EditAccount is null ? "إضافة" : "تعديل")
+            @(EditAccount is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

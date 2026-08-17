@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل عميل *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,50 +11,50 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود العميل"
+                                  Label="@Loc["CustomerCode"]"
                                   Required="true"
-                                  RequiredError="كود العميل مطلوب"
+                                  RequiredError="@Loc["CustomerCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم العميل (عربي)"
+                                  Label="@Loc["CustomerNameAr"]"
                                   Required="true"
-                                  RequiredError="اسم العميل مطلوب"
+                                  RequiredError="@Loc["CustomerNameRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_nameEn" Label="اسم العميل (إنجليزي)" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_nameEn" Label="@Loc["CustomerNameEn"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_phone" Label="الهاتف" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_phone" Label="@Loc["Phone"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_email" Label="البريد الإلكتروني" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_email" Label="@Loc["Email"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_taxNumber" Label="الرقم الضريبي" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_taxNumber" Label="@Loc["TaxNumber"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_creditLimit"
-                                     Label="الحد الائتماني (اختياري)"
+                                     Label="@Loc["CreditLimitOptional"]"
                                      Variant="Variant.Outlined"
                                      T="decimal?"
                                      Clearable="true" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="_address" Label="العنوان" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_address" Label="@Loc["Address"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="_notes" Label="ملاحظات" Lines="2" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_notes" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditCustomer is null ? "إضافة" : "تعديل")
+            @(EditCustomer is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

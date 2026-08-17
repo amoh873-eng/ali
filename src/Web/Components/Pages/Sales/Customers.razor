@@ -3,19 +3,19 @@
 
 @* صفحة العملاء - قائمة العملاء مع البحث والإجراءات *@
 
-<PageTitle>العملاء - نظام ERP</PageTitle>
+<PageTitle>@Loc["Customers"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Customers"]" Icon="@Icons.Material.Filled.People" />
 
 <MudToolBar Class="mb-4">
     <MudTextField @bind-Value="_search"
-                  Placeholder="ابحث بالاسم أو الكود..."
+                  Placeholder="@Loc["SearchCustomers"]"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Class="flex-grow-1" />
     <MudSpacer />
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
-        إضافة عميل
+        @Loc["AddCustomer"]
     </MudButton>
 </MudToolBar>
 
@@ -27,30 +27,30 @@
     else if (_customers.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا يوجد عملاء. اضغط "إضافة عميل" لإنشاء أول عميل.
+            @Loc["NoCustomers"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_filteredCustomers" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>الاسم</MudTh>
-                <MudTh>الهاتف</MudTh>
-                <MudTh>الرصيد</MudTh>
-                <MudTh>الحد الائتماني</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["Name"]</MudTh>
+                <MudTh>@Loc["Phone"]</MudTh>
+                <MudTh>@Loc["Balance"]</MudTh>
+                <MudTh>@Loc["CreditLimit"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Code</MudTd>
                 <MudTd>@context.NameAr</MudTd>
                 <MudTd>@context.Phone</MudTd>
                 <MudTd>@context.CurrentBalance.ToString("N2")</MudTd>
-                <MudTd>@(context.CreditLimit?.ToString("N2") ?? "غير محدد")</MudTd>
+                <MudTd>@(context.CreditLimit?.ToString("N2") ?? Loc["NoLimit"])</MudTd>
                 <MudTd>
                     <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">
-                        @(context.IsActive ? "نشط" : "غير نشط")
+                        @(context.IsActive ? Loc["Active"] : Loc["Inactive"])
                     </MudChip>
                 </MudTd>
                 <MudTd>
@@ -66,7 +66,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -94,7 +94,7 @@
     {
         _isLoading = true;
         try { _customers = await CustomerService.GetAllAsync(); }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل العملاء: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -102,38 +102,38 @@
     {
         var parameters = new DialogParameters { ["CustomerService"] = CustomerService };
         var dialog = await DialogService.ShowAsync<CustomerFormDialog>(
-            "إضافة عميل جديد", parameters,
+            Loc["AddCustomerTitle"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ العميل بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["CustomerSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenEditDialog(CustomerDto customer)
     {
         var parameters = new DialogParameters { ["CustomerService"] = CustomerService, ["EditCustomer"] = customer };
         var dialog = await DialogService.ShowAsync<CustomerFormDialog>(
-            $"تعديل عميل: {customer.NameAr}", parameters,
+            Loc["EditCustomerTitle", customer.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تعديل العميل بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["CustomerUpdated"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenStatementDialog(CustomerDto customer)
     {
         var parameters = new DialogParameters { ["CustomerService"] = CustomerService, ["Customer"] = customer };
         await DialogService.ShowAsync<CustomerStatementDialog>(
-            $"كشف حساب: {customer.NameAr}", parameters,
+            Loc["StatementTitle", customer.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
     }
 
     private async Task DeleteCustomer(CustomerDto customer)
     {
-        if (customer.IsSystem) { Snackbar.Add("لا يمكن حذف العملاء النظاميين", Severity.Warning); return; }
+        if (customer.IsSystem) { Snackbar.Add(Loc["SystemCustomerDeleteWarning"], Severity.Warning); return; }
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف", $"هل أنت متأكد من حذف العميل '{customer.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"], Loc["DeleteCustomerConfirm", customer.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
-        try { await CustomerService.DeleteAsync(customer.Id); Snackbar.Add("تم حذف العميل بنجاح", Severity.Success); await LoadAsync(); }
+        try { await CustomerService.DeleteAsync(customer.Id); Snackbar.Add(Loc["CustomerDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
@@ -142,7 +142,7 @@
         try
         {
             await CustomerService.ToggleActiveAsync(customer.Id);
-            Snackbar.Add(customer.IsActive ? "تم تعطيل العميل" : "تم تفعيل العميل", Severity.Info);
+            Snackbar.Add(customer.IsActive ? Loc["CustomerDeactivated"] : Loc["CustomerActivated"], Severity.Info);
             await LoadAsync();
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }

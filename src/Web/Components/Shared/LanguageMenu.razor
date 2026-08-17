@@ -1,4 +1,5 @@
 @* قائمة تبديل اللغة (عربي/إنجليزي) — تحدّث كوكيز الثقافة عبر /culture/set ثم تعيد تحميل الصفحة *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudMenu Icon="@Icons.Material.Filled.Translate"
          Color="Color.Inherit"
@@ -6,7 +7,7 @@
          TransformOrigin="Origin.TopLeft">
     <MudMenuItem OnClick="@((MouseEventArgs e) => SetCulture("ar"))">
         <MudIcon Icon="@Icons.Material.Filled.Translate" Class="mr-2" />
-        العربية
+        @Loc["Arabic"]
     </MudMenuItem>
     <MudMenuItem OnClick="@((MouseEventArgs e) => SetCulture("en"))">
         <MudIcon Icon="@Icons.Material.Filled.Translate" Class="mr-2" />

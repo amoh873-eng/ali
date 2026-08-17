@@ -4,12 +4,12 @@
 
 @* صفحة ميزان المراجعة - أرصدة الحسابات وإجمالي المدين والدائن *@
 
-<PageTitle>ميزان المراجعة - نظام ERP</PageTitle>
+<PageTitle>@Loc["TrialBalance"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["TrialBalance"]" Icon="@Icons.Material.Filled.Balance" />
 
 <MudToolBar Class="mb-4">
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">تحديث</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">@Loc["Refresh"]</MudButton>
     <MudButton Variant="Variant.Outlined" Color="Color.Success" Href="/export/trial-balance/excel"
                StartIcon="@Icons.Material.Filled.Download" Class="ms-2">Excel</MudButton>
     <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/export/trial-balance/pdf"
@@ -19,7 +19,7 @@
     {
         <MudChip T="string" Size="Size.Small"
                  Color="@(_trialBalance.IsBalanced ? Color.Success : Color.Error)">
-            @(_trialBalance.IsBalanced ? "متوازن" : "غير متوازن")
+            @(_trialBalance.IsBalanced ? Loc["Balanced"] : Loc["Unbalanced"])
         </MudChip>
     }
 </MudToolBar>
@@ -31,17 +31,17 @@
     }
     else if (_trialBalance is null || _trialBalance.Lines.Count == 0)
     {
-        <MudAlert Severity="Severity.Info" Class="m-4">لا توجد حركات محاسبية بعد.</MudAlert>
+        <MudAlert Severity="Severity.Info" Class="m-4">@Loc["NoJournalMovement"]</MudAlert>
     }
     else
     {
         <MudTable Items="_trialBalance.Lines" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>الحساب</MudTh>
-                <MudTh>مدين</MudTh>
-                <MudTh>دائن</MudTh>
-                <MudTh>الرصيد</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["Account"]</MudTh>
+                <MudTh>@Loc["Debit"]</MudTh>
+                <MudTh>@Loc["Credit"]</MudTh>
+                <MudTh>@Loc["Balance"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.AccountCode</MudTd>
@@ -51,13 +51,13 @@
                 <MudTd>@context.Balance.ToString("N2")</MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
 
         <MudText Typo="Typo.body2" Class="pa-4">
-            إجمالي المدين: <strong>@_trialBalance.TotalDebit.ToString("N2")</strong> —
-            إجمالي الدائن: <strong>@_trialBalance.TotalCredit.ToString("N2")</strong>
+            @Loc["TotalDebit"]: <strong>@_trialBalance.TotalDebit.ToString("N2")</strong> —
+            @Loc["TotalCredit"]: <strong>@_trialBalance.TotalCredit.ToString("N2")</strong>
         </MudText>
     }
 </MudPaper>

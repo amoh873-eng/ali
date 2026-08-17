@@ -1,4 +1,5 @@
 @* نموذج حوار لإنشاء قيد محاسبي (سطر مدين/سطر دائن) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -9,25 +10,25 @@
             }
             <MudGrid>
                 <MudItem xs="12" sm="6">
-                    <MudDatePicker @bind-Date="_entryDate" Label="تاريخ القيد"
+                    <MudDatePicker @bind-Date="_entryDate" Label="@Loc["EntryDate"]"
                                    Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_reference" Label="المرجع / المستند (اختياري)" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_reference" Label="@Loc["ReferenceDocument"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="_description" Label="الوصف / البيان" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_description" Label="@Loc["DescriptionStatement"]" Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
 
-            <MudText Typo="Typo.subtitle2" Class="mt-4">سطور القيد</MudText>
+            <MudText Typo="Typo.subtitle2" Class="mt-4">@Loc["EntryLines"]</MudText>
 
             @foreach (var leg in _legs)
             {
                 <MudGrid Class="mb-1 align-items-center">
                     <MudItem xs="12" sm="4">
                         <MudSelect T="Guid" @bind-Value="leg.AccountId"
-                                   Label="الحساب" Variant="Variant.Outlined" Dense="true">
+                                   Label="@Loc["Account"]" Variant="Variant.Outlined" Dense="true">
                             @foreach (var acc in _accounts)
                             {
                                 <MudSelectItem T="Guid" Value="@acc.Id">@acc.Code - @acc.NameAr</MudSelectItem>
@@ -36,11 +37,11 @@
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="leg.Debit"
-                                         Label="مدين" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                         Label="@Loc["Debit"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="6" sm="3">
                         <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="leg.Credit"
-                                         Label="دائن" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                                         Label="@Loc["Credit"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="12" sm="2" Class="d-flex align-items-center">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
@@ -50,21 +51,21 @@
             }
 
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLeg" Class="mt-2">
-                إضافة سطر
+                @Loc["AddLeg"]
             </MudButton>
 
             <MudPaper Elevation="1" Class="pa-3 mt-4">
-                <MudText Typo="Typo.body2">مجموع المدين: @_totalDebit.ToString("N2")</MudText>
-                <MudText Typo="Typo.body2">مجموع الدائن: @_totalCredit.ToString("N2")</MudText>
+                <MudText Typo="Typo.body2">@Loc["DebitTotal"]: @_totalDebit.ToString("N2")</MudText>
+                <MudText Typo="Typo.body2">@Loc["CreditTotal"]: @_totalCredit.ToString("N2")</MudText>
                 <MudText Typo="Typo.body2" Color="@(_isBalanced ? Color.Success : Color.Error)">
-                    الفرق: @_difference.ToString("N2") @(_isBalanced ? "متوازن" : "غير متوازن")
+                    @Loc["Difference"]: @_difference.ToString("N2") @(_isBalanced ? Loc["Balanced"] : Loc["Unbalanced"])
                 </MudText>
             </MudPaper>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">حفظ القيد</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["SaveEntry"]</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -113,9 +114,9 @@
 
     private async Task SubmitAsync()
     {
-        if (_legs.Any(l => l.AccountId == Guid.Empty)) { _error = "اختر الحساب لكل سطر."; return; }
-        if (!_isBalanced) { _error = $"القيد غير متوازن: الفرق {_difference:N2}. يجب أن يتساوى المدين مع الدائن."; return; }
-        if (_totalDebit == 0) { _error = "لا يمكن حفظ قيد بدون مبالغ."; return; }
+        if (_legs.Any(l => l.AccountId == Guid.Empty)) { _error = Loc["SelectAccountPerLeg"]; return; }
+        if (!_isBalanced) { _error = Loc["UnbalancedEntry", _difference.ToString("N2")]; return; }
+        if (_totalDebit == 0) { _error = Loc["NoAmounts"]; return; }
 
         _error = null;
         try

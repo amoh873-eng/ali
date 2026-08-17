@@ -3,7 +3,7 @@
 
 @* صفحة فئات الأصناف - شجرة فئات الأصناف (فئة رئيسية ← فئة فرعية) *@
 
-<PageTitle>فئات الأصناف - نظام ERP</PageTitle>
+<PageTitle>@Loc["Categories"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Categories"]" Icon="@Icons.Material.Filled.Category" />
 
@@ -12,10 +12,10 @@
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="() => OpenCreateDialog()">
-        إضافة فئة جديدة
+        @Loc["AddCategory"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">العدد: @_flatCategories.Count فئة</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["CategoriesCount", _flatCategories.Count]</MudText>
 </MudToolBar>
 
 <MudPaper Elevation="1" Class="pa-4">
@@ -26,7 +26,7 @@
     else if (_treeCategories.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="my-2">
-            لا توجد فئات. اضغط "إضافة فئة جديدة" لإنشاء أول فئة.
+            @Loc["NoCategories"]
         </MudAlert>
     }
     else
@@ -54,7 +54,7 @@
             _treeCategories = await CategoryService.GetTreeAsync();
             _flatCategories = await CategoryService.GetAllAsync();
         }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الفئات: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -113,15 +113,15 @@
             ["DefaultParentId"] = parent?.Id
         };
         var dialog = await DialogService.ShowAsync<CategoryFormDialog>(
-            "إضافة فئة جديدة", parameters,
+            Loc["AddCategory"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الفئة بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["ItemCategorySaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenEditDialog(CategoryDto category)
     {
-        if (category.IsSystem) { Snackbar.Add("لا يمكن تعديل الفئات النظامية", Severity.Warning); return; }
+        if (category.IsSystem) { Snackbar.Add(Loc["SystemCategoryEditWarning"], Severity.Warning); return; }
         var parameters = new DialogParameters
         {
             ["CategoryService"] = CategoryService,
@@ -129,20 +129,20 @@
             ["EditCategory"] = category
         };
         var dialog = await DialogService.ShowAsync<CategoryFormDialog>(
-            $"تعديل فئة: {category.NameAr}", parameters,
+            Loc["EditCategoryTitle", category.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تعديل الفئة بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["ItemCategoryUpdated"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task DeleteCategory(CategoryDto category)
     {
-        if (category.IsSystem) { Snackbar.Add("لا يمكن حذف الفئات النظامية", Severity.Warning); return; }
+        if (category.IsSystem) { Snackbar.Add(Loc["SystemCategoryDeleteWarning"], Severity.Warning); return; }
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف", $"هل أنت متأكد من حذف الفئة '{category.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"], Loc["DeleteCategoryConfirm", category.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
-        try { await CategoryService.DeleteAsync(category.Id); Snackbar.Add("تم حذف الفئة بنجاح", Severity.Success); await LoadAsync(); }
+        try { await CategoryService.DeleteAsync(category.Id); Snackbar.Add(Loc["ItemCategoryDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }

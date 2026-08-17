@@ -4,13 +4,13 @@
 
 @* صفحة دفتر الأستاذ العام - كشف حركات حساب محدد *@
 
-<PageTitle>دفتر الأستاذ - نظام ERP</PageTitle>
+<PageTitle>@Loc["GeneralLedger"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["GeneralLedger"]" Icon="@Icons.Material.Filled.LibraryBooks" />
 
 <MudGrid Class="mb-4 align-items-end">
     <MudItem xs="12" sm="4">
-        <MudSelect T="Guid" @bind-Value="_accountId" Label="الحساب" Variant="Variant.Outlined">
+        <MudSelect T="Guid" @bind-Value="_accountId" Label="@Loc["Account"]" Variant="Variant.Outlined">
             @foreach (var acc in _accounts)
             {
                 <MudSelectItem T="Guid" Value="@acc.Id">@acc.Code - @acc.NameAr</MudSelectItem>
@@ -18,13 +18,13 @@
         </MudSelect>
     </MudItem>
     <MudItem xs="6" sm="3">
-        <MudDatePicker @bind-Date="_from" Label="من تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
     </MudItem>
     <MudItem xs="6" sm="3">
-        <MudDatePicker @bind-Date="_to" Label="إلى تاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
     </MudItem>
     <MudItem xs="12" sm="2">
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" FullWidth="true">عرض</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" FullWidth="true">@Loc["View"]</MudButton>
     </MudItem>
 </MudGrid>
 
@@ -33,17 +33,17 @@
     <MudPaper Elevation="1" Class="pa-4">
         <MudText Typo="Typo.subtitle1">@_ledger.AccountCode - @_ledger.AccountNameAr</MudText>
         <MudText Typo="Typo.caption" Class="mb-2">
-            الرصيد الافتتاحي: @_ledger.OpeningBalance.ToString("N2") —
-            الرصيد الختامي: @_ledger.ClosingBalance.ToString("N2")
+            @Loc["OpeningBalance"]: @_ledger.OpeningBalance.ToString("N2") —
+            @Loc["ClosingBalance"]: @_ledger.ClosingBalance.ToString("N2")
         </MudText>
         <MudTable Items="_ledger.Lines" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>التاريخ</MudTh>
-                <MudTh>القيد</MudTh>
-                <MudTh>البيان</MudTh>
-                <MudTh>مدين</MudTh>
-                <MudTh>دائن</MudTh>
-                <MudTh>الرصيد</MudTh>
+                <MudTh>@Loc["Date"]</MudTh>
+                <MudTh>@Loc["JournalEntryNumber"]</MudTh>
+                <MudTh>@Loc["Statement"]</MudTh>
+                <MudTh>@Loc["Debit"]</MudTh>
+                <MudTh>@Loc["Credit"]</MudTh>
+                <MudTh>@Loc["Balance"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Date.ToString("yyyy-MM-dd")</MudTd>
@@ -54,7 +54,7 @@
                 <MudTd>@context.Balance.ToString("N2")</MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     </MudPaper>

@@ -1,4 +1,5 @@
 ﻿@* نموذج حوار لإنشاء جرد دوري: اختيار مخزن ثم إدخال الكميات المعدودة *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,7 +11,7 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="Guid" Value="_warehouseId" ValueChanged="OnWarehouseChanged"
-                               Label="المخزن" Required="true" RequiredError="المخزن مطلوب"
+                               Label="@Loc["Warehouse"]" Required="true" RequiredError="@Loc["WarehouseRequired"]"
                                Variant="Variant.Outlined">
                         @foreach (var w in _warehouses)
                         {
@@ -19,7 +20,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudDatePicker @bind-Date="_countDate" Label="تاريخ الجرد"
+                    <MudDatePicker @bind-Date="_countDate" Label="@Loc["CountDate"]"
                                    Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
                 </MudItem>
             </MudGrid>
@@ -30,19 +31,19 @@
             }
             else if (_lines.Count == 0)
             {
-                <MudAlert Severity="Severity.Info" Class="mt-4">اختر مخزناً لعرض الأصناف.</MudAlert>
+                <MudAlert Severity="Severity.Info" Class="mt-4">@Loc["SelectWarehouseHint"]</MudAlert>
             }
             else
             {
                 <MudText Typo="Typo.subtitle2" Class="mt-4">
-                    أدخل الكميات المعدودة فعلياً (اترك القيمة كما هي إن لم تعدّ الصنف)
+                    @Loc["EnterCountedQuantities"]
                 </MudText>
                 <MudTable Items="_lines" Hover="true" Dense="true" Elevation="0">
                     <HeaderContent>
-                        <MudTh>الكود</MudTh>
-                        <MudTh>الصنف</MudTh>
-                        <MudTh>الرصيد النظامي</MudTh>
-                        <MudTh>الكمية المعدودة</MudTh>
+                        <MudTh>@Loc["Code"]</MudTh>
+                        <MudTh>@Loc["Item"]</MudTh>
+                        <MudTh>@Loc["SystemStock"]</MudTh>
+                        <MudTh>@Loc["CountedQuantity"]</MudTh>
                     </HeaderContent>
                     <RowTemplate>
                         <MudTd>@context.Code</MudTd>
@@ -54,17 +55,17 @@
                         </MudTd>
                     </RowTemplate>
                     <PagerContent>
-                        <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                        <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
                     </PagerContent>
                 </MudTable>
             }
 
-            <MudTextField @bind-Value="_note" Label="ملاحظات" Variant="Variant.Outlined" Lines="2" Class="mt-4" />
+            <MudTextField @bind-Value="_note" Label="@Loc["Notes"]" Variant="Variant.Outlined" Lines="2" Class="mt-4" />
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel">إلغاء</MudButton>
-        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync">ترحيل الجرد</MudButton>
+        <MudButton OnClick="Cancel">@Loc["Cancel"]</MudButton>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SubmitAsync">@Loc["PostStockCount"]</MudButton>
     </DialogActions>
 </MudDialog>
 

@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل وحدة قياس *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,30 +11,30 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود الوحدة (مثال: PCS)"
+                                  Label="@Loc["UnitCode"]"
                                   Required="true"
-                                  RequiredError="كود الوحدة مطلوب"
+                                  RequiredError="@Loc["UnitCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم الوحدة (عربي)"
+                                  Label="@Loc["UnitNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم الوحدة (إنجليزي)"
+                                  Label="@Loc["UnitNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditUnit is null ? "إضافة" : "تعديل")
+            @(EditUnit is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

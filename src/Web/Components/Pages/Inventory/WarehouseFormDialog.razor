@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل مخزن *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,39 +11,39 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود المخزن"
+                                  Label="@Loc["WarehouseCode"]"
                                   Required="true"
-                                  RequiredError="كود المخزن مطلوب"
+                                  RequiredError="@Loc["WarehouseCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSwitch @bind-Value="_isDefault" Color="Color.Primary"
-                               Label="مخزن افتراضي" />
+                               Label="@Loc["DefaultWarehouse"]" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم المخزن (عربي)"
+                                  Label="@Loc["WarehouseNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم المخزن (إنجليزي)"
+                                  Label="@Loc["WarehouseNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_location"
-                                  Label="الموقع"
+                                  Label="@Loc["Location"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditWarehouse is null ? "إضافة" : "تعديل")
+            @(EditWarehouse is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

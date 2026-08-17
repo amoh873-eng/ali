@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل قسم *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,15 +11,15 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود القسم (مثال: HR)"
+                                  Label="@Loc["DepartmentCode"]"
                                   Required="true"
-                                  RequiredError="كود القسم مطلوب"
+                                  RequiredError="@Loc["DepartmentCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_parentId"
-                               Label="القسم الأب (اختياري)"
+                               Label="@Loc["ParentDepartment"]"
                                Variant="Variant.Outlined"
                                T="Guid?"
                                Clearable="true">
@@ -31,21 +32,21 @@
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم القسم (عربي)"
+                                  Label="@Loc["DepartmentNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم القسم (إنجليزي)"
+                                  Label="@Loc["DepartmentNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_description"
-                                  Label="وصف"
+                                  Label="@Loc["Description"]"
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
@@ -53,9 +54,9 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditDepartment is null ? "إضافة" : "تعديل")
+            @(EditDepartment is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

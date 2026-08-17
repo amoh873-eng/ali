@@ -1,0 +1,36 @@
+@using System.Globalization
+@* مخطط أعمدة أفقي حديث: أشرطة مستديرة بتدرّج لوني مع قيمة ونسبة لكل فئة — قابل لإعادة الاستخدام *@
+
+<div class="erp-bar">
+    @if (Items.Count > 0)
+    {
+        <div class="erp-bar-list">
+            @foreach (var item in Items)
+            {
+                var pct = _max > 0 ? item.Value / _max * 100.0 : 0;
+                <div class="erp-bar-item">
+                    <div class="erp-bar-head">
+                        <span class="erp-bar-dot" style="background:@item.Color;"></span>
+                        <span class="erp-bar-label">@item.Label</span>
+                        <span class="erp-bar-value">@item.ValueText</span>
+                        <span class="erp-bar-pct">@pct.ToString("0", CultureInfo.InvariantCulture)%</span>
+                    </div>
+                    <div class="erp-bar-track">
+                        <div class="erp-bar-fill" style="--w:@(pct.ToString("0.##", CultureInfo.InvariantCulture))%; background:@item.Color;"></div>
+                    </div>
+                </div>
+            }
+        </div>
+    }
+    else
+    {
+        <MudText Typo="Typo.body2" Style="color:var(--erp-muted); padding:16px 0;">@EmptyText</MudText>
+    }
+</div>
+
+@code {
+    [Parameter] public List<DonutSegment> Items { get; set; } = new();
+    [Parameter] public string EmptyText { get; set; } = "";
+
+    private double _max => Items.Count > 0 ? Items.Max(i => i.Value) : 0;
+}

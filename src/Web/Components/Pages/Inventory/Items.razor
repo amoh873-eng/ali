@@ -3,13 +3,13 @@
 
 @* صفحة الأصناف والمخزون - إدارة الأصناف مع مستويات المخزون والتسعير *@
 
-<PageTitle>الأصناف - نظام ERP</PageTitle>
+<PageTitle>@Loc["Items"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Items"]" Icon="@Icons.Material.Filled.Inventory" />
 
 <MudToolBar Class="mb-4">
     <MudTextField @bind-Value="_search"
-                  Placeholder="ابحث بالكود أو الاسم أو الباركود..."
+                  Placeholder="@Loc["SearchItems"]"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Class="flex-grow-1" />
@@ -18,14 +18,14 @@
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateDialog">
-        إضافة صنف
+        @Loc["AddItem"]
     </MudButton>
 </MudToolBar>
 
 @if (_lowStockCount > 0)
 {
     <MudAlert Severity="Severity.Warning" Class="mb-4" Variant="Variant.Filled">
-        يوجد @_lowStockCount صنف تحت الحد الأدنى للمخزون الحالي.
+        @Loc["ItemsLowStock", _lowStockCount]
     </MudAlert>
 }
 
@@ -37,22 +37,22 @@
     else if (_items.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا توجد أصناف. اضغط "إضافة صنف" لإنشاء أول صنف.
+            @Loc["NoItemsHint"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_filteredItems" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>اسم الصنف</MudTh>
-                <MudTh>الفئة</MudTh>
-                <MudTh>الوحدة</MudTh>
-                <MudTh>تكلفة</MudTh>
-                <MudTh>سعر</MudTh>
-                <MudTh>الرصيد</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["ItemName"]</MudTh>
+                <MudTh>@Loc["Category"]</MudTh>
+                <MudTh>@Loc["Unit"]</MudTh>
+                <MudTh>@Loc["Cost"]</MudTh>
+                <MudTh>@Loc["Price"]</MudTh>
+                <MudTh>@Loc["Balance"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Code</MudTd>
@@ -70,7 +70,7 @@
                 </MudTd>
                 <MudTd>
                     <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">
-                        @(context.IsActive ? "نشط" : "غير نشط")
+                        @(context.IsActive ? Loc["Active"] : Loc["Inactive"])
                     </MudChip>
                 </MudTd>
                 <MudTd>
@@ -82,7 +82,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -123,7 +123,7 @@
             _unitsCache = await UnitService.GetAllAsync();
             _lowStockCount = _items.Count(i => i.CurrentStock <= i.MinStockLevel);
         }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الأصناف: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -136,10 +136,10 @@
             ["Units"] = _unitsCache
         };
         var dialog = await DialogService.ShowAsync<ItemFormDialog>(
-            "إضافة صنف جديد", parameters,
+            Loc["AddItemTitle"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الصنف بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["ItemSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenEditDialog(ItemDto item)
@@ -152,20 +152,20 @@
             ["EditItem"] = item
         };
         var dialog = await DialogService.ShowAsync<ItemFormDialog>(
-            $"تعديل صنف: {item.NameAr}", parameters,
+            Loc["EditItemTitle", item.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تعديل الصنف بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["ItemUpdated"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task DeleteItem(ItemDto item)
     {
-        if (item.IsSystem) { Snackbar.Add("لا يمكن حذف الأصناف النظامية", Severity.Warning); return; }
+        if (item.IsSystem) { Snackbar.Add(Loc["SystemItemDeleteWarning"], Severity.Warning); return; }
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف", $"هل أنت متأكد من حذف الصنف '{item.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"], Loc["DeleteItemConfirm", item.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
-        try { await ItemService.DeleteAsync(item.Id); Snackbar.Add("تم حذف الصنف بنجاح", Severity.Success); await LoadAsync(); }
+        try { await ItemService.DeleteAsync(item.Id); Snackbar.Add(Loc["ItemDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }

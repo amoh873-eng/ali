@@ -1,4 +1,5 @@
 @* نموذج حوار لتسجيل حركة مخزون (وارد/صادر/تسوية/رصيد افتتاحي) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -11,15 +12,15 @@
                 <MudItem xs="12">
                     <MudSelect Value="@_itemId"
                                ValueChanged="OnItemChanged"
-                               Label="الصنف"
+                               Label="@Loc["Item"]"
                                Required="true"
-                               RequiredError="الصنف مطلوب"
+                               RequiredError="@Loc["ItemRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var item in _items)
                         {
                             <MudSelectItem Value="@item.Id">
-                                @item.Code - @item.NameAr (الرصيد: @item.CurrentStock.ToString("N0"))
+                                @item.Code - @item.NameAr (@Loc["ItemBalance", item.CurrentStock.ToString("N0")])
                             </MudSelectItem>
                         }
                     </MudSelect>
@@ -27,9 +28,9 @@
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_warehouseId"
-                               Label="المخزن"
+                               Label="@Loc["Warehouse"]"
                                Required="true"
-                               RequiredError="المخزن مطلوب"
+                               RequiredError="@Loc["WarehouseRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var warehouse in _warehouses)
@@ -41,37 +42,37 @@
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_movementType"
-                               Label="نوع الحركة"
+                               Label="@Loc["MovementType"]"
                                Required="true"
                                Variant="Variant.Outlined"
                                T="int">
-                        <MudSelectItem Value="1">وارد مشتريات</MudSelectItem>
-                        <MudSelectItem Value="2">صادر مبيعات</MudSelectItem>
-                        <MudSelectItem Value="3">رصيد افتتاحي</MudSelectItem>
-                        <MudSelectItem Value="4">تسوية إضافة</MudSelectItem>
-                        <MudSelectItem Value="5">تسوية خصم</MudSelectItem>
+                        <MudSelectItem Value="1">@Loc["MovementTypeInPurchase"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["MovementTypeOutSale"]</MudSelectItem>
+                        <MudSelectItem Value="3">@Loc["MovementTypeOpening"]</MudSelectItem>
+                        <MudSelectItem Value="4">@Loc["MovementTypeAdjustIn"]</MudSelectItem>
+                        <MudSelectItem Value="5">@Loc["MovementTypeAdjustOut"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_quantity"
-                                     Label="الكمية"
+                                     Label="@Loc["Qty"]"
                                      Required="true"
-                                     RequiredError="الكمية مطلوبة"
+                                     RequiredError="@Loc["QuantityRequired"]"
                                      Variant="Variant.Outlined"
                                      T="decimal" DecimalPlaces="2" Format="0.00" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_unitCost"
-                                     Label="تكلفة الوحدة"
+                                     Label="@Loc["UnitCost"]"
                                      Variant="Variant.Outlined"
                                      T="decimal" DecimalPlaces="2" Format="0.00" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudDatePicker @bind-Date="_movementDate"
-                                   Label="التاريخ"
+                                   Label="@Loc["Date"]"
                                    Variant="Variant.Outlined"
                                    T="DateTime?"
                                    AutoClose="true" />
@@ -79,13 +80,13 @@
 
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_referenceNumber"
-                                  Label="رقم المرجع (فاتورة / أمر شراء)"
+                                  Label="@Loc["ReferenceNumberInvoice"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_note"
-                                  Label="ملاحظات"
+                                  Label="@Loc["Notes"]"
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
@@ -93,8 +94,8 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">تسجيل الحركة</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["RegisterMovement"]</MudButton>
     </DialogActions>
 </MudDialog>
 

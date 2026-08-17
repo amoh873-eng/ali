@@ -3,16 +3,16 @@
 
 @* صفحة فواتير المبيعات - قائمة فواتير المبيعات *@
 
-<PageTitle>فواتير المبيعات - نظام ERP</PageTitle>
+<PageTitle>@Loc["SalesInvoices"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["SalesInvoices"]" Icon="@Icons.Material.Filled.ShoppingCart" />
 
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
-        فاتورة جديدة
+        @Loc["NewInvoice"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">إجمالي الفواتير: @_invoices.Count</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["TotalInvoices", _invoices.Count]</MudText>
 </MudToolBar>
 
 <MudPaper Elevation="1">
@@ -23,20 +23,20 @@
     else if (_invoices.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا توجد فواتير. اضغط "فاتورة جديدة" لإنشاء أول فاتورة.
+            @Loc["NoInvoices"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_invoices" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>رقم الفاتورة</MudTh>
-                <MudTh>العميل</MudTh>
-                <MudTh>التاريخ</MudTh>
-                <MudTh>النوع</MudTh>
-                <MudTh>الإجمالي</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["InvoiceNumber"]</MudTh>
+                <MudTh>@Loc["Customer"]</MudTh>
+                <MudTh>@Loc["Date"]</MudTh>
+                <MudTh>@Loc["Type"]</MudTh>
+                <MudTh>@Loc["Total"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.InvoiceNumber</MudTd>
@@ -55,7 +55,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -75,26 +75,26 @@
     {
         _isLoading = true;
         try { _invoices = await InvoiceService.GetInvoicesAsync(); }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الفواتير: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
     private async Task OpenCreateDialog()
     {
         var dialog = await DialogService.ShowAsync<SalesInvoiceFormDialog>(
-            "فاتورة جديدة", new DialogParameters(),
+            Loc["NewInvoice"], new DialogParameters(),
             new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الفاتورة بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["InvoiceSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task ViewInvoice(SalesInvoiceDto invoice)
     {
         var full = await InvoiceService.GetByIdAsync(invoice.Id);
-        if (full is null) { Snackbar.Add("تعذر تحميل الفاتورة", Severity.Error); return; }
+        if (full is null) { Snackbar.Add(Loc["InvoiceLoadFailed"], Severity.Error); return; }
         var parameters = new DialogParameters { ["Invoice"] = full };
         await DialogService.ShowAsync<SalesInvoiceDetailsDialog>(
-            $"تفاصيل الفاتورة {full.InvoiceNumber}", parameters,
+            Loc["InvoiceDetailsTitle", full.InvoiceNumber], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
     }
 }

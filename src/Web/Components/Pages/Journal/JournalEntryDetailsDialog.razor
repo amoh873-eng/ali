@@ -1,26 +1,27 @@
 @* حوار عرض تفاصيل قيد محاسبي (بنوده) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
         @if (Entry is null)
         {
-            <MudAlert Severity="Severity.Info">لا توجد بيانات.</MudAlert>
+            <MudAlert Severity="Severity.Info">@Loc["NoData"]</MudAlert>
         }
         else
         {
             <MudGrid>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">رقم القيد</MudText><MudText>@Entry.EntryNumber</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">النوع</MudText><MudText>@Entry.EntryTypeNameAr</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">التاريخ</MudText><MudText>@Entry.EntryDate.ToString("yyyy-MM-dd")</MudText></MudItem>
-                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">المرجع</MudText><MudText>@Entry.ReferenceNumber</MudText></MudItem>
-                <MudItem xs="12"><MudText Typo="Typo.caption">البيان</MudText><MudText>@Entry.Description</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["JournalEntryNumber"]</MudText><MudText>@Entry.EntryNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Type"]</MudText><MudText>@Entry.EntryTypeNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Date"]</MudText><MudText>@Entry.EntryDate.ToString("yyyy-MM-dd")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Reference"]</MudText><MudText>@Entry.ReferenceNumber</MudText></MudItem>
+                <MudItem xs="12"><MudText Typo="Typo.caption">@Loc["Statement"]</MudText><MudText>@Entry.Description</MudText></MudItem>
             </MudGrid>
 
             <MudTable Items="Entry.Lines" Hover="true" Dense="true" Elevation="1" Class="mt-3">
                 <HeaderContent>
-                    <MudTh>الحساب</MudTh>
-                    <MudTh>مدين</MudTh>
-                    <MudTh>دائن</MudTh>
+                    <MudTh>@Loc["Account"]</MudTh>
+                    <MudTh>@Loc["Debit"]</MudTh>
+                    <MudTh>@Loc["Credit"]</MudTh>
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.AccountCode - @context.AccountNameAr</MudTd>
@@ -30,13 +31,13 @@
             </MudTable>
 
             <MudText Typo="Typo.body2" Class="mt-3">
-                إجمالي مدين: <strong>@Entry.TotalDebit.ToString("N2")</strong> —
-                إجمالي دائن: <strong>@Entry.TotalCredit.ToString("N2")</strong>
+                @Loc["TotalDebit"]: <strong>@Entry.TotalDebit.ToString("N2")</strong> —
+                @Loc["TotalCredit"]: <strong>@Entry.TotalCredit.ToString("N2")</strong>
             </MudText>
         }
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
 

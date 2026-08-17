@@ -3,16 +3,16 @@
 
 @* صفحة مردودات المبيعات *@
 
-<PageTitle>مردودات المبيعات - نظام ERP</PageTitle>
+<PageTitle>@Loc["SalesReturns"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["SalesReturns"]" Icon="@Icons.Material.Filled.Replay" />
 
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
-        مردود جديد
+        @Loc["AddReturn"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">إجمالي المردودات: @_returns.Count</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["TotalReturns", _returns.Count]</MudText>
 </MudToolBar>
 
 <MudPaper Elevation="1">
@@ -23,19 +23,19 @@
     else if (_returns.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا توجد مردودات. اضغط "مردود جديد" لإنشاء أول مردود.
+            @Loc["NoReturns"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_returns" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>رقم المردود</MudTh>
-                <MudTh>الفاتورة الأصلية</MudTh>
-                <MudTh>العميل</MudTh>
-                <MudTh>التاريخ</MudTh>
-                <MudTh>الإجمالي</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["ReturnNumber"]</MudTh>
+                <MudTh>@Loc["OriginalInvoice"]</MudTh>
+                <MudTh>@Loc["Customer"]</MudTh>
+                <MudTh>@Loc["Date"]</MudTh>
+                <MudTh>@Loc["Total"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.ReturnNumber</MudTd>
@@ -49,7 +49,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -69,26 +69,26 @@
     {
         _isLoading = true;
         try { _returns = await ReturnService.GetReturnsAsync(); }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل المردودات: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
     private async Task OpenCreateDialog()
     {
         var dialog = await DialogService.ShowAsync<SalesReturnFormDialog>(
-            "مردود مبيعات جديد", new DialogParameters(),
+            Loc["AddReturnTitle"], new DialogParameters(),
             new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ المردود بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["ReturnSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task ViewReturn(SalesReturnDto salesReturn)
     {
         var full = await ReturnService.GetByIdAsync(salesReturn.Id);
-        if (full is null) { Snackbar.Add("تعذر تحميل المردود", Severity.Error); return; }
+        if (full is null) { Snackbar.Add(Loc["ReturnLoadFailed"], Severity.Error); return; }
         var parameters = new DialogParameters { ["SalesReturn"] = full };
         await DialogService.ShowAsync<SalesReturnDetailsDialog>(
-            $"تفاصيل المردود {full.ReturnNumber}", parameters,
+            Loc["ReturnDetailsTitle", full.ReturnNumber], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
     }
 }

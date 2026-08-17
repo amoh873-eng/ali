@@ -6,7 +6,7 @@
 باستخدام MudTreeView لعرض الشجرة مع MudDialog للإضافة والتعديل.
 *@
 
-<PageTitle>شجرة الحسابات - نظام ERP</PageTitle>
+<PageTitle>@Loc["Accounts"] - @Loc["AppName"]</PageTitle>
 
 @* رأس الصفحة مع الأيقونة *@
 <PageHeader Title="@Loc["Accounts"]" Icon="@Icons.Material.Filled.AccountTree" />
@@ -17,15 +17,15 @@
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateDialog">
-        إضافة حساب جديد
+        @Loc["AddAccount"]
     </MudButton>
     <MudSpacer />
     <MudToggleGroup T="string" SelectionMode="SelectionMode.ToggleSelection" @bind-Value="_viewMode">
         <MudToggleItem T="string" Value="@("tree")">
-            <MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="mr-1" /> عرض شجري
+            <MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="mr-1" /> @Loc["TreeView"]
         </MudToggleItem>
         <MudToggleItem T="string" Value="@("list")">
-            <MudIcon Icon="@Icons.Material.Filled.List" Class="mr-1" /> عرض قائمة
+            <MudIcon Icon="@Icons.Material.Filled.List" Class="mr-1" /> @Loc["ListView"]
         </MudToggleItem>
     </MudToggleGroup>
 </MudToolBar>
@@ -41,7 +41,7 @@
         else if (_treeAccounts.Count == 0)
         {
             <MudAlert Severity="Severity.Info" Class="my-2">
-                لا توجد حسابات. اضغط "إضافة حساب جديد" لبدء بناء شجرة الحسابات.
+                @Loc["NoAccounts"]
             </MudAlert>
         }
         else
@@ -56,12 +56,12 @@ else
     <MudPaper Elevation="1">
         <MudTable Items="_flatAccounts" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>اسم الحساب</MudTh>
-                <MudTh>النوع</MudTh>
-                <MudTh>الطبيعة</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["AccountName"]</MudTh>
+                <MudTh>@Loc["Type"]</MudTh>
+                <MudTh>@Loc["Nature"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Code</MudTd>
@@ -71,7 +71,7 @@ else
                 <MudTd>
                     <MudChip T="string" Size="Size.Small"
                              Color="@(context.IsActive ? Color.Success : Color.Default)">
-                        @(context.IsActive ? "نشط" : "غير نشط")
+                        @(context.IsActive ? Loc["Active"] : Loc["Inactive"])
                     </MudChip>
                 </MudTd>
                 <MudTd>
@@ -83,7 +83,7 @@ else
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     </MudPaper>
@@ -114,7 +114,7 @@ else
         }
         catch (Exception ex)
         {
-            Snackbar.Add($"خطأ في تحميل الحسابات: {ex.Message}", Severity.Error);
+            Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error);
         }
         finally
         {
@@ -175,12 +175,12 @@ else
             ["ParentAccounts"] = _flatAccounts
         };
         var dialog = await DialogService.ShowAsync<AccountFormDialog>(
-            "إضافة حساب جديد", parameters,
+            Loc["AddAccount"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
         if (result?.Canceled != true)
         {
-            Snackbar.Add("تم حفظ الحساب بنجاح", Severity.Success);
+            Snackbar.Add(Loc["AccountSaved"], Severity.Success);
             await LoadAccountsAsync();
         }
     }
@@ -189,7 +189,7 @@ else
     {
         if (account.IsSystem)
         {
-            Snackbar.Add("لا يمكن تعديل الحسابات النظامية", Severity.Warning);
+            Snackbar.Add(Loc["SystemAccountEditWarning"], Severity.Warning);
             return;
         }
         var parameters = new DialogParameters
@@ -199,12 +199,12 @@ else
             ["EditAccount"] = account
         };
         var dialog = await DialogService.ShowAsync<AccountFormDialog>(
-            $"تعديل حساب: {account.NameAr}", parameters,
+            Loc["EditAccountTitle", account.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
         if (result?.Canceled != true)
         {
-            Snackbar.Add("تم تعديل الحساب بنجاح", Severity.Success);
+            Snackbar.Add(Loc["AccountUpdated"], Severity.Success);
             await LoadAccountsAsync();
         }
     }
@@ -213,18 +213,18 @@ else
     {
         if (account.IsSystem)
         {
-            Snackbar.Add("لا يمكن حذف الحسابات النظامية", Severity.Warning);
+            Snackbar.Add(Loc["SystemAccountDeleteWarning"], Severity.Warning);
             return;
         }
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف",
-            $"هل أنت متأكد من حذف الحساب '{account.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"],
+            Loc["DeleteAccountConfirm", account.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
         try
         {
             await AccountService.DeleteAsync(account.Id);
-            Snackbar.Add("تم حذف الحساب بنجاح", Severity.Success);
+            Snackbar.Add(Loc["AccountDeleted"], Severity.Success);
             await LoadAccountsAsync();
         }
         catch (Exception ex)
@@ -239,7 +239,7 @@ else
         {
             await AccountService.ToggleActiveAsync(account.Id);
             Snackbar.Add(
-                account.IsActive ? "تم تعطيل الحساب" : "تم تفعيل الحساب",
+                account.IsActive ? Loc["AccountDeactivated"] : Loc["AccountActivated"],
                 Severity.Info);
             await LoadAccountsAsync();
         }

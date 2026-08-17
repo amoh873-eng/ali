@@ -1,4 +1,5 @@
 @* نموذج حوار لإنشاء فاتورة مشتريات جديدة (المورد + البنود) *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -9,7 +10,7 @@
             }
             <MudGrid>
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid" @bind-Value="_supplierId" Label="المورد" Required="true" RequiredError="المورد مطلوب" Variant="Variant.Outlined">
+                    <MudSelect T="Guid" @bind-Value="_supplierId" Label="@Loc["Supplier"]" Required="true" RequiredError="@Loc["SupplierRequired"]" Variant="Variant.Outlined">
                         @foreach (var s in _suppliers)
                         {
                             <MudSelectItem T="Guid" Value="@s.Id">@s.Code - @s.NameAr</MudSelectItem>
@@ -17,7 +18,7 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="Guid" @bind-Value="_warehouseId" Label="المخزن" Required="true" RequiredError="المخزن مطلوب" Variant="Variant.Outlined">
+                    <MudSelect T="Guid" @bind-Value="_warehouseId" Label="@Loc["Warehouse"]" Required="true" RequiredError="@Loc["WarehouseRequired"]" Variant="Variant.Outlined">
                         @foreach (var w in _warehouses)
                         {
                             <MudSelectItem T="Guid" Value="@w.Id">@w.Code - @w.NameAr</MudSelectItem>
@@ -25,23 +26,23 @@
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudSelect T="int" @bind-Value="_invoiceType" Label="نوع الفاتورة" Required="true" Variant="Variant.Outlined">
-                        <MudSelectItem T="int" Value="1">نقدي</MudSelectItem>
-                        <MudSelectItem T="int" Value="2">آجل</MudSelectItem>
+                    <MudSelect T="int" @bind-Value="_invoiceType" Label="@Loc["InvoiceType"]" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">@Loc["InvoiceTypeCash"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">@Loc["InvoiceTypeCredit"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudDatePicker @bind-Date="_invoiceDate" Label="التاريخ" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                    <MudDatePicker @bind-Date="_invoiceDate" Label="@Loc["Date"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
                 </MudItem>
             </MudGrid>
 
-            <MudText Typo="Typo.subtitle2" Class="mt-4">البنود</MudText>
+            <MudText Typo="Typo.subtitle2" Class="mt-4">@Loc["Lines"]</MudText>
 
             @foreach (var line in _lines)
             {
                 <MudGrid Class="mb-1 align-items-center">
                     <MudItem xs="12" sm="5">
-                        <MudSelect T="Guid" Value="@line.ItemId" ValueChanged="@(id => OnLineItemChanged(line, id))" Label="الصنف" Variant="Variant.Outlined" Dense="true">
+                        <MudSelect T="Guid" Value="@line.ItemId" ValueChanged="@(id => OnLineItemChanged(line, id))" Label="@Loc["Item"]" Variant="Variant.Outlined" Dense="true">
                             @foreach (var it in _items)
                             {
                                 <MudSelectItem T="Guid" Value="@it.Id">@it.Code - @it.NameAr</MudSelectItem>
@@ -49,10 +50,10 @@
                         </MudSelect>
                     </MudItem>
                     <MudItem xs="6" sm="3">
-                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.Quantity" Label="الكمية" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.Quantity" Label="@Loc["Qty"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="6" sm="3">
-                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.UnitCost" Label="تكلفة الوحدة" Variant="Variant.Outlined" Margin="Margin.Dense" />
+                        <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="line.UnitCost" Label="@Loc["UnitCost"]" Variant="Variant.Outlined" Margin="Margin.Dense" />
                     </MudItem>
                     <MudItem xs="12" sm="1" Class="d-flex align-items-center">
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(e => RemoveLine(line))" />
@@ -60,20 +61,20 @@
                 </MudGrid>
             }
 
-            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLine" Class="mt-2">إضافة بند</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLine" Class="mt-2">@Loc["AddLine"]</MudButton>
 
             <MudPaper Elevation="1" Class="pa-3 mt-4">
-                <MudText Typo="Typo.h6">الإجمالي: @_total.ToString("N2")</MudText>
+                <MudText Typo="Typo.h6">@Loc["Total"]: @_total.ToString("N2")</MudText>
             </MudPaper>
 
             <MudItem xs="12" Class="mt-3">
-                <MudTextField @bind-Value="_note" Label="ملاحظات" Lines="2" Variant="Variant.Outlined" />
+                <MudTextField @bind-Value="_note" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
             </MudItem>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
-        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">حفظ الفاتورة</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["SaveInvoice"]</MudButton>
     </DialogActions>
 </MudDialog>
 
@@ -143,8 +144,8 @@
         await _form!.Validate();
         if (!_form.IsValid) return;
 
-        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = "اختر الصنف لكل بند."; return; }
-        if (_lines.Any(l => l.Quantity <= 0)) { _error = "الكمية يجب أن تكون أكبر من صفر."; return; }
+        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = Loc["LineItemRequired"]; return; }
+        if (_lines.Any(l => l.Quantity <= 0)) { _error = Loc["QuantityPositive"]; return; }
 
         _error = null;
         try

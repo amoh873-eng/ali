@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل صنف *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,35 +11,35 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_code"
-                                  Label="كود الصنف"
+                                  Label="@Loc["ItemCode"]"
                                   Required="true"
-                                  RequiredError="كود الصنف مطلوب"
+                                  RequiredError="@Loc["ItemCodeRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_barcode"
-                                  Label="الباركود"
+                                  Label="@Loc["Barcode"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم الصنف (عربي)"
+                                  Label="@Loc["ItemNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم الصنف (إنجليزي)"
+                                  Label="@Loc["ItemNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
 
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_categoryId"
-                               Label="الفئة"
+                               Label="@Loc["Category"]"
                                Required="true"
-                               RequiredError="الفئة مطلوبة"
+                               RequiredError="@Loc["CategoryRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var cat in Categories)
@@ -49,9 +50,9 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSelect @bind-Value="_unitId"
-                               Label="الوحدة"
+                               Label="@Loc["Unit"]"
                                Required="true"
-                               RequiredError="الوحدة مطلوبة"
+                               RequiredError="@Loc["UnitRequired"]"
                                Variant="Variant.Outlined"
                                T="Guid">
                         @foreach (var unit in Units)
@@ -63,7 +64,7 @@
 
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_costPrice"
-                                     Label="سعر التكلفة"
+                                     Label="@Loc["CostPrice"]"
                                      Variant="Variant.Outlined"
                                      T="decimal"
                                      DecimalPlaces="2"
@@ -71,7 +72,7 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_salePrice"
-                                     Label="سعر البيع"
+                                     Label="@Loc["SalePrice"]"
                                      Variant="Variant.Outlined"
                                      T="decimal"
                                      DecimalPlaces="2"
@@ -80,20 +81,20 @@
 
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_minStock"
-                                     Label="حد أدنى للمخزون"
+                                     Label="@Loc["MinStockLevel"]"
                                      Variant="Variant.Outlined"
                                      T="decimal" DecimalPlaces="2" Format="0.00" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField @bind-Value="_maxStock"
-                                     Label="حد أقصى للمخزون"
+                                     Label="@Loc["MaxStockLevel"]"
                                      Variant="Variant.Outlined"
                                      T="decimal" DecimalPlaces="2" Format="0.00" />
                 </MudItem>
 
                 <MudItem xs="12">
                     <MudTextField @bind-Value="_description"
-                                  Label="وصف"
+                                  Label="@Loc["Description"]"
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
@@ -101,9 +102,9 @@
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditItem is null ? "إضافة" : "تعديل")
+            @(EditItem is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

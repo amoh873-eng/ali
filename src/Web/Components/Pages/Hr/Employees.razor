@@ -3,31 +3,31 @@
 
 @* صفحة الموظفون - جدول الموظفين مع بحث وتصفية بالحالة *@
 
-<PageTitle>الموظفون - نظام ERP</PageTitle>
+<PageTitle>@Loc["Employees"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Employees"]" Icon="@Icons.Material.Filled.Groups" />
 
 <MudToolBar Class="mb-4">
     <MudTextField @bind-Value="_search"
-                  Placeholder="ابحث بالاسم أو الرقم الوظيفي..."
+                  Placeholder="@Loc["SearchByEmployee"]"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Class="flex-grow-1" />
     <MudSelect T="EmployeeStatus?" @bind-Value="_statusFilter"
-               Label="تصفية بالحالة"
+               Label="@Loc["FilterByStatus"]"
                Variant="Variant.Outlined"
                Clearable="true"
                Class="mx-2"
                Style="min-width:180px;">
-        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Active">نشط</MudSelectItem>
-        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Suspended">موقوف</MudSelectItem>
-        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Terminated">منتهي الخدمة</MudSelectItem>
+        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Active">@Loc["Active"]</MudSelectItem>
+        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Suspended">@Loc["Suspended"]</MudSelectItem>
+        <MudSelectItem T="EmployeeStatus?" Value="@EmployeeStatus.Terminated">@Loc["Terminated"]</MudSelectItem>
     </MudSelect>
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateDialog">
-        إضافة موظف
+        @Loc["AddEmployee"]
     </MudButton>
 </MudToolBar>
 
@@ -39,21 +39,21 @@
     else if (_filteredEmployees.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا يوجد موظفون مطابقون. اضغط "إضافة موظف" للبدء.
+            @Loc["NoEmployees"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_filteredEmployees" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الرقم الوظيفي</MudTh>
-                <MudTh>الاسم</MudTh>
-                <MudTh>القسم</MudTh>
-                <MudTh>المسمى</MudTh>
-                <MudTh>تاريخ التعيين</MudTh>
-                <MudTh>الراتب</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["EmployeeNumber"]</MudTh>
+                <MudTh>@Loc["Name"]</MudTh>
+                <MudTh>@Loc["Department"]</MudTh>
+                <MudTh>@Loc["Position"]</MudTh>
+                <MudTh>@Loc["HireDate"]</MudTh>
+                <MudTh>@Loc["Salary"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.EmployeeNumber</MudTd>
@@ -66,9 +66,9 @@
                     <MudSelect T="EmployeeStatus" Value="@context.Status"
                                ValueChanged="@(v => SetStatus(context, v))"
                                Dense="true" Style="min-width:130px;">
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Active">نشط</MudSelectItem>
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Suspended">موقوف</MudSelectItem>
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Terminated">منتهي الخدمة</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Active">@Loc["Active"]</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Suspended">@Loc["Suspended"]</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Terminated">@Loc["Terminated"]</MudSelectItem>
                     </MudSelect>
                 </MudTd>
                 <MudTd>
@@ -79,7 +79,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -128,7 +128,7 @@
             _departments = await DepartmentService.GetAllAsync();
             _positions = await PositionService.GetAllAsync();
         }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل الموظفين: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -141,10 +141,10 @@
             ["Positions"] = _positions
         };
         var dialog = await DialogService.ShowAsync<EmployeeFormDialog>(
-            "إضافة موظف جديد", parameters,
+            Loc["AddEmployeeTitle"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ الموظف بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["EmployeeSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenEditDialog(EmployeeDto employee)
@@ -157,19 +157,19 @@
             ["EditEmployee"] = employee
         };
         var dialog = await DialogService.ShowAsync<EmployeeFormDialog>(
-            $"تعديل موظف: {employee.NameAr}", parameters,
+            Loc["EditEmployeeTitle", employee.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تعديل الموظف بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["EmployeeUpdated"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task DeleteEmployee(EmployeeDto employee)
     {
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف", $"هل أنت متأكد من حذف الموظف '{employee.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"], Loc["DeleteEmployeeConfirm", employee.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
-        try { await EmployeeService.DeleteAsync(employee.Id); Snackbar.Add("تم حذف الموظف بنجاح", Severity.Success); await LoadAsync(); }
+        try { await EmployeeService.DeleteAsync(employee.Id); Snackbar.Add(Loc["EmployeeDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
@@ -179,7 +179,7 @@
         try
         {
             await EmployeeService.SetStatusAsync(employee.Id, status);
-            Snackbar.Add("تم تحديث حالة الموظف", Severity.Success);
+            Snackbar.Add(Loc["EmployeeStatusUpdated"], Severity.Success);
             await LoadAsync();
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }

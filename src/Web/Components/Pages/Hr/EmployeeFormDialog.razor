@@ -1,4 +1,5 @@
 @* نموذج حوار لإضافة/تعديل موظف *@
+@inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
     <DialogContent>
@@ -10,36 +11,36 @@
             <MudGrid>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_employeeNumber"
-                                  Label="الرقم الوظيفي"
+                                  Label="@Loc["EmployeeNumber"]"
                                   Required="true"
-                                  RequiredError="الرقم الوظيفي مطلوب"
+                                  RequiredError="@Loc["EmployeeNumberRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudDatePicker @bind-Date="_hireDate"
-                                   Label="تاريخ التعيين"
+                                   Label="@Loc["HireDate"]"
                                    Variant="Variant.Outlined"
                                    T="DateTime?"
                                    AutoClose="true" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameAr"
-                                  Label="اسم الموظف (عربي)"
+                                  Label="@Loc["EmployeeNameAr"]"
                                   Required="true"
-                                  RequiredError="الاسم العربي مطلوب"
+                                  RequiredError="@Loc["NameArRequired"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudTextField @bind-Value="_nameEn"
-                                  Label="اسم الموظف (إنجليزي)"
+                                  Label="@Loc["EmployeeNameEn"]"
                                   Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="Guid" Value="@_departmentId"
                                ValueChanged="@(v => OnDepartmentChanged(v))"
-                               Label="القسم"
+                               Label="@Loc["Department"]"
                                Required="true"
-                               RequiredError="القسم مطلوب"
+                               RequiredError="@Loc["DepartmentRequired"]"
                                Variant="Variant.Outlined">
                         @foreach (var d in Departments)
                         {
@@ -49,9 +50,9 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="Guid" @bind-Value="_positionId"
-                               Label="المسمى الوظيفي"
+                               Label="@Loc["Position"]"
                                Required="true"
-                               RequiredError="المسمى الوظيفي مطلوب"
+                               RequiredError="@Loc["PositionRequired"]"
                                Variant="Variant.Outlined">
                         @foreach (var p in _filteredPositions)
                         {
@@ -61,37 +62,37 @@
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudSelect T="EmployeeStatus" @bind-Value="_status"
-                               Label="الحالة"
+                               Label="@Loc["Status"]"
                                Variant="Variant.Outlined">
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Active">نشط</MudSelectItem>
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Suspended">موقوف</MudSelectItem>
-                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Terminated">منتهي الخدمة</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Active">@Loc["Active"]</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Suspended">@Loc["Suspended"]</MudSelectItem>
+                        <MudSelectItem T="EmployeeStatus" Value="@EmployeeStatus.Terminated">@Loc["Terminated"]</MudSelectItem>
                     </MudSelect>
                 </MudItem>
                 <MudItem xs="12" sm="6">
                     <MudNumericField T="decimal" DecimalPlaces="2" Format="0.00" @bind-Value="_basicSalary"
-                                     Label="الراتب الأساسي"
+                                     Label="@Loc["BasicSalary"]"
                                      Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_phone" Label="الهاتف" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_phone" Label="@Loc["Phone"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12" sm="6">
-                    <MudTextField @bind-Value="_email" Label="البريد الإلكتروني" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_email" Label="@Loc["Email"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="_address" Label="العنوان" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_address" Label="@Loc["Address"]" Variant="Variant.Outlined" />
                 </MudItem>
                 <MudItem xs="12">
-                    <MudTextField @bind-Value="_notes" Label="ملاحظات" Lines="2" Variant="Variant.Outlined" />
+                    <MudTextField @bind-Value="_notes" Label="@Loc["Notes"]" Lines="2" Variant="Variant.Outlined" />
                 </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
     <DialogActions>
-        <MudButton OnClick="Cancel" Color="Color.Default">إلغاء</MudButton>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
         <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">
-            @(EditEmployee is null ? "إضافة" : "تعديل")
+            @(EditEmployee is null ? Loc["Add"] : Loc["Edit"])
         </MudButton>
     </DialogActions>
 </MudDialog>

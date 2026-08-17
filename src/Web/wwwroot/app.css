@@ -375,6 +375,159 @@ td.stock-out {
     to   { opacity: 1; }
 }
 
+/* ===== مخطط أعمدة أفقي حديث (BarChart) ===== */
+.erp-bar {
+    display: flex;
+    flex-direction: column;
+}
+
+.erp-bar-list {
+    display: flex;
+    flex-direction: column;
+    gap: 18px;
+}
+
+.erp-bar-item {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.erp-bar-head {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8125rem;
+}
+
+.erp-bar-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+    flex-shrink: 0;
+}
+
+.erp-bar-label {
+    color: var(--erp-text);
+    flex: 1;
+    text-align: start;
+}
+
+.erp-bar-value {
+    color: var(--erp-text);
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.erp-bar-pct {
+    color: var(--erp-muted);
+    min-width: 40px;
+    text-align: end;
+}
+
+.erp-bar-track {
+    height: 12px;
+    border-radius: 999px;
+    background: var(--erp-bg);
+    overflow: hidden;
+}
+
+.erp-bar-fill {
+    height: 100%;
+    border-radius: 999px;
+    width: 0;
+    animation: erp-bar-grow .7s cubic-bezier(.22, .9, .36, 1) forwards;
+    position: relative;
+    overflow: hidden;
+}
+
+.erp-bar-fill::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(180deg, rgba(255, 255, 255, .30), rgba(255, 255, 255, 0) 55%);
+}
+
+@keyframes erp-bar-grow {
+    to { width: var(--w, 0%); }
+}
+
+/* ===== مخطط اتجاه (خط/مساحة) حديث (TrendChart) ===== */
+.erp-trend {
+    display: flex;
+    flex-direction: column;
+    gap: 14px;
+}
+
+.erp-trend-legend {
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+}
+
+.erp-trend-legend-item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8125rem;
+    color: var(--erp-muted);
+}
+
+.erp-trend-dot {
+    width: 10px;
+    height: 10px;
+    border-radius: 50%;
+}
+
+.erp-trend-svg {
+    overflow: visible;
+}
+
+.erp-trend-gridline {
+    stroke: var(--erp-border);
+    stroke-width: 1;
+    stroke-dasharray: 4 4;
+}
+
+.erp-trend-ylab {
+    fill: var(--erp-muted);
+    font-size: 10px;
+}
+
+.erp-trend-xlab {
+    fill: var(--erp-muted);
+    font-size: 10px;
+}
+
+.erp-trend-area {
+    animation: erp-trend-fade .8s ease .2s backwards;
+}
+
+.erp-trend-line {
+    fill: none;
+    stroke-width: 2.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+    stroke-dasharray: 1;
+    stroke-dashoffset: 1;
+    animation: erp-trend-draw .9s ease .1s forwards;
+}
+
+.erp-trend-point {
+    stroke: #fff;
+    stroke-width: 1.5;
+    animation: erp-trend-fade .4s ease backwards;
+}
+
+@keyframes erp-trend-draw {
+    to { stroke-dashoffset: 0; }
+}
+
+@keyframes erp-trend-fade {
+    from { opacity: 0; }
+    to   { opacity: 1; }
+}
+
 /* ===== طباعة إيصال نقطة البيع: إظهار الإيصال فقط عند الطباعة ===== */
 @media print {
     body * { visibility: hidden !important; }

@@ -3,7 +3,7 @@
 
 @* صفحة المسميات الوظيفية - جدول المسميات المرتبطة بالأقسام *@
 
-<PageTitle>المسميات الوظيفية - نظام ERP</PageTitle>
+<PageTitle>@Loc["Positions"] - @Loc["AppName"]</PageTitle>
 
 <PageHeader Title="@Loc["Positions"]" Icon="@Icons.Material.Filled.Badge" />
 
@@ -12,10 +12,10 @@
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
                OnClick="OpenCreateDialog">
-        إضافة مسمى
+        @Loc["AddPosition"]
     </MudButton>
     <MudSpacer />
-    <MudText Class="align-self-center muted-text">العدد: @_positions.Count مسمى</MudText>
+    <MudText Class="align-self-center muted-text">@Loc["PositionsCount", _positions.Count]</MudText>
 </MudToolBar>
 
 <MudPaper Elevation="1">
@@ -26,19 +26,19 @@
     else if (_positions.Count == 0)
     {
         <MudAlert Severity="Severity.Info" Class="m-4">
-            لا توجد مسميات وظيفية. اضغط "إضافة مسمى" للبدء.
+            @Loc["NoPositions"]
         </MudAlert>
     }
     else
     {
         <MudTable Items="_positions" Hover="true" Dense="true">
             <HeaderContent>
-                <MudTh>الكود</MudTh>
-                <MudTh>الاسم (عربي)</MudTh>
-                <MudTh>الاسم (إنجليزي)</MudTh>
-                <MudTh>القسم</MudTh>
-                <MudTh>الحالة</MudTh>
-                <MudTh>إجراءات</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["NameAr"]</MudTh>
+                <MudTh>@Loc["NameEn"]</MudTh>
+                <MudTh>@Loc["Department"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.Code</MudTd>
@@ -47,7 +47,7 @@
                 <MudTd>@context.DepartmentNameAr</MudTd>
                 <MudTd>
                     <MudChip T="string" Size="Size.Small" Color="@(context.IsActive ? Color.Success : Color.Default)">
-                        @(context.IsActive ? "نشط" : "غير نشط")
+                        @(context.IsActive ? Loc["Active"] : Loc["Inactive"])
                     </MudChip>
                 </MudTd>
                 <MudTd>
@@ -61,7 +61,7 @@
                 </MudTd>
             </RowTemplate>
             <PagerContent>
-                <MudTablePager InfoFormat="{first_item}-{last_item} من {all_items}" RowsPerPageString="صفوف لكل صفحة" />
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
             </PagerContent>
         </MudTable>
     }
@@ -87,7 +87,7 @@
             _positions = await PositionService.GetAllAsync();
             _departments = await DepartmentService.GetAllAsync();
         }
-        catch (Exception ex) { Snackbar.Add($"خطأ في تحميل المسميات: {ex.Message}", Severity.Error); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
     }
 
@@ -99,10 +99,10 @@
             ["Departments"] = _departments
         };
         var dialog = await DialogService.ShowAsync<PositionFormDialog>(
-            "إضافة مسمى وظيفي جديد", parameters,
+            Loc["AddPositionTitle"], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم حفظ المسمى بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["PositionSaved"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task OpenEditDialog(PositionDto position)
@@ -114,20 +114,20 @@
             ["EditPosition"] = position
         };
         var dialog = await DialogService.ShowAsync<PositionFormDialog>(
-            $"تعديل مسمى: {position.NameAr}", parameters,
+            Loc["EditPositionTitle", position.NameAr], parameters,
             new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
         var result = await dialog.Result;
-        if (result?.Canceled != true) { Snackbar.Add("تم تعديل المسمى بنجاح", Severity.Success); await LoadAsync(); }
+        if (result?.Canceled != true) { Snackbar.Add(Loc["PositionUpdated"], Severity.Success); await LoadAsync(); }
     }
 
     private async Task DeletePosition(PositionDto position)
     {
-        if (position.IsSystem) { Snackbar.Add("لا يمكن حذف المسميات النظامية", Severity.Warning); return; }
+        if (position.IsSystem) { Snackbar.Add(Loc["SystemPositionDeleteWarning"], Severity.Warning); return; }
         var confirmed = await DialogService.ShowMessageBox(
-            "تأكيد الحذف", $"هل أنت متأكد من حذف المسمى '{position.NameAr}'؟",
-            yesText: "حذف", cancelText: "إلغاء");
+            Loc["DeleteConfirmation"], Loc["DeletePositionConfirm", position.NameAr],
+            yesText: Loc["Delete"], cancelText: Loc["Cancel"]);
         if (confirmed != true) return;
-        try { await PositionService.DeleteAsync(position.Id); Snackbar.Add("تم حذف المسمى بنجاح", Severity.Success); await LoadAsync(); }
+        try { await PositionService.DeleteAsync(position.Id); Snackbar.Add(Loc["PositionDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
@@ -136,7 +136,7 @@
         try
         {
             await PositionService.ToggleActiveAsync(position.Id);
-            Snackbar.Add(position.IsActive ? "تم تعطيل المسمى" : "تم تفعيل المسمى", Severity.Info);
+            Snackbar.Add(position.IsActive ? Loc["PositionDeactivated"] : Loc["PositionActivated"], Severity.Info);
             await LoadAsync();
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }

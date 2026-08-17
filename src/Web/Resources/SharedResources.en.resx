@@ -75,6 +75,8 @@
   <data name="TotalMovement" xml:space="preserve"><value>Total movement</value></data>
   <data name="NoInventoryMovement" xml:space="preserve"><value>No stock movements yet to display.</value></data>
   <data name="NoSalesPurchases" xml:space="preserve"><value>No sales or purchases data yet to display.</value></data>
+  <data name="SalesVsPurchasesTrend" xml:space="preserve"><value>Sales vs Purchases Trend</value></data>
+  <data name="Last12Months" xml:space="preserve"><value>Last 12 months</value></data>
   <data name="Expenses" xml:space="preserve"><value>Expenses</value></data>
   <data name="ExpenseCategories" xml:space="preserve"><value>Expense Categories</value></data>
   <data name="ExpenseEntries" xml:space="preserve"><value>Expense Vouchers</value></data>
@@ -286,4 +288,395 @@
   <data name="RequestPath" xml:space="preserve"><value>Request path</value></data>
   <data name="StackTrace" xml:space="preserve"><value>Stack trace</value></data>
   <data name="AutoRefresh" xml:space="preserve"><value>Auto-refresh every 30 seconds</value></data>
+  <data name="AddDepartment" xml:space="preserve"><value>Add Department</value></data>
+  <data name="DepartmentsCount" xml:space="preserve"><value>{0} departments</value></data>
+  <data name="NoDepartments" xml:space="preserve"><value>No departments. Click "Add Department" to create the first one.</value></data>
+  <data name="DepartmentSaved" xml:space="preserve"><value>Department saved successfully</value></data>
+  <data name="SystemDepartmentEditWarning" xml:space="preserve"><value>System departments cannot be edited</value></data>
+  <data name="EditDepartmentTitle" xml:space="preserve"><value>Edit Department: {0}</value></data>
+  <data name="DepartmentUpdated" xml:space="preserve"><value>Department updated successfully</value></data>
+  <data name="SystemDepartmentDeleteWarning" xml:space="preserve"><value>System departments cannot be deleted</value></data>
+  <data name="DeleteDepartmentConfirm" xml:space="preserve"><value>Are you sure you want to delete department '{0}'?</value></data>
+  <data name="DepartmentDeleted" xml:space="preserve"><value>Department deleted successfully</value></data>
+  <data name="DepartmentCode" xml:space="preserve"><value>Department code (e.g. HR)</value></data>
+  <data name="DepartmentCodeRequired" xml:space="preserve"><value>Department code is required</value></data>
+  <data name="ParentDepartment" xml:space="preserve"><value>Parent department (optional)</value></data>
+  <data name="DepartmentNameAr" xml:space="preserve"><value>Department name (Arabic)</value></data>
+  <data name="NameArRequired" xml:space="preserve"><value>Arabic name is required</value></data>
+  <data name="DepartmentNameEn" xml:space="preserve"><value>Department name (English)</value></data>
+  <data name="Department" xml:space="preserve"><value>Department</value></data>
+  <data name="DepartmentRequired" xml:space="preserve"><value>Department is required</value></data>
+  <data name="AddPosition" xml:space="preserve"><value>Add Position</value></data>
+  <data name="AddPositionTitle" xml:space="preserve"><value>Add New Position</value></data>
+  <data name="EditPositionTitle" xml:space="preserve"><value>Edit Position: {0}</value></data>
+  <data name="PositionsCount" xml:space="preserve"><value>{0} positions</value></data>
+  <data name="NoPositions" xml:space="preserve"><value>No positions. Click "Add Position" to start.</value></data>
+  <data name="PositionSaved" xml:space="preserve"><value>Position saved successfully</value></data>
+  <data name="PositionUpdated" xml:space="preserve"><value>Position updated successfully</value></data>
+  <data name="PositionDeleted" xml:space="preserve"><value>Position deleted successfully</value></data>
+  <data name="SystemPositionDeleteWarning" xml:space="preserve"><value>System positions cannot be deleted</value></data>
+  <data name="DeletePositionConfirm" xml:space="preserve"><value>Are you sure you want to delete position '{0}'?</value></data>
+  <data name="PositionActivated" xml:space="preserve"><value>Position activated</value></data>
+  <data name="PositionDeactivated" xml:space="preserve"><value>Position deactivated</value></data>
+  <data name="PositionCode" xml:space="preserve"><value>Position code (e.g. ACC-MGR)</value></data>
+  <data name="PositionCodeRequired" xml:space="preserve"><value>Position code is required</value></data>
+  <data name="PositionNameAr" xml:space="preserve"><value>Position name (Arabic)</value></data>
+  <data name="PositionNameEn" xml:space="preserve"><value>Position name (English)</value></data>
+  <data name="Position" xml:space="preserve"><value>Position</value></data>
+  <data name="PositionRequired" xml:space="preserve"><value>Position is required</value></data>
+  <data name="Employee" xml:space="preserve"><value>Employee</value></data>
+  <data name="EmployeeRequired" xml:space="preserve"><value>Employee is required</value></data>
+  <data name="LeaveType" xml:space="preserve"><value>Leave type</value></data>
+  <data name="LeaveAnnual" xml:space="preserve"><value>Annual</value></data>
+  <data name="LeaveSick" xml:space="preserve"><value>Sick</value></data>
+  <data name="LeaveUnpaid" xml:space="preserve"><value>Unpaid</value></data>
+  <data name="LeaveEmergency" xml:space="preserve"><value>Emergency</value></data>
+  <data name="StartDate" xml:space="preserve"><value>Start date</value></data>
+  <data name="EndDate" xml:space="preserve"><value>End date</value></data>
+  <data name="LeaveReason" xml:space="preserve"><value>Reason / note</value></data>
+  <data name="LeaveEndBeforeStart" xml:space="preserve"><value>Leave end date cannot be before the start date</value></data>
+  <data name="AddLeave" xml:space="preserve"><value>Add Leave</value></data>
+  <data name="AddLeaveTitle" xml:space="preserve"><value>Add Leave Request</value></data>
+  <data name="LeavesCount" xml:space="preserve"><value>{0} requests</value></data>
+  <data name="NoLeaves" xml:space="preserve"><value>No leave requests. Click "Add Leave" to start.</value></data>
+  <data name="LeaveSaved" xml:space="preserve"><value>Leave request saved successfully</value></data>
+  <data name="LeaveStatusUpdated" xml:space="preserve"><value>Request status updated</value></data>
+  <data name="DeleteLeaveConfirm" xml:space="preserve"><value>Are you sure you want to delete this leave request?</value></data>
+  <data name="LeaveDeleted" xml:space="preserve"><value>Request deleted successfully</value></data>
+  <data name="LeavePending" xml:space="preserve"><value>Pending</value></data>
+  <data name="LeaveApproved" xml:space="preserve"><value>Approved</value></data>
+  <data name="LeaveRejected" xml:space="preserve"><value>Rejected</value></data>
+  <data name="EmployeeNumber" xml:space="preserve"><value>Employee number</value></data>
+  <data name="EmployeeNumberRequired" xml:space="preserve"><value>Employee number is required</value></data>
+  <data name="HireDate" xml:space="preserve"><value>Hire date</value></data>
+  <data name="EmployeeNameAr" xml:space="preserve"><value>Employee name (Arabic)</value></data>
+  <data name="EmployeeNameEn" xml:space="preserve"><value>Employee name (English)</value></data>
+  <data name="BasicSalary" xml:space="preserve"><value>Basic salary</value></data>
+  <data name="Salary" xml:space="preserve"><value>Salary</value></data>
+  <data name="Active" xml:space="preserve"><value>Active</value></data>
+  <data name="Inactive" xml:space="preserve"><value>Inactive</value></data>
+  <data name="Suspended" xml:space="preserve"><value>Suspended</value></data>
+  <data name="Terminated" xml:space="preserve"><value>Terminated</value></data>
+  <data name="AddEmployee" xml:space="preserve"><value>Add Employee</value></data>
+  <data name="AddEmployeeTitle" xml:space="preserve"><value>Add New Employee</value></data>
+  <data name="EditEmployeeTitle" xml:space="preserve"><value>Edit Employee: {0}</value></data>
+  <data name="NoEmployees" xml:space="preserve"><value>No matching employees. Click "Add Employee" to start.</value></data>
+  <data name="FilterByStatus" xml:space="preserve"><value>Filter by status</value></data>
+  <data name="SearchByEmployee" xml:space="preserve"><value>Search by name or employee number...</value></data>
+  <data name="EmployeeSaved" xml:space="preserve"><value>Employee saved successfully</value></data>
+  <data name="EmployeeUpdated" xml:space="preserve"><value>Employee updated successfully</value></data>
+  <data name="DeleteEmployeeConfirm" xml:space="preserve"><value>Are you sure you want to delete employee '{0}'?</value></data>
+  <data name="EmployeeDeleted" xml:space="preserve"><value>Employee deleted successfully</value></data>
+  <data name="EmployeeStatusUpdated" xml:space="preserve"><value>Employee status updated</value></data>
+  <data name="Name" xml:space="preserve"><value>Name</value></data>
+  <data name="AddCategory" xml:space="preserve"><value>Add New Category</value></data>
+  <data name="NoCategories" xml:space="preserve"><value>No categories. Click "Add New Category" to create the first one.</value></data>
+  <data name="ItemCategorySaved" xml:space="preserve"><value>Category saved successfully</value></data>
+  <data name="ItemCategoryUpdated" xml:space="preserve"><value>Category updated successfully</value></data>
+  <data name="ItemCategoryDeleted" xml:space="preserve"><value>Category deleted successfully</value></data>
+  <data name="EditCategoryTitle" xml:space="preserve"><value>Edit Category: {0}</value></data>
+  <data name="CategoryCode" xml:space="preserve"><value>Category code</value></data>
+  <data name="CategoryCodeRequired" xml:space="preserve"><value>Category code is required</value></data>
+  <data name="ParentCategory" xml:space="preserve"><value>Parent category (optional)</value></data>
+  <data name="CategoryNameAr" xml:space="preserve"><value>Category name (Arabic)</value></data>
+  <data name="CategoryNameEn" xml:space="preserve"><value>Category name (English)</value></data>
+  <data name="AddUnit" xml:space="preserve"><value>Add New Unit</value></data>
+  <data name="UnitsCount" xml:space="preserve"><value>{0} units</value></data>
+  <data name="NoUnits" xml:space="preserve"><value>No units of measure. Click "Add New Unit" to create the first one.</value></data>
+  <data name="UnitSaved" xml:space="preserve"><value>Unit saved successfully</value></data>
+  <data name="UnitUpdated" xml:space="preserve"><value>Unit updated successfully</value></data>
+  <data name="UnitDeleted" xml:space="preserve"><value>Unit deleted successfully</value></data>
+  <data name="SystemUnitDeleteWarning" xml:space="preserve"><value>System units cannot be deleted</value></data>
+  <data name="DeleteUnitConfirm" xml:space="preserve"><value>Are you sure you want to delete unit '{0}'?</value></data>
+  <data name="UnitActivated" xml:space="preserve"><value>Unit activated</value></data>
+  <data name="UnitDeactivated" xml:space="preserve"><value>Unit deactivated</value></data>
+  <data name="AddUnitTitle" xml:space="preserve"><value>Add New Unit of Measure</value></data>
+  <data name="EditUnitTitle" xml:space="preserve"><value>Edit Unit: {0}</value></data>
+  <data name="UnitCode" xml:space="preserve"><value>Unit code (e.g. PCS)</value></data>
+  <data name="UnitCodeRequired" xml:space="preserve"><value>Unit code is required</value></data>
+  <data name="UnitNameAr" xml:space="preserve"><value>Unit name (Arabic)</value></data>
+  <data name="UnitNameEn" xml:space="preserve"><value>Unit name (English)</value></data>
+  <data name="AddWarehouse" xml:space="preserve"><value>Add New Warehouse</value></data>
+  <data name="WarehousesCount" xml:space="preserve"><value>{0} warehouses</value></data>
+  <data name="NoWarehouses" xml:space="preserve"><value>No warehouses. Click "Add New Warehouse" to create the first one.</value></data>
+  <data name="WarehouseName" xml:space="preserve"><value>Warehouse name</value></data>
+  <data name="Location" xml:space="preserve"><value>Location</value></data>
+  <data name="IsDefault" xml:space="preserve"><value>Default</value></data>
+  <data name="Default" xml:space="preserve"><value>Default</value></data>
+  <data name="SetAsDefault" xml:space="preserve"><value>Set as default warehouse</value></data>
+  <data name="DefaultWarehouse" xml:space="preserve"><value>Default warehouse</value></data>
+  <data name="SetDefaultSuccess" xml:space="preserve"><value>'{0}' set as default warehouse</value></data>
+  <data name="WarehouseSaved" xml:space="preserve"><value>Warehouse saved successfully</value></data>
+  <data name="WarehouseUpdated" xml:space="preserve"><value>Warehouse updated successfully</value></data>
+  <data name="WarehouseDeleted" xml:space="preserve"><value>Warehouse deleted successfully</value></data>
+  <data name="SystemWarehouseEditWarning" xml:space="preserve"><value>System warehouses cannot be edited</value></data>
+  <data name="SystemWarehouseDeleteWarning" xml:space="preserve"><value>System warehouses cannot be deleted</value></data>
+  <data name="DeleteWarehouseConfirm" xml:space="preserve"><value>Are you sure you want to delete warehouse '{0}'?</value></data>
+  <data name="WarehouseActivated" xml:space="preserve"><value>Warehouse activated</value></data>
+  <data name="WarehouseDeactivated" xml:space="preserve"><value>Warehouse deactivated</value></data>
+  <data name="EditWarehouseTitle" xml:space="preserve"><value>Edit Warehouse: {0}</value></data>
+  <data name="WarehouseCode" xml:space="preserve"><value>Warehouse code</value></data>
+  <data name="WarehouseCodeRequired" xml:space="preserve"><value>Warehouse code is required</value></data>
+  <data name="WarehouseNameAr" xml:space="preserve"><value>Warehouse name (Arabic)</value></data>
+  <data name="WarehouseNameEn" xml:space="preserve"><value>Warehouse name (English)</value></data>
+  <data name="AddItem" xml:space="preserve"><value>Add Item</value></data>
+  <data name="SearchItems" xml:space="preserve"><value>Search by code, name or barcode...</value></data>
+  <data name="ItemsLowStock" xml:space="preserve"><value>{0} item(s) below the current minimum stock level.</value></data>
+  <data name="NoItemsHint" xml:space="preserve"><value>No items. Click "Add Item" to create the first one.</value></data>
+  <data name="ItemName" xml:space="preserve"><value>Item name</value></data>
+  <data name="Category" xml:space="preserve"><value>Category</value></data>
+  <data name="Unit" xml:space="preserve"><value>Unit</value></data>
+  <data name="Cost" xml:space="preserve"><value>Cost</value></data>
+  <data name="Balance" xml:space="preserve"><value>Balance</value></data>
+  <data name="ItemSaved" xml:space="preserve"><value>Item saved successfully</value></data>
+  <data name="ItemUpdated" xml:space="preserve"><value>Item updated successfully</value></data>
+  <data name="ItemDeleted" xml:space="preserve"><value>Item deleted successfully</value></data>
+  <data name="SystemItemDeleteWarning" xml:space="preserve"><value>System items cannot be deleted</value></data>
+  <data name="DeleteItemConfirm" xml:space="preserve"><value>Are you sure you want to delete item '{0}'?</value></data>
+  <data name="AddItemTitle" xml:space="preserve"><value>Add New Item</value></data>
+  <data name="EditItemTitle" xml:space="preserve"><value>Edit Item: {0}</value></data>
+  <data name="ItemCode" xml:space="preserve"><value>Item code</value></data>
+  <data name="ItemCodeRequired" xml:space="preserve"><value>Item code is required</value></data>
+  <data name="Barcode" xml:space="preserve"><value>Barcode</value></data>
+  <data name="ItemNameAr" xml:space="preserve"><value>Item name (Arabic)</value></data>
+  <data name="ItemNameEn" xml:space="preserve"><value>Item name (English)</value></data>
+  <data name="CategoryRequired" xml:space="preserve"><value>Category is required</value></data>
+  <data name="UnitRequired" xml:space="preserve"><value>Unit is required</value></data>
+  <data name="CostPrice" xml:space="preserve"><value>Cost price</value></data>
+  <data name="SalePrice" xml:space="preserve"><value>Sale price</value></data>
+  <data name="MinStockLevel" xml:space="preserve"><value>Minimum stock level</value></data>
+  <data name="MaxStockLevel" xml:space="preserve"><value>Maximum stock level</value></data>
+  <data name="AddMovement" xml:space="preserve"><value>Add Movement</value></data>
+  <data name="TransferBetweenWarehouses" xml:space="preserve"><value>Transfer between warehouses</value></data>
+  <data name="TotalMovements" xml:space="preserve"><value>Total movements: {0}</value></data>
+  <data name="MovementLog" xml:space="preserve"><value>Movement log</value></data>
+  <data name="NoMovements" xml:space="preserve"><value>No stock movements yet. Click "Add Movement" to start.</value></data>
+  <data name="StockBalances" xml:space="preserve"><value>Stock balances</value></data>
+  <data name="NoStockBalances" xml:space="preserve"><value>No stock balances. Record a stock movement first to start balances.</value></data>
+  <data name="Reference" xml:space="preserve"><value>Reference</value></data>
+  <data name="Warehouse" xml:space="preserve"><value>Warehouse</value></data>
+  <data name="MovementType" xml:space="preserve"><value>Movement type</value></data>
+  <data name="UnitCost" xml:space="preserve"><value>Unit cost</value></data>
+  <data name="AddMovementTitle" xml:space="preserve"><value>Add Stock Movement</value></data>
+  <data name="MovementSaved" xml:space="preserve"><value>Movement recorded successfully</value></data>
+  <data name="TransferSaved" xml:space="preserve"><value>Transfer recorded successfully</value></data>
+  <data name="ItemRequired" xml:space="preserve"><value>Item is required</value></data>
+  <data name="ItemBalance" xml:space="preserve"><value>Balance: {0}</value></data>
+  <data name="WarehouseRequired" xml:space="preserve"><value>Warehouse is required</value></data>
+  <data name="MovementTypeInPurchase" xml:space="preserve"><value>Purchase receipt</value></data>
+  <data name="MovementTypeOutSale" xml:space="preserve"><value>Sales issue</value></data>
+  <data name="MovementTypeOpening" xml:space="preserve"><value>Opening balance</value></data>
+  <data name="MovementTypeAdjustIn" xml:space="preserve"><value>Adjustment in</value></data>
+  <data name="MovementTypeAdjustOut" xml:space="preserve"><value>Adjustment out</value></data>
+  <data name="MovementTypeTransferIn" xml:space="preserve"><value>Transfer in</value></data>
+  <data name="MovementTypeTransferOut" xml:space="preserve"><value>Transfer out</value></data>
+  <data name="MovementTypeSalesReturn" xml:space="preserve"><value>Sales return</value></data>
+  <data name="MovementTypePurchaseReturn" xml:space="preserve"><value>Purchase return</value></data>
+  <data name="QuantityRequired" xml:space="preserve"><value>Quantity is required</value></data>
+  <data name="ReferenceNumber" xml:space="preserve"><value>Reference number</value></data>
+  <data name="ReferenceNumberInvoice" xml:space="preserve"><value>Reference number (invoice / purchase order)</value></data>
+  <data name="RegisterMovement" xml:space="preserve"><value>Record movement</value></data>
+  <data name="SourceWarehouse" xml:space="preserve"><value>Source warehouse</value></data>
+  <data name="SourceWarehouseRequired" xml:space="preserve"><value>Source warehouse is required</value></data>
+  <data name="DestinationWarehouse" xml:space="preserve"><value>Destination warehouse</value></data>
+  <data name="DestinationWarehouseRequired" xml:space="preserve"><value>Destination warehouse is required</value></data>
+  <data name="ExecuteTransfer" xml:space="preserve"><value>Execute transfer</value></data>
+  <data name="AddStockCount" xml:space="preserve"><value>New Stock Count</value></data>
+  <data name="TotalStockCounts" xml:space="preserve"><value>Total stock counts: {0}</value></data>
+  <data name="NoStockCounts" xml:space="preserve"><value>No stock counts. Click "New Stock Count" to create the first one.</value></data>
+  <data name="StockCountNumber" xml:space="preserve"><value>Count number</value></data>
+  <data name="LinesCount" xml:space="preserve"><value>Line count</value></data>
+  <data name="StockCountDifference" xml:space="preserve"><value>Count differences</value></data>
+  <data name="AddStockCountTitle" xml:space="preserve"><value>New Stock Count</value></data>
+  <data name="StockCountSaved" xml:space="preserve"><value>Stock count saved successfully</value></data>
+  <data name="StockCountLoadFailed" xml:space="preserve"><value>Failed to load stock count</value></data>
+  <data name="StockCountDetailsTitle" xml:space="preserve"><value>Stock Count Details {0}</value></data>
+  <data name="CountDate" xml:space="preserve"><value>Count date</value></data>
+  <data name="SelectWarehouseHint" xml:space="preserve"><value>Select a warehouse to show items.</value></data>
+  <data name="EnterCountedQuantities" xml:space="preserve"><value>Enter the actual counted quantities (leave unchanged if the item was not counted)</value></data>
+  <data name="SystemStock" xml:space="preserve"><value>System stock</value></data>
+  <data name="CountedQuantity" xml:space="preserve"><value>Counted quantity</value></data>
+  <data name="PostStockCount" xml:space="preserve"><value>Post stock count</value></data>
+  <data name="Difference" xml:space="preserve"><value>Difference</value></data>
+  <data name="AddCustomer" xml:space="preserve"><value>Add Customer</value></data>
+  <data name="SearchCustomers" xml:space="preserve"><value>Search by name or code...</value></data>
+  <data name="NoCustomers" xml:space="preserve"><value>No customers. Click "Add Customer" to create the first one.</value></data>
+  <data name="CreditLimit" xml:space="preserve"><value>Credit limit</value></data>
+  <data name="NoLimit" xml:space="preserve"><value>Not set</value></data>
+  <data name="CustomerSaved" xml:space="preserve"><value>Customer saved successfully</value></data>
+  <data name="CustomerUpdated" xml:space="preserve"><value>Customer updated successfully</value></data>
+  <data name="CustomerDeleted" xml:space="preserve"><value>Customer deleted successfully</value></data>
+  <data name="SystemCustomerDeleteWarning" xml:space="preserve"><value>System customers cannot be deleted</value></data>
+  <data name="DeleteCustomerConfirm" xml:space="preserve"><value>Are you sure you want to delete customer '{0}'?</value></data>
+  <data name="CustomerActivated" xml:space="preserve"><value>Customer activated</value></data>
+  <data name="CustomerDeactivated" xml:space="preserve"><value>Customer deactivated</value></data>
+  <data name="AddCustomerTitle" xml:space="preserve"><value>Add New Customer</value></data>
+  <data name="EditCustomerTitle" xml:space="preserve"><value>Edit Customer: {0}</value></data>
+  <data name="StatementTitle" xml:space="preserve"><value>Account statement: {0}</value></data>
+  <data name="CustomerCode" xml:space="preserve"><value>Customer code</value></data>
+  <data name="CustomerCodeRequired" xml:space="preserve"><value>Customer code is required</value></data>
+  <data name="CustomerNameAr" xml:space="preserve"><value>Customer name (Arabic)</value></data>
+  <data name="CustomerNameRequired" xml:space="preserve"><value>Customer name is required</value></data>
+  <data name="CustomerNameEn" xml:space="preserve"><value>Customer name (English)</value></data>
+  <data name="CreditLimitOptional" xml:space="preserve"><value>Credit limit (optional)</value></data>
+  <data name="ShowStatement" xml:space="preserve"><value>Show statement</value></data>
+  <data name="Document" xml:space="preserve"><value>Document</value></data>
+  <data name="Type" xml:space="preserve"><value>Type</value></data>
+  <data name="Debit" xml:space="preserve"><value>Debit</value></data>
+  <data name="Credit" xml:space="preserve"><value>Credit</value></data>
+  <data name="TotalDebit" xml:space="preserve"><value>Total debit</value></data>
+  <data name="TotalCredit" xml:space="preserve"><value>Total credit</value></data>
+  <data name="ClosingBalance" xml:space="preserve"><value>Closing balance</value></data>
+  <data name="TotalInvoices" xml:space="preserve"><value>Total invoices: {0}</value></data>
+  <data name="NoInvoices" xml:space="preserve"><value>No invoices. Click "New Invoice" to create the first one.</value></data>
+  <data name="InvoiceSaved" xml:space="preserve"><value>Invoice saved successfully</value></data>
+  <data name="InvoiceLoadFailed" xml:space="preserve"><value>Failed to load invoice</value></data>
+  <data name="InvoiceDetailsTitle" xml:space="preserve"><value>Invoice Details {0}</value></data>
+  <data name="CustomerRequired" xml:space="preserve"><value>Customer is required</value></data>
+  <data name="InvoiceType" xml:space="preserve"><value>Invoice type</value></data>
+  <data name="InvoiceTypeCash" xml:space="preserve"><value>Cash</value></data>
+  <data name="InvoiceTypeCredit" xml:space="preserve"><value>Credit</value></data>
+  <data name="InvoiceDate" xml:space="preserve"><value>Invoice date</value></data>
+  <data name="DiscountPercent" xml:space="preserve"><value>Discount %</value></data>
+  <data name="TaxPercent" xml:space="preserve"><value>Tax %</value></data>
+  <data name="Lines" xml:space="preserve"><value>Lines</value></data>
+  <data name="UnitPrice" xml:space="preserve"><value>Unit price</value></data>
+  <data name="AddLine" xml:space="preserve"><value>Add line</value></data>
+  <data name="SaveInvoice" xml:space="preserve"><value>Save invoice</value></data>
+  <data name="LineRequired" xml:space="preserve"><value>At least one line is required.</value></data>
+  <data name="LineItemRequired" xml:space="preserve"><value>Select an item for each line.</value></data>
+  <data name="QuantityPositive" xml:space="preserve"><value>Quantity must be greater than zero.</value></data>
+  <data name="NoData" xml:space="preserve"><value>No data.</value></data>
+  <data name="AddQuote" xml:space="preserve"><value>New Sales Quote</value></data>
+  <data name="TotalQuotes" xml:space="preserve"><value>Total quotes: {0}</value></data>
+  <data name="NoQuotes" xml:space="preserve"><value>No sales quotes. Click "New Sales Quote" to create the first one.</value></data>
+  <data name="QuoteNumber" xml:space="preserve"><value>Quote number</value></data>
+  <data name="QuoteSaved" xml:space="preserve"><value>Quote saved successfully</value></data>
+  <data name="QuoteApproved" xml:space="preserve"><value>Quote approved</value></data>
+  <data name="QuoteCancelled" xml:space="preserve"><value>Quote cancelled</value></data>
+  <data name="ConvertQuoteTitle" xml:space="preserve"><value>Convert {0} to invoice</value></data>
+  <data name="QuoteConverted" xml:space="preserve"><value>Converted to invoice successfully</value></data>
+  <data name="QuoteDate" xml:space="preserve"><value>Quote date</value></data>
+  <data name="ExpiryDate" xml:space="preserve"><value>Expiry date (optional)</value></data>
+  <data name="Convert" xml:space="preserve"><value>Convert</value></data>
+  <data name="AddReturn" xml:space="preserve"><value>New Return</value></data>
+  <data name="TotalReturns" xml:space="preserve"><value>Total returns: {0}</value></data>
+  <data name="NoReturns" xml:space="preserve"><value>No returns. Click "New Return" to create the first one.</value></data>
+  <data name="ReturnNumber" xml:space="preserve"><value>Return number</value></data>
+  <data name="OriginalInvoice" xml:space="preserve"><value>Original invoice</value></data>
+  <data name="ReturnSaved" xml:space="preserve"><value>Return saved successfully</value></data>
+  <data name="ReturnLoadFailed" xml:space="preserve"><value>Failed to load return</value></data>
+  <data name="ReturnDetailsTitle" xml:space="preserve"><value>Return Details {0}</value></data>
+  <data name="AddReturnTitle" xml:space="preserve"><value>New Sales Return</value></data>
+  <data name="OriginalInvoiceRequired" xml:space="preserve"><value>Invoice is required</value></data>
+  <data name="ReceivingWarehouse" xml:space="preserve"><value>Receiving warehouse</value></data>
+  <data name="ReturnItemsHint" xml:space="preserve"><value>Select the items to return and specify the quantities</value></data>
+  <data name="QuantitySold" xml:space="preserve"><value>Sold quantity</value></data>
+  <data name="ReturnQuantity" xml:space="preserve"><value>Return quantity</value></data>
+  <data name="TotalReturn" xml:space="preserve"><value>Total return</value></data>
+  <data name="SaveAndPost" xml:space="preserve"><value>Save and post</value></data>
+  <data name="SelectOriginalInvoice" xml:space="preserve"><value>Please select the original invoice.</value></data>
+  <data name="SelectReturnQuantity" xml:space="preserve"><value>Please specify a return quantity for at least one item.</value></data>
+  <data name="Supplier" xml:space="preserve"><value>Supplier</value></data>
+  <data name="SupplierRequired" xml:space="preserve"><value>Supplier is required</value></data>
+  <data name="AddSupplier" xml:space="preserve"><value>Add Supplier</value></data>
+  <data name="NoSuppliers" xml:space="preserve"><value>No suppliers. Click "Add Supplier" to create the first one.</value></data>
+  <data name="SupplierSaved" xml:space="preserve"><value>Supplier saved successfully</value></data>
+  <data name="SupplierUpdated" xml:space="preserve"><value>Supplier updated successfully</value></data>
+  <data name="SupplierDeleted" xml:space="preserve"><value>Supplier deleted successfully</value></data>
+  <data name="SystemSupplierDeleteWarning" xml:space="preserve"><value>System suppliers cannot be deleted</value></data>
+  <data name="DeleteSupplierConfirm" xml:space="preserve"><value>Are you sure you want to delete supplier '{0}'?</value></data>
+  <data name="SupplierActivated" xml:space="preserve"><value>Supplier activated</value></data>
+  <data name="SupplierDeactivated" xml:space="preserve"><value>Supplier deactivated</value></data>
+  <data name="AddSupplierTitle" xml:space="preserve"><value>Add New Supplier</value></data>
+  <data name="EditSupplierTitle" xml:space="preserve"><value>Edit Supplier: {0}</value></data>
+  <data name="SupplierCode" xml:space="preserve"><value>Supplier code</value></data>
+  <data name="SupplierCodeRequired" xml:space="preserve"><value>Supplier code is required</value></data>
+  <data name="SupplierNameAr" xml:space="preserve"><value>Supplier name (Arabic)</value></data>
+  <data name="SupplierNameRequired" xml:space="preserve"><value>Supplier name is required</value></data>
+  <data name="SupplierNameEn" xml:space="preserve"><value>Supplier name (English)</value></data>
+  <data name="AmountDue" xml:space="preserve"><value>Amount due</value></data>
+  <data name="NoPurchaseInvoices" xml:space="preserve"><value>No purchase invoices. Click "New Invoice".</value></data>
+  <data name="AddPurchaseInvoiceTitle" xml:space="preserve"><value>New Purchase Invoice</value></data>
+  <data name="AddPurchaseOrder" xml:space="preserve"><value>New Purchase Order</value></data>
+  <data name="TotalPurchaseOrders" xml:space="preserve"><value>Total orders: {0}</value></data>
+  <data name="NoPurchaseOrders" xml:space="preserve"><value>No purchase orders. Click "New Purchase Order" to create the first one.</value></data>
+  <data name="OrderNumber" xml:space="preserve"><value>Order number</value></data>
+  <data name="PurchaseOrderSaved" xml:space="preserve"><value>Purchase order saved successfully</value></data>
+  <data name="PurchaseOrderApproved" xml:space="preserve"><value>Order approved</value></data>
+  <data name="PurchaseOrderCancelled" xml:space="preserve"><value>Order cancelled</value></data>
+  <data name="ConvertOrderTitle" xml:space="preserve"><value>Convert {0} to purchase invoice</value></data>
+  <data name="PurchaseOrderConverted" xml:space="preserve"><value>Converted to purchase invoice successfully</value></data>
+  <data name="OrderDate" xml:space="preserve"><value>Order date</value></data>
+  <data name="ExpectedDate" xml:space="preserve"><value>Expected receipt date</value></data>
+  <data name="NoPurchaseReturns" xml:space="preserve"><value>No purchase returns.</value></data>
+  <data name="AddPurchaseReturnTitle" xml:space="preserve"><value>New Purchase Return</value></data>
+  <data name="QuantityPurchased" xml:space="preserve"><value>Purchased quantity</value></data>
+  <data name="Account" xml:space="preserve"><value>Account</value></data>
+  <data name="AccountName" xml:space="preserve"><value>Account name</value></data>
+  <data name="Nature" xml:space="preserve"><value>Nature</value></data>
+  <data name="AddAccount" xml:space="preserve"><value>Add New Account</value></data>
+  <data name="TreeView" xml:space="preserve"><value>Tree view</value></data>
+  <data name="ListView" xml:space="preserve"><value>List view</value></data>
+  <data name="NoAccounts" xml:space="preserve"><value>No accounts. Click "Add New Account" to start building the chart of accounts.</value></data>
+  <data name="AccountSaved" xml:space="preserve"><value>Account saved successfully</value></data>
+  <data name="AccountUpdated" xml:space="preserve"><value>Account updated successfully</value></data>
+  <data name="AccountDeleted" xml:space="preserve"><value>Account deleted successfully</value></data>
+  <data name="SystemAccountEditWarning" xml:space="preserve"><value>System accounts cannot be edited</value></data>
+  <data name="SystemAccountDeleteWarning" xml:space="preserve"><value>System accounts cannot be deleted</value></data>
+  <data name="DeleteAccountConfirm" xml:space="preserve"><value>Are you sure you want to delete account '{0}'?</value></data>
+  <data name="EditAccountTitle" xml:space="preserve"><value>Edit Account: {0}</value></data>
+  <data name="AccountActivated" xml:space="preserve"><value>Account activated</value></data>
+  <data name="AccountDeactivated" xml:space="preserve"><value>Account deactivated</value></data>
+  <data name="AccountCode" xml:space="preserve"><value>Account code</value></data>
+  <data name="AccountCodeRequired" xml:space="preserve"><value>Account code is required</value></data>
+  <data name="AccountType" xml:space="preserve"><value>Account type</value></data>
+  <data name="AccountTypeAsset" xml:space="preserve"><value>Assets</value></data>
+  <data name="AccountTypeLiability" xml:space="preserve"><value>Liabilities</value></data>
+  <data name="AccountTypeEquity" xml:space="preserve"><value>Equity</value></data>
+  <data name="AccountTypeRevenue" xml:space="preserve"><value>Revenue</value></data>
+  <data name="AccountTypeExpense" xml:space="preserve"><value>Expenses</value></data>
+  <data name="AccountNameAr" xml:space="preserve"><value>Account name (Arabic)</value></data>
+  <data name="AccountNameEn" xml:space="preserve"><value>Account name (English)</value></data>
+  <data name="ParentAccount" xml:space="preserve"><value>Parent account (optional)</value></data>
+  <data name="AddJournalEntry" xml:space="preserve"><value>New Journal Entry</value></data>
+  <data name="TotalJournalEntries" xml:space="preserve"><value>Total entries: {0}</value></data>
+  <data name="NoJournalEntries" xml:space="preserve"><value>No entries. Entries are created automatically when posting invoices and can also be added manually.</value></data>
+  <data name="JournalEntryNumber" xml:space="preserve"><value>Entry number</value></data>
+  <data name="JournalEntrySaved" xml:space="preserve"><value>Entry saved successfully</value></data>
+  <data name="JournalEntryDetailsTitle" xml:space="preserve"><value>Entry Details {0}</value></data>
+  <data name="EntryDate" xml:space="preserve"><value>Entry date</value></data>
+  <data name="ReferenceDocument" xml:space="preserve"><value>Reference / document (optional)</value></data>
+  <data name="DescriptionStatement" xml:space="preserve"><value>Description / statement</value></data>
+  <data name="EntryLines" xml:space="preserve"><value>Entry lines</value></data>
+  <data name="AddLeg" xml:space="preserve"><value>Add line</value></data>
+  <data name="DebitTotal" xml:space="preserve"><value>Total debit</value></data>
+  <data name="CreditTotal" xml:space="preserve"><value>Total credit</value></data>
+  <data name="Balanced" xml:space="preserve"><value>Balanced</value></data>
+  <data name="Unbalanced" xml:space="preserve"><value>Unbalanced</value></data>
+  <data name="SaveEntry" xml:space="preserve"><value>Save entry</value></data>
+  <data name="SelectAccountPerLeg" xml:space="preserve"><value>Select an account for each line.</value></data>
+  <data name="UnbalancedEntry" xml:space="preserve"><value>Entry is unbalanced: difference {0}. Debits must equal credits.</value></data>
+  <data name="NoAmounts" xml:space="preserve"><value>Cannot save an entry without amounts.</value></data>
+  <data name="Statement" xml:space="preserve"><value>Statement</value></data>
+  <data name="Refresh" xml:space="preserve"><value>Refresh</value></data>
+  <data name="NoJournalMovement" xml:space="preserve"><value>No accounting movements yet.</value></data>
+  <data name="OpeningBalance" xml:space="preserve"><value>Opening balance</value></data>
+  <data name="IncomeStatement" xml:space="preserve"><value>Income statement</value></data>
+  <data name="BalanceSheet" xml:space="preserve"><value>Balance sheet</value></data>
+  <data name="Revenues" xml:space="preserve"><value>Revenues</value></data>
+  <data name="TotalRevenue" xml:space="preserve"><value>Total revenue</value></data>
+  <data name="TotalExpenses" xml:space="preserve"><value>Total expenses</value></data>
+  <data name="NetIncome" xml:space="preserve"><value>Net income</value></data>
+  <data name="Assets" xml:space="preserve"><value>Assets</value></data>
+  <data name="Liabilities" xml:space="preserve"><value>Liabilities</value></data>
+  <data name="Equity" xml:space="preserve"><value>Equity</value></data>
+  <data name="TotalAssets" xml:space="preserve"><value>Total assets</value></data>
+  <data name="TotalLiabilities" xml:space="preserve"><value>Total liabilities</value></data>
+  <data name="TotalEquity" xml:space="preserve"><value>Total equity</value></data>
+  <data name="BalanceSheetBalanced" xml:space="preserve"><value>Balance sheet balanced ✓</value></data>
+  <data name="BalanceSheetUnbalanced" xml:space="preserve"><value>Balance sheet unbalanced ✗</value></data>
+  <data name="AsOfDate" xml:space="preserve"><value>As of date</value></data>
+  <data name="BrandName" xml:space="preserve"><value>Al-Nabali Accounting System</value></data>
+  <data name="Arabic" xml:space="preserve"><value>Arabic</value></data>
 </root>
