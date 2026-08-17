@@ -100,7 +100,7 @@ app.MapGet("/export/trial-balance/excel", async (IReportService reportService) =
     var dto = await reportService.GetTrialBalanceAsync();
     return Results.File(ReportExporter.ExportTrialBalance(dto),
         ReportExporter.ExcelContentType, $"trial-balance-{DateTime.Now:yyyyMMdd}.xlsx");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 app.MapGet("/export/income-statement/excel", async (IReportService reportService, DateTime? from, DateTime? to) =>
 {
@@ -108,14 +108,14 @@ app.MapGet("/export/income-statement/excel", async (IReportService reportService
         from ?? new DateTime(DateTime.Today.Year, 1, 1), to ?? DateTime.Today);
     return Results.File(ReportExporter.ExportIncomeStatement(dto),
         ReportExporter.ExcelContentType, $"income-statement-{DateTime.Now:yyyyMMdd}.xlsx");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 app.MapGet("/export/balance-sheet/excel", async (IReportService reportService, DateTime? asOf) =>
 {
     var dto = await reportService.GetBalanceSheetAsync(asOf ?? DateTime.Today);
     return Results.File(ReportExporter.ExportBalanceSheet(dto),
         ReportExporter.ExcelContentType, $"balance-sheet-{DateTime.Now:yyyyMMdd}.xlsx");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 // Export endpoints: تنزيل التقارير المالية بصيغة PDF
 app.MapGet("/export/trial-balance/pdf", async (IReportService reportService) =>
@@ -123,7 +123,7 @@ app.MapGet("/export/trial-balance/pdf", async (IReportService reportService) =>
     var dto = await reportService.GetTrialBalanceAsync();
     return Results.File(PdfExporter.ExportTrialBalance(dto),
         PdfExporter.PdfContentType, $"trial-balance-{DateTime.Now:yyyyMMdd}.pdf");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 app.MapGet("/export/income-statement/pdf", async (IReportService reportService, DateTime? from, DateTime? to) =>
 {
@@ -131,14 +131,14 @@ app.MapGet("/export/income-statement/pdf", async (IReportService reportService, 
         from ?? new DateTime(DateTime.Today.Year, 1, 1), to ?? DateTime.Today);
     return Results.File(PdfExporter.ExportIncomeStatement(dto),
         PdfExporter.PdfContentType, $"income-statement-{DateTime.Now:yyyyMMdd}.pdf");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 app.MapGet("/export/balance-sheet/pdf", async (IReportService reportService, DateTime? asOf) =>
 {
     var dto = await reportService.GetBalanceSheetAsync(asOf ?? DateTime.Today);
     return Results.File(PdfExporter.ExportBalanceSheet(dto),
         PdfExporter.PdfContentType, $"balance-sheet-{DateTime.Now:yyyyMMdd}.pdf");
-});
+}).RequireAuthorization("Permission:Reports.View");
 
 // تبديل اللغة: يضبط كوكيز الثقافة ثم يعيد التوجيه لنفس الصفحة
 app.MapGet("/culture/set", (HttpContext context, string? culture, string? redirectUri) =>
@@ -163,14 +163,20 @@ using (var scope = app.Services.CreateScope())
 
     var roleManager = scope.ServiceProvider.GetRequiredService<RoleManager<IdentityRole>>();
     var userManager = scope.ServiceProvider.GetRequiredService<UserManager<IdentityUser>>();
-    await SeedIdentityAsync(roleManager, userManager);
+
+    // Seed the default admin only when a password is supplied (config/env).
+    // In Development we fall back to "Admin@123"; in Production no admin is created unless a password is configured explicitly.
+    var seedAdminPassword = builder.Configuration["SeedAdmin:Password"];
+    if (string.IsNullOrWhiteSpace(seedAdminPassword) && app.Environment.IsDevelopment())
+        seedAdminPassword = "Admin@123";
+    await SeedIdentityAsync(roleManager, userManager, seedAdminPassword);
     await SeedHrAsync(dbContext);
 }
 
 app.Run();
 
 // زرع دور Admin ومستخدم إداري افتراضي للاختبار (admin@erp.com / Admin@123)
-static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager)
+static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, string? adminPassword)
 {
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
@@ -218,10 +224,11 @@ static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserM
         }
     }
 
-    if (await userManager.FindByEmailAsync("admin@erp.com") is null)
+    if (!string.IsNullOrWhiteSpace(adminPassword) &&
+        await userManager.FindByEmailAsync("admin@erp.com") is null)
     {
         var admin = new IdentityUser { UserName = "admin@erp.com", Email = "admin@erp.com", EmailConfirmed = true };
-        var result = await userManager.CreateAsync(admin, "Admin@123");
+        var result = await userManager.CreateAsync(admin, adminPassword);
         if (result.Succeeded)
             await userManager.AddToRoleAsync(admin, "Admin");
     }

@@ -1,5 +1,6 @@
 @page "/login"
 @layout EmptyLayout
+@attribute [AllowAnonymous]
 @* ملاحظة معمارية مهمة:
    هذه الصفحة تعمل بنمط Static SSR لمعالجة الفورم رغم أن باقي النظام InteractiveServer
    (موروث من <Routes @rendermode="InteractiveServer" /> في App.razor) — وذلك لأن فورم POST
