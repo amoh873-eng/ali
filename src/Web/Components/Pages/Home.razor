@@ -37,12 +37,6 @@
         </ChartCard>
     </MudItem>
 
-    @* توزيع حركات المخزون (أعمدة أفقية حديثة) *@
-    <MudItem xs="12">
-        <ChartCard Title="@Loc["InventoryMovement"]" Subtitle="@Loc["InventoryMovementSub"]">
-            <BarChart Items="_inventorySegments" EmptyText="@Loc["NoInventoryMovement"]" />
-        </ChartCard>
-    </MudItem>
 </MudGrid>
 
 
@@ -52,7 +46,6 @@
     private decimal _purchasesTotal;
     private decimal _inventoryValue;
 
-    private List<DonutSegment> _inventorySegments = new();
     private List<DonutSegment> _salesPurchasesSegments = new();
     private string _salesPurchasesTotalText = "0";
 
@@ -62,7 +55,6 @@
     [Inject] private IItemService ItemService { get; set; } = default!;
     [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
     [Inject] private IPurchaseInvoiceService PurchaseInvoiceService { get; set; } = default!;
-    [Inject] private IStockMovementService StockMovementService { get; set; } = default!;
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
 
     protected override async Task OnInitializedAsync()
@@ -78,8 +70,6 @@
             var purchases = await PurchaseInvoiceService.GetInvoicesAsync();
             _purchasesTotal = purchases.Sum(i => i.TotalAmount);
 
-            var movements = await StockMovementService.GetMovementsAsync();
-            BuildInventoryChart(movements);
             BuildSalesPurchasesChart();
             BuildTrendChart(sales, purchases);
         }
@@ -87,42 +77,6 @@
         {
             // في حال فشل أي استدعاء نترك القيم صفراً ولا نعطّل الصفحة
         }
-    }
-
-    /// <summary>
-    /// مجموعات أنواع الحركة: تسمية عربية + لون مميّز لكل نوع (مرتّبة حسب قيمة MovementType).
-    /// </summary>
-    private (int Type, string Label, string Color)[] MovementGroups =>
-        new (int Type, string Label, string Color)[]
-        {
-            (1, Loc["MovementTypeInPurchase"], "#10B981"),
-            (2, Loc["MovementTypeOutSale"], "#EF4444"),
-            (3, Loc["MovementTypeOpening"], "#6D5BD0"),
-            (4, Loc["MovementTypeAdjustIn"], "#14B8A6"),
-            (5, Loc["MovementTypeAdjustOut"], "#F59E0B"),
-            (6, Loc["MovementTypeTransferIn"], "#3B82F6"),
-            (7, Loc["MovementTypeTransferOut"], "#6366F1"),
-            (8, Loc["MovementTypeSalesReturn"], "#F472B6"),
-            (9, Loc["MovementTypePurchaseReturn"], "#EC4899"),
-        };
-
-    /// <summary>مخطط أفقي لتوزيع حركات المخزون (الكميات) حسب نوع الحركة.</summary>
-    private void BuildInventoryChart(List<StockMovementDto> movements)
-    {
-        _inventorySegments = MovementGroups
-            .Select(g =>
-            {
-                var qty = movements.Where(m => m.MovementType == g.Type).Sum(m => Math.Abs(m.Quantity));
-                return new DonutSegment
-                {
-                    Label = g.Label,
-                    Color = g.Color,
-                    Value = (double)qty,
-                    ValueText = qty.ToString("N0")
-                };
-            })
-            .Where(s => s.Value > 0)
-            .ToList();
     }
 
     /// <summary>رسم دائري للمبيعات مقابل المشتريات (إجمالي القيم).</summary>
