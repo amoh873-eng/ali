@@ -25,47 +25,56 @@ MudLayout: التخطيط الرئيسي للصفحة.
 <MudLayout>
     @* الشريط العلوي: الشعار + القائمة العلوية + الإشعارات + قائمة المستخدم *@
     <MudAppBar Elevation="0" Dense="true">
-        @* اسم النظام (الشعار): اسم النظام + شارة ERP بلون مختلف تحته *@
-        <div style="display:flex; align-items:center; gap:10px;">
-            <MudIcon Icon="@Icons.Material.Filled.Layers" Style="color:var(--erp-primary); font-size:1.9rem;" />
-            <div style="display:flex; flex-direction:column; line-height:1.15;">
-                <MudText Typo="Typo.subtitle1" Style="font-weight:800; color:var(--erp-primary); margin:0;">@Loc["BrandName"]</MudText>
-                <MudText Typo="Typo.caption" Style="font-weight:700; color:#F472B6; letter-spacing:3px; margin:0;">ERP</MudText>
+        <div style="display:flex; flex-direction:column; width:100%;">
+            @* الصف الأول: الشعار في المنتصف + الإشعارات وقائمة المستخدم على الجانب *@
+            <div style="display:flex; align-items:center; width:100%; gap:10px; padding-top:2px;">
+                <div style="flex:1;"></div>
+
+                @* اسم النظام (الشعار): اسم النظام + شارة ERP بلون مختلف تحته *@
+                <div style="display:flex; align-items:center; gap:10px;">
+                    <MudIcon Icon="@Icons.Material.Filled.Layers" Style="color:var(--erp-primary); font-size:1.9rem;" />
+                    <div style="display:flex; flex-direction:column; line-height:1.15;">
+                        <MudText Typo="Typo.subtitle1" Style="font-weight:800; color:var(--erp-primary); margin:0;">@Loc["BrandName"]</MudText>
+                        <MudText Typo="Typo.caption" Style="font-weight:700; color:#F472B6; letter-spacing:3px; margin:0;">ERP</MudText>
+                    </div>
+                </div>
+
+                <div style="flex:1; display:flex; justify-content:flex-end; align-items:center;">
+                    @* الإشعارات *@
+                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" Size="Size.Small" />
+
+                    @* قائمة المستخدم (تسجيل الخروج: عربي/إنجليزي) *@
+                    <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
+                        <ActivatorContent>
+                            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ml-3 mr-1" Style="cursor:pointer;">
+                                <MudIcon Icon="@Icons.Material.Filled.Person" />
+                            </MudAvatar>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <AuthorizeView>
+                                <Authorized>
+                                    <MudMenuItem OnClick="Logout">
+                                        <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />
+                                        @Loc["Logout"]
+                                    </MudMenuItem>
+                                </Authorized>
+                                <NotAuthorized>
+                                    <MudMenuItem Href="/login">
+                                        <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
+                                        @Loc["Login"]
+                                    </MudMenuItem>
+                                </NotAuthorized>
+                            </AuthorizeView>
+                        </ChildContent>
+                    </MudMenu>
+                </div>
+            </div>
+
+            @* سطر فاصل ثم الصف الثاني: القوائم بجانب بعضها تحت الشعار *@
+            <div style="display:flex; justify-content:center; margin-top:6px; padding:4px 0 8px; border-top:1px solid var(--erp-border);">
+                <TopNav />
             </div>
         </div>
-
-        @* شريط التنقل العلوي *@
-        <TopNav />
-
-        <MudSpacer />
-
-        @* الإشعارات *@
-        <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" Size="Size.Small" />
-
-        @* قائمة المستخدم (تسجيل الخروج: عربي/إنجليزي) *@
-        <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
-            <ActivatorContent>
-                <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ml-3 mr-1" Style="cursor:pointer;">
-                    <MudIcon Icon="@Icons.Material.Filled.Person" />
-                </MudAvatar>
-            </ActivatorContent>
-            <ChildContent>
-                <AuthorizeView>
-                    <Authorized>
-                        <MudMenuItem OnClick="Logout">
-                            <MudIcon Icon="@Icons.Material.Filled.Logout" Class="mr-2" />
-                            @Loc["Logout"]
-                        </MudMenuItem>
-                    </Authorized>
-                    <NotAuthorized>
-                        <MudMenuItem Href="/login">
-                            <MudIcon Icon="@Icons.Material.Filled.Login" Class="mr-2" />
-                            @Loc["Login"]
-                        </MudMenuItem>
-                    </NotAuthorized>
-                </AuthorizeView>
-            </ChildContent>
-        </MudMenu>
     </MudAppBar>
 
     @* منطقة المحتوى - Body *@
