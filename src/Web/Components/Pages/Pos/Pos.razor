@@ -114,7 +114,7 @@
 
                 @if (_paymentMethod != 3)
                 {
-                    <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" ReadOnly="true" Variant="Variant.Outlined" Dense="true" />
+                    <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" Variant="Variant.Outlined" Dense="true" />
                     <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
                     <div class="pos-keypad">
                         @foreach (var key in KeypadKeys)
