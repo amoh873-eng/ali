@@ -64,22 +64,22 @@ td.stock-out {
 .erp-topnav {
     display: flex;
     align-items: center;
-    gap: 8px;
-    margin-inline-start: 20px;
-    flex-wrap: wrap;
+    gap: 5px;
+    margin-inline-start: 12px;
+    flex-wrap: nowrap;
 }
 
 /* زر تنقل ثلاثي الأبعاد (3D) بألوان الوحدات */
 .erp-nav-btn {
     display: inline-flex;
     align-items: center;
-    gap: 6px;
-    padding: 9px 15px;
-    border-radius: 12px;
+    gap: 4px;
+    padding: 5px 10px;
+    border-radius: 10px;
     background: linear-gradient(180deg, #ffffff 0%, #f1f2f7 100%);
     color: #374151;
     text-decoration: none;
-    font-size: 0.9rem;
+    font-size: 0.75rem;
     font-weight: 700;
     border: 1px solid #E5E7EB;
     box-shadow: 0 4px 0 #D4D8E1, 0 9px 16px rgba(16, 24, 40, .12);
@@ -102,6 +102,8 @@ td.stock-out {
 /* أيقونة الزر تأخذ لون الوحدة، وتصبح بيضاء عند التفعيل */
 .erp-nav-btn .erp-nav-icon {
     color: var(--accent, #6D5BD0);
+    font-size: 0.95rem;
+    margin-inline-end: 0;
 }
 
 .erp-nav-btn.active,
