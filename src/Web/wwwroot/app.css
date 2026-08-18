@@ -64,29 +64,58 @@ td.stock-out {
 .erp-topnav {
     display: flex;
     align-items: center;
-    gap: 4px;
-    margin-inline-start: 24px;
+    gap: 8px;
+    margin-inline-start: 20px;
+    flex-wrap: wrap;
 }
 
-.erp-nav-link {
-    padding: 8px 14px;
-    color: var(--erp-muted);
+/* زر تنقل ثلاثي الأبعاد (3D) بألوان الوحدات */
+.erp-nav-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 9px 15px;
+    border-radius: 12px;
+    background: linear-gradient(180deg, #ffffff 0%, #f1f2f7 100%);
+    color: #374151;
     text-decoration: none;
-    font-size: 0.875rem;
-    font-weight: 500;
-    border-bottom: 2px solid transparent;
-    transition: color .15s ease, border-bottom-color .15s ease;
+    font-size: 0.9rem;
+    font-weight: 700;
+    border: 1px solid #E5E7EB;
+    box-shadow: 0 4px 0 #D4D8E1, 0 9px 16px rgba(16, 24, 40, .12);
+    transition: transform .12s ease, box-shadow .12s ease, filter .12s ease;
+    cursor: pointer;
+    white-space: nowrap;
 }
 
-.erp-nav-link:hover {
-    color: var(--erp-text);
+.erp-nav-btn:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 6px 0 #D4D8E1, 0 14px 22px rgba(16, 24, 40, .18);
+    filter: saturate(1.1);
 }
 
-.erp-nav-link.active {
-    color: var(--erp-primary);
-    background: var(--erp-primary-light);
-    border-radius: 8px;
-    font-weight: 600;
+.erp-nav-btn:active {
+    transform: translateY(2px);
+    box-shadow: 0 1px 0 #D4D8E1, 0 3px 6px rgba(16, 24, 40, .12);
+}
+
+/* أيقونة الزر تأخذ لون الوحدة، وتصبح بيضاء عند التفعيل */
+.erp-nav-btn .erp-nav-icon {
+    color: var(--accent, #6D5BD0);
+}
+
+.erp-nav-btn.active,
+.erp-dropdown.active > .erp-nav-btn {
+    background: linear-gradient(180deg, color-mix(in srgb, var(--accent, #6D5BD0) 80%, #fff) 0%, var(--accent, #6D5BD0) 100%);
+    color: #fff;
+    border-color: var(--accent, #6D5BD0);
+    box-shadow: 0 4px 0 color-mix(in srgb, var(--accent, #6D5BD0) 60%, #000), 0 10px 18px color-mix(in srgb, var(--accent, #6D5BD0) 40%, transparent);
+    text-shadow: 0 1px 2px rgba(0, 0, 0, .18);
+}
+
+.erp-nav-btn.active .erp-nav-icon,
+.erp-dropdown.active > .erp-nav-btn .erp-nav-icon {
+    color: #fff;
 }
 
 /* قوائم التنقل المنسدلة (CSS hover — بدون JavaScript) */
@@ -98,15 +127,21 @@ td.stock-out {
 .erp-dropdown .erp-dropdown-menu {
     display: none;
     position: absolute;
-    top: 100%;
+    top: calc(100% + 8px);
     inset-inline-start: 0;
-    min-width: 210px;
-    background: var(--erp-card);
-    border: 1px solid var(--erp-border);
-    border-radius: 6px;
-    box-shadow: 0 6px 16px rgba(16, 24, 40, 0.12);
-    padding: 6px 0;
+    min-width: 230px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 14px;
+    box-shadow: 0 18px 36px rgba(16, 24, 40, .18);
+    padding: 8px;
     z-index: 1100;
+    animation: erp-menu-in .18s ease;
+}
+
+@keyframes erp-menu-in {
+    from { opacity: 0; transform: translateY(-6px) scale(.98); }
+    to   { opacity: 1; transform: translateY(0) scale(1); }
 }
 
 .erp-dropdown:hover .erp-dropdown-menu {
@@ -114,24 +149,23 @@ td.stock-out {
 }
 
 .erp-dropdown-menu a {
-    display: block;
-    padding: 8px 16px;
-    color: var(--erp-text);
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 10px 12px;
+    color: #374151;
     text-decoration: none;
-    font-size: 0.875rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    border-radius: 10px;
     white-space: nowrap;
+    transition: background .12s ease, color .12s ease, transform .12s ease;
 }
 
 .erp-dropdown-menu a:hover {
-    background: var(--erp-bg);
-    color: var(--erp-primary);
-}
-
-.erp-dropdown.active .erp-nav-link {
-    color: var(--erp-primary);
-    background: var(--erp-primary-light);
-    border-radius: 8px;
-    font-weight: 600;
+    background: linear-gradient(180deg, #F0EDFB 0%, #E7E2FA 100%);
+    color: #6D5BD0;
+    transform: translateX(2px);
 }
 
 /* خلفية منطقة المحتوى: تدرّج بنفسجي فاتح يُضفي حيوية */

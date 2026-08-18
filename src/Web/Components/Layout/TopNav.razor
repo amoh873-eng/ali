@@ -3,17 +3,17 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 <nav class="erp-topnav">
-    <a class="erp-nav-link @(IsHome ? "active" : "")" href="/">
-        <MudIcon Icon="@Icons.Material.Filled.Home" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Home"]
+    <a class="erp-nav-btn @(IsHome ? "active" : "")" style="--accent:#6D5BD0" href="/">
+        <MudIcon Icon="@Icons.Material.Filled.Home" Class="erp-nav-icon" /> @Loc["Home"]
     </a>
 
-    <a class="erp-nav-link @(IsActive("/pos") ? "active" : "")" href="/pos">
-        <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Pos"]
+    <a class="erp-nav-btn @(IsActive("/pos") ? "active" : "")" style="--accent:#EC4899" href="/pos">
+        <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" /> @Loc["Pos"]
     </a>
 
     <div class="erp-dropdown @(IsActive("/accounts", "/journal-entries") ? "active" : "")">
-        <a class="erp-nav-link" href="/accounts">
-            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Accounting"] ▾
+        <a class="erp-nav-btn" style="--accent:#3B82F6" href="/accounts">
+            <MudIcon Icon="@Icons.Material.Filled.AccountBalance" Class="erp-nav-icon" /> @Loc["Accounting"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/accounts"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Accounts"]</a>
@@ -22,8 +22,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/inventory") ? "active" : "")">
-        <a class="erp-nav-link" href="/inventory/items">
-            <MudIcon Icon="@Icons.Material.Filled.Inventory" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["Inventory"] ▾
+        <a class="erp-nav-btn" style="--accent:#10B981" href="/inventory/items">
+            <MudIcon Icon="@Icons.Material.Filled.Inventory" Class="erp-nav-icon" /> @Loc["Inventory"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/inventory/items"><MudIcon Icon="@Icons.Material.Filled.Inventory2" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["Items"]</a>
@@ -36,8 +36,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/sales") ? "active" : "")">
-        <a class="erp-nav-link" href="/sales/invoices">
-            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="erp-nav-icon" Style="color:#F472B6;" /> @Loc["Sales"] ▾
+        <a class="erp-nav-btn" style="--accent:#F472B6" href="/sales/invoices">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Class="erp-nav-icon" /> @Loc["Sales"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/sales/customers"><MudIcon Icon="@Icons.Material.Filled.People" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Customers"]</a>
@@ -48,8 +48,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/purchases") ? "active" : "")">
-        <a class="erp-nav-link" href="/purchases/invoices">
-            <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Purchases"] ▾
+        <a class="erp-nav-btn" style="--accent:#F59E0B" href="/purchases/invoices">
+            <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="erp-nav-icon" /> @Loc["Purchases"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/purchases/suppliers"><MudIcon Icon="@Icons.Material.Filled.LocalShipping" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Suppliers"]</a>
@@ -60,8 +60,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/hr") ? "active" : "")">
-        <a class="erp-nav-link" href="/hr/employees">
-            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["HumanResources"] ▾
+        <a class="erp-nav-btn" style="--accent:#14B8A6" href="/hr/employees">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" /> @Loc["HumanResources"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/hr/departments"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Departments"]</a>
@@ -72,8 +72,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/trial-balance", "/general-ledger", "/financial-statements") ? "active" : "")">
-        <a class="erp-nav-link" href="/trial-balance">
-            <MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" Style="color:#6366F1;" /> @Loc["Reports"] ▾
+        <a class="erp-nav-btn" style="--accent:#6366F1" href="/trial-balance">
+            <MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" /> @Loc["Reports"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/trial-balance"><MudIcon Icon="@Icons.Material.Filled.Balance" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["TrialBalance"]</a>
@@ -83,8 +83,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/expenses") ? "active" : "")">
-        <a class="erp-nav-link" href="/expenses">
-            <MudIcon Icon="@Icons.Material.Filled.Payments" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Expenses"] ▾
+        <a class="erp-nav-btn" style="--accent:#F97316" href="/expenses">
+            <MudIcon Icon="@Icons.Material.Filled.Payments" Class="erp-nav-icon" /> @Loc["Expenses"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/expenses"><MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["ExpenseEntries"]</a>
@@ -93,8 +93,8 @@
     </div>
 
     <div class="erp-dropdown @(IsActive("/crm") ? "active" : "")">
-        <a class="erp-nav-link" href="/crm/leads">
-            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Crm"] ▾
+        <a class="erp-nav-btn" style="--accent:#0EA5E9" href="/crm/leads">
+            <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" /> @Loc["Crm"] ▾
         </a>
         <div class="erp-dropdown-menu">
             <a href="/crm/leads"><MudIcon Icon="@Icons.Material.Filled.PersonAdd" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Leads"]</a>
@@ -105,8 +105,8 @@
 
     <AuthorizeView Policy="Permission:Permissions.View">
         <div class="erp-dropdown @(IsActive("/permissions") ? "active" : "")">
-            <a class="erp-nav-link" href="/permissions/roles">
-                <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Permissions"] ▾
+            <a class="erp-nav-btn" style="--accent:#8B5CF6" href="/permissions/roles">
+                <MudIcon Icon="@Icons.Material.Filled.AdminPanelSettings" Class="erp-nav-icon" /> @Loc["Permissions"] ▾
             </a>
             <div class="erp-dropdown-menu">
                 <a href="/permissions/roles"><MudIcon Icon="@Icons.Material.Filled.Badge" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Roles"]</a>
