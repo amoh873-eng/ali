@@ -7,11 +7,9 @@
         <MudIcon Icon="@Icons.Material.Filled.Home" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Home"]
     </a>
 
-    <AuthorizeView Policy="Permission:Pos.View">
-        <a class="erp-nav-link @(IsActive("/pos") ? "active" : "")" href="/pos">
-            <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Pos"]
-        </a>
-    </AuthorizeView>
+    <a class="erp-nav-link @(IsActive("/pos") ? "active" : "")" href="/pos">
+        <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" Style="color:#EC4899;" /> @Loc["Pos"]
+    </a>
 
     <div class="erp-dropdown @(IsActive("/accounts", "/journal-entries") ? "active" : "")">
         <a class="erp-nav-link" href="/accounts">
