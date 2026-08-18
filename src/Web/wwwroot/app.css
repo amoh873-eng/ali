@@ -126,6 +126,16 @@ td.stock-out {
     display: inline-flex;
 }
 
+/* جسر شفاف يملأ الفجوة بين الزر والقائمة المنسدلة حتى لا تختفي القائمة عند تحريك الماوس */
+.erp-dropdown::after {
+    content: '';
+    position: absolute;
+    top: 100%;
+    inset-inline-start: 0;
+    width: 100%;
+    height: 10px;
+}
+
 .erp-dropdown .erp-dropdown-menu {
     display: none;
     position: absolute;
