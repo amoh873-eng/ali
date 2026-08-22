@@ -1,4 +1,5 @@
 @page "/purchases/suppliers"
+@attribute [Authorize(Roles = "Purchases")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة الموردين *@

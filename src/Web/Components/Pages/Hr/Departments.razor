@@ -1,4 +1,5 @@
 @page "/hr/departments"
+@attribute [Authorize(Roles = "Hr")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة الأقسام - تعرض الهيكل التنظيمي كشجرة (قسم رئيسي ← أقسام فرعية) *@

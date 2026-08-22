@@ -1,4 +1,5 @@
 @page "/purchases/orders"
+@attribute [Authorize(Roles = "Purchases")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة أوامر الشراء - قائمة أوامر الشراء مع إمكانية التحويل إلى فواتير مشتريات *@

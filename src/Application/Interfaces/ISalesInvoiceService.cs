@@ -30,4 +30,7 @@ public interface ISalesInvoiceService
     /// (used by the UI to warn about insufficient stock).
     /// </summary>
     Task<decimal> GetAvailableStockAsync(Guid itemId, Guid warehouseId);
+
+    /// <summary>أفضل 5 أصناف مبيعاً حسب إجمالي المبلغ (للداشبورد).</summary>
+    Task<List<TopSellingItemDto>> GetTopSellingItemsAsync(int count = 5);
 }

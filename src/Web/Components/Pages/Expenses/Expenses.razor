@@ -1,4 +1,5 @@
 @page "/expenses"
+@attribute [Authorize(Roles = "Expenses")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة سندات المصروف: قائمة السندات مع فلترة حسب الفئة والتاريخ *@

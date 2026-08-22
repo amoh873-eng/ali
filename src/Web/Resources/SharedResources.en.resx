@@ -679,4 +679,7 @@
   <data name="AsOfDate" xml:space="preserve"><value>As of date</value></data>
   <data name="BrandName" xml:space="preserve"><value>Al-Nabali Accounting System</value></data>
   <data name="Arabic" xml:space="preserve"><value>Arabic</value></data>
+  <data name="TopSellingItems" xml:space="preserve"><value>Top 5 Best-Selling Items</value></data>
+  <data name="TopSellingItemsSubtitle" xml:space="preserve"><value>By total sales amount</value></data>
+  <data name="NoTopSellingItems" xml:space="preserve"><value>No sales yet to show top-selling items</value></data>
 </root>

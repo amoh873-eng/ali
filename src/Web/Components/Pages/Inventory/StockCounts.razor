@@ -1,4 +1,5 @@
 @page "/inventory/stockcounts"
+@attribute [Authorize(Roles = "Inventory")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة الجرد الدوري - قائمة عمليات الجرد مع الفروقات *@

@@ -1,4 +1,5 @@
 @page "/expenses/categories"
+@attribute [Authorize(Roles = "Expenses")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة فئات المصاريف: قائمة الفئات المرتبطة بحسابات المصروفات في شجرة الحسابات *@

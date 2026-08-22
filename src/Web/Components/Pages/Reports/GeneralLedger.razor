@@ -1,5 +1,5 @@
 @page "/general-ledger"
-@attribute [Authorize(Policy = "Permission:Reports.View")]
+@attribute [Authorize(Roles = "Reports")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة دفتر الأستاذ العام - كشف حركات حساب محدد *@

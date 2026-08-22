@@ -1,4 +1,5 @@
 @page "/crm/activities"
+@attribute [Authorize(Roles = "Crm")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة سجل التواصل: قائمة الأنشطة مع فلترة حسب النوع والعميل *@

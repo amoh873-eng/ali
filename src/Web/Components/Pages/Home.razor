@@ -1,5 +1,5 @@
 @page "/"
-@using System.Globalization
+@attribute [Authorize]
 
 <PageTitle>@Loc["Dashboard"] - @Loc["AppName"]</PageTitle>
 
@@ -22,15 +22,16 @@
                   Icon="@Icons.Material.Filled.Inventory" IconBackground="#F0EDFB" IconColor="#6D5BD0" />
     </MudItem>
 
-    @* اتجاه شهري حديث (خط/مساحة) + دونات النِّسَب *@
+    @* أفضل 5 أصناف مبيعاً (أشرطة أفقية) + دونات النِّسَب مصغّرة *@
     <MudItem xs="12" md="8">
-        <ChartCard Title="@Loc["SalesVsPurchasesTrend"]" Subtitle="@Loc["Last12Months"]">
-            <TrendChart Series="_trendSeries" Labels="_trendLabels" EmptyText="@Loc["NoSalesPurchases"]" />
+        <ChartCard Title="@Loc["TopSellingItems"]" Subtitle="@Loc["TopSellingItemsSubtitle"]">
+            <BarChart Items="_topItemsSegments" EmptyText="@Loc["NoTopSellingItems"]" />
         </ChartCard>
     </MudItem>
     <MudItem xs="12" md="4">
         <ChartCard Title="@Loc["SalesVsPurchases"]" Subtitle="@Loc["SalesVsPurchasesTotal"]">
             <DonutChart Segments="_salesPurchasesSegments"
+                        Height="150px"
                         CenterValue="@_salesPurchasesTotalText"
                         CenterLabel="@Loc["Total"]"
                         EmptyText="@Loc["NoSalesPurchases"]" />
@@ -48,9 +49,9 @@
 
     private List<DonutSegment> _salesPurchasesSegments = new();
     private string _salesPurchasesTotalText = "0";
+    private List<DonutSegment> _topItemsSegments = new();
 
-    private List<TrendSeries> _trendSeries = new();
-    private List<string> _trendLabels = new();
+    private static readonly string[] _palette = new[] { "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4" };
 
     [Inject] private IItemService ItemService { get; set; } = default!;
     [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
@@ -71,7 +72,7 @@
             _purchasesTotal = purchases.Sum(i => i.TotalAmount);
 
             BuildSalesPurchasesChart();
-            BuildTrendChart(sales, purchases);
+            await BuildTopItemsChartAsync();
         }
         catch
         {
@@ -94,40 +95,15 @@
         .ToList();
     }
 
-    /// <summary>مخطط اتجاه شهري (خط/مساحة) للمبيعات والمشتريات لآخر 12 شهرًا.</summary>
-    private void BuildTrendChart(List<SalesInvoiceDto> sales, List<PurchaseInvoiceDto> purchases)
+    private async Task BuildTopItemsChartAsync()
     {
-        var now = DateTime.Today;
-        var months = Enumerable.Range(0, 12)
-            .Select(i => new DateTime(now.Year, now.Month, 1).AddMonths(i - 11))
-            .ToList();
-
-        _trendLabels = months
-            .Select(m => m.ToString("MMM", CultureInfo.CurrentCulture))
-            .ToList();
-
-        _trendSeries = new List<TrendSeries>
+        var top = await SalesInvoiceService.GetTopSellingItemsAsync(5);
+        _topItemsSegments = top.Select((t, i) => new DonutSegment
         {
-            new()
-            {
-                Name = Loc["Sales"].Value,
-                Color = "#8B5CF6",
-                Values = months
-                    .Select(m => (double)sales
-                        .Where(s => s.InvoiceDate.Year == m.Year && s.InvoiceDate.Month == m.Month)
-                        .Sum(s => s.TotalAmount))
-                    .ToList()
-            },
-            new()
-            {
-                Name = Loc["Purchases"].Value,
-                Color = "#F59E0B",
-                Values = months
-                    .Select(m => (double)purchases
-                        .Where(p => p.InvoiceDate.Year == m.Year && p.InvoiceDate.Month == m.Month)
-                        .Sum(p => p.TotalAmount))
-                    .ToList()
-            }
-        };
+            Label = t.ItemNameAr,
+            Value = (double)t.TotalAmount,
+            ValueText = t.TotalAmount.ToString("N2"),
+            Color = _palette[i % _palette.Length]
+        }).ToList();
     }
 }

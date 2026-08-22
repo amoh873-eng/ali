@@ -5,11 +5,8 @@ using ERPSystem.Infrastructure;
 using ERPSystem.Infrastructure.Data;
 using ERPSystem.Web.Components;
 using ERPSystem.Web.Middleware;
-using ERPSystem.Web.Permissions;
 using ERPSystem.Web.Services;
-using Microsoft.AspNetCore.Authentication;
-using Microsoft.AspNetCore.Authorization;
-using Microsoft.AspNetCore.Components.Authorization;
+using Microsoft.AspNetCore.Antiforgery;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
@@ -53,13 +50,14 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ERPSystem.Infrastructure.Data.AppDbContext>()
     .AddDefaultTokenProviders();
 
-// التفويض بالصلاحيات: سياسات ديناميكية "Permission:*" + حقن أذونات الأدوار في هوية المستخدم
-builder.Services.AddSingleton<IAuthorizationPolicyProvider, PermissionPolicyProvider>();
-builder.Services.AddScoped<IAuthorizationHandler, PermissionAuthorizationHandler>();
-builder.Services.AddScoped<IUserClaimsPrincipalFactory<IdentityUser>, AppUserClaimsPrincipalFactory>();
-builder.Services.AddScoped<IClaimsTransformation, PermissionClaimsTransformation>();
+builder.Services.AddAuthorization(options =>
+{
+    options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
+        .RequireAuthenticatedUser()
+        .Build();
+});
 
-// خدمات إدارة الأدوار والصلاحيات والمستخدمين
+// خدمات إدارة الأدوار والمستخدمين (+ إدارة النظام)
 builder.Services.AddScoped<IRoleService, RoleService>();
 builder.Services.AddScoped<IUserService, UserService>();
 builder.Services.AddScoped<ISystemAdminService, SystemAdminService>();
@@ -97,13 +95,13 @@ app.MapStaticAssets();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
 
-// Export endpoints: تنزيل التقارير المالية بصيغة Excel
+// Export endpoints: تنزيل التقارير المالية بصيغة Excel — مقيّد بدور Reports (+ Admin/SuperAdmin يحملانه ضمنيًا)
 app.MapGet("/export/trial-balance/excel", async (IReportService reportService) =>
 {
     var dto = await reportService.GetTrialBalanceAsync();
     return Results.File(ReportExporter.ExportTrialBalance(dto),
         ReportExporter.ExcelContentType, $"trial-balance-{DateTime.Now:yyyyMMdd}.xlsx");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 app.MapGet("/export/income-statement/excel", async (IReportService reportService, DateTime? from, DateTime? to) =>
 {
@@ -111,14 +109,14 @@ app.MapGet("/export/income-statement/excel", async (IReportService reportService
         from ?? new DateTime(DateTime.Today.Year, 1, 1), to ?? DateTime.Today);
     return Results.File(ReportExporter.ExportIncomeStatement(dto),
         ReportExporter.ExcelContentType, $"income-statement-{DateTime.Now:yyyyMMdd}.xlsx");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 app.MapGet("/export/balance-sheet/excel", async (IReportService reportService, DateTime? asOf) =>
 {
     var dto = await reportService.GetBalanceSheetAsync(asOf ?? DateTime.Today);
     return Results.File(ReportExporter.ExportBalanceSheet(dto),
         ReportExporter.ExcelContentType, $"balance-sheet-{DateTime.Now:yyyyMMdd}.xlsx");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 // Export endpoints: تنزيل التقارير المالية بصيغة PDF
 app.MapGet("/export/trial-balance/pdf", async (IReportService reportService) =>
@@ -126,7 +124,7 @@ app.MapGet("/export/trial-balance/pdf", async (IReportService reportService) =>
     var dto = await reportService.GetTrialBalanceAsync();
     return Results.File(PdfExporter.ExportTrialBalance(dto),
         PdfExporter.PdfContentType, $"trial-balance-{DateTime.Now:yyyyMMdd}.pdf");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 app.MapGet("/export/income-statement/pdf", async (IReportService reportService, DateTime? from, DateTime? to) =>
 {
@@ -134,14 +132,14 @@ app.MapGet("/export/income-statement/pdf", async (IReportService reportService, 
         from ?? new DateTime(DateTime.Today.Year, 1, 1), to ?? DateTime.Today);
     return Results.File(PdfExporter.ExportIncomeStatement(dto),
         PdfExporter.PdfContentType, $"income-statement-{DateTime.Now:yyyyMMdd}.pdf");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 app.MapGet("/export/balance-sheet/pdf", async (IReportService reportService, DateTime? asOf) =>
 {
     var dto = await reportService.GetBalanceSheetAsync(asOf ?? DateTime.Today);
     return Results.File(PdfExporter.ExportBalanceSheet(dto),
         PdfExporter.PdfContentType, $"balance-sheet-{DateTime.Now:yyyyMMdd}.pdf");
-}).RequireAuthorization("Permission:Reports.View");
+}).RequireAuthorization(p => p.RequireRole("Reports", "Admin", "SuperAdmin"));
 
 // تبديل اللغة: يضبط كوكيز الثقافة ثم يعيد التوجيه لنفس الصفحة
 app.MapGet("/culture/set", (HttpContext context, string? culture, string? redirectUri) =>
@@ -158,6 +156,33 @@ app.MapGet("/culture/set", (HttpContext context, string? culture, string? redire
     return Results.LocalRedirect(target);
 });
 
+// تسجيل الدخول: نقطة نهاية Minimal API عادية بدلًا من مسار معالجة فورم Blazor SSR.
+// يتجنّب هذا خطأ "The POST request does not specify which form is being submitted"
+// نهائيًا، مع الإبقاء على حماية CSRF عبر RequireAntiforgeryTokenAttribute (النموذج الجديد
+// في .NET 10 الذي حلّ محل الامتداد القديم RequireAntiforgery()): يتحقق وسيط UseAntiforgery()
+// تلقائيًا من التوكن الذي يقدّمه مكوّن <AntiforgeryToken /> في نموذج تسجيل الدخول.
+// ملاحظة: لا نستخدم نفس المسار "/login" الذي يشغله مكوّن Razor @page "/login" (الذي يطابق
+// كل طرق HTTP ويثير AmbiguousMatchException مع MapPost). لذلك نستخدم مسارًا منفصلًا
+// "/login/handler" ويستهدفه <form action="/login/handler"> في Login.razor.
+app.MapPost("/login/handler", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
+{
+    var form = await context.Request.ReadFormAsync();
+    var email = form["Email"].ToString();
+    var password = form["Password"].ToString();
+    var rememberMe = form["RememberMe"].ToString() == "true";
+    var returnUrl = form["ReturnUrl"].ToString();
+    var target = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+
+    if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
+        return Results.LocalRedirect("/login?error=1");
+
+    var result = await signInManager.PasswordSignInAsync(email, password, rememberMe, lockoutOnFailure: true);
+    if (!result.Succeeded)
+        return Results.LocalRedirect("/login?error=1");
+
+    return Results.LocalRedirect(target);
+}).WithMetadata(new RequireAntiforgeryTokenAttribute());
+
 // Apply migrations + seed roles/admin user
 using (var scope = app.Services.CreateScope())
 {
@@ -172,68 +197,105 @@ using (var scope = app.Services.CreateScope())
     var seedAdminPassword = builder.Configuration["SeedAdmin:Password"];
     if (string.IsNullOrWhiteSpace(seedAdminPassword) && app.Environment.IsDevelopment())
         seedAdminPassword = "Admin@1234";
-    await SeedIdentityAsync(roleManager, userManager, seedAdminPassword);
+    await SeedIdentityAsync(roleManager, userManager, seedAdminPassword, dbContext);
     await SeedHrAsync(dbContext);
 }
 
 app.Run();
 
-// زرع دور Admin ومستخدم إداري افتراضي للاختبار (admin@erp.com / Admin@123)
-static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, string? adminPassword)
+static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserManager<IdentityUser> userManager, string? adminPassword, AppDbContext dbContext)
 {
+    // نظام الأدوار الجديد: role = module (مفتاح إنجليزي)، وصول كامل للموديول بدون تفصيل View/Add/Edit/Delete.
+    // Admin و SuperAdmin يحملان كل أدوار الموديولات ضمنيًا فلا حاجة لمنطق تجاوز خاص.
+    string[] ModuleRoles = new[]
+    {
+        "Sales", "Purchases", "Inventory", "Accounting", "Expenses", "Crm", "Hr", "Reports", "Pos", "Permissions"
+    };
+    Dictionary<string, string> OldArabicToNewKey = new()
+    {
+        ["مبيعات"] = "Sales",
+        ["مشتريات"] = "Purchases",
+        ["مخازن"] = "Inventory",
+        ["محاسبة"] = "Accounting",
+        ["مصاريف"] = "Expenses",
+        ["علاقات عملاء"] = "Crm",
+        ["موارد بشرية"] = "Hr",
+        ["تقارير"] = "Reports",
+        ["كاشير"] = "Pos",
+        ["صلاحيات"] = "Permissions",
+    };
+    // --- تنظيف وهجرة قاعدة بيانات قديمة (idempotent): حذف claims القديمة + نقل المستخدمين من أدوار عربية قديمة ---
+    try
+    {
+        // احذف أي claims من نوع "Permission" الموروثة من النظام القديم
+        var orphanClaims = dbContext.Database.ExecuteSqlRaw("DELETE FROM [AspNetRoleClaims] WHERE [ClaimType] = 'Permission'");
+    }
+    catch { /* قد لا يوجد الجدول في DB جديدة/اختبارات — تجاهل */ }
+
+    foreach (var (oldName, newKey) in OldArabicToNewKey)
+    {
+        var oldRole = await roleManager.FindByNameAsync(oldName);
+        if (oldRole is null) continue;
+
+        // تأكد أن الدور الجديد موجود قبل النقل
+        if (!await roleManager.RoleExistsAsync(newKey))
+            await roleManager.CreateAsync(new IdentityRole(newKey));
+
+        var usersInOld = await userManager.GetUsersInRoleAsync(oldName);
+        foreach (var u in usersInOld)
+        {
+            if (!await userManager.IsInRoleAsync(u, newKey))
+                await userManager.AddToRoleAsync(u, newKey);
+            await userManager.RemoveFromRoleAsync(u, oldName);
+        }
+
+        // احذف الدور العربي القديم بعد نقل كل مستخدميه
+        var stillHasUsers = (await userManager.GetUsersInRoleAsync(oldName)).Count > 0;
+        if (!stillHasUsers)
+        {
+            // احذف أي claims متبقية على الدور القديم ثم الدور نفسه
+            var claims = await roleManager.GetClaimsAsync(oldRole);
+            foreach (var c in claims) await roleManager.RemoveClaimAsync(oldRole, c);
+            await roleManager.DeleteAsync(oldRole);
+        }
+    }
+
+    // --- زرع الأدوار الإنجليزية للموديولات ---
+    foreach (var roleKey in ModuleRoles)
+    {
+        if (!await roleManager.RoleExistsAsync(roleKey))
+            await roleManager.CreateAsync(new IdentityRole(roleKey));
+    }
+
     if (!await roleManager.RoleExistsAsync("Admin"))
         await roleManager.CreateAsync(new IdentityRole("Admin"));
 
-    // دور المشرف الأعلى (لوحة إدارة النظام) — يُمنح يدويًا للمستخدمين عبر شاشة المستخدمين
     if (!await roleManager.RoleExistsAsync("SuperAdmin"))
         await roleManager.CreateAsync(new IdentityRole("SuperAdmin"));
 
-    // منح دور المسؤول جميع الأذونات (كي يعمل admin@erp.com دائمًا)
-    var adminRole = await roleManager.FindByNameAsync("Admin");
-    if (adminRole is not null)
+    // امنح admin@erp.com كل أدوار الموديولات (إن وُجد) حتى يرى كل شيء دون منطق خاص
+    var adminUser = await userManager.FindByEmailAsync("admin@erp.com");
+    if (adminUser is not null)
     {
-        var existing = await roleManager.GetClaimsAsync(adminRole);
-        var existingValues = existing
-            .Where(c => c.Type == PermissionCatalog.ClaimType)
-            .Select(c => c.Value)
-            .ToHashSet();
-
-        foreach (var permission in PermissionCatalog.AllPermissions())
-        {
-            if (!existingValues.Contains(permission))
-                await roleManager.AddClaimAsync(adminRole, new System.Security.Claims.Claim(PermissionCatalog.ClaimType, permission));
-        }
+        foreach (var rk in ModuleRoles)
+            if (!await userManager.IsInRoleAsync(adminUser, rk))
+                await userManager.AddToRoleAsync(adminUser, rk);
+        if (!await userManager.IsInRoleAsync(adminUser, "Admin"))
+            await userManager.AddToRoleAsync(adminUser, "Admin");
     }
 
-    // زرع الأدوار الجاهزة المقسمة حسب الموديولات (كاشير، مخازن، مبيعات، ...)
-    foreach (var (roleName, moduleKey) in PermissionCatalog.ModuleRoles)
-    {
-        if (!await roleManager.RoleExistsAsync(roleName))
-            await roleManager.CreateAsync(new IdentityRole(roleName));
-
-        var moduleRole = await roleManager.FindByNameAsync(roleName);
-        if (moduleRole is null) continue;
-
-        var moduleExisting = (await roleManager.GetClaimsAsync(moduleRole))
-            .Where(c => c.Type == PermissionCatalog.ClaimType)
-            .Select(c => c.Value)
-            .ToHashSet();
-
-        foreach (var action in PermissionCatalog.Actions)
-        {
-            var permission = PermissionCatalog.Build(moduleKey, action);
-            if (!moduleExisting.Contains(permission))
-                await roleManager.AddClaimAsync(moduleRole, new System.Security.Claims.Claim(PermissionCatalog.ClaimType, permission));
-        }
-    }
-
+    // إنشاء admin@erp.com إن لم يكن موجودًا (محمي بكلمة سر من الإعدادات)
     if (!string.IsNullOrWhiteSpace(adminPassword) &&
         await userManager.FindByEmailAsync("admin@erp.com") is null)
     {
         var admin = new IdentityUser { UserName = "admin@erp.com", Email = "admin@erp.com", EmailConfirmed = true };
         var result = await userManager.CreateAsync(admin, adminPassword);
         if (result.Succeeded)
+        {
             await userManager.AddToRoleAsync(admin, "Admin");
+            foreach (var rk in ModuleRoles)
+                await userManager.AddToRoleAsync(admin, rk);
+        }
     }
 }
 

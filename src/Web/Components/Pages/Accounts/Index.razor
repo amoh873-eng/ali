@@ -1,4 +1,5 @@
 @page "/accounts"
+@attribute [Authorize(Roles = "Accounting")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* 

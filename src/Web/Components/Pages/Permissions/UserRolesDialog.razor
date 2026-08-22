@@ -1,4 +1,4 @@
-@* حوار تعيين الأدوار لمستخدم *@
+@* حوار تعيين الأدوار لمستخدم — المفتاح الإنجليزي للمنطق، التسمية العربية للعرض فقط *@
 @inject IStringLocalizer<SharedResources> Loc
 
 <MudDialog>
@@ -18,7 +18,7 @@
             }
             @foreach (var role in _allRoles)
             {
-                <MudCheckBox T="bool" Checked="@_selected[role.Name]" CheckedChanged="@((bool v) => _selected[role.Name] = v)" Label="@role.Name" />
+                <MudCheckBox T="bool" Value="@_selected[role.Name]" ValueChanged="@((bool v) => _selected[role.Name] = v)" Label="@DisplayLabel(role.Name)" />
             }
         }
     </DialogContent>
@@ -54,6 +54,12 @@
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    private string DisplayLabel(string roleName)
+    {
+        var localized = Loc[roleName];
+        return localized.ResourceNotFound ? roleName : localized.Value;
+    }
 
     private async Task SaveAsync()
     {

@@ -1,5 +1,3 @@
-using System.Security.Claims;
-using ERPSystem.Web.Permissions;
 using Microsoft.AspNetCore.Identity;
 
 namespace ERPSystem.Web.Services;
@@ -9,7 +7,6 @@ public class RoleDto
     public Guid Id { get; set; }
     public string Name { get; set; } = string.Empty;
     public int UsersCount { get; set; }
-    public int PermissionsCount { get; set; }
 }
 
 public interface IRoleService
@@ -17,12 +14,10 @@ public interface IRoleService
     Task<List<RoleDto>> GetRolesAsync();
     Task CreateRoleAsync(string name);
     Task DeleteRoleAsync(Guid id);
-    Task<List<string>> GetRolePermissionsAsync(Guid roleId);
-    Task SetRolePermissionsAsync(Guid roleId, List<string> permissions);
 }
 
 /// <summary>
-/// يدير الأدوار (IdentityRole) ومصفوفة صلاحياتها المخزَّنة كـ Claims.
+/// يدير الأدوار (IdentityRole) بنظام role = module البسيط. لا توجد claims/أذونات منفصلة.
 /// </summary>
 public class RoleService : IRoleService
 {
@@ -43,14 +38,12 @@ public class RoleService : IRoleService
         foreach (var role in roles)
         {
             var users = await _userManager.GetUsersInRoleAsync(role.Name ?? string.Empty);
-            var claims = await _roleManager.GetClaimsAsync(role);
 
             result.Add(new RoleDto
             {
                 Id = Guid.Parse(role.Id),
                 Name = role.Name ?? string.Empty,
-                UsersCount = users.Count,
-                PermissionsCount = claims.Count(c => c.Type == PermissionCatalog.ClaimType)
+                UsersCount = users.Count
             });
         }
 
@@ -65,7 +58,9 @@ public class RoleService : IRoleService
         if (await _roleManager.RoleExistsAsync(name))
             throw new InvalidOperationException("الدور موجود مسبقاً");
 
-        await _roleManager.CreateAsync(new IdentityRole(name));
+        var result = await _roleManager.CreateAsync(new IdentityRole(name));
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
     }
 
     public async Task DeleteRoleAsync(Guid id)
@@ -74,33 +69,11 @@ public class RoleService : IRoleService
         if (role is null)
             throw new InvalidOperationException("الدور غير موجود");
 
-        if (role.Name == "Admin")
+        if (role.Name == "Admin" || role.Name == "SuperAdmin")
             throw new InvalidOperationException("لا يمكن حذف دور المسؤول");
 
-        await _roleManager.DeleteAsync(role);
-    }
-
-    public async Task<List<string>> GetRolePermissionsAsync(Guid roleId)
-    {
-        var role = await _roleManager.FindByIdAsync(roleId.ToString());
-        if (role is null)
-            throw new InvalidOperationException("الدور غير موجود");
-
-        var claims = await _roleManager.GetClaimsAsync(role);
-        return claims.Where(c => c.Type == PermissionCatalog.ClaimType).Select(c => c.Value).ToList();
-    }
-
-    public async Task SetRolePermissionsAsync(Guid roleId, List<string> permissions)
-    {
-        var role = await _roleManager.FindByIdAsync(roleId.ToString());
-        if (role is null)
-            throw new InvalidOperationException("الدور غير موجود");
-
-        var existing = await _roleManager.GetClaimsAsync(role);
-        foreach (var claim in existing.Where(c => c.Type == PermissionCatalog.ClaimType))
-            await _roleManager.RemoveClaimAsync(role, claim);
-
-        foreach (var permission in permissions.Distinct())
-            await _roleManager.AddClaimAsync(role, new Claim(PermissionCatalog.ClaimType, permission));
+        var result = await _roleManager.DeleteAsync(role);
+        if (!result.Succeeded)
+            throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
     }
 }

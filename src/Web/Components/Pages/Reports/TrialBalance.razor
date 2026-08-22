@@ -1,5 +1,5 @@
 @page "/trial-balance"
-@attribute [Authorize(Policy = "Permission:Reports.View")]
+@attribute [Authorize(Roles = "Reports")]
 @inject IStringLocalizer<SharedResources> Loc
 
 @* صفحة ميزان المراجعة - أرصدة الحسابات وإجمالي المدين والدائن *@

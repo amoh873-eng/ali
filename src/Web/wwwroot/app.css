@@ -48,10 +48,17 @@ td.stock-out {
     font-weight: 600;
 }
 
-/* الشريط العلوي: بلا ظل + خط سفلي خفيف */
+/* الشريط العلوي: بلا ظل + خط سفلي خفيف — طبقة عالية فوق أي شريط بحث sticky */
 .mud-appbar {
     box-shadow: none;
     border-bottom: 1px solid var(--erp-border);
+    z-index: 1300 !important;
+}
+
+/* MudBlazor يضع AppBar كـ fixed — نرفع z-index للطبقة الثابتة أيضاً */
+.mud-drawer-open ~ .mud-appbar,
+.mud-appbar-fixed {
+    z-index: 1300 !important;
 }
 
 /* البطاقات: ظل خفيف + حدود خفيفة */

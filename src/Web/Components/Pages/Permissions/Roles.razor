@@ -1,5 +1,5 @@
 @page "/permissions/roles"
-@attribute [Authorize(Policy = "Permission:Permissions.View")]
+@attribute [Authorize(Roles = "Permissions")]
 @inject IStringLocalizer<SharedResources> Loc
 
 <PageTitle>@Loc["Roles"] - @Loc["AppName"]</PageTitle>
@@ -26,16 +26,13 @@
             <HeaderContent>
                 <MudTh>@Loc["RoleName"]</MudTh>
                 <MudTh>@Loc["Users"]</MudTh>
-                <MudTh>@Loc["Permissions"]</MudTh>
                 <MudTh>@Loc["Actions"]</MudTh>
             </HeaderContent>
             <RowTemplate>
-                <MudTd>@context.Name</MudTd>
+                <MudTd>@DisplayLabel(context.Name)</MudTd>
                 <MudTd>@context.UsersCount</MudTd>
-                <MudTd>@context.PermissionsCount</MudTd>
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Color="Color.Primary" OnClick="() => OpenPermissionsDialog(context)" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteRole(context)" Disabled="@(context.Name == "Admin")" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => DeleteRole(context)" Disabled="@(context.Name == "Admin" || context.Name == "SuperAdmin")" />
                 </MudTd>
             </RowTemplate>
             <PagerContent>
@@ -53,6 +50,13 @@
     [Inject] private IRoleService RoleService { get; set; } = default!;
     [Inject] private IDialogService DialogService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    private string DisplayLabel(string roleName)
+    {
+        // المفتاح الإنجليزي → التسمية العربية عبر Loc؛ إن لم توجد اترك الاسم كما هو (مثل Admin)
+        var localized = Loc[roleName];
+        return localized.ResourceNotFound ? roleName : localized.Value;
+    }
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -75,19 +79,6 @@
             await LoadAsync();
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
-    }
-
-    private async Task OpenPermissionsDialog(RoleDto role)
-    {
-        var parameters = new DialogParameters { ["RoleService"] = RoleService, ["Role"] = role };
-        var dialog = await DialogService.ShowAsync<RolePermissionsDialog>(
-            Loc["EditPermissions"], parameters,
-            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
-        if ((await dialog.Result)?.Canceled != true)
-        {
-            Snackbar.Add(Loc["PermissionsSaved"], Severity.Success);
-            await LoadAsync();
-        }
     }
 
     private async Task DeleteRole(RoleDto role)

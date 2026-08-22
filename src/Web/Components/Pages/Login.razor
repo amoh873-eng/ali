@@ -2,13 +2,15 @@
 @layout EmptyLayout
 @attribute [AllowAnonymous]
 @* ملاحظة معمارية مهمة:
-   هذه الصفحة تعمل بنمط Static SSR لمعالجة الفورم رغم أن باقي النظام InteractiveServer
-   (موروث من <Routes @rendermode="InteractiveServer" /> في App.razor) — وذلك لأن فورم POST
-   في Blazor يُعالَج دائمًا عبر مسار Static SSR (طلب HTTP خام) وليس عبر دائرة SignalR،
-   وبالتالي يتوفّر HttpContext هنا لكتابة كعكة المصادقة عبر SignInManager ثم Response.Redirect.
-   السبب الجذري للفشل السابق لم يكن الوراثة التفاعلية بحد ذاتها، بل أن [SupplyParameterFromForm]
-   يفشل في الربط ضمن .NET 10 InteractiveServer؛ لذلك يُقرأ الفورم يدويًا عبر HttpContext.Request
-   أدناه بدل الاعتماد عليه. لا تحذف هذه القراءة اليدوية ولا تُعدّل App.razor لإلغاء التفاعل العام. *@
+   تسجيل الدخول لم يعد يمر عبر مسار معالجة فورم Blazor SSR إطلاقًا (لا @formname ولا
+   [SupplyParameterFromForm]). بدلًا من ذلك، يُرسل النموذج كنموذج HTML عادي (method="post"
+   action="/login/handler") إلى نقطة نهاية Minimal API مخصصة في Program.cs
+   (app.MapPost("/login/handler", ...) بنفس نمط "/culture/set")، والتي تقرأ الحقول من الفورم وتستدعي
+   SignInManager.PasswordSignInAsync ثم تعيد التوجيه. هذا يتجنّب تمامًا فئة الأخطاء المعروفة
+   "The POST request does not specify which form is being submitted" الناتجة عن غموض @formname
+   مع وضع العرض التفاعلي (InteractiveServer)، ويتجنّب أيضًا AmbiguousMatchException الناتج عن
+   تصادم POST /login مع مسار مكوّن @page "/login". لا تُعدّل هذا الملف لإعادة استخدام @formname
+   أو [SupplyParameterFromForm] أو لتغيير action إلى "/login" أبدًا. *@
 @using System.ComponentModel.DataAnnotations
 @inject IStringLocalizer<SharedResources> Loc
 
@@ -27,13 +29,17 @@
         </div>
         <p class="login-subtitle">@Loc["LoginSubtitle"]</p>
 
-        @if (!string.IsNullOrEmpty(ErrorMessage))
+        @if (ShowError)
         {
-            <div class="login-error">@ErrorMessage</div>
+            <div class="login-error">@Loc["LoginFailed"]</div>
         }
 
-        <form method="post" @formname="login" data-enhance="false">
+        <form method="post" action="/login/handler">
             <AntiforgeryToken />
+            @if (!string.IsNullOrEmpty(ReturnUrl))
+            {
+                <input type="hidden" name="ReturnUrl" value="@ReturnUrl" />
+            }
             <div class="login-field">
                 <label>@Loc["Email"]</label>
                 <input name="Email" type="email" required />
@@ -54,34 +60,8 @@
 </div>
 
 @code {
-    [CascadingParameter] private HttpContext? HttpContext { get; set; }
-    [Inject] private SignInManager<IdentityUser> SignInManager { get; set; } = default!;
+    [SupplyParameterFromQuery(Name = "error")] private string? ErrorFlag { get; set; }
+    [SupplyParameterFromQuery(Name = "ReturnUrl")] private string? ReturnUrl { get; set; }
 
-    private string? ErrorMessage;
-
-    protected override async Task OnInitializedAsync()
-    {
-        if (HttpContext is null || !HttpMethods.IsPost(HttpContext.Request.Method))
-            return;
-
-        var form = await HttpContext.Request.ReadFormAsync();
-        var email = form["Email"].ToString();
-        var password = form["Password"].ToString();
-        var rememberMe = form["RememberMe"].ToString() == "true";
-
-        if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
-        {
-            ErrorMessage = Loc["LoginFailed"];
-            return;
-        }
-
-        var result = await SignInManager.PasswordSignInAsync(email, password, rememberMe, false);
-        if (result.Succeeded)
-        {
-            HttpContext.Response.Redirect("/");
-            return;
-        }
-
-        ErrorMessage = Loc["LoginFailed"];
-    }
+    private bool ShowError => !string.IsNullOrEmpty(ErrorFlag);
 }

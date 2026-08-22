@@ -679,4 +679,8 @@
   <data name="AsOfDate" xml:space="preserve"><value>كما في تاريخ</value></data>
   <data name="BrandName" xml:space="preserve"><value>نظام النبالي المحاسبي</value></data>
   <data name="Arabic" xml:space="preserve"><value>العربية</value></data>
+  <data name="Hr" xml:space="preserve"><value>الموارد البشرية</value></data>
+  <data name="TopSellingItems" xml:space="preserve"><value>أفضل 5 أصناف مبيعاً</value></data>
+  <data name="TopSellingItemsSubtitle" xml:space="preserve"><value>حسب إجمالي قيمة المبيعات</value></data>
+  <data name="NoTopSellingItems" xml:space="preserve"><value>لا توجد مبيعات لعرض الأصناف الأكثر مبيعاً</value></data>
 </root>

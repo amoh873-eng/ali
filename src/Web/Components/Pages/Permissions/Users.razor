@@ -1,5 +1,5 @@
 @page "/permissions/users"
-@attribute [Authorize(Policy = "Permission:Permissions.View")]
+@attribute [Authorize(Roles = "Permissions")]
 @inject IStringLocalizer<SharedResources> Loc
 
 <PageTitle>@Loc["Users"] - @Loc["AppName"]</PageTitle>

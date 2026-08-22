@@ -68,10 +68,18 @@ public class UserService : IUserService
 
         var current = await _userManager.GetRolesAsync(user);
         if (current.Count > 0)
-            await _userManager.RemoveFromRolesAsync(user, current);
+        {
+            var removeResult = await _userManager.RemoveFromRolesAsync(user, current);
+            if (!removeResult.Succeeded)
+                throw new InvalidOperationException(string.Join("; ", removeResult.Errors.Select(e => e.Description)));
+        }
 
         if (roleNames.Count > 0)
-            await _userManager.AddToRolesAsync(user, roleNames);
+        {
+            var addResult = await _userManager.AddToRolesAsync(user, roleNames);
+            if (!addResult.Succeeded)
+                throw new InvalidOperationException(string.Join("; ", addResult.Errors.Select(e => e.Description)));
+        }
     }
 
     public async Task CreateUserAsync(string userName, string email, string password, List<string> roleNames)
@@ -88,7 +96,11 @@ public class UserService : IUserService
             throw new InvalidOperationException(string.Join("; ", result.Errors.Select(e => e.Description)));
 
         if (roleNames.Count > 0)
-            await _userManager.AddToRolesAsync(user, roleNames);
+        {
+            var addResult2 = await _userManager.AddToRolesAsync(user, roleNames);
+            if (!addResult2.Succeeded)
+                throw new InvalidOperationException(string.Join("; ", addResult2.Errors.Select(e => e.Description)));
+        }
     }
 
     public async Task DeleteUserAsync(Guid userId)
