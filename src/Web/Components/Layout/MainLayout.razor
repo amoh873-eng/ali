@@ -49,8 +49,8 @@ MudLayout: التخطيط الرئيسي للصفحة.
                         </span>
                     }
                     @* ── زر الإعدادات — خلفية بنفسجية واضحة ── *@
-                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#DDD6FE;border:1px solid #C4B5FD;border-radius:10px;color:#4C1D95;" Title="الإعدادات" Href="/settings" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="الإشعارات" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#DDD6FE;border:1px solid #C4B5FD;border-radius:10px;color:#4C1D95;" Title="@Loc["Settings"]" Href="/settings" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="@Loc["Notifications"]" />
                     <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                         <ActivatorContent>
                             <MudAvatar Color="Color.Primary" Size="Size.Small" Style="cursor:pointer;">
@@ -126,11 +126,11 @@ MudLayout: التخطيط الرئيسي للصفحة.
             if (target != null && target != default)
             {
                 var days = (target.Value.Date - DateTime.UtcNow.Date).TotalDays;
-                _subTitle = $"ينتهي: {target.Value:yyyy-MM-dd}";
-                if (days < 0) { _subText = $"منتهي منذ {Math.Ceiling(-days)} يوم"; _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
-                else if (days <= 3) { _subText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
-                else if (days <= 10) { _subText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg="#FEF3C7"; _subColor="#92400E"; _subBorder="#FDE68A"; }
-                else { _subText = $"ينتهي {target.Value:MM-dd}"; _subBg="#F0FDF4"; _subColor="#065F46"; _subBorder="#BBF7D0"; }
+                _subTitle = string.Format(Loc["SubExpires"].Value, target.Value);
+                if (days < 0) { _subText = string.Format(Loc["SubExpiredAgo"].Value, Math.Ceiling(-days)); _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
+                else if (days <= 3) { _subText = string.Format(Loc["SubRemainingDays"].Value, Math.Ceiling(days)); _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
+                else if (days <= 10) { _subText = string.Format(Loc["SubRemainingDays"].Value, Math.Ceiling(days)); _subBg="#FEF3C7"; _subColor="#92400E"; _subBorder="#FDE68A"; }
+                else { _subText = string.Format(Loc["SubEndsOn"].Value, target.Value); _subBg="#F0FDF4"; _subColor="#065F46"; _subBorder="#BBF7D0"; }
             }
         }
         catch { }

@@ -721,4 +721,17 @@
   <data name="RenewalWarningInfo" xml:space="preserve"><value>Your subscription expires in {0} days — contact us to renew</value></data>
   <data name="RenewalWarningUrgent" xml:space="preserve"><value>⚠️ Your subscription expires in {0} days — contact us now</value></data>
   <data name="TrialRenewalOverdue" xml:space="preserve"><value>Your subscription has expired — system unavailable. Contact us to renew.</value></data>
+  <data name="Settings" xml:space="preserve"><value>Settings</value></data>
+  <data name="SettingsLanguage" xml:space="preserve"><value>Language</value></data>
+  <data name="SettingsLanguageHint" xml:space="preserve"><value>Page will reload to apply the language ({0})</value></data>
+  <data name="SettingsCurrency" xml:space="preserve"><value>Currency</value></data>
+  <data name="SettingsCurrencyHint" xml:space="preserve"><value>Symbol will appear with every amount ({0}) — display only</value></data>
+  <data name="SettingsPreview" xml:space="preserve"><value>Preview:</value></data>
+  <data name="SettingsSaveCurrency" xml:space="preserve"><value>Save Currency</value></data>
+  <data name="SettingsCurrencySaved" xml:space="preserve"><value>Currency saved</value></data>
+  <data name="SubExpires" xml:space="preserve"><value>Expires: {0:yyyy-MM-dd}</value></data>
+  <data name="SubExpiredAgo" xml:space="preserve"><value>Expired {0} days ago</value></data>
+  <data name="SubRemainingDays" xml:space="preserve"><value>{0} days remaining</value></data>
+  <data name="SubEndsOn" xml:space="preserve"><value>Ends {0:MM-dd}</value></data>
+  <data name="CurrencyDisplayOnly" xml:space="preserve"><value>Display only — no conversion</value></data>
 </root>

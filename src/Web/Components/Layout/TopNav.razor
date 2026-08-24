@@ -171,29 +171,9 @@
 
 @code {
     private Dictionary<string,bool> _flags = new();
-    private string? _subscriptionText;
-    private string? _subscriptionTitle;
-    private string _subBg = "#F9FAFB", _subColor = "#374151", _subBorder = "#E5E7EB";
     protected override async Task OnInitializedAsync()
     {
         try { _flags = await SettingsService.GetFeatureFlagsAsync(); } catch { _flags = new(); }
-        // مربع الاشتراك — صغير بجانب الصلاحيات
-        try
-        {
-            var s = await SettingsService.GetAsync();
-            var target = s.NextRenewalDate != default ? s.NextRenewalDate : s.LicenseExpiryDate;
-            if (target != null && target != default)
-            {
-                var days = (target.Value.Date - DateTime.UtcNow.Date).TotalDays;
-                _subscriptionTitle = $"ينتهي: {target.Value:yyyy-MM-dd}";
-                if (days < 0) { _subscriptionText = $"منتهي منذ {Math.Ceiling(-days)} يوم"; _subBg = "#FEE2E2"; _subColor = "#991B1B"; _subBorder = "#FECACA"; }
-                else if (days <= 3) { _subscriptionText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg = "#FEE2E2"; _subColor = "#991B1B"; _subBorder = "#FECACA"; }
-                else if (days <= 10) { _subscriptionText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg = "#FEF3C7"; _subColor = "#92400E"; _subBorder = "#FDE68A"; }
-                else { _subscriptionText = $"ينتهي {target.Value:MM-dd}"; _subBg = "#F0FDF4"; _subColor = "#065F46"; _subBorder = "#BBF7D0"; }
-            }
-            else { _subscriptionText = null; }
-        }
-        catch { _subscriptionText = null; }
     }
     private bool IsEnabled(string key) => _flags.TryGetValue(key, out var v) ? v : true;
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');

@@ -1,53 +1,42 @@
-@* ── صفحة الإعدادات — العملة + اللغة (موحدة) ── *@
-@* لماذا هنا؟ زر الترس أعلى اليمين يجب أن يجمع ما يحتاجه المسؤول يومياً بلا تشتيت. *@
 @page "/settings"
 @attribute [Authorize]
 @inject ISystemSettingsService Svc
 @inject IStringLocalizer<SharedResources> Loc
 @inject ISnackbar Snack
 @inject NavigationManager Nav
-<PageTitle>الإعدادات - @Loc["AppName"]</PageTitle>
-<PageHeader Title="الإعدادات" Icon="@Icons.Material.Filled.Settings" />
+<PageTitle>@Loc["Settings"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["Settings"]" Icon="@Icons.Material.Filled.Settings" />
 
 <MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB;max-width:560px">
-    <MudText Typo="Typo.h6" Class="mb-2">اللغة</MudText>
-    @* ── اختيار اللغة — عربي/إنجليزي — يحدث كوكي الثقافة عبر /culture/set ── *@
-    @* لماذا هنا وليس قائمة منفصلة؟ تجميع الإعدادات يعطي وصولاً أسرع وأوضح. *@
+    <MudText Typo="Typo.h6" Class="mb-2">@Loc["SettingsLanguage"]</MudText>
     <MudRadioGroup T="string" Value="_lang" ValueChanged="OnLangChanged">
         <MudRadio T="string" Value="@("ar")" Color="Color.Primary">العربية</MudRadio>
         <MudRadio T="string" Value="@("en")" Color="Color.Primary">English</MudRadio>
     </MudRadioGroup>
-    <MudText Typo="Typo.caption" Style="color:#6B7280">سيُعاد تحميل الصفحة لتطبيق اللغة (@(_lang=="ar"?"العربية":"English"))</MudText>
+    <MudText Typo="Typo.caption" Style="color:#6B7280">@string.Format(Loc["SettingsLanguageHint"].Value, _lang=="ar"?"العربية":"English")</MudText>
 </MudPaper>
 
 <MudPaper Class="pa-4" Elevation="0" Style="border:1px solid #E5E7EB;max-width:560px">
-    <MudText Typo="Typo.h6" Class="mb-2">العملة</MudText>
-    @* ── اختيار العملة — قائمة منسدلة من القاموس الثابت ── *@
-    @* تغييرها عرض فقط — لا تحويل — معلّق بوضوح للمستقبل. *@
-    <MudSelect T="string" Label="العملة" @bind-Value="_code" Variant="Variant.Outlined">
+    <MudText Typo="Typo.h6" Class="mb-2">@Loc["SettingsCurrency"]</MudText>
+    <MudSelect T="string" Label="@Loc["SettingsCurrency"]" @bind-Value="_code" Variant="Variant.Outlined">
         @foreach(var kv in ERPSystem.Domain.CurrencyLookup.Symbols){<MudSelectItem T="string" Value="@kv.Key">@kv.Key — @Loc["Currency_" + kv.Key] (@kv.Value)</MudSelectItem>}
     </MudSelect>
-    <MudText Typo="Typo.caption" Class="mt-1" Style="color:#6B7280">الرمز سيظهر مع كل مبلغ في النظام (@Loc[_curNameKey]) — تغيير العملة عرض فقط</MudText>
-    @* ── معاينة حية للمبلغ بالعملة المختارة ── *@
+    <MudText Typo="Typo.caption" Class="mt-1" Style="color:#6B7280">@string.Format(Loc["SettingsCurrencyHint"].Value, Loc[_curNameKey].Value)</MudText>
     <MudPaper Class="pa-3 mt-3" Style="background:#F9FAFB;border:1px dashed #E5E7EB">
-        <MudText Typo="Typo.subtitle2">معاينة:</MudText>
+        <MudText Typo="Typo.subtitle2">@Loc["SettingsPreview"]</MudText>
         <MoneyDisplay Amount="1234.50m" />
     </MudPaper>
-    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-3">حفظ العملة</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-3">@Loc["SettingsSaveCurrency"]</MudButton>
 </MudPaper>
 @code{
-    // ── الكود الحالي للعملة — محمل من الإعدادات المخزنة ──
     string _code = "JOD";
-    // ── اللغة الحالية من الثقافة النشطة ──
     string _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
-    // مفتاح الترجمة للاسم — الرمز من القاموس، الاسم من resx
     string _curNameKey => "Currency_" + _code;
     protected override async Task OnInitializedAsync(){
         try{ var s=await Svc.GetAsync(); _code = string.IsNullOrWhiteSpace(s.CurrencyCode) ? "JOD" : s.CurrencyCode.Trim().ToUpperInvariant(); }catch{}
         _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
     }
     void OnLangChanged(string v){
-        // ── تحديث كوكي اللغة عبر المسار الموجود /culture/set — يعيد التحميل تلقائياً ──
         _lang = v;
         var path = Nav.ToBaseRelativePath(Nav.Uri);
         if(string.IsNullOrEmpty(path)) path = "/";
@@ -55,7 +44,6 @@
         Nav.NavigateTo($"/culture/set?culture={v}&redirectUri={Uri.EscapeDataString(path)}", forceLoad:true);
     }
     async Task Save(){
-        // حفظ العملة — عرض فقط، نفس الأرقام
-        try{ await Svc.UpdateAsync(s=> s.CurrencyCode = _code); Snack.Add("تم حفظ العملة", Severity.Success); }catch(Exception ex){ Snack.Add(ex.Message, Severity.Error); }
+        try{ await Svc.UpdateAsync(s=> s.CurrencyCode = _code); Snack.Add(Loc["SettingsCurrencySaved"].Value, Severity.Success); }catch(Exception ex){ Snack.Add(ex.Message, Severity.Error); }
     }
 }
