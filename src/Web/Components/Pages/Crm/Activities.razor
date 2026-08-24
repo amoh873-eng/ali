@@ -1,8 +1,9 @@
-@page "/crm/activities"
+﻿@page "/crm/activities"
 @attribute [Authorize(Roles = "Crm")]
+<ModuleGuard ModuleKey="Crm">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة سجل التواصل: قائمة الأنشطة مع فلترة حسب النوع والعميل *@
+@* ØµÙØ­Ø© Ø³Ø¬Ù„ Ø§Ù„ØªÙˆØ§ØµÙ„: Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø£Ù†Ø´Ø·Ø© Ù…Ø¹ ÙÙ„ØªØ±Ø© Ø­Ø³Ø¨ Ø§Ù„Ù†ÙˆØ¹ ÙˆØ§Ù„Ø¹Ù…ÙŠÙ„ *@
 
 <PageTitle>@Loc["Activities"] - @Loc["AppName"]</PageTitle>
 
@@ -147,3 +148,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

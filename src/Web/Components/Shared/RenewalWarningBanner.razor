@@ -1,0 +1,30 @@
+@inject ERPSystem.Application.Interfaces.ISystemSettingsService Settings
+@inject IStringLocalizer<SharedResources> Loc
+@if (_show)
+{
+    <div style='background:@_bg;color:@_fg;padding:10px 16px;display:flex;align-items:center;gap:12px;justify-content:center;font-size:.92rem;border-bottom:1px solid #E5E7EB'>
+        <span>@_msg</span>
+        @if (!string.IsNullOrWhiteSpace(_contact)) { <span style='font-weight:600'>@_contact</span> }
+        @if (_dismissible) { <button @onclick="Dismiss" style='margin-inline-start:12px;padding:4px 10px;border-radius:8px;border:1px solid currentColor;background:transparent;cursor:pointer'>@Loc["Dismiss"]</button> }
+    </div>
+}
+@code{
+    private bool _show; private string _bg="#FEF3C7", _fg="#92400E", _msg="", _contact=""; private bool _dismissible=true;
+    protected override async Task OnInitializedAsync(){
+        try{
+            var s=await Settings.GetAsync();
+            var target=s.NextRenewalDate!=default? s.NextRenewalDate : s.LicenseExpiryDate;
+            if(target==null || target==default) return;
+            var days=(target.Value.Date - DateTime.UtcNow.Date).TotalDays;
+            if(days>10) return;
+            var dismissed=await JS.InvokeAsync<string?>("localStorage.getItem","renewalBannerDismissed");
+            // show again if overdue or if 10 days passed since dismiss is not tracked — simple: allow dismiss but re-show next day
+            _contact=s.SupportContactInfo??"";
+            if(days<0){ _bg="#FEE2E2"; _fg="#991B1B"; _msg=Loc["TrialRenewalOverdue"]; _dismissible=false; _show=true; }
+            else if(days<=3){ _bg="#FEF3C7"; _fg="#92400E"; _msg=string.Format(Loc["RenewalWarningUrgent"], Math.Ceiling(days)); _show=true; }
+            else { _bg="#EFF6FF"; _fg="#1E40AF"; _msg=string.Format(Loc["RenewalWarningInfo"], Math.Ceiling(days)); _show=true; if(dismissed=="1") _show=false; }
+        }catch{}
+    }
+    [Inject] private IJSRuntime JS {get;set;} = default!;
+    private async Task Dismiss(){ _show=false; try{ await JS.InvokeVoidAsync("localStorage.setItem","renewalBannerDismissed","1"); }catch{} }
+}

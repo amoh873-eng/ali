@@ -680,7 +680,46 @@
   <data name="BrandName" xml:space="preserve"><value>نظام النبالي المحاسبي</value></data>
   <data name="Arabic" xml:space="preserve"><value>العربية</value></data>
   <data name="Hr" xml:space="preserve"><value>الموارد البشرية</value></data>
+  <data name="Attendance" xml:space="preserve"><value>الحضور</value></data>
+  <data name="AttendanceStatus" xml:space="preserve"><value>حالة الحضور</value></data>
+  <data name="Present" xml:space="preserve"><value>حاضر</value></data>
+  <data name="Absent" xml:space="preserve"><value>غائب</value></data>
+  <data name="Late" xml:space="preserve"><value>متأخر</value></data>
+  <data name="OnLeave" xml:space="preserve"><value>في إجازة</value></data>
+  <data name="CheckIn" xml:space="preserve"><value>وقت الحضور</value></data>
+  <data name="CheckOut" xml:space="preserve"><value>وقت الانصراف</value></data>
+  <data name="MarkAllPresent" xml:space="preserve"><value>تحديد الكل حاضر</value></data>
+  <data name="Show" xml:space="preserve"><value>عرض</value></data>
+  <data name="SavedSuccessfully" xml:space="preserve"><value>تم الحفظ بنجاح</value></data>
+  <data name="PayrollRuns" xml:space="preserve"><value>الرواتب</value></data>
+  <data name="PayrollDetails" xml:space="preserve"><value>تفاصيل دورة الرواتب</value></data>
+  <data name="RunNumber" xml:space="preserve"><value>رقم الدورة</value></data>
+  <data name="Period" xml:space="preserve"><value>الفترة</value></data>
+  <data name="TotalGross" xml:space="preserve"><value>إجمالي الرواتب</value></data>
+  <data name="TotalDeductions" xml:space="preserve"><value>إجمالي الاستقطاعات</value></data>
+  <data name="TotalNet" xml:space="preserve"><value>صافي الرواتب</value></data>
+  <data name="GenerateRun" xml:space="preserve"><value>توليد دورة جديدة</value></data>
+  <data name="ApproveRun" xml:space="preserve"><value>اعتماد</value></data>
+  <data name="PostToJournal" xml:space="preserve"><value>ترحيل محاسبي</value></data>
+  <data name="PayrollGenerated" xml:space="preserve"><value>تم توليد دورة الرواتب بنجاح</value></data>
+  <data name="PayrollApproved" xml:space="preserve"><value>تم اعتماد الدورة بنجاح</value></data>
+  <data name="PayrollPosted" xml:space="preserve"><value>تم الترحيل المحاسبي بنجاح</value></data>
+  <data name="NoPayrollRuns" xml:space="preserve"><value>لا توجد دورات رواتب بعد.</value></data>
+  <data name="UnpaidLeaveDays" xml:space="preserve"><value>أيام غير مدفوعة</value></data>
+  <data name="UnpaidLeaveDeduction" xml:space="preserve"><value>خصم غير مدفوع</value></data>
+  <data name="OtherDeductions" xml:space="preserve"><value>استقطاعات أخرى</value></data>
+  <data name="OtherAllowances" xml:space="preserve"><value>بدلات إضافية</value></data>
+  <data name="NetPay" xml:space="preserve"><value>صافي الراتب</value></data>
+  <data name="Draft" xml:space="preserve"><value>مسودة</value></data>
+  <data name="Approved" xml:space="preserve"><value>معتمدة</value></data>
+  <data name="Paid" xml:space="preserve"><value>مرحّلة</value></data>
+  <data name="Close" xml:space="preserve"><value>إغلاق</value></data>
+  <data name="SelectPeriod" xml:space="preserve"><value>حدد فترة الرواتب أولاً</value></data>
   <data name="TopSellingItems" xml:space="preserve"><value>أفضل 5 أصناف مبيعاً</value></data>
   <data name="TopSellingItemsSubtitle" xml:space="preserve"><value>حسب إجمالي قيمة المبيعات</value></data>
   <data name="NoTopSellingItems" xml:space="preserve"><value>لا توجد مبيعات لعرض الأصناف الأكثر مبيعاً</value></data>
+  <data name="Dismiss" xml:space="preserve"><value>إخفاء</value></data>
+  <data name="RenewalWarningInfo" xml:space="preserve"><value>ينتهي اشتراكك خلال {0} أيام — تواصل معنا للتجديد</value></data>
+  <data name="RenewalWarningUrgent" xml:space="preserve"><value>⚠️ اشتراكك ينتهي خلال {0} أيام — تواصل فورًا للتجديد</value></data>
+  <data name="TrialRenewalOverdue" xml:space="preserve"><value>انتهى اشتراكك — النظام غير متاح حاليًا. تواصل معنا للتجديد.</value></data>
 </root>

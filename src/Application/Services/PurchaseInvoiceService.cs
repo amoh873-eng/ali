@@ -82,6 +82,8 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
             InvoiceNumber = await NextInvoiceNumberAsync(),
             SupplierId = supplier.Id,
             WarehouseId = warehouse.Id,
+            DueDate = dto.DueDate ?? dto.InvoiceDate.AddDays(30),
+            TaxAmount = dto.Lines.Sum(l => l.Quantity * l.UnitCost) * 0m,
             InvoiceDate = dto.InvoiceDate,
             InvoiceType = type,
             Status = DocumentStatus.Posted,

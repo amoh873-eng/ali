@@ -1,18 +1,24 @@
 @* شريط التنقل الأفقي العلوي: روابط + قوائم منسدلة (CSS hover) *@
 @inject NavigationManager Nav
 @inject IStringLocalizer<SharedResources> Loc
+@inject ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService
 
 <nav class="erp-topnav">
     <a class="erp-nav-btn @(IsHome ? "active" : "")" style="--accent:#6D5BD0" href="/">
         <MudIcon Icon="@Icons.Material.Filled.Home" Class="erp-nav-icon" /> @Loc["Home"]
     </a>
 
+    @if (IsEnabled("Pos"))
+    {
     <AuthorizeView Roles="Pos">
         <a class="erp-nav-btn @(IsActive("/pos") ? "active" : "")" style="--accent:#EC4899" href="/pos">
             <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" /> @Loc["Pos"]
         </a>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Accounting"))
+    {
     <AuthorizeView Roles="Accounting">
         <div class="erp-dropdown @(IsActive("/accounts", "/journal-entries") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#3B82F6" href="/accounts">
@@ -24,7 +30,10 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Inventory"))
+    {
     <AuthorizeView Roles="Inventory">
         <div class="erp-dropdown @(IsActive("/inventory") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#10B981" href="/inventory/items">
@@ -40,7 +49,10 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Sales"))
+    {
     <AuthorizeView Roles="Sales">
         <div class="erp-dropdown @(IsActive("/sales") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#F472B6" href="/sales/invoices">
@@ -54,7 +66,10 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Purchases"))
+    {
     <AuthorizeView Roles="Purchases">
         <div class="erp-dropdown @(IsActive("/purchases") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#F59E0B" href="/purchases/invoices">
@@ -68,34 +83,45 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
-    <AuthorizeView Roles="Hr">
-        <div class="erp-dropdown @(IsActive("/hr") ? "active" : "")">
-            <a class="erp-nav-btn" style="--accent:#14B8A6" href="/hr/employees">
-                <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" /> @Loc["HumanResources"] ▾
-            </a>
-            <div class="erp-dropdown-menu">
-                <a href="/hr/departments"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Departments"]</a>
-                <a href="/hr/positions"><MudIcon Icon="@Icons.Material.Filled.Badge" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Positions"]</a>
-                <a href="/hr/employees"><MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Employees"]</a>
-                <a href="/hr/leaves"><MudIcon Icon="@Icons.Material.Filled.EventAvailable" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Leaves"]</a>
+    @if (IsEnabled("Hr"))
+    {
+        <AuthorizeView Roles="Hr">
+            <div class="erp-dropdown @(IsActive("/hr") ? "active" : "")">
+                <a class="erp-nav-btn" style="--accent:#14B8A6" href="/hr/employees">
+                    <MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" /> @Loc["HumanResources"] ▾
+                </a>
+                <div class="erp-dropdown-menu">
+                    <a href="/hr/departments"><MudIcon Icon="@Icons.Material.Filled.AccountTree" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["Departments"]</a>
+                    <a href="/hr/positions"><MudIcon Icon="@Icons.Material.Filled.Badge" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["Positions"]</a>
+                    <a href="/hr/employees"><MudIcon Icon="@Icons.Material.Filled.Groups" Class="erp-nav-icon" Style="color:#14B8A6;" /> @Loc["Employees"]</a>
+                    <a href="/hr/leaves"><MudIcon Icon="@Icons.Material.Filled.EventAvailable" Class="erp-nav-icon" Style="color:#F59E0B;" /> @Loc["Leaves"]</a>
+                    <a href="/hr/attendance"><MudIcon Icon="@Icons.Material.Filled.FactCheck" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["Attendance"]</a>
+                    <a href="/hr/payroll"><MudIcon Icon="@Icons.Material.Filled.Payments" Class="erp-nav-icon" Style="color:#F97316;" /> @Loc["PayrollRuns"]</a>
+                </div>
             </div>
-        </div>
-    </AuthorizeView>
+        </AuthorizeView>
+    }
 
-    <AuthorizeView Roles="Reports">
-        <div class="erp-dropdown @(IsActive("/trial-balance", "/general-ledger", "/financial-statements") ? "active" : "")">
-            <a class="erp-nav-btn" style="--accent:#6366F1" href="/trial-balance">
-                <MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" /> @Loc["Reports"] ▾
-            </a>
-            <div class="erp-dropdown-menu">
-                <a href="/trial-balance"><MudIcon Icon="@Icons.Material.Filled.Balance" Class="erp-nav-icon" Style="color:#6D5BD0;" /> @Loc["TrialBalance"]</a>
-                <a href="/general-ledger"><MudIcon Icon="@Icons.Material.Filled.MenuBook" Class="erp-nav-icon" Style="color:#3B82F6;" /> @Loc["GeneralLedger"]</a>
-                <a href="/financial-statements"><MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["FinancialStatements"]</a>
+    @if (IsEnabled("Reports"))
+    {
+        <AuthorizeView Roles="Reports">
+            <div class="erp-dropdown @(IsActive("/reports") ? "active" : "")">
+                <a class="erp-nav-btn" style="--accent:#06B6D4" href="/reports">
+                    <MudIcon Icon="@Icons.Material.Filled.Assessment" Class="erp-nav-icon" /> @Loc["Reports"] ▾
+                </a>
+                <div class="erp-dropdown-menu">
+                    <a href="/reports"><MudIcon Icon="@Icons.Material.Filled.Dashboard" Class="erp-nav-icon" Style="color:#06B6D4;" /> @Loc["ReportsDashboard"]</a>
+                <a href="/reports/custom"><MudIcon Icon="@Icons.Material.Filled.TableChart" Class="erp-nav-icon" Style="color:#8B5CF6;" /> التقارير المخصصة</a>
+                    <a href="/reports/financial-statements"><MudIcon Icon="@Icons.Material.Filled.Receipt" Class="erp-nav-icon" Style="color:#10B981;" /> @Loc["FinancialStatements"]</a>
+                </div>
             </div>
-        </div>
-    </AuthorizeView>
+        </AuthorizeView>
+    }
 
+    @if (IsEnabled("Expenses"))
+    {
     <AuthorizeView Roles="Expenses">
         <div class="erp-dropdown @(IsActive("/expenses") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#F97316" href="/expenses">
@@ -107,7 +133,10 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Crm"))
+    {
     <AuthorizeView Roles="Crm">
         <div class="erp-dropdown @(IsActive("/crm") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#0EA5E9" href="/crm/leads">
@@ -120,7 +149,10 @@
             </div>
         </div>
     </AuthorizeView>
+    }
 
+    @if (IsEnabled("Permissions"))
+    {
     <AuthorizeView Roles="Permissions">
         <div class="erp-dropdown @(IsActive("/permissions") ? "active" : "")">
             <a class="erp-nav-btn" style="--accent:#8B5CF6" href="/permissions/roles">
@@ -132,9 +164,45 @@
             </div>
         </div>
     </AuthorizeView>
+    }
+
+    @* مربع صغير للاشتراك — بجانب آخر زر (الصلاحيات) *@
+    @if (_subscriptionText != null)
+    {
+        <span title="@_subscriptionTitle" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;font-size:.78rem;font-weight:700;border:1px solid @_subBorder;background:@_subBg;color:@_subColor;white-space:nowrap;margin-inline-start:8px">
+            <MudIcon Icon="@Icons.Material.Filled.Event" Size="Size.Small" Style="@($"color:{_subColor};font-size:1rem")" />
+            @_subscriptionText
+        </span>
+    }
 </nav>
 
 @code {
+    private Dictionary<string,bool> _flags = new();
+    private string? _subscriptionText;
+    private string? _subscriptionTitle;
+    private string _subBg = "#F9FAFB", _subColor = "#374151", _subBorder = "#E5E7EB";
+    protected override async Task OnInitializedAsync()
+    {
+        try { _flags = await SettingsService.GetFeatureFlagsAsync(); } catch { _flags = new(); }
+        // مربع الاشتراك — صغير بجانب الصلاحيات
+        try
+        {
+            var s = await SettingsService.GetAsync();
+            var target = s.NextRenewalDate != default ? s.NextRenewalDate : s.LicenseExpiryDate;
+            if (target != null && target != default)
+            {
+                var days = (target.Value.Date - DateTime.UtcNow.Date).TotalDays;
+                _subscriptionTitle = $"ينتهي: {target.Value:yyyy-MM-dd}";
+                if (days < 0) { _subscriptionText = $"منتهي منذ {Math.Ceiling(-days)} يوم"; _subBg = "#FEE2E2"; _subColor = "#991B1B"; _subBorder = "#FECACA"; }
+                else if (days <= 3) { _subscriptionText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg = "#FEE2E2"; _subColor = "#991B1B"; _subBorder = "#FECACA"; }
+                else if (days <= 10) { _subscriptionText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg = "#FEF3C7"; _subColor = "#92400E"; _subBorder = "#FDE68A"; }
+                else { _subscriptionText = $"ينتهي {target.Value:MM-dd}"; _subBg = "#F0FDF4"; _subColor = "#065F46"; _subBorder = "#BBF7D0"; }
+            }
+            else { _subscriptionText = null; }
+        }
+        catch { _subscriptionText = null; }
+    }
+    private bool IsEnabled(string key) => _flags.TryGetValue(key, out var v) ? v : true;
     private string CurrentPath => "/" + Nav.ToBaseRelativePath(Nav.Uri).TrimStart('/');
 
     private bool IsHome => CurrentPath == "/";

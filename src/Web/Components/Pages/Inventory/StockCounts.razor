@@ -1,8 +1,9 @@
-@page "/inventory/stockcounts"
+﻿@page "/inventory/stockcounts"
 @attribute [Authorize(Roles = "Inventory")]
+<ModuleGuard ModuleKey="Inventory">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة الجرد الدوري - قائمة عمليات الجرد مع الفروقات *@
+@* ØµÙØ­Ø© Ø§Ù„Ø¬Ø±Ø¯ Ø§Ù„Ø¯ÙˆØ±ÙŠ - Ù‚Ø§Ø¦Ù…Ø© Ø¹Ù…Ù„ÙŠØ§Øª Ø§Ù„Ø¬Ø±Ø¯ Ù…Ø¹ Ø§Ù„ÙØ±ÙˆÙ‚Ø§Øª *@
 
 <PageTitle>@Loc["StockCounts"] - @Loc["AppName"]</PageTitle>
 
@@ -95,3 +96,4 @@
             new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
     }
 }
+</ModuleGuard>

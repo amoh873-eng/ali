@@ -1,0 +1,32 @@
+@using ERPSystem.Application.Interfaces
+@inject ISystemSettingsService SettingsService
+@inject NavigationManager Nav
+
+@if (_checked)
+{
+    @if (_enabled)
+    {
+        @ChildContent
+    }
+    else
+    {
+        <MudAlert Severity="Severity.Warning" Class="m-4">هذه الوحدة غير مُفعّلة حاليًا — الرجاء التواصل مع المورّد.</MudAlert>
+    }
+}
+
+@code {
+    [Parameter] public string ModuleKey { get; set; } = "";
+    [Parameter] public RenderFragment? ChildContent { get; set; }
+    private bool _checked = false;
+    private bool _enabled = true;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var flags = await SettingsService.GetFeatureFlagsAsync();
+            _enabled = flags.TryGetValue(ModuleKey, out var v) ? v : true;
+        }
+        catch { _enabled = true; }
+        _checked = true;
+    }
+}

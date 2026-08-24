@@ -39,9 +39,22 @@
                 @Loc["TaxAmount"]: @Invoice.TaxAmount.ToString("N2")
             </MudText>
             <MudText Typo="Typo.h6" Class="mt-1">@Loc["Total"]: @Invoice.TotalAmount.ToString("N2")</MudText>
+            @if (!string.IsNullOrWhiteSpace(Invoice.JoFotaraReferenceNumber) || !string.IsNullOrWhiteSpace(Invoice.JoFotaraQrCode))
+            {
+                <MudPaper Elevation="0" Class="pa-3 mt-3" Style="background:#F9FAFB;border:1px solid var(--erp-border);border-radius:10px;">
+                    <MudText Typo="Typo.subtitle2">الفوترة الأردنية (JoFotara)</MudText>
+                    @if (!string.IsNullOrWhiteSpace(Invoice.JoFotaraReferenceNumber)) { <MudText Typo="Typo.body2">المرجع: @Invoice.JoFotaraReferenceNumber</MudText> }
+                    @if (Invoice.JoFotaraSubmittedAt != null) { <MudText Typo="Typo.caption">بتاريخ: @Invoice.JoFotaraSubmittedAt.Value.ToString("yyyy-MM-dd HH:mm")</MudText> }
+                    @if (!string.IsNullOrWhiteSpace(Invoice.JoFotaraQrCode)) { <div class="mt-2" style="word-break:break-all;font-family:monospace;font-size:.8rem;background:#fff;padding:8px;border-radius:8px;">@Invoice.JoFotaraQrCode</div> }
+                    @if (!string.IsNullOrWhiteSpace(Invoice.JoFotaraQrCode)) { <div class="mt-2"><img src="https://api.qrserver.com/v1/create-qr-code/?size=180x180&data=@Uri.EscapeDataString(Invoice.JoFotaraQrCode)" alt="QR" style="border:1px solid #E5E7EB;border-radius:8px;" /></div> }
+                </MudPaper>
+            }
+            @if (_joError != null) { <MudAlert Severity="Severity.Error" Class="mt-2">@_joError</MudAlert> }
+            @if (_joSuccess != null) { <MudAlert Severity="Severity.Success" Class="mt-2">@_joSuccess</MudAlert> }
         }
     </DialogContent>
     <DialogActions>
+        <MudButton OnClick="PostToJoFotara" Variant="Variant.Filled" Disabled="_posting" StartIcon="@Icons.Material.Filled.Send" Style="background:linear-gradient(180deg,#FFF8DC 0%,#FDE68A 30%,#F59E0B 55%,#B45309 100%);color:#78350F;border:1px solid #FBBF24;box-shadow:0 3px 0 #92400E;font-weight:700;">ترحيل إلى نظام الفوترة</MudButton>
         <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
     </DialogActions>
 </MudDialog>
@@ -50,6 +63,29 @@
     [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
 
     [Parameter] public SalesInvoiceDto? Invoice { get; set; }
+
+    [Inject] private ERPSystem.Application.Interfaces.IJoFotaraIntegrationService JoFotaraService { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.ISalesInvoiceService InvoiceService2 { get; set; } = default!;
+    private bool _posting;
+    private string? _joError;
+    private string? _joSuccess;
+
+    private async Task PostToJoFotara()
+    {
+        if (Invoice == null) return;
+        _posting = true; _joError = null; _joSuccess = null;
+        try
+        {
+            if (!JoFotaraService.IsEnabled()) { _joError = "موديول JoFotara غير مفعل من لوحة المالك — فعّله وأدخل بيانات ISTD أولاً."; _posting = false; return; }
+            await JoFotaraService.SubmitInvoiceAsync(Invoice.Id);
+            _joSuccess = "تم إرسال الفاتورة إلى نظام الفوترة بنجاح — سيظهر المرجع/QR بعد تحديث التفاصيل.";
+            // reload
+            var refreshed = await InvoiceService2.GetByIdAsync(Invoice.Id);
+            if (refreshed != null) Invoice = refreshed;
+        }
+        catch (Exception ex) { _joError = ex.Message; }
+        finally { _posting = false; }
+    }
 
     private void Close() => MudDialog.Close(DialogResult.Ok(true));
 }

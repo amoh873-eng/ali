@@ -1,8 +1,9 @@
-@page "/purchases/suppliers"
+﻿@page "/purchases/suppliers"
 @attribute [Authorize(Roles = "Purchases")]
+<ModuleGuard ModuleKey="Purchases">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة الموردين *@
+@* ØµÙØ­Ø© Ø§Ù„Ù…ÙˆØ±Ø¯ÙŠÙ† *@
 
 <PageTitle>@Loc["Suppliers"] - @Loc["AppName"]</PageTitle>
 
@@ -127,3 +128,4 @@
     }
 }
 
+</ModuleGuard>

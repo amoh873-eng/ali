@@ -1,0 +1,113 @@
+﻿@page "/hr/payroll"
+@attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
+@inject IStringLocalizer<SharedResources> Loc
+@inject IPayrollService PayrollService
+@inject NavigationManager Nav
+@inject ISnackbar Snackbar
+@inject IDialogService DialogService
+
+<PageTitle>@Loc["PayrollRuns"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["PayrollRuns"]" Icon="@Icons.Material.Filled.Payments" />
+
+<MudToolBar Class="mb-4">
+    <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" Style="max-width:200px;" />
+    <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" Class="ms-2" Style="max-width:200px;" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ms-2" StartIcon="@Icons.Material.Filled.Add" OnClick="GenerateAsync">@Loc["GenerateRun"]</MudButton>
+</MudToolBar>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="my-4" />
+}
+else if (_runs.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">@Loc["NoPayrollRuns"]</MudAlert>
+}
+else
+{
+    <MudPaper Elevation="1">
+        <MudTable Items="_runs" Dense="true" Hover="true">
+            <HeaderContent>
+                <MudTh>@Loc["RunNumber"]</MudTh>
+                <MudTh>@Loc["Period"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+                <MudTh>@Loc["TotalGross"]</MudTh>
+                <MudTh>@Loc["TotalDeductions"]</MudTh>
+                <MudTh>@Loc["TotalNet"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.RunNumber</MudTd>
+                <MudTd>@context.PeriodStart.ToString("yyyy-MM-dd") - @context.PeriodEnd.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd><MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">@StatusLabel(context.Status)</MudChip></MudTd>
+                <MudTd>@context.TotalGross.ToString("N2")</MudTd>
+                <MudTd>@context.TotalDeductions.ToString("N2")</MudTd>
+                <MudTd><strong>@context.TotalNet.ToString("N2")</strong></MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Primary" OnClick="@(() => OpenDetails(context))" />
+                    @if (context.Status == PayrollRunStatus.Draft)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Color="Color.Success" OnClick="@(() => ApproveAsync(context))" title="@Loc["ApproveRun"]" />
+                    }
+                    @if (context.Status == PayrollRunStatus.Approved)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.PostAdd" Size="Size.Small" Color="Color.Warning" OnClick="@(() => PostAsync(context))" title="@Loc["PostToJournal"]" />
+                    }
+                </MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@code {
+    private bool _isLoading = true;
+    private List<PayrollRunDto> _runs = new();
+    private DateTime? _from = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateTime? _to = DateTime.Today;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try { _runs = await PayrollService.GetRunsAsync(); }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private async Task GenerateAsync()
+    {
+        if (_from is null || _to is null) { Snackbar.Add(Loc["SelectPeriod"], Severity.Warning); return; }
+        try
+        {
+            await PayrollService.GenerateRunAsync(_from.Value, _to.Value);
+            Snackbar.Add(Loc["PayrollGenerated"], Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task ApproveAsync(PayrollRunDto run)
+    {
+        try { await PayrollService.ApproveRunAsync(run.Id); Snackbar.Add(Loc["PayrollApproved"], Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task PostAsync(PayrollRunDto run)
+    {
+        try { await PayrollService.PostRunToJournalAsync(run.Id); Snackbar.Add(Loc["PayrollPosted"], Severity.Success); await LoadAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private async Task OpenDetails(PayrollRunDto run)
+    {
+        var p = new DialogParameters { ["Run"] = run, ["PayrollService"] = PayrollService };
+        await DialogService.ShowAsync<PayrollRunDetailsDialog>(Loc["PayrollDetails"], p, new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        await LoadAsync();
+    }
+
+    private string StatusLabel(PayrollRunStatus s) => s switch { PayrollRunStatus.Draft => Loc["Draft"], PayrollRunStatus.Approved => Loc["Approved"], PayrollRunStatus.Paid => Loc["Paid"], _ => s.ToString() };
+    private Color StatusColor(PayrollRunStatus s) => s switch { PayrollRunStatus.Draft => Color.Default, PayrollRunStatus.Approved => Color.Info, PayrollRunStatus.Paid => Color.Success, _ => Color.Default };
+}
+</ModuleGuard>

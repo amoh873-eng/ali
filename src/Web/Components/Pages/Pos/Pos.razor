@@ -1,11 +1,12 @@
-@page "/pos"
+﻿@page "/pos"
 @attribute [Authorize(Roles = "Pos")]
 @layout PosLayout
+<ModuleGuard ModuleKey="Pos">
 @inject IStringLocalizer<SharedResources> Loc
 @inject NavigationManager Nav
 
 <div class="pos-root">
-    @* الشريط العلوي المصغّر *@
+    @* Ø§Ù„Ø´Ø±ÙŠØ· Ø§Ù„Ø¹Ù„ÙˆÙŠ Ø§Ù„Ù…ØµØºÙ‘Ø± *@
     <div class="pos-topbar">
         <div class="pos-brand">
             <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Style="color:var(--erp-primary); font-size:1.8rem;" />
@@ -167,7 +168,7 @@
     private Guid? _selectedCategoryId;
     private Guid? _defaultWarehouseId;
 
-    // إعدادات نقطة البيع (تُحفظ في localStorage وتُطبَّق كمتغيرات CSS)
+    // Ø¥Ø¹Ø¯Ø§Ø¯Ø§Øª Ù†Ù‚Ø·Ø© Ø§Ù„Ø¨ÙŠØ¹ (ØªÙØ­ÙØ¸ ÙÙŠ localStorage ÙˆØªÙØ·Ø¨ÙŽÙ‘Ù‚ ÙƒÙ…ØªØºÙŠØ±Ø§Øª CSS)
     private int _posColumns = 6;
     private string _posSize = "medium";
     private string _posAccent = "#6D5BD0";
@@ -302,7 +303,7 @@
         if (line.Quantity <= 0) _cart.Remove(line);
     }
 
-    /// <summary>تحديث الكمية يدويًا من صندوق الكمية في سطر السلة.</summary>
+    /// <summary>ØªØ­Ø¯ÙŠØ« Ø§Ù„ÙƒÙ…ÙŠØ© ÙŠØ¯ÙˆÙŠÙ‹Ø§ Ù…Ù† ØµÙ†Ø¯ÙˆÙ‚ Ø§Ù„ÙƒÙ…ÙŠØ© ÙÙŠ Ø³Ø·Ø± Ø§Ù„Ø³Ù„Ø©.</summary>
     private void SetQuantity(CartLine line, string? raw)
     {
         if (string.IsNullOrWhiteSpace(raw)) return;
@@ -317,7 +318,7 @@
     private void Remove(CartLine line) => _cart.Remove(line);
     private void ClearCart() => _cart.Clear();
 
-    /// <summary>بدء فاتورة جديدة: مسح السلة وإعادة ضبط الدفع والخصم والبحث.</summary>
+    /// <summary>Ø¨Ø¯Ø¡ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©: Ù…Ø³Ø­ Ø§Ù„Ø³Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø¶Ø¨Ø· Ø§Ù„Ø¯ÙØ¹ ÙˆØ§Ù„Ø®ØµÙ… ÙˆØ§Ù„Ø¨Ø­Ø«.</summary>
     private void NewInvoice()
     {
         ClearCart();
@@ -410,7 +411,7 @@
             var paymentLabel = _paymentMethod switch { 1 => Loc["Cash"], 2 => Loc["Card"], 3 => Loc["PosCredit"], _ => "" };
             _paymentMethod = 1;
 
-            Snackbar.Add($"{Loc["PosSaleDone"]} — {invoice.InvoiceNumber}", Severity.Success);
+            Snackbar.Add($"{Loc["PosSaleDone"]} â€” {invoice.InvoiceNumber}", Severity.Success);
             var receiptParams = new DialogParameters
             {
                 ["Invoice"] = invoice,
@@ -429,3 +430,4 @@
     }
 }
 
+</ModuleGuard>

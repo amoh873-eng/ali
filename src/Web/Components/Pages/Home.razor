@@ -3,8 +3,8 @@
 
 <PageTitle>@Loc["Dashboard"] - @Loc["AppName"]</PageTitle>
 
-@* عنوان الصفحة *@
-<PageHeader Title="@Loc["Dashboard"]" />
+@* تم حذف عنوان "لوحة التحكم" - البطاقات تبدأ مباشرة بدون فراغ بنفسجي *@
+@* <PageHeader Title="@Loc["Dashboard"]" /> *@
 
 @* 3 بطاقات أرقام + مخططات حديثة *@
 <MudGrid Spacing="4" RowSpacing="5" ColumnSpacing="4">
@@ -76,7 +76,6 @@
         }
         catch
         {
-            // في حال فشل أي استدعاء نترك القيم صفراً ولا نعطّل الصفحة
         }
     }
 

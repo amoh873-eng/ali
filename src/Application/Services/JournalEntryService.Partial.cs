@@ -54,6 +54,8 @@ public partial class JournalEntryService
             JournalEntryType.PurchaseInvoice => "فاتورة مشتريات",
             JournalEntryType.PurchaseReturn => "مردود مشتريات",
             JournalEntryType.StockAdjustment => "تسوية مخزون",
+            JournalEntryType.Payroll => "رواتب",
+            JournalEntryType.Expense => "مصروف",
             _ => "غير معروف"
         };
     }

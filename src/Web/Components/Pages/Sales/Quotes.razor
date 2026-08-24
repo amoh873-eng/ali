@@ -1,8 +1,9 @@
-@page "/sales/quotes"
+﻿@page "/sales/quotes"
 @attribute [Authorize(Roles = "Sales")]
+<ModuleGuard ModuleKey="Sales">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة عروض الأسعار - قائمة عروض الأسعار مع إمكانية التحويل إلى فواتير *@
+@* ØµÙØ­Ø© Ø¹Ø±ÙˆØ¶ Ø§Ù„Ø£Ø³Ø¹Ø§Ø± - Ù‚Ø§Ø¦Ù…Ø© Ø¹Ø±ÙˆØ¶ Ø§Ù„Ø£Ø³Ø¹Ø§Ø± Ù…Ø¹ Ø¥Ù…ÙƒØ§Ù†ÙŠØ© Ø§Ù„ØªØ­ÙˆÙŠÙ„ Ø¥Ù„Ù‰ ÙÙˆØ§ØªÙŠØ± *@
 
 <PageTitle>@Loc["SalesQuotes"] - @Loc["AppName"]</PageTitle>
 
@@ -139,3 +140,4 @@
         }
     }
 }
+</ModuleGuard>

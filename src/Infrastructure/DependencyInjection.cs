@@ -1,6 +1,7 @@
 using ERPSystem.Application.Interfaces;
 using ERPSystem.Application.Services;
 using ERPSystem.Infrastructure.Data;
+using ERPSystem.Infrastructure.Services;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -35,7 +36,7 @@ public static class DependencyInjection
                 {
                     // مكان ملفات الترحيل (Migrations) داخل مشروع Infrastructure
                     sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
-                }));
+                }).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         // Register application services
         // AddScoped: ينشأ كائن جديد لكل طلب HTTP، ويُتلف بعد انتهاء الطلب.
@@ -178,6 +179,20 @@ public static class DependencyInjection
             return new LeaveService(dbContext);
         });
 
+        services.AddScoped<IAttendanceService>(sp =>
+        {
+            var dbContext = sp.GetRequiredService<AppDbContext>();
+            return new AttendanceService(dbContext);
+        });
+
+        services.AddScoped<IPayrollService>(sp =>
+        {
+            var dbContext = sp.GetRequiredService<AppDbContext>();
+            var journal = sp.GetRequiredService<IJournalEntryService>();
+            var att = sp.GetRequiredService<IAttendanceService>();
+            return new PayrollService(dbContext, journal, att);
+        });
+
         // ==================== موديول المصاريف ====================
         services.AddScoped<IExpenseCategoryService>(sp =>
         {
@@ -216,6 +231,11 @@ public static class DependencyInjection
             var dbContext = sp.GetRequiredService<AppDbContext>();
             return new FollowUpService(dbContext);
         });
+
+        services.AddScoped<ICustomReportService>(sp => new CustomReportService(sp.GetRequiredService<AppDbContext>(), sp.GetRequiredService<IConfiguration>(), sp.GetRequiredService<IReportService>()));
+        services.AddScoped<IBackupService, BackupService>();
+        services.AddScoped<IJoFotaraIntegrationService, JoFotaraIntegrationService>();
+        services.AddHttpClient();
 
         return services;
     }

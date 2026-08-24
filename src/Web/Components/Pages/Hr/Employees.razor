@@ -1,8 +1,9 @@
-@page "/hr/employees"
+﻿@page "/hr/employees"
 @attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة الموظفون - جدول الموظفين مع بحث وتصفية بالحالة *@
+@* ØµÙØ­Ø© Ø§Ù„Ù…ÙˆØ¸ÙÙˆÙ† - Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…ÙˆØ¸ÙÙŠÙ† Ù…Ø¹ Ø¨Ø­Ø« ÙˆØªØµÙÙŠØ© Ø¨Ø§Ù„Ø­Ø§Ù„Ø© *@
 
 <PageTitle>@Loc["Employees"] - @Loc["AppName"]</PageTitle>
 
@@ -75,6 +76,8 @@
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Edit" Size="Size.Small"
                                    Color="Color.Primary" OnClick="@(e => OpenEditDialog(context))" />
+                    <MudIconButton Icon="@Icons.Material.Filled.History" Size="Size.Small"
+                                   Color="Color.Info" OnClick="@(e => OpenPayrollHistory(context))" title="@Loc["PayrollRuns"]" />
                     <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small"
                                    Color="Color.Error" OnClick="@(e => DeleteEmployee(context))" />
                 </MudTd>
@@ -185,5 +188,14 @@
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
+
+    [Inject] private IPayrollService PayrollService { get; set; } = default!;
+
+    private async Task OpenPayrollHistory(EmployeeDto employee)
+    {
+        var p = new DialogParameters { ["EmployeeId"] = employee.Id, ["EmployeeName"] = employee.NameAr, ["PayrollService"] = PayrollService };
+        await DialogService.ShowAsync<EmployeePayrollHistoryDialog>(Loc["PayrollRuns"], p, new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
 }
 
+</ModuleGuard>

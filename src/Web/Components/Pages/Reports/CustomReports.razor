@@ -1,0 +1,196 @@
+@page "/reports"
+@page "/reports/custom"
+@page "/reports/center"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Domain.Entities
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject ICustomReportService Reports
+@inject IReportService Builtin
+@inject IStringLocalizer<SharedResources> Loc
+<PageTitle>مركز التقارير - @Loc["AppName"]</PageTitle>
+<PageHeader Title="مركز التقارير الموحد" Icon="@Icons.Material.Filled.Assessment" />
+<MudPaper Class="pa-2 mb-3" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudText Typo="Typo.subtitle2" Class="mb-2">التقارير الجاهزة</MudText>
+    <div style="display:flex;flex-wrap:wrap;gap:6px">
+        @foreach(var g in _catalog.GroupBy(x=>x.Cat)){<MudChip T="string" Variant="Variant.Outlined" Color="Color.Primary">@g.Key</MudChip>
+            @foreach(var r in g){<MudButton Variant="@(_key==r.Key?Variant.Filled:Variant.Text)" Size="Size.Small" OnClick="@(()=>PickBuilt(r))" Style="text-transform:none">@r.TitleAr</MudButton>}}
+    </div>
+</MudPaper>
+@if (_list == null) { <MudProgressCircular Indeterminate="true" /> }
+else if (_list.Count == 0) { <MudAlert Severity="Severity.Info">لا توجد تقارير مخصصة — اختر تقريرا جاهزا أعلاه وحدد الفترة ثم توليد.</MudAlert> }
+else if (!string.IsNullOrEmpty(_key) && _key != "custom")
+{
+    <MudPaper Class="pa-3 mb-3" Elevation="0" Style="border:1px solid #E5E7EB">
+        <MudText Typo="Typo.subtitle2" Class="mb-2">@_title — حدد الفترة ثم توليد</MudText>
+        <MudGrid Spacing="2">
+            @foreach (var pd in _paramDefs)
+            {
+                <MudItem xs="12" sm="6" md="4">
+                    @if (pd.Type == "date") { <MudDatePicker Label="@pd.Label" @bind-Date="_paramDates[pd.Name]" Variant="Variant.Outlined" /> }
+                    else { <MudTextField Label="@pd.Label" @bind-Value="_paramValues[pd.Name]" Variant="Variant.Outlined" /> }
+                </MudItem>
+            }
+        </MudGrid>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RunWithParams" Class="mt-3" Disabled="_running">توليد</MudButton>
+        @if (_builtinResult != null) { <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="ExportBuiltinExcel" Class="mt-3 ms-2">Excel</MudButton> }
+    </MudPaper>
+}
+else
+{
+    <MudSelect T="Guid" Label="التقرير المخصص" Value="_selectedId" ValueChanged="OnSelected" Variant="Variant.Outlined" Class="mb-3" Style="min-width:280px">
+        @foreach (var r in _list) { <MudSelectItem T="Guid" Value="@r.Id">@r.Name — @(r.ReportType == CustomReportType.SqlQuery ? "SQL" : r.ExistingReportKey)</MudSelectItem> }
+    </MudSelect>
+
+    @if (_key == "custom" && _paramDefs.Count > 0)
+    {
+        <MudPaper Class="pa-3 mb-3" Elevation="0" Style="border:1px solid #E5E7EB">
+            <MudText Typo="Typo.subtitle2" Class="mb-2">الفلاتر</MudText>
+            <MudGrid Spacing="2">
+                @foreach (var pd in _paramDefs)
+                {
+                    <MudItem xs="12" sm="6" md="4">
+                        @if (pd.Type == "date")
+                        { <MudDatePicker Label="@pd.Label" @bind-Date="_paramDates[pd.Name]" Variant="Variant.Outlined" /> }
+                        else
+                        { <MudTextField Label="@pd.Label" @bind-Value="_paramValues[pd.Name]" Variant="Variant.Outlined" /> }
+                    </MudItem>
+                }
+            </MudGrid>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="RunWithParams" Class="mt-3" Disabled="_running">تشغيل</MudButton>
+        </MudPaper>
+    }
+
+    @if (!string.IsNullOrEmpty(_key) && _key != "custom" && _builtinResult != null)
+    {
+        <MudPaper Class="pa-4 mt-2" id="report-print" Style="background:#fff;border:1px solid #E5E7EB">
+            <div style="display:flex;justify-content:space-between;border-bottom:2px solid #6D5BD0;padding-bottom:8px;margin-bottom:8px"><div><b>@_brand</b> — @_builtinResult.TitleAr<br/><small>@_builtinResult.ParamSummary</small></div></div>
+            <MudTable Items="_builtinResult.Rows" Dense="true" Hover="true" Striped="true" Elevation="0"><HeaderContent>@foreach(var h in _builtinResult.Headers){<MudTh>@h</MudTh>}</HeaderContent><RowTemplate>@foreach(var c in context){<MudTd>@c</MudTd>}</RowTemplate></MudTable>
+            @if(_builtinResult.Totals!=null){<MudPaper Class="pa-2 mt-2" Style="background:#F9FAFB"><b>@string.Join(" | ", _builtinResult.Totals.Where(s=>!string.IsNullOrWhiteSpace(s)))</b></MudPaper>}
+            @if(!string.IsNullOrEmpty(_builtinResult.FooterNote)){<MudAlert Severity="Severity.Info" Class="mt-2">@_builtinResult.FooterNote</MudAlert>}
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" OnClick="ExportBuiltinExcel" Class="mt-2">Excel</MudButton>
+        </MudPaper>
+    }
+
+    @if (_running) { <MudProgressLinear Indeterminate="true" Class="my-3" /> }
+
+    @if (_result != null)
+    {
+        <MudPaper Class="pa-4 mt-2">
+            <MudText Typo="Typo.caption" Class="mb-2">عدد الصفوف: @_result.Rows.Count</MudText>
+            <MudTable Items="_result.Rows" Dense="true" Hover="true" Striped="true" Elevation="0">
+                <HeaderContent>@foreach (var c in _result.Columns) { <MudTh>@c</MudTh> }</HeaderContent>
+                <RowTemplate>@foreach (var c in _result.Columns) { <MudTd>@(context.TryGetValue(c, out var v) ? v?.ToString() : "")</MudTd> }</RowTemplate>
+            </MudTable>
+            <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Download" OnClick="ExportExcel" Class="mt-3">تصدير Excel</MudButton>
+        </MudPaper>
+    }
+}
+@code {
+    private List<CustomReportDefinition>? _list;
+    private Guid _selectedId;
+    private CustomReportResult? _result;
+    private string _key = "custom";
+    private string _title = "";
+    private string _brand = "";
+    private GenericReportTable? _builtinResult;
+    private List<ReportDef> _catalog = ReportsCatalog.All.ToList();
+    private bool _running;
+    private List<(string Name, string Type, string Label)> _paramDefs = new();
+    private Dictionary<string, string?> _paramValues = new();
+    private Dictionary<string, DateTime?> _paramDates = new();
+
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { _list = await Reports.GetEnabledAsync(); } catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        try { var s = await SettingsService.GetAsync(); _brand = s.AppDisplayName?? Loc["AppName"]; } catch { _brand = Loc["AppName"]; }
+    }
+    private async Task PickBuilt(ReportDef def)
+    {
+        _key = def.Key; _title = def.TitleAr; _selectedId = Guid.Empty; _result = null; _builtinResult = null;
+        _paramDefs.Clear(); _paramValues.Clear(); _paramDates.Clear();
+        if (def.Params.Contains(ReportParamKind.DateRange)) { _paramDefs.Add(("from","date","من")); _paramDefs.Add(("to","date","إلى")); _paramDates["from"] = DateTime.Today.AddMonths(-1); _paramDates["to"] = DateTime.Today; _paramValues["from"]=null; _paramValues["to"]=null; }
+        if (def.Params.Contains(ReportParamKind.Date) && !def.Params.Contains(ReportParamKind.DateRange)) { _paramDefs.Add(("asOf","date","حتى تاريخ")); _paramDates["asOf"]=DateTime.Today; }
+        if (_paramDefs.Count==0) { _running=true; try{ var pars=new Dictionary<string,string?>(); _builtinResult=await Builtin.GetReportAsync(def.Key, pars); }catch(Exception ex){Snackbar.Add(ex.Message,Severity.Error);} finally{_running=false;} }
+    }
+    private async Task OnSelected(Guid id)
+    {
+        _key = "custom"; _title = "مخصص"; _builtinResult = null;
+        _selectedId = id;
+        _result = null;
+        _paramDefs.Clear(); _paramValues.Clear(); _paramDates.Clear();
+        var def = _list?.FirstOrDefault(x => x.Id == id);
+        if (!string.IsNullOrWhiteSpace(def?.ParametersJson))
+        {
+            try
+            {
+                using var doc = System.Text.Json.JsonDocument.Parse(def!.ParametersJson!);
+                foreach (var el in doc.RootElement.EnumerateArray())
+                {
+                    if (!el.TryGetProperty("name", out var nv) || nv.ValueKind != System.Text.Json.JsonValueKind.String) continue;
+                    var n = nv.GetString()?.Trim() ?? "";
+                    if (string.IsNullOrWhiteSpace(n)) continue;
+                    string t = "string"; if (el.TryGetProperty("type", out var tv) && tv.ValueKind == System.Text.Json.JsonValueKind.String) t = tv.GetString() ?? "string";
+                    string lb = n; if (el.TryGetProperty("label", out var lv) && lv.ValueKind == System.Text.Json.JsonValueKind.String) lb = lv.GetString() ?? n;
+                    _paramDefs.Add((n, t, lb));
+                    _paramValues[n] = null; _paramDates[n] = null;
+                }
+            } catch { }
+        }
+        // auto-run if no params required
+        if (_paramDefs.Count == 0)
+        {
+            _running = true;
+            try { _result = await Reports.ExecuteAsync(id, new()); } catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+            finally { _running = false; }
+        }
+    }
+    private async Task RunWithParams()
+    {
+        _running = true;
+        try
+        {
+            if (_key != "custom" && _key != "")
+            {
+                var pars = new Dictionary<string,string?>();
+                if (_paramDates.TryGetValue("from", out var f) && f.HasValue) pars["from"] = f.Value.ToString("yyyy-MM-dd");
+                if (_paramDates.TryGetValue("to", out var t) && t.HasValue) pars["to"] = t.Value.ToString("yyyy-MM-dd");
+                if (_paramDates.TryGetValue("asOf", out var a) && a.HasValue) pars["asOf"] = a.Value.ToString("yyyy-MM-dd");
+                _builtinResult = await Builtin.GetReportAsync(_key, pars);
+            }
+            else
+            {
+                var p = new Dictionary<string, object?>();
+                foreach (var (name, type, _) in _paramDefs)
+                {
+                    if (type == "date") { var d = _paramDates.TryGetValue(name, out var dv) ? dv : null; p[name] = d.HasValue ? DateOnly.FromDateTime(d.Value).ToDateTime(TimeOnly.MinValue) : null; }
+                    else p[name] = _paramValues.TryGetValue(name, out var v) ? v : null;
+                }
+                _result = await Reports.ExecuteAsync(_selectedId, p);
+            }
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _running = false; }
+    }
+    private async Task ExportBuiltinExcel()
+    {
+        if (_builtinResult == null) return;
+        var bytes = Builtin.ExportReportExcel(_builtinResult);
+        var b64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("eval", $"var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}';a.download='report.xlsx';a.click();");
+    }
+    private async Task ExportExcel()
+    {
+        if (_result == null) return;
+        var def = _list?.FirstOrDefault(x => x.Id == _selectedId);
+        var bytes = Reports.ExportExcel(_result, def?.Name ?? "Report");
+        var b64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("eval", $"var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}';a.download='custom-report.xlsx';a.click();");
+    }
+}
+</ModuleGuard>

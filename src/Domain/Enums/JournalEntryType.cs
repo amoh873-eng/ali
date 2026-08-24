@@ -26,5 +26,8 @@ public enum JournalEntryType
     StockAdjustment = 6,
 
     /// <summary>ناتج عن سند مصروف - Expense</summary>
-    Expense = 7
+    Expense = 7,
+
+    /// <summary>ناتج عن دورة رواتب - Payroll</summary>
+    Payroll = 8
 }

@@ -50,6 +50,10 @@ public partial class SalesInvoiceService
             SalesJournalEntryId = invoice.SalesJournalEntryId,
             CogsJournalEntryId = invoice.CogsJournalEntryId,
             IsPos = invoice.IsPos,
+            JoFotaraReferenceNumber = invoice.JoFotaraReferenceNumber,
+            JoFotaraQrCode = invoice.JoFotaraQrCode,
+            JoFotaraSubmittedAt = invoice.JoFotaraSubmittedAt,
+            JoFotaraStatus = (int)invoice.JoFotaraStatus,
             Lines = invoice.Lines.Select(MapLineToDto).ToList()
         };
     }

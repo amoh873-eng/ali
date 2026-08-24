@@ -1,8 +1,9 @@
-@page "/hr/positions"
+﻿@page "/hr/positions"
 @attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة المسميات الوظيفية - جدول المسميات المرتبطة بالأقسام *@
+@* ØµÙØ­Ø© Ø§Ù„Ù…Ø³Ù…ÙŠØ§Øª Ø§Ù„ÙˆØ¸ÙŠÙÙŠØ© - Ø¬Ø¯ÙˆÙ„ Ø§Ù„Ù…Ø³Ù…ÙŠØ§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø·Ø© Ø¨Ø§Ù„Ø£Ù‚Ø³Ø§Ù… *@
 
 <PageTitle>@Loc["Positions"] - @Loc["AppName"]</PageTitle>
 
@@ -143,3 +144,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

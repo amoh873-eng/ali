@@ -1,5 +1,6 @@
-@page "/permissions/users"
+﻿@page "/permissions/users"
 @attribute [Authorize(Roles = "Permissions")]
+<ModuleGuard ModuleKey="Permissions">
 @inject IStringLocalizer<SharedResources> Loc
 
 <PageTitle>@Loc["Users"] - @Loc["AppName"]</PageTitle>
@@ -121,3 +122,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

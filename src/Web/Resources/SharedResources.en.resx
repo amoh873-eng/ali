@@ -679,7 +679,46 @@
   <data name="AsOfDate" xml:space="preserve"><value>As of date</value></data>
   <data name="BrandName" xml:space="preserve"><value>Al-Nabali Accounting System</value></data>
   <data name="Arabic" xml:space="preserve"><value>Arabic</value></data>
+  <data name="Attendance" xml:space="preserve"><value>Attendance</value></data>
+  <data name="AttendanceStatus" xml:space="preserve"><value>Attendance Status</value></data>
+  <data name="Present" xml:space="preserve"><value>Present</value></data>
+  <data name="Absent" xml:space="preserve"><value>Absent</value></data>
+  <data name="Late" xml:space="preserve"><value>Late</value></data>
+  <data name="OnLeave" xml:space="preserve"><value>On Leave</value></data>
+  <data name="CheckIn" xml:space="preserve"><value>Check-In</value></data>
+  <data name="CheckOut" xml:space="preserve"><value>Check-Out</value></data>
+  <data name="MarkAllPresent" xml:space="preserve"><value>Mark All Present</value></data>
+  <data name="Show" xml:space="preserve"><value>Show</value></data>
+  <data name="SavedSuccessfully" xml:space="preserve"><value>Saved successfully</value></data>
+  <data name="PayrollRuns" xml:space="preserve"><value>Payroll</value></data>
+  <data name="PayrollDetails" xml:space="preserve"><value>Payroll Details</value></data>
+  <data name="RunNumber" xml:space="preserve"><value>Run Number</value></data>
+  <data name="Period" xml:space="preserve"><value>Period</value></data>
+  <data name="TotalGross" xml:space="preserve"><value>Total Gross</value></data>
+  <data name="TotalDeductions" xml:space="preserve"><value>Total Deductions</value></data>
+  <data name="TotalNet" xml:space="preserve"><value>Total Net</value></data>
+  <data name="GenerateRun" xml:space="preserve"><value>Generate New Run</value></data>
+  <data name="ApproveRun" xml:space="preserve"><value>Approve</value></data>
+  <data name="PostToJournal" xml:space="preserve"><value>Post to Journal</value></data>
+  <data name="PayrollGenerated" xml:space="preserve"><value>Payroll run generated successfully</value></data>
+  <data name="PayrollApproved" xml:space="preserve"><value>Payroll run approved</value></data>
+  <data name="PayrollPosted" xml:space="preserve"><value>Payroll posted to journal successfully</value></data>
+  <data name="NoPayrollRuns" xml:space="preserve"><value>No payroll runs yet.</value></data>
+  <data name="UnpaidLeaveDays" xml:space="preserve"><value>Unpaid Days</value></data>
+  <data name="UnpaidLeaveDeduction" xml:space="preserve"><value>Unpaid Deduction</value></data>
+  <data name="OtherDeductions" xml:space="preserve"><value>Other Deductions</value></data>
+  <data name="OtherAllowances" xml:space="preserve"><value>Other Allowances</value></data>
+  <data name="NetPay" xml:space="preserve"><value>Net Pay</value></data>
+  <data name="Draft" xml:space="preserve"><value>Draft</value></data>
+  <data name="Approved" xml:space="preserve"><value>Approved</value></data>
+  <data name="Paid" xml:space="preserve"><value>Paid</value></data>
+  <data name="Close" xml:space="preserve"><value>Close</value></data>
+  <data name="SelectPeriod" xml:space="preserve"><value>Please select the payroll period first</value></data>
   <data name="TopSellingItems" xml:space="preserve"><value>Top 5 Best-Selling Items</value></data>
   <data name="TopSellingItemsSubtitle" xml:space="preserve"><value>By total sales amount</value></data>
   <data name="NoTopSellingItems" xml:space="preserve"><value>No sales yet to show top-selling items</value></data>
+  <data name="Dismiss" xml:space="preserve"><value>Dismiss</value></data>
+  <data name="RenewalWarningInfo" xml:space="preserve"><value>Your subscription expires in {0} days — contact us to renew</value></data>
+  <data name="RenewalWarningUrgent" xml:space="preserve"><value>⚠️ Your subscription expires in {0} days — contact us now</value></data>
+  <data name="TrialRenewalOverdue" xml:space="preserve"><value>Your subscription has expired — system unavailable. Contact us to renew.</value></data>
 </root>

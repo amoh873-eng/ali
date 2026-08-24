@@ -53,6 +53,7 @@ public partial class SalesInvoiceService
             CustomerId = customer.Id,
             WarehouseId = warehouse.Id,
             InvoiceDate = dto.InvoiceDate,
+            DueDate = dto.DueDate ?? dto.InvoiceDate.AddDays(30),
             InvoiceType = type,
             Status = DocumentStatus.Posted, // هذا الموديول يرحّل الفاتورة فوراً عند الإنشاء
             DiscountPercentage = dto.DiscountPercentage,
@@ -169,6 +170,9 @@ public partial class SalesInvoiceService
             // SaveChanges واحدة تحفظ كل شيء معاً (ذرية): الفاتورة بنودها حركاتها وقيودها وأرصدتها
             await _context.SaveChangesAsync();
             await tx.CommitAsync();
+
+            // JoFotara hook removed from here — call it from Program.cs or a domain event instead
+            // to avoid circular dependency (Application -> Infrastructure). This keeps the sale non-blocking.
 
             return MapToDto(invoice);
         }

@@ -1,8 +1,9 @@
-@page "/crm/leads"
+﻿@page "/crm/leads"
 @attribute [Authorize(Roles = "Crm")]
+<ModuleGuard ModuleKey="Crm">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة العملاء المحتملون: قائمة + تحويل سريع لعميل + سجل تواصل *@
+@* ØµÙØ­Ø© Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ø§Ù„Ù…Ø­ØªÙ…Ù„ÙˆÙ†: Ù‚Ø§Ø¦Ù…Ø© + ØªØ­ÙˆÙŠÙ„ Ø³Ø±ÙŠØ¹ Ù„Ø¹Ù…ÙŠÙ„ + Ø³Ø¬Ù„ ØªÙˆØ§ØµÙ„ *@
 
 <PageTitle>@Loc["Leads"] - @Loc["AppName"]</PageTitle>
 
@@ -178,3 +179,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

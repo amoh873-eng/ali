@@ -1,0 +1,23 @@
+@* ── مكون عرض المبلغ الموحد — نقطة واحدة للتنسيق في كل النظام ── *@
+@* لماذا مكون واحد وليس ToString في كل مكان؟ نقطة تغيير واحدة، اتساق كامل، مثل StockAvailabilityHelper. *@
+@inject ISystemSettingsService Settings
+@inject IStringLocalizer<SharedResources> Loc
+<span dir="ltr" style="white-space:nowrap">@_text</span>
+@code{
+    // المبلغ الخام — القيمة المخزنة الوحيدة (لا تحويل، عملة واحدة فقط).
+    [Parameter] public decimal Amount { get; set; }
+    // ثقافة العرض تحدد موضع الرمز (عربي بعد الرقم، إنجليزي قبل) — معلّق بوضوح.
+    private string _text = "";
+    protected override async Task OnParametersSetAsync()
+    {
+        // قراءة العملة من نفس خدمة الإعدادات المخزنة (لا مسار ثانٍ).
+        string code = "JOD";
+        try { var s = await Settings.GetAsync(); code = string.IsNullOrWhiteSpace(s.CurrencyCode) ? "JOD" : s.CurrencyCode.Trim().ToUpperInvariant(); } catch { }
+        // الرمز من القاموس الثابت (رمز هو رمز — لا ترجمة)، الاسم من resx لو احتاج.
+        var sym = ERPSystem.Domain.CurrencyLookup.SymbolFor(code);
+        // ثقافة الواجهة الحالية تحدد موضع الرمز — عربي بعد، إنجليزي قبل (بسيط ومتسق).
+        var isAr = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("ar", StringComparison.OrdinalIgnoreCase);
+        var num = Amount.ToString("N2"); // تنسيق رقمي موحد في كل التطبيق (N2).
+        _text = isAr ? $"{num} {sym}" : $"{sym}{num}"; // عربي: 123.45 د.أ | إنجليزي: $123.45
+    }
+}

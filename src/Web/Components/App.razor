@@ -40,6 +40,13 @@
         };
         window.erpSavePosSettings = function (json) { try { localStorage.setItem('posSettings', json); } catch (e) {} };
         window.erpLoadPosSettings = function () { try { return localStorage.getItem('posSettings'); } catch (e) { return null; } };
+        window.erpApplyPrimary = function (hex) {
+            if (!hex) return;
+            try {
+                document.documentElement.style.setProperty('--erp-primary', hex);
+                document.documentElement.style.setProperty('--mud-palette-primary', hex);
+            } catch(e) {}
+        };
     </script>
 </body>
 

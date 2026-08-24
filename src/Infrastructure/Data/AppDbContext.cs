@@ -197,9 +197,31 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<FollowUp> FollowUps => Set<FollowUp>();
 
     /// <summary>
+    /// Attendance records table (سجل الحضور اليومي).
+    /// </summary>
+    public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
+
+    /// <summary>
+    /// Payroll runs table (دورات الرواتب).
+    /// </summary>
+    public DbSet<PayrollRun> PayrollRuns => Set<PayrollRun>();
+
+    /// <summary>
+    /// Payroll run lines table (بنود دورات الرواتب).
+    /// </summary>
+    public DbSet<PayrollRunLine> PayrollRunLines => Set<PayrollRunLine>();
+
+    /// <summary>
     /// Exception logs table (سجل الأخطاء — لوحة إدارة النظام).
     /// </summary>
     public DbSet<ExceptionLog> ExceptionLogs => Set<ExceptionLog>();
+
+    public DbSet<SystemSettings> SystemSettings => Set<SystemSettings>();
+    public DbSet<SystemSettingsHistory> SystemSettingsHistory => Set<SystemSettingsHistory>();
+    public DbSet<CustomReportDefinition> CustomReportDefinitions => Set<CustomReportDefinition>();
+    public DbSet<HealthSnapshot> HealthSnapshots => Set<HealthSnapshot>();
+    public DbSet<UpdateLog> UpdateLogs => Set<UpdateLog>();
+    public DbSet<BackupMarker> BackupMarkers => Set<BackupMarker>();
 
     /// <summary>
     /// Configures the model using Fluent API from configuration classes.
@@ -240,6 +262,13 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new ActivityConfiguration());
         modelBuilder.ApplyConfiguration(new FollowUpConfiguration());
         modelBuilder.ApplyConfiguration(new ExceptionLogConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSettingsConfiguration());
+        modelBuilder.ApplyConfiguration(new AttendanceRecordConfiguration());
+        modelBuilder.ApplyConfiguration(new PayrollRunConfiguration());
+        modelBuilder.ApplyConfiguration(new PayrollRunLineConfiguration());
+        modelBuilder.ApplyConfiguration(new CustomReportDefinitionConfiguration());
+        modelBuilder.ApplyConfiguration(new SystemSettingsHistoryConfiguration());
+        modelBuilder.ApplyConfiguration(new SalesInvoiceConfiguration());
 
         // Concurrency tokens (SQL Server rowversion) — catch lost updates to stock and account balances.
         modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
@@ -528,6 +557,24 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
                 AccountType = Domain.Enums.AccountType.Expense,
                 NormalBalance = Domain.Enums.NormalBalance.Debit,
                 ParentAccountId = expenseRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // ── مصروف رواتب — مصروف تشغيلي يُحمّل عند الاستحقاق (Debit)
+            new Account
+            {
+                Id = Guid.Parse("15000000-0000-0000-0000-000000000010"),
+                Code = "5200", NameAr = "مصروف رواتب", NameEn = "Salary Expense",
+                AccountType = Domain.Enums.AccountType.Expense,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = expenseRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // ── رواتب مستحقة الدفع — التزام على المنشأة تجاه الموظفين (Credit)
+            new Account
+            {
+                Id = Guid.Parse("12000000-0000-0000-0000-000000000010"),
+                Code = "2300", NameAr = "رواتب مستحقة الدفع", NameEn = "Payroll Payable",
+                AccountType = Domain.Enums.AccountType.Liability,
+                NormalBalance = Domain.Enums.NormalBalance.Credit,
+                ParentAccountId = liabilitiesRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
             }
         );
     }

@@ -1,8 +1,9 @@
-@page "/sales/customers"
+﻿@page "/sales/customers"
 @attribute [Authorize(Roles = "Sales")]
+<ModuleGuard ModuleKey="Sales">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة العملاء - قائمة العملاء مع البحث والإجراءات *@
+@* ØµÙØ­Ø© Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ - Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ø¹Ù…Ù„Ø§Ø¡ Ù…Ø¹ Ø§Ù„Ø¨Ø­Ø« ÙˆØ§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª *@
 
 <PageTitle>@Loc["Customers"] - @Loc["AppName"]</PageTitle>
 
@@ -150,3 +151,4 @@
     }
 }
 
+</ModuleGuard>

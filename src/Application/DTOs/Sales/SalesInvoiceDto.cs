@@ -29,4 +29,8 @@ public class SalesInvoiceDto
     public Guid? SalesJournalEntryId { get; set; }
     public Guid? CogsJournalEntryId { get; set; }
     public bool IsPos { get; set; }
+    public string? JoFotaraReferenceNumber { get; set; }
+    public string? JoFotaraQrCode { get; set; }
+    public DateTime? JoFotaraSubmittedAt { get; set; }
+    public int JoFotaraStatus { get; set; }
 }

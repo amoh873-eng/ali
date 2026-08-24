@@ -25,6 +25,8 @@ public class PurchaseInvoice : BaseEntity
     public decimal TotalAmount { get; set; }
 
     public decimal PaidAmount { get; set; }
+    public DateTime? DueDate { get; set; }
+    public decimal TaxAmount { get; set; }
     public string? Note { get; set; }
 
     public ICollection<PurchaseInvoiceLine> Lines { get; set; } = new List<PurchaseInvoiceLine>();

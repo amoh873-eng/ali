@@ -1,8 +1,9 @@
-@page "/sales/invoices"
+﻿@page "/sales/invoices"
 @attribute [Authorize(Roles = "Sales")]
+<ModuleGuard ModuleKey="Sales">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة فواتير المبيعات - قائمة فواتير المبيعات *@
+@* ØµÙØ­Ø© ÙÙˆØ§ØªÙŠØ± Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª - Ù‚Ø§Ø¦Ù…Ø© ÙÙˆØ§ØªÙŠØ± Ø§Ù„Ù…Ø¨ÙŠØ¹Ø§Øª *@
 
 <PageTitle>@Loc["SalesInvoices"] - @Loc["AppName"]</PageTitle>
 
@@ -12,9 +13,46 @@
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
         @Loc["NewInvoice"]
     </MudButton>
+    <MudButton Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Assessment" OnClick="OpenBillingReport" Class="ms-2">
+        تقرير المبيعات المفوترة
+    </MudButton>
     <MudSpacer />
     <MudText Class="align-self-center muted-text">@Loc["TotalInvoices", _invoices.Count]</MudText>
 </MudToolBar>
+<MudPaper Elevation="0" Class="pa-3 mb-3" Style="border:1px solid var(--erp-border);border-radius:10px;background:var(--erp-card);">
+    <div style="display:flex;gap:8px;align-items:center;flex-wrap:wrap;">
+        <span style="font-weight:700;">تقرير المرحلة لنظام الفوترة</span>
+        <span style="font-size:.82rem;color:var(--erp-muted);">ثابت — حدد الفترة ثم اعرض</span>
+        <MudDatePicker @bind-Date="_reportFrom" Label="من تاريخ" Variant="Variant.Outlined" Dense="true" T="DateTime?" AutoClose="true" Style="min-width:130px" />
+        <MudDatePicker @bind-Date="_reportTo" Label="إلى تاريخ" Variant="Variant.Outlined" Dense="true" T="DateTime?" AutoClose="true" Style="min-width:130px" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="LoadBillingReport" Disabled="_loadingReport">عرض</MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Success" Size="Size.Small" OnClick="ExportBillingReport" Disabled="@(_billingReport == null)">تصدير Excel</MudButton>
+    </div>
+    @if (_loadingReport) { <MudProgressLinear Indeterminate="true" Class="mt-2" /> }
+    else if (_billingReport != null)
+    {
+        <MudTable Items="_billingReport.Invoices" Dense="true" Hover="true" Class="mt-3">
+            <HeaderContent>
+                <MudTh>رقم الفاتورة</MudTh>
+                <MudTh>التاريخ</MudTh>
+                <MudTh>الإجمالي</MudTh>
+                <MudTh>JoFotara</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.InvoiceNumber</MudTd>
+                <MudTd>@context.InvoiceDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.TotalAmount.ToString("N2")</MudTd>
+                <MudTd><MudChip T="string" Size="Size.Small" Color="@(context.JoFotaraStatus == 1 ? Color.Success : context.JoFotaraStatus == 2 ? Color.Error : Color.Default)">@(context.JoFotaraStatus == 1 ? "مُرحل" : context.JoFotaraStatus == 2 ? "فشل" : "غير مُرحل")</MudChip></MudTd>
+            </RowTemplate>
+        </MudTable>
+        <div style="display:flex;gap:14px;flex-wrap:wrap;margin-top:8px;font-size:.9rem;">
+            <span>المجموع: <b>@_billingReport.TotalAmount.ToString("N2")</b></span>
+            <span>مُرحل: <b>@_billingReport.SubmittedCount</b></span>
+            <span>فشل: <b>@_billingReport.FailedCount</b></span>
+            <span>غير مُرحل: <b>@_billingReport.NotSubmittedCount</b></span>
+        </div>
+    }
+</MudPaper>
 
 <MudPaper Elevation="1">
     @if (_isLoading)
@@ -51,8 +89,14 @@
                     </MudChip>
                 </MudTd>
                 <MudTd>
-                    <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
-                                   Color="Color.Info" OnClick="@(e => ViewInvoice(context))" />
+                    <div style="display:flex;gap:4px;align-items:center">
+                        <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small"
+                                       Color="Color.Info" OnClick="@(e => ViewInvoice(context))" Title="عرض" />
+                        <MudButton Variant="Variant.Filled" Size="Size.Small" Color="Color.Warning" Disabled="_postingId == context.Id"
+                                   OnClick="@(e => PostOne(context))" Style="background:linear-gradient(180deg,#FFF8DC 0%,#FDE68A 30%,#F59E0B 55%,#B45309 100%);color:#78350F;border:1px solid #FBBF24;box-shadow:0 3px 0 #92400E;font-weight:700;">
+                            ترحيل إلى نظام الفوترة
+                        </MudButton>
+                    </div>
                 </MudTd>
             </RowTemplate>
             <PagerContent>
@@ -65,10 +109,18 @@
 @code {
     private bool _isLoading = true;
     private List<SalesInvoiceDto> _invoices = new();
+    private DateTime? _reportFrom = DateTime.Today.AddDays(-30);
+    private DateTime? _reportTo = DateTime.Today;
+    private bool _loadingReport;
+    private Guid? _postingId;
+    private ERPSystem.Application.DTOs.Reports.BillingStageReportDto? _billingReport;
 
     [Inject] private ISalesInvoiceService InvoiceService { get; set; } = default!;
     [Inject] private IDialogService DialogService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.IReportService ReportService { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.IJoFotaraIntegrationService JoFotaraService { get; set; } = default!;
+    [Inject] private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -78,6 +130,40 @@
         try { _invoices = await InvoiceService.GetInvoicesAsync(); }
         catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
         finally { _isLoading = false; }
+    }
+
+    private async Task LoadBillingReport()
+    {
+        _loadingReport = true;
+        try { _billingReport = await ReportService.GetBillingStageReportAsync(_reportFrom ?? DateTime.Today.AddDays(-30), _reportTo ?? DateTime.Today); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _loadingReport = false; }
+    }
+    private async Task ExportBillingReport()
+    {
+        if (_billingReport == null) return;
+        var bytes = ReportService.ExportBillingStageExcel(_billingReport);
+        var b64 = Convert.ToBase64String(bytes);
+        await JS.InvokeVoidAsync("eval", $"var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{b64}';a.download='billing-stage-{_reportFrom:yyyyMMdd}-{_reportTo:yyyyMMdd}.xlsx';a.click();");
+    }
+    private async Task OpenBillingReport()
+    {
+        await LoadBillingReport();
+    }
+
+    private async Task PostOne(SalesInvoiceDto inv)
+    {
+        _postingId = inv.Id;
+        try
+        {
+            if (!JoFotaraService.IsEnabled()) { Snackbar.Add("موديول JoFotara غير مفعل من لوحة المالك — فعّله وأدخل بيانات ISTD أولاً.", Severity.Warning); return; }
+            await JoFotaraService.SubmitInvoiceAsync(inv.Id);
+            Snackbar.Add("تم ترحيل الفاتورة إلى نظام الفوترة — حدّث الصفحة لرؤية المرجع/QR", Severity.Success);
+            await LoadAsync();
+            if (_billingReport != null) await LoadBillingReport();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _postingId = null; }
     }
 
     private async Task OpenCreateDialog()
@@ -99,3 +185,4 @@
             new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
     }
 }
+</ModuleGuard>

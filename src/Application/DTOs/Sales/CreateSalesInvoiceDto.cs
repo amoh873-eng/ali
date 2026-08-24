@@ -17,6 +17,7 @@ public class CreateSalesInvoiceDto
     /// Business date of the invoice.
     /// </summary>
     public DateTime InvoiceDate { get; set; } = DateTime.Today;
+    public DateTime? DueDate { get; set; }
 
     /// <summary>
     /// 1 = نقدي (Cash), 2 = آجل (On-Account).

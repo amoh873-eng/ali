@@ -1,8 +1,9 @@
-@page "/inventory/units"
+﻿@page "/inventory/units"
 @attribute [Authorize(Roles = "Inventory")]
+<ModuleGuard ModuleKey="Inventory">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة وحدات القياس - جدول الوحدات (قطعة، كيلو جرام، لتر...) *@
+@* ØµÙØ­Ø© ÙˆØ­Ø¯Ø§Øª Ø§Ù„Ù‚ÙŠØ§Ø³ - Ø¬Ø¯ÙˆÙ„ Ø§Ù„ÙˆØ­Ø¯Ø§Øª (Ù‚Ø·Ø¹Ø©ØŒ ÙƒÙŠÙ„Ùˆ Ø¬Ø±Ø§Ù…ØŒ Ù„ØªØ±...) *@
 
 <PageTitle>@Loc["Units"] - @Loc["AppName"]</PageTitle>
 
@@ -126,3 +127,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

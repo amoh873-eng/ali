@@ -1,8 +1,9 @@
-@page "/purchases/invoices"
+﻿@page "/purchases/invoices"
 @attribute [Authorize(Roles = "Purchases")]
+<ModuleGuard ModuleKey="Purchases">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة فواتير المشتريات *@
+@* ØµÙØ­Ø© ÙÙˆØ§ØªÙŠØ± Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª *@
 
 <PageTitle>@Loc["PurchaseInvoices"] - @Loc["AppName"]</PageTitle>
 
@@ -76,3 +77,4 @@
         if (result?.Canceled != true) { Snackbar.Add(Loc["InvoiceSaved"], Severity.Success); await LoadAsync(); }
     }
 }
+</ModuleGuard>

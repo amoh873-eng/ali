@@ -1,18 +1,19 @@
-@page "/accounts"
+﻿@page "/accounts"
 @attribute [Authorize(Roles = "Accounting")]
+<ModuleGuard ModuleKey="Accounting">
 @inject IStringLocalizer<SharedResources> Loc
 
 @* 
-شجرة الحسابات - الهيكل الشجري للحسابات المحاسبية.
-باستخدام MudTreeView لعرض الشجرة مع MudDialog للإضافة والتعديل.
+Ø´Ø¬Ø±Ø© Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª - Ø§Ù„Ù‡ÙŠÙƒÙ„ Ø§Ù„Ø´Ø¬Ø±ÙŠ Ù„Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ©.
+Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù… MudTreeView Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø´Ø¬Ø±Ø© Ù…Ø¹ MudDialog Ù„Ù„Ø¥Ø¶Ø§ÙØ© ÙˆØ§Ù„ØªØ¹Ø¯ÙŠÙ„.
 *@
 
 <PageTitle>@Loc["Accounts"] - @Loc["AppName"]</PageTitle>
 
-@* رأس الصفحة مع الأيقونة *@
+@* Ø±Ø£Ø³ Ø§Ù„ØµÙØ­Ø© Ù…Ø¹ Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø© *@
 <PageHeader Title="@Loc["Accounts"]" Icon="@Icons.Material.Filled.AccountTree" />
 
-@* أزرار الإجراءات *@
+@* Ø£Ø²Ø±Ø§Ø± Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª *@
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
@@ -31,7 +32,7 @@
     </MudToggleGroup>
 </MudToolBar>
 
-@* ===== وضع الشجرة ===== *@
+@* ===== ÙˆØ¶Ø¹ Ø§Ù„Ø´Ø¬Ø±Ø© ===== *@
 @if (_viewMode == "tree")
 {
     <MudPaper Elevation="1" Class="pa-4">
@@ -53,7 +54,7 @@
 }
 else
 {
-    @* ===== وضع القائمة المسطحة ===== *@
+    @* ===== ÙˆØ¶Ø¹ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø³Ø·Ø­Ø© ===== *@
     <MudPaper Elevation="1">
         <MudTable Items="_flatAccounts" Hover="true" Dense="true">
             <HeaderContent>
@@ -252,3 +253,4 @@ else
 }
 
 
+</ModuleGuard>

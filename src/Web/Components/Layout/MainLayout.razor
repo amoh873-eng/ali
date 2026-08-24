@@ -24,29 +24,28 @@ MudLayout: التخطيط الرئيسي للصفحة.
 *@
 <MudLayout>
     @* الشريط العلوي: الشعار + القائمة العلوية + الإشعارات + قائمة المستخدم *@
-    <MudAppBar Elevation="0" Dense="true">
-        <div style="display:flex; flex-direction:column; width:100%;">
-            @* الصف الأول: الشعار في المنتصف + الإشعارات وقائمة المستخدم على الجانب *@
-            <div style="display:flex; align-items:center; width:100%; gap:10px; padding-top:2px;">
+    <MudAppBar Elevation="0" Dense="true" Style="padding-top:24px; height:auto;">
+        <div style="display:flex; flex-direction:column; width:100%; gap:6px; padding:18px 0 6px; margin-top:16px;">
+            @* الصف الأول: الشعار في الوسط + الجرس والخروج يمين — مُنزل 16px لتجاوز شريط المتصفح/البحث *@
+            <div style="display:flex; align-items:center; width:100%;">
                 <div style="flex:1;"></div>
-
-                @* اسم النظام (الشعار): اسم النظام + شارة ERP بلون مختلف تحته — مُزاح للأسفل ~3سم حتى لا يختفي خلف شريط البحث *@
-                <div style="display:flex; align-items:center; gap:10px; margin-top:3cm;">
-                    <MudIcon Icon="@Icons.Material.Filled.Layers" Style="color:var(--erp-primary); font-size:1.9rem;" />
-                    <div style="display:flex; flex-direction:column; line-height:1.15;">
-                        <MudText Typo="Typo.subtitle1" Style="font-weight:800; color:var(--erp-primary); margin:0;">@Loc["BrandName"]</MudText>
+                <div style="display:flex; align-items:center; gap:10px;">
+                    @if (!string.IsNullOrEmpty(_logoUrl))
+                    { <img src="@_logoUrl" alt="logo" style="height:36px;max-width:160px;object-fit:contain" /> }
+                    else
+                    { <MudIcon Icon="@Icons.Material.Filled.Layers" Style="color:var(--erp-primary); font-size:2rem;" /> }
+                    <div style="display:flex; flex-direction:column; line-height:1.1;">
+                        <MudText Typo="Typo.h6" Style="font-weight:800; color:var(--erp-primary); margin:0; line-height:1;">@(_displayName ?? Loc["BrandName"])</MudText>
                         <MudText Typo="Typo.caption" Style="font-weight:700; color:#F472B6; letter-spacing:3px; margin:0;">ERP</MudText>
                     </div>
                 </div>
-
-                <div style="flex:1; display:flex; justify-content:flex-end; align-items:center;">
-                    @* الإشعارات *@
-                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Inherit" Size="Size.Small" />
-
-                    @* قائمة المستخدم (تسجيل الخروج: عربي/إنجليزي) *@
+                <div style="flex:1; display:flex; justify-content:flex-end; align-items:center; gap:6px;">
+                    @* ── زر الإعدادات — رمز ترس ثابت أعلى اليمين (مطلوب للوصول للعملة) ── *@
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="الإعدادات" Href="/settings" />
+                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="الإشعارات" />
                     <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                         <ActivatorContent>
-                            <MudAvatar Color="Color.Primary" Size="Size.Small" Class="ml-3 mr-1" Style="cursor:pointer;">
+                            <MudAvatar Color="Color.Primary" Size="Size.Small" Style="cursor:pointer;">
                                 <MudIcon Icon="@Icons.Material.Filled.Person" />
                             </MudAvatar>
                         </ActivatorContent>
@@ -69,20 +68,30 @@ MudLayout: التخطيط الرئيسي للصفحة.
                     </MudMenu>
                 </div>
             </div>
-
-            @* سطر فاصل ثم الصف الثاني: القوائم بجانب بعضها تحت الشعار *@
-            <div style="display:flex; justify-content:center; margin-top:6px; padding:4px 0 8px; border-top:1px solid var(--erp-border);">
+            @* الصف الثاني: القوائم الذهبية تحت الشعار *@
+            <div style="display:flex; justify-content:center; border-top:1px solid var(--erp-border); padding-top:8px;">
                 <TopNav />
             </div>
         </div>
     </MudAppBar>
 
-    @* منطقة المحتوى - Body *@
-    <MudMainContent>
-        @* pt-5: مسافة علوية (~20px) تفصل المحتوى عن الشريط العلوي بوضوح (إصلاح تزاحم أعلى صفحات القوائم) *@
-        <MudContainer MaxWidth="MaxWidth.False" Class="px-4 pt-5 pb-2">
+    @* منطقة المحتوى - Body — مُنزل 2 سم (≈75px) مع الشريط *@
+    <MudMainContent Style="padding-top:75px;">
+        <MudContainer MaxWidth="MaxWidth.False" Class="px-4 pt-4 pb-2">
             @Body
         </MudContainer>
+        @* فوتر النظام — يظهر فقط في قسم المبيعات *@
+        @if (Nav.Uri.Contains("/sales", StringComparison.OrdinalIgnoreCase))
+        {
+            <MudContainer MaxWidth="MaxWidth.False" Class="px-4 pb-4">
+                <MudPaper Elevation="0" Class="pa-3 mt-4 d-flex justify-center align-center" Style="background:#fff;border:1px solid var(--erp-border);border-radius:12px;">
+                    <MudText Typo="Typo.caption" Style="color:var(--erp-muted);">
+                        © @DateTime.Now.Year @(_displayName ?? Loc["BrandName"]) — نظام ERP المحاسبي — جميع الحقوق محفوظة
+                        @if (!string.IsNullOrWhiteSpace(_supportContact)) { <span> — تواصل: @_supportContact</span> }
+                    </MudText>
+                </MudPaper>
+            </MudContainer>
+        }
     </MudMainContent>
 </MudLayout>
 </MudRTLProvider>
@@ -90,6 +99,31 @@ MudLayout: التخطيط الرئيسي للصفحة.
 @code {
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
+    private string? _displayName;
+    private string? _logoUrl;
+    private string? _primaryHex;
+    private string? _supportContact;
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var s = await SettingsService.GetAsync();
+            _displayName = s.AppDisplayName;
+            _logoUrl = s.LogoUrl;
+            _primaryHex = s.PrimaryColorHex;
+            _supportContact = s.SupportContactInfo;
+        }
+        catch { }
+    }
+    [Inject] private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        if (firstRender && !string.IsNullOrWhiteSpace(_primaryHex))
+        {
+            try { await JS.InvokeVoidAsync("erpApplyPrimary", _primaryHex); } catch { }
+        }
+    }
 
     /// <summary>تسجيل الخروج عبر تحميل كامل للصفحة (طلب HTTP حقيقي) لضمان توفر HttpContext.</summary>
     private void Logout() => Nav.NavigateTo("/logout", forceLoad: true);

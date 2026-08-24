@@ -1,0 +1,125 @@
+﻿@page "/hr/attendance"
+@attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
+@inject IStringLocalizer<SharedResources> Loc
+@inject IAttendanceService AttendanceService
+@inject IEmployeeService EmployeeService
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["Attendance"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["Attendance"]" Icon="@Icons.Material.Filled.FactCheck" />
+
+<MudToolBar Class="mb-4">
+    <MudDatePicker @bind-Date="_selectedDate" Label="@Loc["Date"]" Variant="Variant.Outlined" Style="max-width:220px;" />
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="mx-2" OnClick="LoadAsync">@Loc["Show"]</MudButton>
+    <MudSpacer />
+    <MudButton Variant="Variant.Filled" Color="Color.Success" StartIcon="@Icons.Material.Filled.DoneAll" OnClick="MarkAllPresent">@Loc["MarkAllPresent"]</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" Class="ms-2" OnClick="SaveAllAsync">@Loc["Save"]</MudButton>
+</MudToolBar>
+
+@if (_isLoading)
+{
+    <MudProgressLinear Indeterminate="true" Class="my-4" />
+}
+else if (_employees.Count == 0)
+{
+    <MudAlert Severity="Severity.Info">@Loc["NoEmployees"]</MudAlert>
+}
+else
+{
+    <MudPaper Elevation="1">
+        <MudTable Items="_rows" Dense="true" Hover="true">
+            <HeaderContent>
+                <MudTh>@Loc["EmployeeNumber"]</MudTh>
+                <MudTh>@Loc["Name"]</MudTh>
+                <MudTh>@Loc["AttendanceStatus"]</MudTh>
+                <MudTh>@Loc["CheckIn"]</MudTh>
+                <MudTh>@Loc["CheckOut"]</MudTh>
+                <MudTh>@Loc["Notes"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.EmployeeNumber</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd>
+                    <MudSelect T="AttendanceStatus" Value="context.Status" ValueChanged="@(v => context.Status = v)" Dense="true" Style="min-width:140px;">
+                        <MudSelectItem T="AttendanceStatus" Value="AttendanceStatus.Present">@Loc["Present"]</MudSelectItem>
+                        <MudSelectItem T="AttendanceStatus" Value="AttendanceStatus.Absent">@Loc["Absent"]</MudSelectItem>
+                        <MudSelectItem T="AttendanceStatus" Value="AttendanceStatus.Late">@Loc["Late"]</MudSelectItem>
+                        <MudSelectItem T="AttendanceStatus" Value="AttendanceStatus.OnLeave">@Loc["OnLeave"]</MudSelectItem>
+                    </MudSelect>
+                </MudTd>
+                <MudTd><MudTextField @bind-Value="context.CheckInStr" Placeholder="09:00" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:100px;" /></MudTd>
+                <MudTd><MudTextField @bind-Value="context.CheckOutStr" Placeholder="17:00" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:100px;" /></MudTd>
+                <MudTd><MudTextField @bind-Value="context.Notes" Variant="Variant.Outlined" Margin="Margin.Dense" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+
+@code {
+    private DateTime? _selectedDate = DateTime.Today;
+    private bool _isLoading = true;
+    private List<EmployeeDto> _employees = new();
+    private List<Row> _rows = new();
+
+    private class Row
+    {
+        public Guid EmployeeId { get; set; }
+        public string EmployeeNumber { get; set; } = "";
+        public string NameAr { get; set; } = "";
+        public AttendanceStatus Status { get; set; } = AttendanceStatus.Present;
+        public string? CheckInStr { get; set; }
+        public string? CheckOutStr { get; set; }
+        public string? Notes { get; set; }
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _isLoading = true;
+        try
+        {
+            _employees = (await EmployeeService.GetAllAsync()).Where(e => e.Status == EmployeeStatus.Active).ToList();
+            var date = DateOnly.FromDateTime(_selectedDate ?? DateTime.Today);
+            var records = await AttendanceService.GetAttendanceForPeriodAsync(null, date, date);
+            var dict = records.ToDictionary(r => r.EmployeeId);
+            _rows = _employees.Select(e =>
+            {
+                dict.TryGetValue(e.Id, out var rec);
+                return new Row
+                {
+                    EmployeeId = e.Id, EmployeeNumber = e.EmployeeNumber, NameAr = e.NameAr,
+                    Status = rec?.Status ?? AttendanceStatus.Present,
+                    CheckInStr = rec?.CheckInTime?.ToString(@"hh\:mm"),
+                    CheckOutStr = rec?.CheckOutTime?.ToString(@"hh\:mm"),
+                    Notes = rec?.Notes
+                };
+            }).ToList();
+        }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _isLoading = false; }
+    }
+
+    private void MarkAllPresent()
+    {
+        foreach (var r in _rows) r.Status = AttendanceStatus.Present;
+    }
+
+    private async Task SaveAllAsync()
+    {
+        var date = DateOnly.FromDateTime(_selectedDate ?? DateTime.Today);
+        try
+        {
+            foreach (var r in _rows)
+            {
+                TimeSpan? ci = TimeSpan.TryParse(r.CheckInStr, out var t1) ? t1 : null;
+                TimeSpan? co = TimeSpan.TryParse(r.CheckOutStr, out var t2) ? t2 : null;
+                await AttendanceService.MarkAttendanceAsync(r.EmployeeId, date, r.Status, ci, co, r.Notes);
+            }
+            Snackbar.Add(Loc["SavedSuccessfully"], Severity.Success);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+}
+</ModuleGuard>

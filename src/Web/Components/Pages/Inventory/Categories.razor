@@ -1,8 +1,9 @@
-@page "/inventory/categories"
+﻿@page "/inventory/categories"
 @attribute [Authorize(Roles = "Inventory")]
+<ModuleGuard ModuleKey="Inventory">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة فئات الأصناف - شجرة فئات الأصناف (فئة رئيسية ← فئة فرعية) *@
+@* ØµÙØ­Ø© ÙØ¦Ø§Øª Ø§Ù„Ø£ØµÙ†Ø§Ù - Ø´Ø¬Ø±Ø© ÙØ¦Ø§Øª Ø§Ù„Ø£ØµÙ†Ø§Ù (ÙØ¦Ø© Ø±Ø¦ÙŠØ³ÙŠØ© â† ÙØ¦Ø© ÙØ±Ø¹ÙŠØ©) *@
 
 <PageTitle>@Loc["Categories"] - @Loc["AppName"]</PageTitle>
 
@@ -148,3 +149,4 @@
     }
 }
 
+</ModuleGuard>

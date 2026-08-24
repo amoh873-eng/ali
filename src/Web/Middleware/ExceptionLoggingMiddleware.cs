@@ -36,10 +36,8 @@ public class ExceptionLoggingMiddleware
     {
         try
         {
-            // Scope مستقل حتى لا يتأثر DbContext الرئيسي (خصوصًا لو كان الخطأ ناتجًا عن قاعدة البيانات نفسها)
             using var scope = context.RequestServices.CreateScope();
             var dbContext = scope.ServiceProvider.GetRequiredService<AppDbContext>();
-
             dbContext.ExceptionLogs.Add(new ExceptionLog
             {
                 Id = Guid.NewGuid(),
@@ -50,12 +48,15 @@ public class ExceptionLoggingMiddleware
                 RequestPath = context.Request.Path,
                 ExceptionType = ex.GetType().FullName
             });
-
             await dbContext.SaveChangesAsync();
+            try{
+                var notifier=scope.ServiceProvider.GetService<ERPSystem.Infrastructure.Services.ErrorNotifierService>();
+                if(notifier!=null && notifier.ShouldNotify(ex))
+                    await notifier.NotifyAsync($"[Error] {ex.GetType().Name}", $"{ex.Message}\n{context.Request.Path}\n{ex.StackTrace}");
+            }catch(Exception nEx){ _logger.LogError(nEx,"Notify failed"); }
         }
         catch (Exception logEx)
         {
-            // لا نسمح لفشل التسجيل بإخفاء الاستثناء الأصلي
             _logger.LogError(logEx, "Failed to persist exception log");
         }
     }

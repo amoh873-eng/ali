@@ -21,6 +21,7 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
         builder.Property(i => i.SubTotal).HasColumnType("decimal(18,2)");
         builder.Property(i => i.TotalAmount).HasColumnType("decimal(18,2)");
         builder.Property(i => i.PaidAmount).HasColumnType("decimal(18,2)");
+        builder.Property(i => i.TaxAmount).HasColumnType("decimal(18,2)");
 
         builder.Property(i => i.Note).HasMaxLength(1000);
         builder.Property(i => i.InvoiceDate).IsRequired();

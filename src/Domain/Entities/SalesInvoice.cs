@@ -90,6 +90,9 @@ public class SalesInvoice : BaseEntity
     /// </summary>
     public decimal PaidAmount { get; set; }
 
+    /// <summary>Due date for AR aging — nullable for backward compat, defaults to InvoiceDate if not set.</summary>
+    public DateTime? DueDate { get; set; }
+
     /// <summary>
     /// Optional free-text note.
     /// </summary>
@@ -121,4 +124,10 @@ public class SalesInvoice : BaseEntity
     /// Null while the invoice is still a draft.
     /// </summary>
     public Guid? CogsJournalEntryId { get; set; }
+
+    // ── Part F: JoFotara e-invoicing ──
+    public string? JoFotaraQrCode { get; set; }
+    public DateTime? JoFotaraSubmittedAt { get; set; }
+    public string? JoFotaraReferenceNumber { get; set; }
+    public JoFotaraStatus JoFotaraStatus { get; set; } = JoFotaraStatus.NotSubmitted;
 }

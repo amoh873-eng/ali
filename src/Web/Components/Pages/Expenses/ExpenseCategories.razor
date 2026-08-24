@@ -1,8 +1,9 @@
-@page "/expenses/categories"
+﻿@page "/expenses/categories"
 @attribute [Authorize(Roles = "Expenses")]
+<ModuleGuard ModuleKey="Expenses">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة فئات المصاريف: قائمة الفئات المرتبطة بحسابات المصروفات في شجرة الحسابات *@
+@* ØµÙØ­Ø© ÙØ¦Ø§Øª Ø§Ù„Ù…ØµØ§Ø±ÙŠÙ: Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„ÙØ¦Ø§Øª Ø§Ù„Ù…Ø±ØªØ¨Ø·Ø© Ø¨Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…ØµØ±ÙˆÙØ§Øª ÙÙŠ Ø´Ø¬Ø±Ø© Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª *@
 
 <PageTitle>@Loc["ExpenseCategories"] - @Loc["AppName"]</PageTitle>
 
@@ -155,3 +156,4 @@
         }
     }
 }
+</ModuleGuard>

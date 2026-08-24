@@ -1,8 +1,9 @@
-@page "/general-ledger"
+﻿@page "/general-ledger-legacy"
 @attribute [Authorize(Roles = "Reports")]
+<ModuleGuard ModuleKey="Reports">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة دفتر الأستاذ العام - كشف حركات حساب محدد *@
+@* ØµÙØ­Ø© Ø¯ÙØªØ± Ø§Ù„Ø£Ø³ØªØ§Ø° Ø§Ù„Ø¹Ø§Ù… - ÙƒØ´Ù Ø­Ø±ÙƒØ§Øª Ø­Ø³Ø§Ø¨ Ù…Ø­Ø¯Ø¯ *@
 
 <PageTitle>@Loc["GeneralLedger"] - @Loc["AppName"]</PageTitle>
 
@@ -33,7 +34,7 @@
     <MudPaper Elevation="1" Class="pa-4">
         <MudText Typo="Typo.subtitle1">@_ledger.AccountCode - @_ledger.AccountNameAr</MudText>
         <MudText Typo="Typo.caption" Class="mb-2">
-            @Loc["OpeningBalance"]: @_ledger.OpeningBalance.ToString("N2") —
+            @Loc["OpeningBalance"]: @_ledger.OpeningBalance.ToString("N2") â€”
             @Loc["ClosingBalance"]: @_ledger.ClosingBalance.ToString("N2")
         </MudText>
         <MudTable Items="_ledger.Lines" Hover="true" Dense="true">
@@ -91,3 +92,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

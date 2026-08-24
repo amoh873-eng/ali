@@ -1,8 +1,9 @@
-@page "/hr/departments"
+﻿@page "/hr/departments"
 @attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة الأقسام - تعرض الهيكل التنظيمي كشجرة (قسم رئيسي ← أقسام فرعية) *@
+@* ØµÙØ­Ø© Ø§Ù„Ø£Ù‚Ø³Ø§Ù… - ØªØ¹Ø±Ø¶ Ø§Ù„Ù‡ÙŠÙƒÙ„ Ø§Ù„ØªÙ†Ø¸ÙŠÙ…ÙŠ ÙƒØ´Ø¬Ø±Ø© (Ù‚Ø³Ù… Ø±Ø¦ÙŠØ³ÙŠ â† Ø£Ù‚Ø³Ø§Ù… ÙØ±Ø¹ÙŠØ©) *@
 
 <PageTitle>@Loc["Departments"] - @Loc["AppName"]</PageTitle>
 
@@ -148,3 +149,4 @@
     }
 }
 
+</ModuleGuard>

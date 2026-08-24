@@ -13,6 +13,8 @@ public class CreatePurchaseInvoiceDto
 
     public DateTime InvoiceDate { get; set; } = DateTime.Today;
 
+    public DateTime? DueDate { get; set; }
+
     [Range(1, 2, ErrorMessage = "نوع الفاتورة غير صالح")]
     public int InvoiceType { get; set; }
 

@@ -1,0 +1,92 @@
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-2">@Run.RunNumber — @Run.PeriodStart.ToString("yyyy-MM-dd") → @Run.PeriodEnd.ToString("yyyy-MM-dd")</MudText>
+        <MudTable Items="Run.Lines" Dense="true" Hover="true">
+            <HeaderContent>
+                <MudTh>@Loc["Employee"]</MudTh>
+                <MudTh>@Loc["BasicSalary"]</MudTh>
+                <MudTh>@Loc["UnpaidLeaveDays"]</MudTh>
+                <MudTh>@Loc["UnpaidLeaveDeduction"]</MudTh>
+                <MudTh>@Loc["OtherDeductions"]</MudTh>
+                <MudTh>@Loc["OtherAllowances"]</MudTh>
+                <MudTh>@Loc["NetPay"]</MudTh>
+                @if (Run.Status == PayrollRunStatus.Draft)
+                {
+                    <MudTh>@Loc["Actions"]</MudTh>
+                }
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.EmployeeNameAr (@context.EmployeeNumber)</MudTd>
+                <MudTd>@context.BasicSalary.ToString("N2")</MudTd>
+                <MudTd>@context.UnpaidLeaveDays</MudTd>
+                <MudTd>@context.UnpaidLeaveDeduction.ToString("N2")</MudTd>
+                <MudTd>
+                    @if (Run.Status == PayrollRunStatus.Draft)
+                    {
+                        <MudNumericField T="decimal" Value="context.OtherDeductions" ValueChanged="@(v => OnEdit(context, v, context.OtherAllowances))" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:120px;" />
+                    }
+                    else
+                    {
+                        @context.OtherDeductions.ToString("N2")
+                    }
+                </MudTd>
+                <MudTd>
+                    @if (Run.Status == PayrollRunStatus.Draft)
+                    {
+                        <MudNumericField T="decimal" Value="context.OtherAllowances" ValueChanged="@(v => OnEdit(context, context.OtherDeductions, v))" Variant="Variant.Outlined" Margin="Margin.Dense" Style="max-width:120px;" />
+                    }
+                    else
+                    {
+                        @context.OtherAllowances.ToString("N2")
+                    }
+                </MudTd>
+                <MudTd><strong>@context.NetPay.ToString("N2")</strong></MudTd>
+                @if (Run.Status == PayrollRunStatus.Draft)
+                {
+                    <MudTd><MudIconButton Icon="@Icons.Material.Filled.Save" Size="Size.Small" Color="Color.Primary" OnClick="@(() => SaveLine(context))" /></MudTd>
+                }
+            </RowTemplate>
+        </MudTable>
+        <MudDivider Class="my-3" />
+        <MudText>@Loc["TotalGross"]: @Run.TotalGross.ToString("N2") | @Loc["TotalDeductions"]: @Run.TotalDeductions.ToString("N2") | @Loc["TotalNet"]: @Run.TotalNet.ToString("N2")</MudText>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public PayrollRunDto Run { get; set; } = default!;
+    [Parameter] public IPayrollService PayrollService { get; set; } = default!;
+
+    // مؤقت لتعديل القيم قبل الحفظ
+    private Dictionary<Guid, (decimal ded, decimal allw)> _pending = new();
+
+    private void OnEdit(PayrollRunLineDto line, decimal ded, decimal allw)
+    {
+        _pending[line.Id] = (ded, allw);
+    }
+
+    private async Task SaveLine(PayrollRunLineDto line)
+    {
+        if (!_pending.TryGetValue(line.Id, out var p)) return;
+        try
+        {
+            var updated = await PayrollService.UpdateLineAsync(line.Id, p.ded, p.allw);
+            line.OtherDeductions = updated.OtherDeductions;
+            line.OtherAllowances = updated.OtherAllowances;
+            line.NetPay = updated.NetPay;
+            // إعادة حساب إجماليات الدورة في الذاكرة
+            Run.TotalDeductions = Run.Lines.Sum(l => l.UnpaidLeaveDeduction + l.OtherDeductions);
+            Run.TotalNet = Run.Lines.Sum(l => l.NetPay);
+            Snackbar.Add(Loc["SavedSuccessfully"], Severity.Success);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

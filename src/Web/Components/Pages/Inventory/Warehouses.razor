@@ -1,8 +1,9 @@
-@page "/inventory/warehouses"
+﻿@page "/inventory/warehouses"
 @attribute [Authorize(Roles = "Inventory")]
+<ModuleGuard ModuleKey="Inventory">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة المخازن - إدارة المخازن المتعددة والمخزن الافتراضي *@
+@* ØµÙØ­Ø© Ø§Ù„Ù…Ø®Ø§Ø²Ù† - Ø¥Ø¯Ø§Ø±Ø© Ø§Ù„Ù…Ø®Ø§Ø²Ù† Ø§Ù„Ù…ØªØ¹Ø¯Ø¯Ø© ÙˆØ§Ù„Ù…Ø®Ø²Ù† Ø§Ù„Ø§ÙØªØ±Ø§Ø¶ÙŠ *@
 
 <PageTitle>@Loc["Warehouses"] - @Loc["AppName"]</PageTitle>
 
@@ -52,7 +53,7 @@
                     }
                     else
                     {
-                        <MudText Typo="Typo.caption" Class="mud-text-secondary">—</MudText>
+                        <MudText Typo="Typo.caption" Class="mud-text-secondary">â€”</MudText>
                     }
                 </MudTd>
                 <MudTd>
@@ -161,3 +162,4 @@
     }
 }
 
+</ModuleGuard>

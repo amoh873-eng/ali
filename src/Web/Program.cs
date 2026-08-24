@@ -1,15 +1,21 @@
 using System.Globalization;
+using System.Collections.Concurrent;
 using ERPSystem.Application.Interfaces;
 using ERPSystem.Domain.Entities;
 using ERPSystem.Infrastructure;
 using ERPSystem.Infrastructure.Data;
+using ERPSystem.Infrastructure.Services;
 using ERPSystem.Web.Components;
 using ERPSystem.Web.Middleware;
 using ERPSystem.Web.Services;
 using Microsoft.AspNetCore.Antiforgery;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Localization;
 using Microsoft.AspNetCore.Identity;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Caching.Memory;
 using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
@@ -50,17 +56,50 @@ builder.Services.AddIdentity<IdentityUser, IdentityRole>(options =>
     .AddEntityFrameworkStores<ERPSystem.Infrastructure.Data.AppDbContext>()
     .AddDefaultTokenProviders();
 
+// خدمات إدارة الأدوار والمستخدمين (+ إدارة النظام)
+builder.Services.AddScoped<IRoleService, RoleService>();
+builder.Services.AddScoped<IUserService, UserService>();
+builder.Services.AddScoped<ISystemAdminService, SystemAdminService>();
+
+builder.Services.AddMemoryCache();
+builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
+builder.Services.AddHostedService<RenewalReminderService>();
+builder.Services.AddHostedService<TrialExpiryService>();
+builder.Services.AddHostedService<NotificationDigestService>();
+builder.Services.AddScoped<ErrorNotifierService>();
+builder.Services.AddScoped<UpdateService>();
+
+// Part G: health checks — use simple manual checks to avoid extra package; detailed check via /health/detailed uses these types
+builder.Services.AddHealthChecks()
+    .AddCheck<ERPSystem.Infrastructure.Health.DiskSpaceHealthCheck>("disk")
+    .AddCheck<ERPSystem.Infrastructure.Health.SqlServiceHealthCheck>("sql")
+    .AddCheck<ERPSystem.Infrastructure.Health.BackupHealthCheck>("backup")
+    .AddCheck<ERPSystem.Infrastructure.Health.ErrorRateHealthCheck>("errors")
+    .AddCheck<ERPSystem.Infrastructure.Health.SslExpiryHealthCheck>("ssl");
+
+// ── Owner authentication — separate cookie scheme (never Identity) ──
+builder.Services.AddAuthentication()
+    .AddCookie("OwnerScheme", options =>
+    {
+        options.Cookie.Name = "OwnerAuth";
+        options.LoginPath = "/owner-login-redirect-marker";
+        options.AccessDeniedPath = "/owner-login-redirect-marker";
+        options.ExpireTimeSpan = TimeSpan.FromHours(8);
+        options.SlidingExpiration = true;
+        options.Events = new CookieAuthenticationEvents
+        {
+            OnRedirectToLogin = ctx => { ctx.Response.StatusCode = 404; return Task.CompletedTask; },
+            OnRedirectToAccessDenied = ctx => { ctx.Response.StatusCode = 404; return Task.CompletedTask; }
+        };
+    });
+
 builder.Services.AddAuthorization(options =>
 {
     options.FallbackPolicy = new Microsoft.AspNetCore.Authorization.AuthorizationPolicyBuilder()
         .RequireAuthenticatedUser()
         .Build();
+    options.AddPolicy("OwnerOnly", policy => policy.AddAuthenticationSchemes("OwnerScheme").RequireAuthenticatedUser());
 });
-
-// خدمات إدارة الأدوار والمستخدمين (+ إدارة النظام)
-builder.Services.AddScoped<IRoleService, RoleService>();
-builder.Services.AddScoped<IUserService, UserService>();
-builder.Services.AddScoped<ISystemAdminService, SystemAdminService>();
 
 builder.Services.ConfigureApplicationCookie(options =>
 {
@@ -81,6 +120,23 @@ if (!app.Environment.IsDevelopment())
     app.UseHsts();
 }
 
+// Owner IP gate — returns 404 if disallowed (defense-in-depth, hides route)
+app.Use(async (ctx, next) =>
+{
+    var sec = OwnerMiddlewareHelpers.GetOwnerSecretPath(ctx.RequestServices.GetRequiredService<IConfiguration>());
+    if (OwnerMiddlewareHelpers.IsOwnerPath(ctx, sec))
+    {
+        var allowed = ctx.RequestServices.GetRequiredService<IConfiguration>()["Owner:AllowedIPs"] ?? ctx.RequestServices.GetRequiredService<IConfiguration>()["Owner__AllowedIPs"];
+        if (!OwnerMiddlewareHelpers.IsIpAllowed(ctx, allowed))
+        {
+            ctx.Response.StatusCode = 404;
+            await ctx.Response.WriteAsync("Not Found");
+            return;
+        }
+    }
+    await next();
+});
+
 // تسجيل الاستثناءات غير المعالَجة في قاعدة البيانات (لوحة إدارة النظام — المرحلة الأولى)
 app.UseMiddleware<ExceptionLoggingMiddleware>();
 
@@ -91,9 +147,62 @@ app.UseAuthentication();
 app.UseAuthorization();
 app.UseAntiforgery();
 
-app.MapStaticAssets();
+// Owner 404-masking for unauthenticated owner paths
+app.Use(async (ctx, next) =>
+{
+    var cfg = ctx.RequestServices.GetRequiredService<IConfiguration>();
+    var sec = OwnerMiddlewareHelpers.GetOwnerSecretPath(cfg);
+    if (OwnerMiddlewareHelpers.IsOwnerPath(ctx, sec))
+    {
+        var p = ctx.Request.Path.Value ?? "";
+        var isLogin = p.Equals("/" + sec + "/login", StringComparison.OrdinalIgnoreCase)
+                   || p.Equals("/" + sec + "/login/handler", StringComparison.OrdinalIgnoreCase)
+                   || p.Equals("/" + sec + "/enter", StringComparison.OrdinalIgnoreCase)
+                   || p.Equals("/" + sec, StringComparison.OrdinalIgnoreCase)
+                   || p.Equals("/" + sec + "/", StringComparison.OrdinalIgnoreCase);
+        if (!isLogin)
+        {
+            var ar = await ctx.AuthenticateAsync("OwnerScheme");
+            if (ar.Succeeded != true || ar.Principal?.Identity?.IsAuthenticated != true)
+            {
+                ctx.Response.StatusCode = 404;
+                await ctx.Response.WriteAsync("Not Found");
+                return;
+            }
+        }
+    }
+    await next();
+});
+
+app.UseMiddleware<DeploymentActiveMiddleware>();
+
+app.MapStaticAssets().AllowAnonymous();
 app.MapRazorComponents<App>()
     .AddInteractiveServerRenderMode();
+
+// Owner console (hidden path)
+ERPSystem.Web.Owner.OwnerLoginEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerDashboardEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerBrandingEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerFeatureEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerSupportEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerSubscriptionEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerCustomReportEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerCustomReportEndpointsB.Map(app);
+ERPSystem.Web.Owner.OwnerFinancialsEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerHistoryEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerHealthEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerUpdateEndpoints.Map(app);
+ERPSystem.Web.Owner.OwnerTrialEndpoints.Map(app);
+
+// Health endpoints: /health/ping anonymous, /health/detailed owner-only
+app.MapHealthChecks("/health/ping", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions{ Predicate = _ => false }).AllowAnonymous();
+app.MapHealthChecks("/health/detailed", new Microsoft.AspNetCore.Diagnostics.HealthChecks.HealthCheckOptions{ Predicate = _ => true, ResponseWriter = async (ctx, report) =>
+{
+    ctx.Response.ContentType = "application/json; charset=utf-8";
+    var json = System.Text.Json.JsonSerializer.Serialize(new{ status=report.Status.ToString(), checks=report.Entries.ToDictionary(kv=>kv.Key, kv=>new{ status=kv.Value.Status.ToString(), desc=kv.Value.Description, duration=kv.Value.Duration.TotalMilliseconds }), totalDuration=report.TotalDuration.TotalMilliseconds });
+    await ctx.Response.WriteAsync(json);
+}}).RequireAuthorization("OwnerOnly");
 
 // Export endpoints: تنزيل التقارير المالية بصيغة Excel — مقيّد بدور Reports (+ Admin/SuperAdmin يحملانه ضمنيًا)
 app.MapGet("/export/trial-balance/excel", async (IReportService reportService) =>
@@ -164,6 +273,8 @@ app.MapGet("/culture/set", (HttpContext context, string? culture, string? redire
 // ملاحظة: لا نستخدم نفس المسار "/login" الذي يشغله مكوّن Razor @page "/login" (الذي يطابق
 // كل طرق HTTP ويثير AmbiguousMatchException مع MapPost). لذلك نستخدم مسارًا منفصلًا
 // "/login/handler" ويستهدفه <form action="/login/handler"> في Login.razor.
+app.MapGet("/login/handler", () => Results.Redirect("/login")).AllowAnonymous();
+
 app.MapPost("/login/handler", async (HttpContext context, SignInManager<IdentityUser> signInManager) =>
 {
     var form = await context.Request.ReadFormAsync();
@@ -172,6 +283,9 @@ app.MapPost("/login/handler", async (HttpContext context, SignInManager<Identity
     var rememberMe = form["RememberMe"].ToString() == "true";
     var returnUrl = form["ReturnUrl"].ToString();
     var target = string.IsNullOrWhiteSpace(returnUrl) ? "/" : returnUrl;
+    // Prevent redirect-loop: never redirect back to /login/handler itself
+    if (target.Contains("/login/handler", StringComparison.OrdinalIgnoreCase))
+        target = "/";
 
     if (string.IsNullOrEmpty(email) || string.IsNullOrEmpty(password))
         return Results.LocalRedirect("/login?error=1");
@@ -181,7 +295,7 @@ app.MapPost("/login/handler", async (HttpContext context, SignInManager<Identity
         return Results.LocalRedirect("/login?error=1");
 
     return Results.LocalRedirect(target);
-}).WithMetadata(new RequireAntiforgeryTokenAttribute());
+}).WithMetadata(new RequireAntiforgeryTokenAttribute()).AllowAnonymous();
 
 // Apply migrations + seed roles/admin user
 using (var scope = app.Services.CreateScope())

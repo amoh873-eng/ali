@@ -1,8 +1,9 @@
-@page "/hr/leaves"
+﻿@page "/hr/leaves"
 @attribute [Authorize(Roles = "Hr")]
+<ModuleGuard ModuleKey="Hr">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة الإجازات - جدول طلبات الإجازة مع موافقة/رفض *@
+@* ØµÙØ­Ø© Ø§Ù„Ø¥Ø¬Ø§Ø²Ø§Øª - Ø¬Ø¯ÙˆÙ„ Ø·Ù„Ø¨Ø§Øª Ø§Ù„Ø¥Ø¬Ø§Ø²Ø© Ù…Ø¹ Ù…ÙˆØ§ÙÙ‚Ø©/Ø±ÙØ¶ *@
 
 <PageTitle>@Loc["Leaves"] - @Loc["AppName"]</PageTitle>
 
@@ -156,3 +157,4 @@
         _ => Color.Default
     };
 }
+</ModuleGuard>

@@ -67,6 +67,8 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
             .HasForeignKey(i => i.CogsJournalEntryId)
             .OnDelete(DeleteBehavior.Restrict);
 
+        builder.Property(i => i.JoFotaraQrCode).HasColumnType("nvarchar(max)");
+        builder.Property(i => i.JoFotaraReferenceNumber).HasMaxLength(200);
         builder.Property(i => i.CreatedAt).IsRequired();
         builder.Property(i => i.CreatedBy).HasMaxLength(100);
         builder.Property(i => i.UpdatedBy).HasMaxLength(100);

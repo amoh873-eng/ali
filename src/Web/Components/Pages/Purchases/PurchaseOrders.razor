@@ -1,8 +1,9 @@
-@page "/purchases/orders"
+﻿@page "/purchases/orders"
 @attribute [Authorize(Roles = "Purchases")]
+<ModuleGuard ModuleKey="Purchases">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة أوامر الشراء - قائمة أوامر الشراء مع إمكانية التحويل إلى فواتير مشتريات *@
+@* ØµÙØ­Ø© Ø£ÙˆØ§Ù…Ø± Ø§Ù„Ø´Ø±Ø§Ø¡ - Ù‚Ø§Ø¦Ù…Ø© Ø£ÙˆØ§Ù…Ø± Ø§Ù„Ø´Ø±Ø§Ø¡ Ù…Ø¹ Ø¥Ù…ÙƒØ§Ù†ÙŠØ© Ø§Ù„ØªØ­ÙˆÙŠÙ„ Ø¥Ù„Ù‰ ÙÙˆØ§ØªÙŠØ± Ù…Ø´ØªØ±ÙŠØ§Øª *@
 
 <PageTitle>@Loc["PurchaseOrders"] - @Loc["AppName"]</PageTitle>
 
@@ -139,3 +140,4 @@
         }
     }
 }
+</ModuleGuard>

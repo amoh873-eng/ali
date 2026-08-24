@@ -1,5 +1,6 @@
-@page "/permissions/roles"
+﻿@page "/permissions/roles"
 @attribute [Authorize(Roles = "Permissions")]
+<ModuleGuard ModuleKey="Permissions">
 @inject IStringLocalizer<SharedResources> Loc
 
 <PageTitle>@Loc["Roles"] - @Loc["AppName"]</PageTitle>
@@ -53,7 +54,7 @@
 
     private string DisplayLabel(string roleName)
     {
-        // المفتاح الإنجليزي → التسمية العربية عبر Loc؛ إن لم توجد اترك الاسم كما هو (مثل Admin)
+        // Ø§Ù„Ù…ÙØªØ§Ø­ Ø§Ù„Ø¥Ù†Ø¬Ù„ÙŠØ²ÙŠ â†’ Ø§Ù„ØªØ³Ù…ÙŠØ© Ø§Ù„Ø¹Ø±Ø¨ÙŠØ© Ø¹Ø¨Ø± LocØ› Ø¥Ù† Ù„Ù… ØªÙˆØ¬Ø¯ Ø§ØªØ±Ùƒ Ø§Ù„Ø§Ø³Ù… ÙƒÙ…Ø§ Ù‡Ùˆ (Ù…Ø«Ù„ Admin)
         var localized = Loc[roleName];
         return localized.ResourceNotFound ? roleName : localized.Value;
     }
@@ -96,3 +97,4 @@
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 }
+</ModuleGuard>

@@ -19,4 +19,9 @@ public interface IReportService
 
     /// <summary>دفتر أستاذ حساب (الرصيد الافتتاحي والحركات والرصيد الختامي) لفترة محددة.</summary>
     Task<AccountLedgerDto> GetAccountLedgerAsync(Guid accountId, DateTime from, DateTime to);
+
+    Task<BillingStageReportDto> GetBillingStageReportAsync(DateTime from, DateTime to);
+    byte[] ExportBillingStageExcel(BillingStageReportDto dto);
+    Task<GenericReportTable> GetReportAsync(string key, Dictionary<string,string?> pars);
+    byte[] ExportReportExcel(GenericReportTable t);
 }

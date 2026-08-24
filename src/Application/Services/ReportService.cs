@@ -10,7 +10,7 @@ namespace ERPSystem.Application.Services;
 /// يبني التقارير المالية (ميزان المراجعة، قائمة الدخل، الميزانية العمومية)
 /// من بنود القيود المحاسبية المخزّنة.
 /// </summary>
-public class ReportService : IReportService
+public partial class ReportService : IReportService
 {
     private readonly DbContext _context;
 
@@ -222,5 +222,53 @@ public class ReportService : IReportService
             .Where(l => l.Account is not null && l.Account.AccountType == type)
             .Sum(l => l.DebitAmount - l.CreditAmount);
         return creditNormal ? -net : net;
+    }
+
+    public async Task<BillingStageReportDto> GetBillingStageReportAsync(DateTime from, DateTime to)
+    {
+        var invoices = await _context.Set<SalesInvoice>()
+            .Where(s => s.InvoiceDate >= from.Date && s.InvoiceDate < to.Date.AddDays(1) && !s.IsDeleted)
+            .OrderBy(s => s.InvoiceDate).ThenBy(s => s.InvoiceNumber)
+            .ToListAsync();
+        var list = invoices.Select(s => new BillingStageInvoiceDto
+        {
+            InvoiceNumber = s.InvoiceNumber,
+            InvoiceDate = s.InvoiceDate,
+            TotalAmount = s.TotalAmount,
+            JoFotaraStatus = (int)s.JoFotaraStatus
+        }).ToList();
+        return new BillingStageReportDto
+        {
+            From = from,
+            To = to,
+            Invoices = list,
+            TotalAmount = list.Sum(x => x.TotalAmount),
+            SubmittedCount = list.Count(x => x.JoFotaraStatus == 1),
+            FailedCount = list.Count(x => x.JoFotaraStatus == 2),
+            NotSubmittedCount = list.Count(x => x.JoFotaraStatus == 0)
+        };
+    }
+    public byte[] ExportBillingStageExcel(BillingStageReportDto dto)
+    {
+        using var wb = new ClosedXML.Excel.XLWorkbook();
+        var ws = wb.Worksheets.Add("BillingStage");
+        ws.Cell(1, 1).Value = $"من {dto.From:yyyy-MM-dd} إلى {dto.To:yyyy-MM-dd}";
+        ws.Cell(1, 1).Style.Font.Bold = true;
+        ws.Cell(2, 1).Value = "رقم الفاتورة"; ws.Cell(2, 2).Value = "التاريخ"; ws.Cell(2, 3).Value = "الإجمالي"; ws.Cell(2, 4).Value = "JoFotara";
+        ws.Row(2).Style.Font.Bold = true;
+        int r = 3;
+        foreach (var inv in dto.Invoices)
+        {
+            ws.Cell(r, 1).Value = inv.InvoiceNumber;
+            ws.Cell(r, 2).Value = inv.InvoiceDate.ToString("yyyy-MM-dd");
+            ws.Cell(r, 3).Value = inv.TotalAmount; ws.Cell(r, 3).Style.NumberFormat.Format = "#,##0.00";
+            ws.Cell(r, 4).Value = inv.JoFotaraStatus == 1 ? "مُرحل" : inv.JoFotaraStatus == 2 ? "فشل" : "غير مُرحل";
+            r++;
+        }
+        ws.Cell(r, 1).Value = "الإجمالي"; ws.Cell(r, 1).Style.Font.Bold = true;
+        ws.Cell(r, 3).Value = dto.TotalAmount; ws.Cell(r, 3).Style.Font.Bold = true; ws.Cell(r, 3).Style.NumberFormat.Format = "#,##0.00";
+        ws.Cell(r + 1, 1).Value = $"مُرحل: {dto.SubmittedCount} | فشل: {dto.FailedCount} | غير مُرحل: {dto.NotSubmittedCount}";
+        ws.Columns().AdjustToContents();
+        using var ms = new MemoryStream(); wb.SaveAs(ms); return ms.ToArray();
     }
 }

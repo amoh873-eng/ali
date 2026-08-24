@@ -1,0 +1,48 @@
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        <MudText Typo="Typo.h6" Class="mb-2">@EmployeeName</MudText>
+        @if (_loading)
+        {
+            <MudProgressLinear Indeterminate="true" />
+        }
+        else if (_lines.Count == 0)
+        {
+            <MudAlert Severity="Severity.Info">@Loc["NoPayrollRuns"]</MudAlert>
+        }
+        else
+        {
+            <MudTable Items="_lines" Dense="true">
+                <HeaderContent>
+                    <MudTh>@Loc["Period"]</MudTh>
+                    <MudTh>@Loc["NetPay"]</MudTh>
+                    <MudTh>@Loc["UnpaidLeaveDays"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.PayrollRunId.ToString()[..8]</MudTd>
+                    <MudTd>@context.NetPay.ToString("N2")</MudTd>
+                    <MudTd>@context.UnpaidLeaveDays</MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public Guid EmployeeId { get; set; }
+    [Parameter] public string EmployeeName { get; set; } = "";
+    [Parameter] public IPayrollService PayrollService { get; set; } = default!;
+    private bool _loading = true;
+    private List<PayrollRunLineDto> _lines = new();
+    protected override async Task OnInitializedAsync()
+    {
+        _lines = await PayrollService.GetEmployeeHistoryAsync(EmployeeId);
+        _loading = false;
+    }
+    private void Cancel() => MudDialog.Cancel();
+}

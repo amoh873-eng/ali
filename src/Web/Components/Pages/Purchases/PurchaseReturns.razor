@@ -1,8 +1,9 @@
-@page "/purchases/returns"
+﻿@page "/purchases/returns"
 @attribute [Authorize(Roles = "Purchases")]
+<ModuleGuard ModuleKey="Purchases">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* صفحة مردودات المشتريات *@
+@* ØµÙØ­Ø© Ù…Ø±Ø¯ÙˆØ¯Ø§Øª Ø§Ù„Ù…Ø´ØªØ±ÙŠØ§Øª *@
 
 <PageTitle>@Loc["PurchaseReturns"] - @Loc["AppName"]</PageTitle>
 
@@ -76,3 +77,4 @@
         if (result?.Canceled != true) { Snackbar.Add(Loc["ReturnSaved"], Severity.Success); await LoadAsync(); }
     }
 }
+</ModuleGuard>
