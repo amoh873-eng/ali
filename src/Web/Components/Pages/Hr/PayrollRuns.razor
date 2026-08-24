@@ -41,9 +41,10 @@ else
                 <MudTd>@context.RunNumber</MudTd>
                 <MudTd>@context.PeriodStart.ToString("yyyy-MM-dd") - @context.PeriodEnd.ToString("yyyy-MM-dd")</MudTd>
                 <MudTd><MudChip T="string" Size="Size.Small" Color="@StatusColor(context.Status)">@StatusLabel(context.Status)</MudChip></MudTd>
-                <MudTd>@context.TotalGross.ToString("N2")</MudTd>
-                <MudTd>@context.TotalDeductions.ToString("N2")</MudTd>
-                <MudTd><strong>@context.TotalNet.ToString("N2")</strong></MudTd>
+                @* ── إجماليات الدورة — كلها بالعملة الموحدة ── *@
+                <MudTd><MoneyDisplay Amount="context.TotalGross" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.TotalDeductions" /></MudTd>
+                <MudTd><strong><MoneyDisplay Amount="context.TotalNet" /></strong></MudTd>
                 <MudTd>
                     <MudIconButton Icon="@Icons.Material.Filled.Visibility" Size="Size.Small" Color="Color.Primary" OnClick="@(() => OpenDetails(context))" />
                     @if (context.Status == PayrollRunStatus.Draft)

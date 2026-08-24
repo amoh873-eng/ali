@@ -148,14 +148,20 @@
 
     private async Task LoadIncomeAsync()
     {
-        try { _income = await ReportService.GetIncomeStatementAsync(_incomeFrom ?? DateTime.Today, _incomeTo ?? DateTime.Today); }
+        try { _income = await ReportService.GetIncomeStatementAsync(_incomeFrom ?? DateTime.Today, _incomeTo ?? DateTime.Today);
+            if(_income!=null){ var s=await Settings.GetAsync(); var brand=s.AppDisplayName??"ERP"; var headers=new[]{"الحساب","المبلغ"}; var rows=_income.Revenues.OrderBy(x=>x.AccountCode).Select(x=>new List<string>{x.AccountCode+" - "+x.AccountNameAr, x.Amount.ToString("N2")}).Concat(_income.Expenses.OrderBy(x=>x.AccountCode).Select(x=>new List<string>{x.AccountCode+" - "+x.AccountNameAr, x.Amount.ToString("N2")})).ToList(); var tbl=new GenericReportTable{ TitleAr="قائمة الدخل", Headers=headers.ToList(), Rows=rows, Totals=new List<string>{"الإجمالي", _income.NetIncome.ToString("N2")}, ParamSummary=$"من {(_incomeFrom?.ToString("yyyy-MM-dd")??"—")} إلى {(_incomeTo?.ToString("yyyy-MM-dd")??"—")}" }; await Dialogs.ShowAsync<ReportPopup>(tbl.TitleAr, new DialogParameters{["Table"]=tbl, ["Brand"]=brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true }); }
+        }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
 
     private async Task LoadBalanceAsync()
     {
-        try { _balance = await ReportService.GetBalanceSheetAsync(_balanceAsOf ?? DateTime.Today); }
+        try { _balance = await ReportService.GetBalanceSheetAsync(_balanceAsOf ?? DateTime.Today);
+            if(_balance!=null){ var s=await Settings.GetAsync(); var brand=s.AppDisplayName??"ERP"; var headers=new[]{"الحساب","المبلغ"}; var rows=_balance.Assets.OrderBy(x=>x.AccountCode).Select(x=>new List<string>{x.AccountCode+" - "+x.AccountNameAr, x.Amount.ToString("N2")}).Concat(_balance.Liabilities.OrderBy(x=>x.AccountCode).Select(x=>new List<string>{x.AccountCode+" - "+x.AccountNameAr, x.Amount.ToString("N2")})).Concat(_balance.Equity.OrderBy(x=>x.AccountCode).Select(x=>new List<string>{x.AccountCode+" - "+x.AccountNameAr, x.Amount.ToString("N2")})).ToList(); var tbl=new GenericReportTable{ TitleAr="الميزانية", Headers=headers.ToList(), Rows=rows, Totals=new List<string>{"الإجمالي", (_balance.TotalAssets).ToString("N2")}, ParamSummary=$"حتى {(_balanceAsOf?.ToString("yyyy-MM-dd")??"—")}" }; await Dialogs.ShowAsync<ReportPopup>(tbl.TitleAr, new DialogParameters{["Table"]=tbl, ["Brand"]=brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true }); }
+        }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
+    [Inject] private IDialogService Dialogs {get;set;}=default!;
+    [Inject] private ISystemSettingsService Settings {get;set;}=default!;
 }
 </ModuleGuard>

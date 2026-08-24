@@ -1,7 +1,7 @@
 ﻿@page "/general-ledger-legacy"
 @attribute [Authorize(Roles = "Reports")]
-<ModuleGuard ModuleKey="Reports">
 @inject IStringLocalizer<SharedResources> Loc
+<ModuleGuard ModuleKey="Reports">
 
 @* ØµÙØ­Ø© Ø¯ÙØªØ± Ø§Ù„Ø£Ø³ØªØ§Ø° Ø§Ù„Ø¹Ø§Ù… - ÙƒØ´Ù Ø­Ø±ÙƒØ§Øª Ø­Ø³Ø§Ø¨ Ù…Ø­Ø¯Ø¯ *@
 
@@ -84,12 +84,12 @@
         if (_accountId == Guid.Empty) return;
         try
         {
-            _ledger = await ReportService.GetAccountLedgerAsync(
-                _accountId,
-                _from ?? DateTime.Today.AddMonths(-1),
-                _to ?? DateTime.Today);
+            _ledger = await ReportService.GetAccountLedgerAsync(_accountId, _from ?? DateTime.Today.AddMonths(-1), _to ?? DateTime.Today);
+            if(_ledger!=null){ var s=await Settings.GetAsync(); var brand=s.AppDisplayName??"ERP"; var headers=new[]{"التاريخ","رقم القيد","البيان","مدين","دائن","الرصيد"}; var rows=_ledger.Lines.OrderBy(x=>x.Date).Select(x=>new List<string>{x.Date.ToString("yyyy-MM-dd"), x.EntryNumber, x.Description, x.Debit.ToString("N2"), x.Credit.ToString("N2"), x.Balance.ToString("N2")}).ToList(); var tbl=new GenericReportTable{ TitleAr=$"دفتر الأستاذ — {_ledger.AccountNameAr}", Headers=headers.ToList(), Rows=rows, Totals=new List<string>{"","","",_ledger.Lines.Sum(x=>x.Debit).ToString("N2"), _ledger.Lines.Sum(x=>x.Credit).ToString("N2"), _ledger.ClosingBalance.ToString("N2")}, ParamSummary=$"من {(_from?.ToString("yyyy-MM-dd")??"—")} إلى {(_to?.ToString("yyyy-MM-dd")??"—")} — رصيد افتتاحي {_ledger.OpeningBalance:N2}" }; await Dialogs.ShowAsync<ReportPopup>(tbl.TitleAr, new DialogParameters{["Table"]=tbl, ["Brand"]=brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true }); }
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
+    [Inject] private IDialogService Dialogs {get;set;}=default!;
+    [Inject] private ISystemSettingsService Settings {get;set;}=default!;
 }
 </ModuleGuard>

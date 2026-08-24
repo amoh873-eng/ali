@@ -6,20 +6,30 @@
 @* تم حذف عنوان "لوحة التحكم" - البطاقات تبدأ مباشرة بدون فراغ بنفسجي *@
 @* <PageHeader Title="@Loc["Dashboard"]" /> *@
 
+@* سحب للأسفل بمقدار 2سم — يُطبق على كامل الصفحة *@
+<div style="margin-top:32px"></div>
 @* 3 بطاقات أرقام + مخططات حديثة *@
-<MudGrid Spacing="4" RowSpacing="5" ColumnSpacing="4">
+<MudGrid Spacing="4" RowSpacing="5" ColumnSpacing="4" Style="margin-top:8px">
     @* بطاقات المؤشرات الرئيسية في الأعلى *@
+    @* ── بطاقات المال — تعرض بالعملة الموحدة عبر نفس المكون المركزي ── *@
+    @* لماذا MoneyDisplay؟ نقطة واحدة للتنسيق، يتغير الرمز تلقائياً عند تغيير العملة في /settings *@
     <MudItem xs="12" md="4">
-        <StatCard Label="@Loc["NetSales"]" Value="@_salesTotal.ToString("N2")"
-                  Icon="@Icons.Material.Filled.ShoppingCart" IconBackground="#E8F5E9" IconColor="#10B981" />
+        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
+            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Style="background:#E8F5E9;color:#10B981;border-radius:8px;padding:6px" />
+            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["NetSales"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_salesTotal" /></MudText></div>
+        </MudPaper>
     </MudItem>
     <MudItem xs="12" md="4">
-        <StatCard Label="@Loc["NetPurchases"]" Value="@_purchasesTotal.ToString("N2")"
-                  Icon="@Icons.Material.Filled.LocalShipping" IconBackground="#FFF3E0" IconColor="#F59E0B" />
+        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
+            <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Style="background:#FFF3E0;color:#F59E0B;border-radius:8px;padding:6px" />
+            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["NetPurchases"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_purchasesTotal" /></MudText></div>
+        </MudPaper>
     </MudItem>
     <MudItem xs="12" md="4">
-        <StatCard Label="@Loc["InventoryValue"]" Value="@_inventoryValue.ToString("N2")"
-                  Icon="@Icons.Material.Filled.Inventory" IconBackground="#F0EDFB" IconColor="#6D5BD0" />
+        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
+            <MudIcon Icon="@Icons.Material.Filled.Inventory" Style="background:#F0EDFB;color:#6D5BD0;border-radius:8px;padding:6px" />
+            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["InventoryValue"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_inventoryValue" /></MudText></div>
+        </MudPaper>
     </MudItem>
 
     @* أفضل 5 أصناف مبيعاً (أشرطة أفقية) + دونات النِّسَب مصغّرة *@
@@ -57,9 +67,15 @@
     [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
     [Inject] private IPurchaseInvoiceService PurchaseInvoiceService { get; set; } = default!;
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+    [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
+    private string _curSym = "د.أ";
+    // تنسيق موحد للمال في الشارتات — الرمز من الإعدادات (عرض فقط)
+    private string FormatMoney(decimal v) => $"{v:N2} {_curSym}";
 
     protected override async Task OnInitializedAsync()
     {
+        // ── تحميل رمز العملة الحالي للعرض في البطاقات والشارتات ──
+        try { var s = await SettingsService.GetAsync(); _curSym = ERPSystem.Domain.CurrencyLookup.SymbolFor(s.CurrencyCode); } catch { }
         try
         {
             var items = await ItemService.GetAllAsync();
@@ -87,8 +103,9 @@
 
         _salesPurchasesSegments = new List<DonutSegment>
         {
-            new() { Label = Loc["Sales"].Value, Color = "#8B5CF6", Value = (double)_salesTotal, ValueText = _salesTotal.ToString("N2") },
-            new() { Label = Loc["Purchases"].Value, Color = "#F59E0B", Value = (double)_purchasesTotal, ValueText = _purchasesTotal.ToString("N2") },
+            // ── نص القيمة في الدونات — يعرض مع الرمز عبر MoneyDisplay خارجاً، هنا نحتفظ بالرقم فقط ──
+            new() { Label = Loc["Sales"].Value, Color = "#8B5CF6", Value = (double)_salesTotal, ValueText = FormatMoney(_salesTotal) },
+            new() { Label = Loc["Purchases"].Value, Color = "#F59E0B", Value = (double)_purchasesTotal, ValueText = FormatMoney(_purchasesTotal) },
         }
         .Where(s => s.Value > 0)
         .ToList();
@@ -101,7 +118,8 @@
         {
             Label = t.ItemNameAr,
             Value = (double)t.TotalAmount,
-            ValueText = t.TotalAmount.ToString("N2"),
+            // ── أفضل صنف — الرقم مع الرمز يُعرض في الشريط، هنا ننسق رقمياً فقط ──
+            ValueText = FormatMoney(t.TotalAmount),
             Color = _palette[i % _palette.Length]
         }).ToList();
     }

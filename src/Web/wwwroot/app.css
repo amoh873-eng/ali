@@ -48,6 +48,8 @@ td.stock-out {
     font-weight: 600;
 }
 
+/* خلفية الشعار والإعدادات ملونة — تدرج بنفسجي فاتح */
+.mud-appbar{ background: linear-gradient(90deg, #F0EDFB 0%, #EDE9FE 100%) !important; }
 /* الشريط العلوي: بلا ظل + خط سفلي خفيف — طبقة عالية فوق أي شريط بحث sticky */
 .mud-appbar {
     box-shadow: none;
@@ -587,6 +589,19 @@ td.stock-out {
     to   { opacity: 1; }
 }
 
+/* ===== تقارير موحدة — جدول منسق للطباعة ===== */
+.report-header{ display:flex; justify-content:space-between; align-items:flex-end; border-bottom:2.5px solid #6D5BD0; padding-bottom:8px; margin-bottom:12px; font-size:.95rem; }
+.report-table{ width:100%; border-collapse:collapse; font-size:.88rem; }
+.report-table th, .report-table td{ border:1px solid #E5E7EB; padding:6px 8px; text-align:center; }
+.report-table th{ background:#F9FAFB; font-weight:700; }
+.report-table tfoot td{ background:#F3F4F6; font-weight:700; }
+.report-footer{ margin-top:8px; font-size:.82rem; color:#6B7280; }
+/* طباعة تقارير عامة — إخفاء Chrome عند الطباعة، إظهار المحتوى المنسق فقط */
+@media print{
+  .mud-appbar, .mud-drawer, .erp-topnav, .mud-dialog-actions{ display:none !important; }
+  .report-popup{ box-shadow:none !important; border:none !important; }
+  .report-table{ font-size:9pt !important; }
+}
 /* ===== طباعة إيصال نقطة البيع: إظهار الإيصال فقط عند الطباعة ===== */
 @media print {
     body * { visibility: hidden !important; }

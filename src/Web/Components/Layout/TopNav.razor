@@ -166,14 +166,7 @@
     </AuthorizeView>
     }
 
-    @* مربع صغير للاشتراك — بجانب آخر زر (الصلاحيات) *@
-    @if (_subscriptionText != null)
-    {
-        <span title="@_subscriptionTitle" style="display:inline-flex;align-items:center;gap:6px;padding:6px 10px;border-radius:10px;font-size:.78rem;font-weight:700;border:1px solid @_subBorder;background:@_subBg;color:@_subColor;white-space:nowrap;margin-inline-start:8px">
-            <MudIcon Icon="@Icons.Material.Filled.Event" Size="Size.Small" Style="@($"color:{_subColor};font-size:1rem")" />
-            @_subscriptionText
-        </span>
-    }
+    @* المدة المتبقية حُذفت من هنا — بجانب الإعدادات فقط *@
 </nav>
 
 @code {

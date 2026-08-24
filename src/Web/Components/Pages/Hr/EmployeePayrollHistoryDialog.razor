@@ -21,7 +21,8 @@
                 </HeaderContent>
                 <RowTemplate>
                     <MudTd>@context.PayrollRunId.ToString()[..8]</MudTd>
-                    <MudTd>@context.NetPay.ToString("N2")</MudTd>
+                    @* ── صافي الدفع — بالعملة الموحدة ── *@
+                    <MudTd><MoneyDisplay Amount="context.NetPay" /></MudTd>
                     <MudTd>@context.UnpaidLeaveDays</MudTd>
                 </RowTemplate>
             </MudTable>

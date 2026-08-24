@@ -40,7 +40,8 @@ else
                 {
                     <MudPaper Elevation="1" Class="pa-3 mb-2">
                         <MudText Typo="Typo.body1" Style="font-weight:600;">@o.Title</MudText>
-                        <MudText Typo="Typo.caption" Style="color:var(--erp-primary); font-weight:700;">@o.ExpectedValue.ToString("N2")</MudText>
+                        @* ── القيمة المتوقعة — بالعملة الموحدة ── *@
+                        <MudText Typo="Typo.caption" Style="color:var(--erp-primary); font-weight:700;"><MoneyDisplay Amount="o.ExpectedValue" /></MudText>
                         @if (!string.IsNullOrEmpty(o.CustomerName))
                         {
                             <MudText Typo="Typo.caption" Class="muted-text">@o.CustomerName</MudText>

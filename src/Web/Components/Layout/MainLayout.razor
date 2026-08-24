@@ -40,8 +40,16 @@ MudLayout: التخطيط الرئيسي للصفحة.
                     </div>
                 </div>
                 <div style="flex:1; display:flex; justify-content:flex-end; align-items:center; gap:6px;">
-                    @* ── زر الإعدادات — رمز ترس ثابت أعلى اليمين (مطلوب للوصول للعملة) ── *@
-                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="الإعدادات" Href="/settings" />
+                    @* ── المدة المتبقية — بجانب رمز الإعدادات (TopNav كانت تعرضها بجانب الصلاحيات — الآن مكررة هنا للوضوح) ── *@
+                    @if (!string.IsNullOrWhiteSpace(_subText))
+                    {
+                        <span title="@_subTitle" style="display:inline-flex;align-items:center;gap:6px;padding:5px 10px;border-radius:999px;font-size:.78rem;font-weight:800;border:1px solid @_subBorder;background:@_subBg;color:@_subColor;white-space:nowrap">
+                            <MudIcon Icon="@Icons.Material.Filled.Event" Size="Size.Small" Style="@($"color:{_subColor};font-size:1rem")" />
+                            @_subText
+                        </span>
+                    }
+                    @* ── زر الإعدادات — خلفية بنفسجية واضحة ── *@
+                    <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#DDD6FE;border:1px solid #C4B5FD;border-radius:10px;color:#4C1D95;" Title="الإعدادات" Href="/settings" />
                     <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="الإشعارات" />
                     <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                         <ActivatorContent>
@@ -104,6 +112,7 @@ MudLayout: التخطيط الرئيسي للصفحة.
     private string? _logoUrl;
     private string? _primaryHex;
     private string? _supportContact;
+    private string? _subText, _subTitle; private string _subBg="#F9FAFB", _subColor="#374151", _subBorder="#E5E7EB";
     protected override async Task OnInitializedAsync()
     {
         try
@@ -113,6 +122,16 @@ MudLayout: التخطيط الرئيسي للصفحة.
             _logoUrl = s.LogoUrl;
             _primaryHex = s.PrimaryColorHex;
             _supportContact = s.SupportContactInfo;
+            var target = s.NextRenewalDate != default ? s.NextRenewalDate : s.LicenseExpiryDate;
+            if (target != null && target != default)
+            {
+                var days = (target.Value.Date - DateTime.UtcNow.Date).TotalDays;
+                _subTitle = $"ينتهي: {target.Value:yyyy-MM-dd}";
+                if (days < 0) { _subText = $"منتهي منذ {Math.Ceiling(-days)} يوم"; _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
+                else if (days <= 3) { _subText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg="#FEE2E2"; _subColor="#991B1B"; _subBorder="#FECACA"; }
+                else if (days <= 10) { _subText = $"متبقي {Math.Ceiling(days)} يوم"; _subBg="#FEF3C7"; _subColor="#92400E"; _subBorder="#FDE68A"; }
+                else { _subText = $"ينتهي {target.Value:MM-dd}"; _subBg="#F0FDF4"; _subColor="#065F46"; _subBorder="#BBF7D0"; }
+            }
         }
         catch { }
     }

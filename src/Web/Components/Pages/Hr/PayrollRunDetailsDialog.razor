@@ -20,9 +20,11 @@
             </HeaderContent>
             <RowTemplate>
                 <MudTd>@context.EmployeeNameAr (@context.EmployeeNumber)</MudTd>
-                <MudTd>@context.BasicSalary.ToString("N2")</MudTd>
+                @* ── الراتب الأساسي — بالعملة الموحدة (عرض فقط) ── *@
+                <MudTd><MoneyDisplay Amount="context.BasicSalary" /></MudTd>
                 <MudTd>@context.UnpaidLeaveDays</MudTd>
-                <MudTd>@context.UnpaidLeaveDeduction.ToString("N2")</MudTd>
+                @* ── الاستقطاع بالعملة الموحدة ── *@
+                <MudTd><MoneyDisplay Amount="context.UnpaidLeaveDeduction" /></MudTd>
                 <MudTd>
                     @if (Run.Status == PayrollRunStatus.Draft)
                     {
@@ -30,7 +32,8 @@
                     }
                     else
                     {
-                        @context.OtherDeductions.ToString("N2")
+                        @* ── استقطاعات أخرى — بالعملة الموحدة ── *@
+                        <MoneyDisplay Amount="context.OtherDeductions" />
                     }
                 </MudTd>
                 <MudTd>
@@ -40,10 +43,12 @@
                     }
                     else
                     {
-                        @context.OtherAllowances.ToString("N2")
+                        @* ── بدلات أخرى — بالعملة الموحدة ── *@
+                        <MoneyDisplay Amount="context.OtherAllowances" />
                     }
                 </MudTd>
-                <MudTd><strong>@context.NetPay.ToString("N2")</strong></MudTd>
+                @* ── صافي الدفع — بالعملة الموحدة (القيمة النهائية للموظف) ── *@
+                <MudTd><strong><MoneyDisplay Amount="context.NetPay" /></strong></MudTd>
                 @if (Run.Status == PayrollRunStatus.Draft)
                 {
                     <MudTd><MudIconButton Icon="@Icons.Material.Filled.Save" Size="Size.Small" Color="Color.Primary" OnClick="@(() => SaveLine(context))" /></MudTd>
@@ -51,7 +56,8 @@
             </RowTemplate>
         </MudTable>
         <MudDivider Class="my-3" />
-        <MudText>@Loc["TotalGross"]: @Run.TotalGross.ToString("N2") | @Loc["TotalDeductions"]: @Run.TotalDeductions.ToString("N2") | @Loc["TotalNet"]: @Run.TotalNet.ToString("N2")</MudText>
+        @* ── الإجماليات — كلها بالعملة الموحدة (عرض موحد) ── *@
+        <MudText>@Loc["TotalGross"]: <MoneyDisplay Amount="Run.TotalGross" /> | @Loc["TotalDeductions"]: <MoneyDisplay Amount="Run.TotalDeductions" /> | @Loc["TotalNet"]: <MoneyDisplay Amount="Run.TotalNet" /></MudText>
     </DialogContent>
     <DialogActions>
         <MudButton OnClick="Cancel">@Loc["Close"]</MudButton>

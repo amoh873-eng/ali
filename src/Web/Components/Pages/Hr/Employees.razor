@@ -63,7 +63,8 @@
                 <MudTd>@context.DepartmentNameAr</MudTd>
                 <MudTd>@context.PositionNameAr</MudTd>
                 <MudTd>@context.HireDate.ToString("yyyy-MM-dd")</MudTd>
-                <MudTd>@context.BasicSalary.ToString("N2")</MudTd>
+                @* ── الراتب الأساسي — بالعملة الموحدة ── *@
+                <MudTd><MoneyDisplay Amount="context.BasicSalary" /></MudTd>
                 <MudTd>
                     <MudSelect T="EmployeeStatus" Value="@context.Status"
                                ValueChanged="@(v => SetStatus(context, v))"

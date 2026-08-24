@@ -61,8 +61,9 @@
                 <MudTd>@context.NameAr</MudTd>
                 <MudTd>@context.CategoryNameAr</MudTd>
                 <MudTd>@context.UnitNameAr</MudTd>
-                <MudTd>@context.CostPrice.ToString("N2")</MudTd>
-                <MudTd>@context.SalePrice.ToString("N2")</MudTd>
+                @* ── سعر التكلفة/البيع — بالعملة الموحدة ── *@
+                <MudTd><MoneyDisplay Amount="context.CostPrice" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.SalePrice" /></MudTd>
                 <MudTd>
                     <MudChip T="string" Size="Size.Small"
                              Variant="Variant.Filled"

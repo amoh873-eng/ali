@@ -68,7 +68,8 @@
                         @(context.PaymentMethod == 1 ? Loc["Cash"] : Loc["Bank"])
                     </MudChip>
                 </MudTd>
-                <MudTd>@context.Amount.ToString("N2")</MudTd>
+                @* ── المبلغ بالعملة الموحدة — عرض موحد عبر MoneyDisplay (لا ToString خام) ── *@
+                <MudTd><MoneyDisplay Amount="context.Amount" /></MudTd>
                 <MudTd>@context.Description</MudTd>
                 <MudTd>
                     @if (!string.IsNullOrEmpty(context.AttachmentPath))

@@ -1,0 +1,39 @@
+@using ERPSystem.Application.DTOs.Reports
+@inject IJSRuntime JS
+@inject ICustomReportService R2
+@inject IReportService R1
+<MudDialog>
+    <DialogContent>
+        <div class="report-popup">
+        @if (Table != null)
+        {
+            <div id="popup-report" class="report-print"><div class="report-header"><div><b>@Brand</b> — @Table.TitleAr<br/><small>@Table.ParamSummary</small></div><small>تاريخ الطباعة: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</small></div>
+            <table class="report-table"><thead><tr>@foreach(var h in Table.Headers){<th>@h</th>}</tr></thead><tbody>@foreach(var row in Table.Rows){<tr>@foreach(var c in row){<td>@c</td>}</tr>}</tbody>@if(Table.Totals!=null){<tfoot><tr>@foreach(var t in Table.Totals){<td><b>@t</b></td>}</tr></tfoot>}</table>
+            @if(!string.IsNullOrEmpty(Table.FooterNote)){<div class="report-footer">@Table.FooterNote</div>}</div>
+        }
+        @if (Custom != null)
+        {
+            <div id="popup-custom" class="report-print"><div class="report-header" style="border-color:#10B981"><div><b>@Brand</b> — @Title<br/><small>@Param</small></div><small>تاريخ الطباعة: @DateTime.Now.ToString("yyyy-MM-dd HH:mm")</small></div>
+            <table class="report-table"><thead><tr>@foreach(var h in Custom.Columns){<th>@h</th>}</tr></thead><tbody>@foreach(var row in Custom.Rows){<tr>@foreach(var h in Custom.Columns){<td>@(row.TryGetValue(h, out var v)?v?.ToString():"")</td>}</tr>}</tbody></table></div>
+        }
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Excel" Color="Color.Success" Variant="Variant.Outlined">Excel</MudButton>
+        <MudButton OnClick="Pdf" Color="Color.Primary" Variant="Variant.Outlined">PDF</MudButton>
+        <MudButton OnClick="Print" Color="Color.Info" Variant="Variant.Outlined">طباعة</MudButton>
+        <MudButton OnClick="Close" Color="Color.Default">إغلاق</MudButton>
+    </DialogActions>
+</MudDialog>
+@code{
+    [CascadingParameter] IMudDialogInstance MudDialog {get;set;}=default!;
+    [Parameter] public GenericReportTable? Table {get;set;}
+    [Parameter] public CustomReportResult? Custom {get;set;}
+    [Parameter] public string Brand {get;set;}="";
+    [Parameter] public string Title {get;set;}="";
+    [Parameter] public string Param {get;set;}="";
+    async Task Excel(){ if(Table!=null){var b=R1.ExportReportExcel(Table);await JS.InvokeVoidAsync("eval",$"var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{Convert.ToBase64String(b)}';a.download='report.xlsx';a.click();");} else if(Custom!=null){var b=R2.ExportExcel(Custom, Title);await JS.InvokeVoidAsync("eval",$"var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64,{Convert.ToBase64String(b)}';a.download='custom.xlsx';a.click();");} }
+    async Task Pdf(){ var id=Table!=null?"popup-report":"popup-custom"; await JS.InvokeVoidAsync("eval",$"var el=document.getElementById('{id}');if(el){{var w=window.open('','_blank');w.document.write('<html><head><style>table{{width:100%;border-collapse:collapse}}th,td{{border:1px solid #E5E7EB;padding:6px 8px;text-align:center}}th{{background:#F9FAFB}} .report-header{{display:flex;justify-content:space-between;border-bottom:2px solid #6D5BD0;padding-bottom:8px;margin-bottom:12px}}</style></head><body dir=\"rtl\">'+el.innerHTML+'</body></html>');w.document.close();w.print();}}");}
+    async Task Print()=> await Pdf();
+    void Close()=> MudDialog.Cancel();
+}

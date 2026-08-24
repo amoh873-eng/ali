@@ -10,6 +10,8 @@
 @inject IStringLocalizer<SharedResources> Loc
 <PageTitle>مركز التقارير - @Loc["AppName"]</PageTitle>
 <PageHeader Title="مركز التقارير الموحد" Icon="@Icons.Material.Filled.Assessment" />
+@inject IDialogService Dialogs
+@inject IJSRuntime JSR2
 <MudPaper Class="pa-2 mb-3" Elevation="0" Style="border:1px solid #E5E7EB">
     <MudText Typo="Typo.subtitle2" Class="mb-2">التقارير الجاهزة</MudText>
     <div style="display:flex;flex-wrap:wrap;gap:6px">
@@ -142,14 +144,10 @@ else
                 }
             } catch { }
         }
-        // auto-run if no params required
-        if (_paramDefs.Count == 0)
-        {
-            _running = true;
-            try { _result = await Reports.ExecuteAsync(id, new()); } catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
-            finally { _running = false; }
-        }
+        // التقارير المخصصة مفعلة — من/إلى افتراضي ثم المستخدم يضغط تشغيل لإظهار popup
     }
+    private DateTime? _customFrom = DateTime.Today.AddMonths(-1);
+    private DateTime? _customTo = DateTime.Today;
     private async Task RunWithParams()
     {
         _running = true;
@@ -158,20 +156,24 @@ else
             if (_key != "custom" && _key != "")
             {
                 var pars = new Dictionary<string,string?>();
-                if (_paramDates.TryGetValue("from", out var f) && f.HasValue) pars["from"] = f.Value.ToString("yyyy-MM-dd");
-                if (_paramDates.TryGetValue("to", out var t) && t.HasValue) pars["to"] = t.Value.ToString("yyyy-MM-dd");
+                if (_paramDates.TryGetValue("from", out var f) && f.HasValue) pars["from"] = f.Value.ToString("yyyy-MM-dd"); else if(_customFrom.HasValue) pars["from"]=_customFrom.Value.ToString("yyyy-MM-dd");
+                if (_paramDates.TryGetValue("to", out var t) && t.HasValue) pars["to"] = t.Value.ToString("yyyy-MM-dd"); else if(_customTo.HasValue) pars["to"]=_customTo.Value.ToString("yyyy-MM-dd");
                 if (_paramDates.TryGetValue("asOf", out var a) && a.HasValue) pars["asOf"] = a.Value.ToString("yyyy-MM-dd");
                 _builtinResult = await Builtin.GetReportAsync(_key, pars);
+                await Dialogs.ShowAsync<ReportPopup>(_builtinResult.TitleAr, new DialogParameters{["Table"]=_builtinResult, ["Brand"]=_brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true });
             }
             else
             {
                 var p = new Dictionary<string, object?>();
-                foreach (var (name, type, _) in _paramDefs)
-                {
-                    if (type == "date") { var d = _paramDates.TryGetValue(name, out var dv) ? dv : null; p[name] = d.HasValue ? DateOnly.FromDateTime(d.Value).ToDateTime(TimeOnly.MinValue) : null; }
+                if(_customFrom.HasValue) p["from"]=_customFrom.Value.ToString("yyyy-MM-dd");
+                if(_customTo.HasValue) p["to"]=_customTo.Value.ToString("yyyy-MM-dd");
+                foreach (var (name, type, _) in _paramDefs) if(!p.ContainsKey(name)){
+                    if (type == "date") { var d = _paramDates.TryGetValue(name, out var dv) ? dv : null; if(d.HasValue) p[name]=d.Value.ToString("yyyy-MM-dd"); }
                     else p[name] = _paramValues.TryGetValue(name, out var v) ? v : null;
                 }
                 _result = await Reports.ExecuteAsync(_selectedId, p);
+                var def=_list?.FirstOrDefault(x=>x.Id==_selectedId); var title=def?.Name??_title; var ps=_customFrom?.ToString("yyyy-MM-dd")??"—"; var pe=_customTo?.ToString("yyyy-MM-dd")??ps;
+                await Dialogs.ShowAsync<ReportPopup>(title, new DialogParameters{["Custom"]=_result, ["Title"]=title, ["Param"]=$"من {ps} إلى {pe}", ["Brand"]=_brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true });
             }
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }

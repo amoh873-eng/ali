@@ -11,6 +11,7 @@
 
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync">@Loc["Refresh"]</MudButton>
+    <MudButton Variant="Variant.Filled" Color="Color.Info" OnClick="OpenPopup" StartIcon="@Icons.Material.Filled.Visibility" Class="ms-2">عرض في نافذة</MudButton>
     <MudButton Variant="Variant.Outlined" Color="Color.Success" Href="/export/trial-balance/excel"
                StartIcon="@Icons.Material.Filled.Download" Class="ms-2">Excel</MudButton>
     <MudButton Variant="Variant.Outlined" Color="Color.Secondary" Href="/export/trial-balance/pdf"
@@ -47,9 +48,10 @@
             <RowTemplate>
                 <MudTd>@context.AccountCode</MudTd>
                 <MudTd>@context.AccountNameAr</MudTd>
-                <MudTd>@context.TotalDebit.ToString("N2")</MudTd>
-                <MudTd>@context.TotalCredit.ToString("N2")</MudTd>
-                <MudTd>@context.Balance.ToString("N2")</MudTd>
+                @* ── أرصدة الحسابات — بالعملة الموحدة ── *@
+                <MudTd><MoneyDisplay Amount="context.TotalDebit" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.TotalCredit" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Balance" /></MudTd>
             </RowTemplate>
             <PagerContent>
                 <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
@@ -69,8 +71,20 @@
 
     [Inject] private IReportService ReportService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
-
-    protected override async Task OnInitializedAsync() => await LoadAsync();
+    [Inject] private IDialogService Dialogs { get; set; } = default!;
+    [Inject] private ISystemSettingsService Settings { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    private string _brand = "";
+    protected override async Task OnInitializedAsync(){ try{ var s=await Settings.GetAsync(); _brand=s.AppDisplayName??"ERP"; }catch{}; await LoadAsync(); }
+    private void OpenPopup()
+    {
+        if(_trialBalance==null) return;
+        var headers = new[]{"الرمز","الحساب","مدين","دائن","الرصيد"};
+        var rows = _trialBalance.Lines.OrderBy(x=>x.AccountCode).Select(x=> new List<string>{x.AccountCode, x.AccountNameAr, x.TotalDebit.ToString("N2"), x.TotalCredit.ToString("N2"), x.Balance.ToString("N2")}).ToList();
+        var totals = new[]{ "", "الإجمالي", _trialBalance.TotalDebit.ToString("N2"), _trialBalance.TotalCredit.ToString("N2"), "" };
+        var tbl = new GenericReportTable{ TitleAr="ميزان المراجعة", Headers=headers.ToList(), Rows=rows, Totals=totals.ToList(), ParamSummary=$"الرصيد — متوازن: {(_trialBalance.IsBalanced?"نعم":"لا")}" };
+        Dialogs.ShowAsync<ReportPopup>("ميزان المراجعة", new DialogParameters{["Table"]=tbl, ["Brand"]=_brand}, new DialogOptions{ MaxWidth=MaxWidth.ExtraLarge, FullWidth=true });
+    }
 
     private async Task LoadAsync()
     {
