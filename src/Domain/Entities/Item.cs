@@ -91,6 +91,20 @@ public class Item : BaseEntity
     public decimal CurrentStock { get; set; }
 
     /// <summary>
+    /// هل يُتتبّع انتهاء الصلاحية لهذا الصنف عبر دفعات (StockBatch)؟
+    /// فعّله اختيارياً فقط للأصناف القابلة للتلف؛ الافتراضي false = صفر تغيير
+    /// في السلوك للأصناف التي لا تحتاج تتبّع دفعات.
+    /// </summary>
+    public bool TracksExpiry { get; set; }
+
+    /// <summary>
+    /// آخر تاريخ أُرسل فيه تنبيه نقص مخزون لهذا الصنف (لتفادي تكرار الإشعار
+    /// كل دورة بينما يبقى منخفضاً). يُصفّر تلقائياً عند إعادة التزويد فوق الحد
+    /// حتى يُرسل تنبيه جديد عند الانخفاض مجدداً. خفي — يديره الفحص الخلفي.
+    /// </summary>
+    public DateTime? LastLowStockNotifiedAt { get; set; }
+
+    /// <summary>
     /// Concurrency token (SQL Server rowversion) — detects lost updates to stock
     /// when two writers change CurrentStock/CostPrice concurrently.
     /// </summary>

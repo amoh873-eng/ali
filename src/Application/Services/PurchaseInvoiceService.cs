@@ -121,6 +121,10 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
         _context.Set<PurchaseInvoice>().Add(invoice);
         _context.Set<PurchaseInvoiceLine>().AddRange(lines);
 
+        // بيانات الصلاحية لكل صنف (لإنشاء دفعات للصنف الذي يتتبّع الانتهاء).
+        var expiryByItem = dto.Lines.ToDictionary(l => l.ItemId, l => l.ExpiryDate);
+        var batchNoByItem = dto.Lines.ToDictionary(l => l.ItemId, l => l.BatchNumber);
+
         foreach (var line in lines)
         {
             _context.Set<StockMovement>().Add(new StockMovement
@@ -144,6 +148,19 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
                 item.CurrentStock, item.CostPrice, line.Quantity, line.UnitCost);
             item.CurrentStock += line.Quantity;
             item.UpdatedAt = DateTime.UtcNow;
+
+            // ── تتبّع انتهاء الصلاحية (طبقة دفعات موازية، فقط للأصناف المفعّلة) ──
+            // إنشاء دفعة بجانب حركة الوارد — لا يُستبدل وصلا/CurrentStock بل يُضاف.
+            if (item.TracksExpiry)
+            {
+                var expiry = expiryByItem.TryGetValue(line.ItemId, out var e) ? e : null;
+                if (expiry is null)
+                    throw new InvalidOperationException(
+                        $"الصنف '{item.Code}' يتتبّع انتهاء الصلاحية — مطلوب إدخال تاريخ الانتهاء عند الاستلام.");
+                await StockBatchHelper.CreateOnReceiveAsync(_context, line.ItemId, warehouse.Id,
+                    line.Quantity, expiry, batchNoByItem.TryGetValue(line.ItemId, out var bn) ? bn : null,
+                    invoice.InvoiceNumber, invoice.InvoiceDate);
+            }
         }
 
         var inventoryAccount = await GetAccountByCodeAsync(AccountInventory);

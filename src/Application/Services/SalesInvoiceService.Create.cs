@@ -124,6 +124,12 @@ public partial class SalesInvoiceService
             // تحديث الرصيد الكلي المكرر للصنف (للأداء في لوحة التحكم)
             itemDict[line.ItemId].CurrentStock -= line.Quantity;
             itemDict[line.ItemId].UpdatedAt = DateTime.UtcNow;
+
+            // ── تتبّع انتهاء الصلاحية: خصم FEFO (الأقرب انتهاءً أولاً) ──
+            // للأصناف التي تتتبّع الصلاحية فقط، نخصم من أقدم دفعة تاريخ انتهاء.
+            // تتم داخل نفس المعاملة/القفل الحالي (قفل صف الصنف من EnsureEnoughStock).
+            if (itemDict[line.ItemId].TracksExpiry)
+                await StockBatchHelper.AllocateFefoAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
         }
 
         // 5) القيد المحاسبي للبيع: مدين (صندوق/عملاء) ، دائن (إيراد + ضريبة)

@@ -41,4 +41,7 @@ public class CreateItemDto
 
     [StringLength(500)]
     public string? Description { get; set; }
+
+    /// <summary>هل يتتبّع الصلاحية عبر دفعات (اختياري — للأصناف القابلة للتلف)؟</summary>
+    public bool TracksExpiry { get; set; }
 }

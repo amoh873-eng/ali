@@ -93,6 +93,10 @@
                 </MudItem>
 
                 <MudItem xs="12">
+                    <MudSwitch @bind-Value="_tracksExpiry" Color="Color.Primary" Label="@Loc["TracksExpiry"]" />
+                </MudItem>
+
+                <MudItem xs="12">
                     <MudTextField @bind-Value="_description"
                                   Label="@Loc["Description"]"
                                   Lines="2"
@@ -129,6 +133,7 @@
     private decimal _maxStock;
     private string? _barcode;
     private string? _description;
+    private bool _tracksExpiry;
     private string? _error;
 
     protected override void OnInitialized()
@@ -146,6 +151,7 @@
             _maxStock = EditItem.MaxStockLevel;
             _barcode = EditItem.Barcode;
             _description = EditItem.Description;
+            _tracksExpiry = EditItem.TracksExpiry;
         }
         else
         {
@@ -172,7 +178,8 @@
                     CategoryId = _categoryId, UnitId = _unitId,
                     CostPrice = _costPrice, SalePrice = _salePrice,
                     MinStockLevel = _minStock, MaxStockLevel = _maxStock,
-                    Barcode = _barcode, Description = _description
+                    Barcode = _barcode, Description = _description,
+                    TracksExpiry = _tracksExpiry
                 });
             }
             else
@@ -184,7 +191,8 @@
                     CostPrice = _costPrice, SalePrice = _salePrice,
                     MinStockLevel = _minStock, MaxStockLevel = _maxStock,
                     Barcode = _barcode, Description = _description,
-                    IsActive = EditItem.IsActive
+                    IsActive = EditItem.IsActive,
+                    TracksExpiry = _tracksExpiry
                 });
             }
             MudDialog.Close(DialogResult.Ok(true));

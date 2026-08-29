@@ -1,6 +1,7 @@
 ﻿@page "/pos"
 @attribute [Authorize(Roles = "Pos")]
 @layout PosLayout
+@using ERPSystem.Application.DTOs.Pos
 <ModuleGuard ModuleKey="Pos">
 @inject IStringLocalizer<SharedResources> Loc
 @inject NavigationManager Nav
@@ -134,6 +135,12 @@
                     <MudIcon Icon="@Icons.Material.Filled.Receipt" Class="mr-2" />
                     @Loc["NewInvoice"]
                 </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2">
+                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Class="mt-2">
+                    <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
+                </MudButton>
             </div>
             </div>
         </div>
@@ -144,7 +151,22 @@
     {
         public ItemDto Item { get; set; } = default!;
         public decimal Quantity { get; set; } = 1;
-        public decimal LineTotal => Math.Round(Item.SalePrice * Quantity, 2);
+        private decimal? _overrideUnitPrice;
+
+        /// <summary>سعر الوحدة الفعلي: افتراضياً سعر البيع الخاص بالصنف، إلا إذا فُرِّض (باركود بسعر مدمج).</summary>
+        public decimal UnitPrice => _overrideUnitPrice ?? Item.SalePrice;
+
+        public void SetOverrideUnitPrice(decimal price) => _overrideUnitPrice = price;
+        public decimal LineTotal => Math.Round(UnitPrice * Quantity, 2);
+    }
+
+    /// <summary>لقطة بند في عملية موقوفة (يحفظ فقط البيانات اللازمة لإعادة البناء).</summary>
+    private class HeldCartLine
+    {
+        public Guid ItemId { get; set; }
+        public decimal Quantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal Discount { get; set; }
     }
 
     private static readonly string[] CategoryColors = new[]
@@ -161,6 +183,8 @@
     private string _search = string.Empty;
     private string _receivedInput = string.Empty;
     private string _cashierName = "?";
+    private string? _cashierUserId;
+    private ERPSystem.Application.Services.WeightBarcodeRule? _weightRule;
     private string _clock = string.Empty;
     private int _paymentMethod = 1;
     private decimal _discountPercent;
@@ -190,6 +214,8 @@
     [Inject] private IDialogService DialogService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
     [Inject] private IJSRuntime Js { get; set; } = default!;
+    [Inject] private ISystemSettingsService SystemSettingsService { get; set; } = default!;
+    [Inject] private IHeldSaleService HeldSaleService { get; set; } = default!;
 
     private List<ItemDto> FilteredItems
     {
@@ -225,11 +251,24 @@
         {
             var auth = await AuthStateProvider.GetAuthenticationStateAsync();
             _cashierName = auth.User.Identity?.Name ?? "?";
+            _cashierUserId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? auth.User.Identity?.Name;
         }
         catch { /* ignore */ }
 
         await LoadPosSettingsAsync();
+        await LoadWeightBarcodeRuleAsync();
         await LoadAsync();
+    }
+
+    /// <summary>يقرأ قاعدة باركود الميزان من إعدادات النظام (قد تكون معطلة).</summary>
+    private async Task LoadWeightBarcodeRuleAsync()
+    {
+        try
+        {
+            var s = await SystemSettingsService.GetAsync();
+            _weightRule = ERPSystem.Application.Services.WeightBarcodeRule.FromJson(s.WeightBarcodeRuleJson);
+        }
+        catch { _weightRule = null; }
     }
 
     private async Task LoadPosSettingsAsync()
@@ -318,6 +357,83 @@
     private void Remove(CartLine line) => _cart.Remove(line);
     private void ClearCart() => _cart.Clear();
 
+    /// <summary>إيقاف العملية الحالية: حفظ لقطة السلة وحفظها كصف HeldSale ثم مسح السلة.</summary>
+    private async Task HoldSaleAsync()
+    {
+        if (_cart.Count == 0) return;
+        if (string.IsNullOrWhiteSpace(_cashierUserId)) { Snackbar.Add(Loc["PosNotIdentified"], Severity.Warning); return; }
+
+        var snapshot = _cart.Select(l => new HeldCartLine
+        {
+            ItemId = l.Item.Id,
+            Quantity = l.Quantity,
+            UnitPrice = l.UnitPrice,
+            Discount = 0m
+        }).ToList();
+
+        try
+        {
+            await HeldSaleService.HoldAsync(new SaveHeldSaleDto
+            {
+                CashierUserId = _cashierUserId,
+                CustomerId = _selectedCustomer?.Id,
+                LinesJson = System.Text.Json.JsonSerializer.Serialize(snapshot)
+            });
+
+            // مسح السلة الحالية للعميل التالي — لم يمسّ المخزون/الحسابات إطلاقاً.
+            NewInvoice();
+            Snackbar.Add(Loc["PosHeld"], Severity.Info);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    /// <summary>فتح لوحة العمليات الموقوفة لعرضها واستئناف أو إلغاء إحداها.</summary>
+    private async Task OpenHeldSalesAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_cashierUserId)) return;
+        var parameters = new DialogParameters
+        {
+            ["HeldSaleService"] = HeldSaleService,
+            ["CashierId"] = _cashierUserId
+        };
+        var dialog = await DialogService.ShowAsync<HeldSalesDialog>(Loc["HeldSales"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        var result = await dialog.Result;
+        if (result is not null && !result.Canceled && result.Data is HeldSaleDto held)
+        {
+            await ResumeHeldSaleAsync(held);
+        }
+    }
+
+    /// <summary>استئناف عملية موقوفة: إعادة بناء السلة من اللقطة وتكرار وحذف سجل الـ Hold.</summary>
+    private async Task ResumeHeldSaleAsync(HeldSaleDto held)
+    {
+        List<HeldCartLine> lines;
+        try { lines = System.Text.Json.JsonSerializer.Deserialize<List<HeldCartLine>>(held.LinesJson) ?? new(); }
+        catch { lines = new(); }
+
+        if (lines.Count == 0) { Snackbar.Add(Loc["PosHeldEmpty"], Severity.Warning); return; }
+
+        // إعادة بناء السلة من الأصناف المعروفة (المحمّلة في _items).
+        _cart.Clear();
+        foreach (var h in lines)
+        {
+            var item = _items.FirstOrDefault(i => i.Id == h.ItemId);
+            if (item is null) continue;
+            var cl = new CartLine { Item = item, Quantity = h.Quantity };
+            if (h.UnitPrice != item.SalePrice) cl.SetOverrideUnitPrice(h.UnitPrice);
+            _cart.Add(cl);
+        }
+
+        // استرجاع العميل المرتبط إن وُجد.
+        _selectedCustomer = held.CustomerId.HasValue
+            ? _customers.FirstOrDefault(c => c.Id == held.CustomerId.Value)
+            : _walkInCustomer;
+
+        await HeldSaleService.DeleteAsync(held.Id);
+        Snackbar.Add(Loc["PosResumed"], Severity.Success);
+    }
+
     /// <summary>Ø¨Ø¯Ø¡ ÙØ§ØªÙˆØ±Ø© Ø¬Ø¯ÙŠØ¯Ø©: Ù…Ø³Ø­ Ø§Ù„Ø³Ù„Ø© ÙˆØ¥Ø¹Ø§Ø¯Ø© Ø¶Ø¨Ø· Ø§Ù„Ø¯ÙØ¹ ÙˆØ§Ù„Ø®ØµÙ… ÙˆØ§Ù„Ø¨Ø­Ø«.</summary>
     private void NewInvoice()
     {
@@ -337,15 +453,57 @@
 
     private async Task HandleSearchKeyDown(KeyboardEventArgs e)
     {
-        if (e.Key == "Enter")
+        if (e.Key != "Enter") return;
+        var term = _search?.Trim();
+        if (string.IsNullOrWhiteSpace(term)) return;
+
+        // 1) جرّب الباركود الموزون أولاً (باركود كود + وزن/سعر من ميزان).
+        if (ERPSystem.Application.Services.BarcodeParser.TryParseWeightEmbedded(term, _weightRule, out var parsed)
+            && parsed is not null)
         {
-            var term = _search?.Trim();
-            var match = _items.FirstOrDefault(i => !string.IsNullOrEmpty(i.Barcode) && i.Barcode == term);
-            if (match is not null)
+            var item = _items.FirstOrDefault(i => i.Code == parsed.ItemCode);
+            if (item is null)
             {
-                AddItem(match);
-                _search = string.Empty;
+                Snackbar.Add(Loc["PosItemNotFound"], Severity.Warning);
+                return;
             }
+            if (parsed.ValueType == ERPSystem.Domain.Enums.WeightBarcodeValueType.Price)
+            {
+                // السعر مدمج مباشرة (بدون ضرب بالوزن).
+                AddWeightedLine(item, 1m, parsed.Value);
+            }
+            else
+            {
+                // الوزن مدمج → الكمية = الوزن، والسعر = سعر وحدة البيع.
+                AddWeightedLine(item, parsed.Value, null);
+            }
+            _search = string.Empty;
+            return;
+        }
+
+        // 2) وإلا مسار عادي: بحث بحقل Item.Barcode (كما كان).
+        var match = _items.FirstOrDefault(i => !string.IsNullOrEmpty(i.Barcode) && i.Barcode == term);
+        if (match is not null)
+        {
+            AddItem(match);
+            _search = string.Empty;
+        }
+    }
+
+    /// <summary>إضافة سطر بكمية موزونة (أو بسعر مدمج) — يجمع الكميات لنفس الصنف.</summary>
+    private void AddWeightedLine(ItemDto item, decimal quantity, decimal? overrideUnitPrice)
+    {
+        var line = _cart.FirstOrDefault(l => l.Item.Id == item.Id);
+        if (line is null)
+        {
+            var cl = new CartLine { Item = item, Quantity = quantity };
+            if (overrideUnitPrice.HasValue) cl.SetOverrideUnitPrice(overrideUnitPrice.Value);
+            _cart.Add(cl);
+        }
+        else
+        {
+            line.Quantity += quantity;
+            if (overrideUnitPrice.HasValue) line.SetOverrideUnitPrice(overrideUnitPrice.Value);
         }
     }
 
@@ -396,7 +554,7 @@
                 IsPos = true,
                 Lines = _cart.Select(l => new CreateSalesInvoiceLineDto
                 {
-                    ItemId = l.Item.Id, Quantity = l.Quantity, UnitPrice = l.Item.SalePrice
+                    ItemId = l.Item.Id, Quantity = l.Quantity, UnitPrice = l.UnitPrice
                 }).ToList()
             };
 

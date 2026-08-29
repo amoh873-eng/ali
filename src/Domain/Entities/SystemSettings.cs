@@ -53,6 +53,18 @@ public class SystemSettings
     public DateTime? TrialStartedAt { get; set; }
     public DateTime? TrialExpiresAt { get; set; }
 
+    // ── تنبيه انتهاء صلاحية الدفعات: نافذة التحذير بالأيام (افتراضي 7) ──
+    // الدفعات التي تنتهي خلال هذه النافذة تُعلَّم "عينية قرب الانتهاء"،
+    // والمنتهية فعلياً (تاريخها قبل اليوم) تُعلَّم "منتهية" بأولوية أعلى.
+    public int ExpiryWarningWindowDays { get; set; } = 7;
+
+    // ── قاعدة تحليل الباركود الصادر من ميزان الكتروني (وزن/سعر مدمج) ──
+    // JSON يُخزّن WeightBarcodeRule. إذا كان فارغاً تُعطّل ميزة الباركود الموزون
+    // ويُعامَل كل مسح كبحث عادي بحقل Item.Barcode. لاحظ أن تنسيق أرقام المواضع
+    // يختلف حسب ماركة الميزان/طريقة ضبطه — تحقّق من مواصفات الجهاز الفعلي لدى
+    // العميل قبل اعتماد القاعدة النهائية لأي نشر حقيقي (مثل تحذير JoFotara).
+    public string? WeightBarcodeRuleJson { get; set; }
+
     // ── Part I: Update log / health history (not columns, separate tables) ──
 
     public DateTime CreatedAt { get; set; } = DateTime.UtcNow;

@@ -22,4 +22,7 @@ public class ItemDto
     public bool IsActive { get; set; }
     public bool IsSystem { get; set; }
     public decimal CurrentStock { get; set; }
+
+    /// <summary>هل يتتبّع الصلاحية عبر دفعات؟</summary>
+    public bool TracksExpiry { get; set; }
 }

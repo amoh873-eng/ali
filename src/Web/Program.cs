@@ -66,6 +66,8 @@ builder.Services.AddScoped<ISystemSettingsService, SystemSettingsService>();
 builder.Services.AddHostedService<RenewalReminderService>();
 builder.Services.AddHostedService<TrialExpiryService>();
 builder.Services.AddHostedService<NotificationDigestService>();
+builder.Services.AddHostedService<LowStockNotificationService>();
+builder.Services.AddHostedService<ExpiryNotificationService>();
 builder.Services.AddScoped<ErrorNotifierService>();
 builder.Services.AddScoped<UpdateService>();
 

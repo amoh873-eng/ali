@@ -1,0 +1,98 @@
+@* لوحة العمليات الموقوفة (Hold): عرض، استئناف، إلغاء *@
+@using ERPSystem.Application.DTOs.Pos
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+        }
+
+        @if (_held.Count == 0)
+        {
+            <MudText Class="pos-muted" Style="padding:16px 0;">@Loc["NoHeldSales"]</MudText>
+        }
+        else
+        {
+            @foreach (var h in _held)
+            {
+                <MudPaper Elevation="0" Class="mb-2 pa-3 d-flex align-items-center"
+                          Style="@PaperStyle(h)">
+                    <div style="flex:1;">
+                        <div style="font-weight:700;">
+                            @Loc["HeldAt"]: @h.CreatedAt.ToLocalTime().ToString("yyyy-MM-dd HH:mm")
+                            @if (h.IsStale)
+                            {
+                                <MudChip T="string" Size="Size.Small" Color="Color.Error" Variant="Variant.Outlined">@Loc["HeldStale"]</MudChip>
+                            }
+                        </div>
+                        <div class="pos-muted">@Loc["Customer"]: @h.CustomerName</div>
+                        <div class="pos-muted">@Loc["Lines"]: @LineCount(h) @(string.IsNullOrWhiteSpace(h.Note) ? "" : $" — {h.Note}")</div>
+                    </div>
+                    <div style="display:flex; gap:8px;">
+                        <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="() => Resume(h)">@Loc["Resume"]</MudButton>
+                        <MudButton Variant="Variant.Text" Color="Color.Error" Size="Size.Small" OnClick="() => Discard(h)">@Loc["Discard"]</MudButton>
+                    </div>
+                </MudPaper>
+            }
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public IHeldSaleService HeldSaleService { get; set; } = default!;
+    [Parameter] public string CashierId { get; set; } = string.Empty;
+
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    private List<HeldSaleDto> _held = new();
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        try { _held = await HeldSaleService.GetByCashierAsync(CashierId); }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+
+    private int LineCount(HeldSaleDto h)
+    {
+        try
+        {
+            var lines = System.Text.Json.JsonSerializer.Deserialize<List<object>>(h.LinesJson);
+            return lines?.Count ?? 0;
+        }
+        catch { return 0; }
+    }
+
+    /// <summary>ستايل لوحة العملية: أحمر باهت إذا كانت قديمة (+24 ساعة) وإلا حدود عادية.</summary>
+    private string PaperStyle(HeldSaleDto h)
+        => h.IsStale
+            ? "border:1px solid #F87171; border-radius:10px; background:#FEF2F2;"
+            : "border:1px solid var(--erp-border); border-radius:10px; background:#fff;";
+
+    private void Resume(HeldSaleDto h) => MudDialog.Close(DialogResult.Ok(h));
+
+    private async Task Discard(HeldSaleDto h)
+    {
+        try
+        {
+            await HeldSaleService.DeleteAsync(h.Id);
+            Snackbar.Add(Loc["HeldDiscarded"], Severity.Info);
+            await LoadAsync();
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+}

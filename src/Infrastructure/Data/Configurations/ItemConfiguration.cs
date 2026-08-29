@@ -61,6 +61,13 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .HasColumnType("decimal(18,2)")
             .HasDefaultValue(0);
 
+        // ── تتبّع انتهاء الصلاحية: اختياري حسب الصنف، لا يغيّر سلوك الأصناف الأخرى ──
+        builder.Property(i => i.TracksExpiry)
+            .HasDefaultValue(false);
+
+        builder.Property(i => i.LastLowStockNotifiedAt)
+            .HasColumnType("datetime2");
+
         // Relationships
         builder.HasOne(i => i.Category)
             .WithMany(c => c.Items)

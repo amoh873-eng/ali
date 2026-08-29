@@ -1,0 +1,125 @@
+@page "/inventory/expiry"
+@attribute [Authorize(Roles = "Inventory")]
+@using ERPSystem.Application.DTOs.Inventory
+@inject IStringLocalizer<SharedResources> Loc
+@inject IStockBatchService StockBatchService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+    <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight:800;">@Loc["ExpiryTracking"]</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3 pos-muted">@Loc["ExpiryTrackingSub"]</MudText>
+
+    @* ── المفاتيح اللونية ── *@
+    <div style="display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#FDE2E2;border:1px solid #EF4444;"></span> @Loc["Expired"]</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#FEF3C7;border:1px solid #F59E0B;"></span> @Loc["ExpiringSoon"]</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#F0FDF4;border:1px solid #10B981;"></span> @Loc["ExpiryFine"]</span>
+    </div>
+
+    @* ── فلترة حسب الصنف والمخزن ── *@
+    <MudGrid Class="mb-2">
+        <MudItem xs="12" sm="6">
+            <MudSelect T="Guid?" @bind-Value="_filterItemId" Label="@Loc["Items"]" Variant="Variant.Outlined" Clearable="true" Dense="true">
+                @foreach (var it in _distinctItems)
+                {
+                    <MudSelectItem T="Guid?" Value="@it.Key">@it.Value</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6">
+            <MudSelect T="Guid?" @bind-Value="_filterWarehouseId" Label="@Loc["Warehouses"]" Variant="Variant.Outlined" Clearable="true" Dense="true">
+                @foreach (var w in _distinctWarehouses)
+                {
+                    <MudSelectItem T="Guid?" Value="@w.Key">@w.Value</MudSelectItem>
+                }
+            </MudSelect>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Elevation="0" Class="pa-4" Style="background:#fff;border:1px solid var(--erp-border);border-radius:12px;">
+        <MudTable Items="FilteredBatches" Dense="true" Hover="true" Striped="false"
+                  RowStyle="RowStyle" Height="520px" FixedHeader="true">
+            <HeaderContent>
+                <MudTh>@Loc["Item"]</MudTh>
+                <MudTh>@Loc["BatchNumber"]</MudTh>
+                <MudTh>@Loc["Warehouse"]</MudTh>
+                <MudTh>@Loc["ExpiryDate"]</MudTh>
+                <MudTh>@Loc["Quantity"]</MudTh>
+                <MudTh>@Loc["ReceivedDate"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@Loc["Item"]">@context.ItemCode - @context.ItemNameAr</MudTd>
+                <MudTd DataLabel="@Loc["BatchNumber"]">@(string.IsNullOrWhiteSpace(context.BatchNumber) ? "—" : context.BatchNumber)</MudTd>
+                <MudTd DataLabel="@Loc["Warehouse"]">@context.WarehouseName</MudTd>
+                <MudTd DataLabel="@Loc["ExpiryDate"]">@(context.ExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</MudTd>
+                <MudTd DataLabel="@Loc["Quantity"]">@context.Quantity.ToString("N2")</MudTd>
+                <MudTd DataLabel="@Loc["ReceivedDate"]">@context.ReceivedDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd DataLabel="@Loc["Status"]">
+                    <MudChip T="string" Size="Size.Small" Color="@ChipColor(context.Status)">
+                        @StatusLabel(context.Status)
+                    </MudChip>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText Class="pos-muted" Style="padding:16px;">@Loc["NoBatches"]</MudText>
+            </NoRecordsContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<StockBatchDto> _batches = new();
+    private Guid? _filterItemId;
+    private Guid? _filterWarehouseId;
+
+    // قوائم الفلاتر: أزواج (معرّف، اسم) فريدة
+    private List<KeyValuePair<Guid, string>> _distinctItems = new();
+    private List<KeyValuePair<Guid, string>> _distinctWarehouses = new();
+
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            _batches = await StockBatchService.GetBatchesAsync();
+            _distinctItems = _batches
+                .GroupBy(b => b.ItemId)
+                .Select(g => new KeyValuePair<Guid, string>(g.Key, g.First().ItemCode + " - " + g.First().ItemNameAr))
+                .OrderBy(k => k.Value)
+                .ToList();
+            _distinctWarehouses = _batches
+                .GroupBy(b => b.WarehouseId)
+                .Select(g => new KeyValuePair<Guid, string>(g.Key, g.First().WarehouseName))
+                .OrderBy(k => k.Value)
+                .ToList();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private IEnumerable<StockBatchDto> FilteredBatches
+        => _batches.Where(b =>
+            (!_filterItemId.HasValue || b.ItemId == _filterItemId.Value) &&
+            (!_filterWarehouseId.HasValue || b.WarehouseId == _filterWarehouseId.Value));
+
+    private string RowStyle(StockBatchDto batch) => batch.Status switch
+    {
+        "Expired" => "background:#FDE2E2;",
+        "Expiring" => "background:#FEF3C7;",
+        _ => "background:#F0FDF4;"
+    };
+
+    private Color ChipColor(string status) => status switch
+    {
+        "Expired" => Color.Error,
+        "Expiring" => Color.Warning,
+        _ => Color.Success
+    };
+
+    private string StatusLabel(string status) => status switch
+    {
+        "Expired" => Loc["Expired"],
+        "Expiring" => Loc["ExpiringSoon"],
+        _ => Loc["ExpiryFine"]
+    };
+}

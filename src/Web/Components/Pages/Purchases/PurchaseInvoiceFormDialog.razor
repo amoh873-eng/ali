@@ -59,6 +59,17 @@
                         <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="@(e => RemoveLine(line))" />
                     </MudItem>
                 </MudGrid>
+                @if (line.RequiresExpiry)
+                {
+                    <MudGrid Class="mb-2 align-items-center">
+                        <MudItem xs="12" sm="6">
+                            <MudDatePicker @bind-Date="line.ExpiryDate" Label="@Loc["ExpiryDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" Dense="true" />
+                        </MudItem>
+                        <MudItem xs="12" sm="6">
+                            <MudTextField @bind-Value="line.BatchNumber" Label="@Loc["BatchNumber"]" Variant="Variant.Outlined" Dense="true" />
+                        </MudItem>
+                    </MudGrid>
+                }
             }
 
             <MudButton Variant="Variant.Outlined" Color="Color.Primary" OnClick="AddLine" Class="mt-2">@Loc["AddLine"]</MudButton>
@@ -91,6 +102,14 @@
         public Guid ItemId { get; set; }
         public decimal Quantity { get; set; } = 1;
         public decimal UnitCost { get; set; }
+
+        /// <summary>تاريخ انتهاء الصلاحية (اختياري كإدخال، يُحوَّل إلى DateOnly عند الحفظ).</summary>
+        public DateTime? ExpiryDate { get; set; }
+
+        /// <summary>رقم الدفعة/اللوت (اختياري).</summary>
+        public string? BatchNumber { get; set; }
+
+        public bool RequiresExpiry { get; set; }
     }
 
     private MudForm? _form;
@@ -133,7 +152,11 @@
     {
         line.ItemId = id;
         var item = _items.FirstOrDefault(i => i.Id == id);
-        if (item is not null) line.UnitCost = item.CostPrice;
+        if (item is not null)
+        {
+            line.UnitCost = item.CostPrice;
+            line.RequiresExpiry = item.TracksExpiry;
+        }
         return Task.CompletedTask;
     }
 
@@ -146,6 +169,7 @@
 
         if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = Loc["LineItemRequired"]; return; }
         if (_lines.Any(l => l.Quantity <= 0)) { _error = Loc["QuantityPositive"]; return; }
+        if (_lines.Any(l => l.RequiresExpiry && !l.ExpiryDate.HasValue)) { _error = Loc["ExpiryDateRequired"]; return; }
 
         _error = null;
         try
@@ -161,7 +185,9 @@
                 {
                     ItemId = l.ItemId,
                     Quantity = l.Quantity,
-                    UnitCost = l.UnitCost
+                    UnitCost = l.UnitCost,
+                    ExpiryDate = l.ExpiryDate.HasValue ? DateOnly.FromDateTime(l.ExpiryDate.Value) : null,
+                    BatchNumber = l.BatchNumber
                 }).ToList()
             });
             MudDialog.Close(DialogResult.Ok(true));

@@ -223,6 +223,15 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<UpdateLog> UpdateLogs => Set<UpdateLog>();
     public DbSet<BackupMarker> BackupMarkers => Set<BackupMarker>();
 
+    /// <summary>إشعارات الموظفين (نقص مخزون / انتهاء صلاحية / نظام) — جرس الإشعارات للواجهة.</summary>
+    public DbSet<Notification> Notifications => Set<Notification>();
+
+    /// <summary>دفعات المخزون لصنف يتتبّع انتهاء الصلاحية (طبقة موازية اختيارية).</summary>
+    public DbSet<StockBatch> StockBatches => Set<StockBatch>();
+
+    /// <summary>عمليات بيع موقوفة من نقطة البيع (Hold) — سلة محلية فقط.</summary>
+    public DbSet<HeldSale> HeldSales => Set<HeldSale>();
+
     /// <summary>
     /// Configures the model using Fluent API from configuration classes.
     /// Keeps OnModelCreating clean by delegating each entity's config to its own class.
@@ -269,6 +278,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new CustomReportDefinitionConfiguration());
         modelBuilder.ApplyConfiguration(new SystemSettingsHistoryConfiguration());
         modelBuilder.ApplyConfiguration(new SalesInvoiceConfiguration());
+        modelBuilder.ApplyConfiguration(new NotificationConfiguration());
+        modelBuilder.ApplyConfiguration(new StockBatchConfiguration());
+        modelBuilder.ApplyConfiguration(new HeldSaleConfiguration());
 
         // Concurrency tokens (SQL Server rowversion) — catch lost updates to stock and account balances.
         modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();

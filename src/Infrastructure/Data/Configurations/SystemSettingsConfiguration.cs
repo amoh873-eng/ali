@@ -19,5 +19,8 @@ public class SystemSettingsConfiguration : IEntityTypeConfiguration<SystemSettin
         builder.Property(e => e.BackupDestination).HasMaxLength(500);
         builder.Property(e => e.TrialStartedAt).HasColumnType("datetime2");
         builder.Property(e => e.TrialExpiresAt).HasColumnType("datetime2");
+
+        builder.Property(e => e.ExpiryWarningWindowDays).HasDefaultValue(7);
+        builder.Property(e => e.WeightBarcodeRuleJson).HasColumnType("nvarchar(max)");
     }
 }

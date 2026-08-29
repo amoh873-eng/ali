@@ -45,6 +45,7 @@ public partial class ItemService : IItemService
         item.Barcode = dto.Barcode;
         item.Description = dto.Description;
         item.IsActive = dto.IsActive;
+        item.TracksExpiry = dto.TracksExpiry;
         item.UpdatedAt = DateTime.UtcNow;
 
         await _context.SaveChangesAsync();
@@ -108,7 +109,8 @@ public partial class ItemService : IItemService
             Description = item.Description,
             IsActive = item.IsActive,
             IsSystem = item.IsSystem,
-            CurrentStock = item.CurrentStock
+            CurrentStock = item.CurrentStock,
+            TracksExpiry = item.TracksExpiry
         };
     }
 }

@@ -237,6 +237,11 @@ public static class DependencyInjection
         services.AddScoped<IJoFotaraIntegrationService, JoFotaraIntegrationService>();
         services.AddHttpClient();
 
+        // ==================== إشعارات الموظفين + دفعات انتهاء الصلاحية + البيع الموقوف ====================
+        services.AddScoped<IStaffNotificationService>(sp => new StaffNotificationService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<IStockBatchService>(sp => new StockBatchService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<IHeldSaleService>(sp => new HeldSaleService(sp.GetRequiredService<AppDbContext>()));
+
         return services;
     }
 }

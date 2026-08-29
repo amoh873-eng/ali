@@ -85,6 +85,7 @@ public partial class ItemService : IItemService
             MaxStockLevel = dto.MaxStockLevel,
             Barcode = dto.Barcode,
             Description = dto.Description,
+            TracksExpiry = dto.TracksExpiry,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

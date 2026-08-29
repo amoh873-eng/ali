@@ -50,7 +50,44 @@ MudLayout: التخطيط الرئيسي للصفحة.
                     }
                     @* ── زر الإعدادات — خلفية بنفسجية واضحة ── *@
                     <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" Size="Size.Small" Style="background:#DDD6FE;border:1px solid #C4B5FD;border-radius:10px;color:#4C1D95;" Title="@Loc["Settings"]" Href="/settings" />
-                    <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="@Loc["Notifications"]" />
+                    @* ── جرس الإشعارات — عداد غير المقروء + قائمة منسدلة (Part A) ── *@
+                    <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft" Class="erp-notif-menu">
+                        <ActivatorContent>
+                            <MudIconButton Icon="@Icons.Material.Filled.Notifications" Color="Color.Default" Size="Size.Small" Style="background:#F3F4F6;border-radius:10px;" Title="@Loc["Notifications"]" OnClick="async () => await LoadNotificationsAsync()">
+                                @if (_unreadCount > 0)
+                                {
+                                    <MudBadge Content="@_unreadCount" Color="Color.Error" Overlap="true" Rounded="true" />
+                                }
+                            </MudIconButton>
+                        </ActivatorContent>
+                        <ChildContent>
+                            <div style="width:340px; padding:10px;">
+                                <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:6px;">
+                                    <MudText Typo="Typo.subtitle2" Style="font-weight:700;">@Loc["Notifications"]</MudText>
+                                    @if (_unreadCount > 0)
+                                    {
+                                        <MudButton Size="Size.Small" Dense="true" Color="Color.Primary" OnClick="async () => await MarkAllReadAsync()">@Loc["MarkAllRead"]</MudButton>
+                                    }
+                                </div>
+                                @if (_recentNotifications.Count == 0)
+                                {
+                                    <MudText Typo="Typo.body2" Class="pos-muted" Style="padding:12px 0;">@Loc["NoNotifications"]</MudText>
+                                }
+                                else
+                                {
+                                    foreach (var n in _recentNotifications)
+                                    {
+                                        <MudMenuItem OnClick="() => OpenNotification(n)" Style="@NotifMenuItemStyle(n)">
+                                            <div style="padding:4px 0;">
+                                                <div style="font-weight:700;">@n.Title</div>
+                                                <div style="font-size:.8rem; color:var(--erp-muted);">@n.Message</div>
+                                            </div>
+                                        </MudMenuItem>
+                                    }
+                                }
+                            </div>
+                        </ChildContent>
+                    </MudMenu>
                     <MudMenu AnchorOrigin="Origin.BottomLeft" TransformOrigin="Origin.TopLeft">
                         <ActivatorContent>
                             <MudAvatar Color="Color.Primary" Size="Size.Small" Style="cursor:pointer;">
@@ -108,13 +145,20 @@ MudLayout: التخطيط الرئيسي للصفحة.
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
     [Inject] private NavigationManager Nav { get; set; } = default!;
     [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private IStaffNotificationService NotifService { get; set; } = default!;
     private string? _displayName;
     private string? _logoUrl;
     private string? _primaryHex;
     private string? _supportContact;
     private string? _subText, _subTitle; private string _subBg="#F9FAFB", _subColor="#374151", _subBorder="#E5E7EB";
+    private string? _userId;
+    private int _unreadCount;
+    private List<ERPSystem.Application.DTOs.Notifications.NotificationDto> _recentNotifications = new();
     protected override async Task OnInitializedAsync()
     {
+        await LoadCurrentUserAsync();
+        await LoadNotificationsAsync();
         try
         {
             var s = await SettingsService.GetAsync();
@@ -135,6 +179,59 @@ MudLayout: التخطيط الرئيسي للصفحة.
         }
         catch { }
     }
+
+    /// <summary>يقرأ معرّف المستخدم الحالي (مفتاح AspNetUsers.Id) لاستعلام إشعاراته.</summary>
+    private async Task LoadCurrentUserAsync()
+    {
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            _userId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value
+                      ?? auth.User.Identity?.Name;
+        }
+        catch { _userId = null; }
+    }
+
+    /// <summary>يجلب عداد غير المقروء + أحدث الإشعارات للمستخدم الحالي.</summary>
+    private async Task LoadNotificationsAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_userId)) { _unreadCount = 0; _recentNotifications = new(); return; }
+        try
+        {
+            _unreadCount = await NotifService.GetUnreadCountAsync(_userId);
+            _recentNotifications = await NotifService.GetRecentAsync(_userId, 20);
+        }
+        catch { /* تجاهل أخطاء الإشعارات حتى لا تعطّل الواجهة */ }
+    }
+
+    /// <summary>فتح إشعار: تعليمه كمقروء ثم تنقّل إلى رابطه إن وُجد.</summary>
+    private async void OpenNotification(ERPSystem.Application.DTOs.Notifications.NotificationDto n)
+    {
+        if (!n.IsRead)
+        {
+            try { await NotifService.MarkAsReadAsync(n.Id); n.IsRead = true; if (_unreadCount > 0) _unreadCount--; }
+            catch { }
+        }
+        if (!string.IsNullOrWhiteSpace(n.LinkUrl))
+            Nav.NavigateTo(n.LinkUrl);
+    }
+
+    /// <summary>تحديد كل الإشعارات كمقروءة.</summary>
+    private async Task MarkAllReadAsync()
+    {
+        if (string.IsNullOrWhiteSpace(_userId)) return;
+        try
+        {
+            await NotifService.MarkAllAsReadAsync(_userId);
+            _unreadCount = 0;
+            foreach (var n in _recentNotifications) n.IsRead = true;
+        }
+        catch { }
+    }
+
+    /// <summary>ستايل بند إشعار: خلفية فاتحة للإشعار غير المقروء.</summary>
+    private string NotifMenuItemStyle(ERPSystem.Application.DTOs.Notifications.NotificationDto n)
+        => "white-space:normal; background:" + (n.IsRead ? "transparent" : "#EEF2FF") + ";";
     [Inject] private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {

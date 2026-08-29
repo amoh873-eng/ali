@@ -712,7 +712,6 @@
   <data name="Draft" xml:space="preserve"><value>Draft</value></data>
   <data name="Approved" xml:space="preserve"><value>Approved</value></data>
   <data name="Paid" xml:space="preserve"><value>Paid</value></data>
-  <data name="Close" xml:space="preserve"><value>Close</value></data>
   <data name="SelectPeriod" xml:space="preserve"><value>Please select the payroll period first</value></data>
   <data name="TopSellingItems" xml:space="preserve"><value>Top 5 Best-Selling Items</value></data>
   <data name="TopSellingItemsSubtitle" xml:space="preserve"><value>By total sales amount</value></data>
@@ -734,4 +733,29 @@
   <data name="SubRemainingDays" xml:space="preserve"><value>{0} days remaining</value></data>
   <data name="SubEndsOn" xml:space="preserve"><value>Ends {0:MM-dd}</value></data>
   <data name="CurrencyDisplayOnly" xml:space="preserve"><value>Display only — no conversion</value></data>
+<data name="MarkAllRead" xml:space="preserve"><value>Mark all as read</value></data>
+  <data name="NoNotifications" xml:space="preserve"><value>No notifications</value></data>
+  <data name="ExpiryTracking" xml:space="preserve"><value>Expiry Tracking</value></data>
+  <data name="ExpiryTrackingSub" xml:space="preserve"><value>Stock batches expiring soon or already expired</value></data>
+  <data name="Expired" xml:space="preserve"><value>Expired</value></data>
+  <data name="ExpiringSoon" xml:space="preserve"><value>Expiring soon</value></data>
+  <data name="ExpiryFine" xml:space="preserve"><value>OK</value></data>
+  <data name="BatchNumber" xml:space="preserve"><value>Batch No.</value></data>
+  <data name="ReceivedDate" xml:space="preserve"><value>Received date</value></data>
+  <data name="NoBatches" xml:space="preserve"><value>No batches</value></data>
+  <data name="TracksExpiry" xml:space="preserve"><value>Tracks expiry (batches)</value></data>
+  <data name="ExpiryDateRequired" xml:space="preserve"><value>Items tracking expiry require an expiry date</value></data>
+  <data name="PosItemNotFound" xml:space="preserve"><value>Item code from barcode not found</value></data>
+  <data name="PosNotIdentified" xml:space="preserve"><value>Could not identify cashier</value></data>
+  <data name="HoldSale" xml:space="preserve"><value>Hold sale</value></data>
+  <data name="HeldSales" xml:space="preserve"><value>Held sales</value></data>
+  <data name="PosHeld" xml:space="preserve"><value>Sale held — cart cleared</value></data>
+  <data name="PosHeldEmpty" xml:space="preserve"><value>Held sale is empty</value></data>
+  <data name="PosResumed" xml:space="preserve"><value>Sale resumed successfully</value></data>
+  <data name="NoHeldSales" xml:space="preserve"><value>No held sales</value></data>
+  <data name="HeldAt" xml:space="preserve"><value>Held at</value></data>
+  <data name="HeldStale" xml:space="preserve"><value>Stale (&#62;24h)</value></data>
+  <data name="Resume" xml:space="preserve"><value>Resume</value></data>
+  <data name="Discard" xml:space="preserve"><value>Discard</value></data>
+  <data name="HeldDiscarded" xml:space="preserve"><value>Held sale discarded</value></data>
 </root>
