@@ -19,7 +19,11 @@ public static class OwnerAuth
         {
             var hasher = new PasswordHasher<object>();
             var vr = hasher.VerifyHashedPassword(new object(), expectedHash, password);
-            return username == expectedUser && vr == PasswordVerificationResult.Success;
+            // SuccessRehashNeeded = كلمة المرور صحيحة لكن التجزئة بصيغة قديمة (v3).
+            // بدون القبول بها كان الدخول يفشل حتى ببيانات صحيحة تماماً.
+            return username == expectedUser &&
+                   (vr == PasswordVerificationResult.Success ||
+                    vr == PasswordVerificationResult.SuccessRehashNeeded);
         }
         catch { return false; }
     }
