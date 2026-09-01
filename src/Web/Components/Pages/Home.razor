@@ -63,11 +63,8 @@
 
     private static readonly string[] _palette = new[] { "#8B5CF6", "#10B981", "#F59E0B", "#EF4444", "#06B6D4" };
 
-    [Inject] private IItemService ItemService { get; set; } = default!;
-    [Inject] private ISalesInvoiceService SalesInvoiceService { get; set; } = default!;
-    [Inject] private IPurchaseInvoiceService PurchaseInvoiceService { get; set; } = default!;
     [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
-    [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
+    [Inject] private Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ScopeFactory { get; set; } = default!;
     private string _curSym = "د.أ";
     // تنسيق موحد للمال في الشارتات — الرمز من الإعدادات (عرض فقط)
     private string FormatMoney(decimal v) => $"{v:N2} {_curSym}";
@@ -75,20 +72,32 @@
     protected override async Task OnInitializedAsync()
     {
         // ── تحميل رمز العملة الحالي للعرض في البطاقات والشارتات ──
-        try { var s = await SettingsService.GetAsync(); _curSym = ERPSystem.Domain.CurrencyLookup.SymbolFor(s.CurrencyCode); } catch { }
+        // استعلامات لوحة التحكم تُنفَّذ داخل نطاق DI مستقل (Scope) بدلاً من الخدمات
+        // المشتركة للدائرة، لأن كل مكوّنات Blazor Server في الدائرة الواحدة تتقاسم
+        // نسخة AppDbContext المسجّلة Scoped، وأي عمليتين متزامنتين على نفس السياق
+        // تسببان خطأ "A second operation was started on this context instance...".
+        // النطاق المستقل يمنح كل تحميل سياق قاعدة بيانات جديداً تماماً فلا يحدث
+        // أي تعارض مع استعلامات التخطيط (MainLayout) أو مع إعادة الرندر الثانية.
+        using var scope = ScopeFactory.CreateScope();
+        var settingsService = scope.ServiceProvider.GetRequiredService<ERPSystem.Application.Interfaces.ISystemSettingsService>();
+        var itemService = scope.ServiceProvider.GetRequiredService<IItemService>();
+        var salesService = scope.ServiceProvider.GetRequiredService<ISalesInvoiceService>();
+        var purchaseService = scope.ServiceProvider.GetRequiredService<IPurchaseInvoiceService>();
+
+        try { var s = await settingsService.GetAsync(); _curSym = ERPSystem.Domain.CurrencyLookup.SymbolFor(s.CurrencyCode); } catch { }
         try
         {
-            var items = await ItemService.GetAllAsync();
+            var items = await itemService.GetAllAsync();
             _inventoryValue = items.Sum(i => i.CurrentStock * i.CostPrice);
 
-            var sales = await SalesInvoiceService.GetInvoicesAsync();
+            var sales = await salesService.GetInvoicesAsync();
             _salesTotal = sales.Sum(i => i.TotalAmount);
 
-            var purchases = await PurchaseInvoiceService.GetInvoicesAsync();
+            var purchases = await purchaseService.GetInvoicesAsync();
             _purchasesTotal = purchases.Sum(i => i.TotalAmount);
 
             BuildSalesPurchasesChart();
-            await BuildTopItemsChartAsync();
+            await BuildTopItemsChartAsync(salesService);
         }
         catch
         {
@@ -111,9 +120,9 @@
         .ToList();
     }
 
-    private async Task BuildTopItemsChartAsync()
+    private async Task BuildTopItemsChartAsync(ISalesInvoiceService salesService)
     {
-        var top = await SalesInvoiceService.GetTopSellingItemsAsync(5);
+        var top = await salesService.GetTopSellingItemsAsync(5);
         _topItemsSegments = top.Select((t, i) => new DonutSegment
         {
             Label = t.ItemNameAr,

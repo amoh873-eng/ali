@@ -147,6 +147,7 @@ MudLayout: التخطيط الرئيسي للصفحة.
     [Inject] private ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService { get; set; } = default!;
     [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
     [Inject] private IStaffNotificationService NotifService { get; set; } = default!;
+    [Inject] private Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ScopeFactory { get; set; } = default!;
     private string? _displayName;
     private string? _logoUrl;
     private string? _primaryHex;
@@ -157,11 +158,19 @@ MudLayout: التخطيط الرئيسي للصفحة.
     private List<ERPSystem.Application.DTOs.Notifications.NotificationDto> _recentNotifications = new();
     protected override async Task OnInitializedAsync()
     {
+        // استعلامات التخطيط تُنفَّذ داخل نطاق DI مستقل (Scope) بدلاً من الخدمات المشتركة
+        // للدائرة، لأن جميع مكوّنات Blazor Server في الدائرة تتقاسم نسخة AppDbContext
+        // المسجّلة Scoped، وأي عمليتين متزامنتين على نفس السياق تسببان خطأ
+        // "A second operation was started on this context instance...".
+        // النطاق المستقل يمنح كل عملية سياق قاعدة بيانات جديداً فلا تتعارض مع استعلامات الصفحة.
         await LoadCurrentUserAsync();
         await LoadNotificationsAsync();
-        try
+        using (var scope = ScopeFactory.CreateScope())
         {
-            var s = await SettingsService.GetAsync();
+            var settingsService = scope.ServiceProvider.GetRequiredService<ERPSystem.Application.Interfaces.ISystemSettingsService>();
+            try
+            {
+                var s = await settingsService.GetAsync();
             _displayName = s.AppDisplayName;
             _logoUrl = s.LogoUrl;
             _primaryHex = s.PrimaryColorHex;
@@ -178,6 +187,7 @@ MudLayout: التخطيط الرئيسي للصفحة.
             }
         }
         catch { }
+        }
     }
 
     /// <summary>يقرأ معرّف المستخدم الحالي (مفتاح AspNetUsers.Id) لاستعلام إشعاراته.</summary>
@@ -196,10 +206,13 @@ MudLayout: التخطيط الرئيسي للصفحة.
     private async Task LoadNotificationsAsync()
     {
         if (string.IsNullOrWhiteSpace(_userId)) { _unreadCount = 0; _recentNotifications = new(); return; }
+        // نطاق DI مستقل لكل تحميل إشعارات لضمان عدم التشارك في AppDbContext مع الصفحة.
+        using var scope = ScopeFactory.CreateScope();
+        var notifService = scope.ServiceProvider.GetRequiredService<IStaffNotificationService>();
         try
         {
-            _unreadCount = await NotifService.GetUnreadCountAsync(_userId);
-            _recentNotifications = await NotifService.GetRecentAsync(_userId, 20);
+            _unreadCount = await notifService.GetUnreadCountAsync(_userId);
+            _recentNotifications = await notifService.GetRecentAsync(_userId, 20);
         }
         catch { /* تجاهل أخطاء الإشعارات حتى لا تعطّل الواجهة */ }
     }

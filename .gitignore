@@ -45,3 +45,8 @@ hash.txt
 __pycache__/
 *.pyc
 
+# Local dev/IDE artifacts (not part of the source)
+.vscode/
+build3.ps1
+restart.ps1
+
