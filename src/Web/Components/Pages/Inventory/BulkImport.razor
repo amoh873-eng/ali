@@ -1,0 +1,458 @@
+@page "/inventory/bulk-import"
+@attribute [Authorize(Roles = "Admin,SuperAdmin")]
+<ModuleGuard ModuleKey="Inventory">
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["BulkImport"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["BulkImport"]" Icon="@Icons.Material.Filled.FileUpload" />
+
+<div class="bulk-wrap">
+    <div class="bulk-steps">
+        <div class="bulk-step @( _step == ImportStep.Upload ? "active" : _step > ImportStep.Upload ? "done" : "")">1. @Loc["BulkStepUpload"]</div>
+        <div class="bulk-step @( _step == ImportStep.Mapping ? "active" : _step > ImportStep.Mapping ? "done" : "")">2. @Loc["BulkStepMapping"]</div>
+        <div class="bulk-step @( _step == ImportStep.Preview ? "active" : _step > ImportStep.Preview ? "done" : "")">3. @Loc["BulkStepPreview"]</div>
+        <div class="bulk-step @( _step == ImportStep.Executing ? "active" : "")">4. @Loc["BulkStepExecuting"]</div>
+        <div class="bulk-step @( _step == ImportStep.Done ? "active" : "")">5. @Loc["BulkStepDone"]</div>
+    </div>
+
+    @if (_step == ImportStep.Upload)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bulk-card">
+            <MudText Typo="Typo.h6" Class="pb-1">@Loc["BulkStepUpload"]</MudText>
+            <MudText Typo="Typo.body2" Class="bulk-muted pb-3">@Loc["BulkFormatsHint"]</MudText>
+
+            <InputFile OnChange="OnFileSelected" accept=".xlsx,.csv,.txt" />
+
+            @if (_isParsing)
+            {
+                <MudProgressLinear Indeterminate="true" Class="mt-4" />
+            }
+
+            @if (!string.IsNullOrWhiteSpace(_parseError))
+            {
+                <MudAlert Severity="Severity.Error" Class="mt-4" Variant="Variant.Filled">@_parseError</MudAlert>
+            }
+
+            @if (_parsed is not null && !_isParsing)
+            {
+                <MudAlert Severity="Severity.Success" Class="mt-4">
+                    @Loc["BulkParsedOk", _parsed.FileName, _parsed.TotalRows]
+                </MudAlert>
+
+                <div class="bulk-actions mt-4">
+                    <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ResetAll">@Loc["BulkStartOver"]</MudButton>
+                    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NextToMappingAsync">
+                        @Loc["BulkNext"] Â· @Loc["BulkStepMapping"]
+                    </MudButton>
+                </div>
+            }
+        </MudPaper>
+    }
+    @if (_step == ImportStep.Mapping && _parsed is not null)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bulk-card">
+            <MudText Typo="Typo.h6" Class="pb-1">@Loc["BulkStepMapping"]</MudText>
+            <MudText Typo="Typo.body2" Class="bulk-muted pb-3">@Loc["BulkMapHint"]</MudText>
+
+            <div class="bulk-map-grid">
+                <div class="bulk-map-fields">
+                    <MudSelect T="int" @bind-Value="_nameCol" Label="@Loc["BulkNameColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="int" @bind-Value="_barcodeCol" Label="@Loc["BulkBarcodeColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="int" @bind-Value="_costCol" Label="@Loc["BulkCostColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="int" @bind-Value="_saleCol" Label="@Loc["BulkSaleColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="int" @bind-Value="_catCol" Label="@Loc["BulkCategoryColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+
+                    <MudSelect T="int" @bind-Value="_unitCol" Label="@Loc["BulkUnitColumn"]" Variant="Variant.Outlined" Dense="true">
+                        <MudSelectItem Value="@(-1)">@Loc["NotMapped"]</MudSelectItem>
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <MudSelectItem Value="@idx">@_headers[idx]</MudSelectItem>
+                        }
+                    </MudSelect>
+                </div>
+
+                <MudPaper Class="bulk-map-preview" Elevation="0" Outlined="true">
+                    <MudText Typo="Typo.subtitle2" Class="pb-2">@Loc["BulkFileColumnsTitle"]</MudText>
+                    <ol class="bulk-map-list">
+                        @for (var i = 0; i < _headers.Count; i++)
+                        {
+                            var idx = i;
+                            <li><span class="bulk-map-col">@_headers[idx]</span></li>
+                        }
+                    </ol>
+                </MudPaper>
+            </div>
+
+            <div class="bulk-actions mt-4">
+                <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="BackToUpload">@Loc["BulkBack"]</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="NextToPreviewAsync">
+                    @Loc["BulkNext"] Â· @Loc["BulkStepPreview"]
+                </MudButton>
+            </div>
+        </MudPaper>
+    }
+    @if (_step == ImportStep.Preview && _preview is not null)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bulk-card">
+            <MudText Typo="Typo.h6" Class="pb-1">@Loc["BulkStepPreview"]</MudText>
+            <MudText Typo="Typo.body2" Class="bulk-muted pb-3">@Loc["BulkPreviewHint"]</MudText>
+
+            <div class="bulk-summary">
+                <div class="bulk-stat ok"><div class="bulk-stat-val">@_preview.ValidCount</div><div class="bulk-stat-lbl">@Loc["BulkReadyCount"]</div></div>
+                <div class="bulk-stat info"><div class="bulk-stat-val">@_preview.ExistsInDbCount</div><div class="bulk-stat-lbl">@Loc["BulkExistsCount"]</div></div>
+                <div class="bulk-stat warn"><div class="bulk-stat-val">@_preview.DuplicateInFileCount</div><div class="bulk-stat-lbl">@Loc["BulkDupCount"]</div></div>
+                <div class="bulk-stat bad"><div class="bulk-stat-val">@_preview.ErrorCount</div><div class="bulk-stat-lbl">@Loc["BulkErrorCount"]</div></div>
+                <div class="bulk-stat neutral"><div class="bulk-stat-val">@_preview.NoticeCount</div><div class="bulk-stat-lbl">@Loc["BulkNoticeCount"]</div></div>
+            </div>
+
+            @if (_preview.SampleRows.Count > 0)
+            {
+                <MudText Typo="Typo.caption" Class="bulk-muted pb-2">
+                    @Loc["BulkSampleNote", _preview.SampleRows.Count, _preview.TotalRows]
+                </MudText>
+
+                <MudTable Items="_preview.SampleRows" Dense="true" Hover="true" Striped="true" Class="bulk-table">
+                    <HeaderContent>
+                        <MudTh>#</MudTh>
+                        <MudTh>@Loc["ItemName"]</MudTh>
+                        <MudTh>@Loc["Barcode"]</MudTh>
+                        <MudTh>@Loc["Cost"]</MudTh>
+                        <MudTh>@Loc["Price"]</MudTh>
+                        <MudTh>@Loc["Category"]</MudTh>
+                        <MudTh>@Loc["Unit"]</MudTh>
+                        <MudTh>@Loc["Status"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.RowNumber</MudTd>
+                        <MudTd>@context.Name</MudTd>
+                        <MudTd dir="ltr">@context.Barcode</MudTd>
+                        <MudTd>@(context.CostPrice?.ToString("N2") ?? "â€”")</MudTd>
+                        <MudTd>@(context.SalePrice?.ToString("N2") ?? "â€”")</MudTd>
+                        <MudTd>@context.CategoryMatchedTo</MudTd>
+                        <MudTd>@context.UnitMatchedTo</MudTd>
+                        <MudTd>
+                            <MudChip T="string" Size="Size.Small" Variant="Variant.Filled" Color="@StatusColor(context.Status)">
+                                @context.StatusNameAr
+                            </MudChip>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+
+            @if (_preview.ErrorCount > 0 || _preview.ExistsInDbCount > 0)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-4">
+                    @Loc["BulkConfirmationHint", _preview.ErrorCount + _preview.ExistsInDbCount]
+                </MudAlert>
+            }
+
+            <div class="bulk-actions mt-4">
+                <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="BackToMappingAsync">@Loc["BulkBack"]</MudButton>
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="ExecuteImportAsync" Class="bulk-confirm">
+                    <MudIcon Icon="@Icons.Material.Filled.CloudUpload" Class="mr-2" /> @Loc["BulkConfirmImport"]
+                </MudButton>
+            </div>
+        </MudPaper>
+    }
+
+    @if (_step == ImportStep.Executing)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bulk-card">
+            <MudText Typo="Typo.h6" Class="pb-3">@Loc["BulkStepExecuting"]</MudText>
+            <MudProgressLinear Color="Color.Primary" Value="_progressPercent" Buffer="true" Class="mb-3" />
+            <MudText Align="Align.Center">@Loc["BulkProcessedOf", _progressDone, _progressTotal]</MudText>
+        </MudPaper>
+    }
+    @if (_step == ImportStep.Done && _result is not null)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bulk-card">
+            <MudText Typo="Typo.h6" Class="pb-1">@Loc["BulkStepDone"]</MudText>
+            <MudText Typo="Typo.body2" Class="bulk-muted pb-3">@Loc["BulkDoneHint", Math.Round(_result.ElapsedMs / 1000.0, 1)]</MudText>
+
+            <div class="bulk-summary">
+                <div class="bulk-stat ok"><div class="bulk-stat-val">@_result.CreatedCount</div><div class="bulk-stat-lbl">@Loc["BulkCreatedCount"]</div></div>
+                <div class="bulk-stat info"><div class="bulk-stat-val">@_result.SkippedExistingCount</div><div class="bulk-stat-lbl">@Loc["BulkSkippedCount"]</div></div>
+                <div class="bulk-stat bad"><div class="bulk-stat-val">@_result.FailedCount</div><div class="bulk-stat-lbl">@Loc["BulkFailedCount"]</div></div>
+                <div class="bulk-stat neutral"><div class="bulk-stat-val">@_result.NoticeCount</div><div class="bulk-stat-lbl">@Loc["BulkNoticeCount"]</div></div>
+            </div>
+
+            @if (_result.Failures.Count > 0)
+            {
+                <MudText Typo="Typo.subtitle2" Class="pt-2 pb-2">@Loc["BulkFailuresTableTitle"]</MudText>
+                <MudTable Items="_result.Failures" Dense="true" Hover="true" Class="bulk-table">
+                    <HeaderContent>
+                        <MudTh>#</MudTh>
+                        <MudTh>@Loc["ItemName"]</MudTh>
+                        <MudTh>@Loc["Barcode"]</MudTh>
+                        <MudTh>@Loc["BulkReason"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.RowNumber</MudTd>
+                        <MudTd>@context.Name</MudTd>
+                        <MudTd dir="ltr">@context.Barcode</MudTd>
+                        <MudTd>@context.Reason</MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+
+            <div class="bulk-actions mt-4">
+                <MudButton Variant="Variant.Outlined" Color="Color.Success" StartIcon="@Icons.Material.Filled.Download"
+                           OnClick="DownloadErrorsAsync">
+                    @Loc["BulkDownloadErrors"]
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Default" StartIcon="@Icons.Material.Filled.Inventory"
+                           OnClick="GoToItemsAsync">
+                    @Loc["BulkGoItems"]
+                </MudButton>
+            </div>
+        </MudPaper>
+    }
+</div>
+</ModuleGuard>
+@code {
+    private enum ImportStep { Upload = 1, Mapping = 2, Preview = 3, Executing = 4, Done = 5 }
+
+    private ImportStep _step = ImportStep.Upload;
+    private ParsedImportFileDto? _parsed;
+    private BulkImportColumnMapDto? _map;
+    private ItemImportPreviewDto? _preview;
+    private ItemImportResultDto? _result;
+    private List<string> _headers = new();
+    private bool _isParsing;
+    private string? _parseError;
+    private int _progressDone;
+    private int _progressTotal;
+
+    private int _nameCol = -1;
+    private int _barcodeCol = -1;
+    private int _costCol = -1;
+    private int _saleCol = -1;
+    private int _catCol = -1;
+    private int _unitCol = -1;
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private IJSRuntime JS { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
+
+    private int _progressPercent => _progressTotal <= 0 ? 0 : (int)(_progressDone * 100.0 / _progressTotal);
+
+    private async Task OnFileSelected(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file is null) return;
+
+        _parseError = null;
+        _parsed = null;
+        _preview = null;
+        _result = null;
+
+        var ext = Path.GetExtension(file.Name).ToLowerInvariant();
+        if (ext is not (".xlsx" or ".csv" or ".txt"))
+        {
+            _parseError = Loc["BulkUnsupportedFormat"];
+            StateHasChanged();
+            return;
+        }
+        if (file.Size > 15 * 1024 * 1024)
+        {
+            _parseError = Loc["BulkFileTooLarge"];
+            StateHasChanged();
+            return;
+        }
+
+        _isParsing = true;
+        StateHasChanged();
+        try
+        {
+            await using var stream = file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
+            _parsed = await ItemService.ParseImportFileAsync(stream, file.Name);
+            _headers = _parsed.Headers;
+            ApplySuggestedMapping();
+
+
+
+        }
+        catch (Exception ex)
+        {
+            _parseError = ex.Message;
+        }
+        finally
+        {
+            _isParsing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void ApplySuggestedMapping()
+    {
+        _nameCol = _barcodeCol = _costCol = _saleCol = _catCol = _unitCol = -1;
+
+        var suggested = _parsed?.SuggestedMap;
+        if (suggested is not null)
+        {
+            _nameCol = suggested.NameColumn;
+            _barcodeCol = suggested.BarcodeColumn;
+            _costCol = suggested.CostColumn ?? -1;
+            _saleCol = suggested.SaleColumn ?? -1;
+            _catCol = suggested.CategoryColumn ?? -1;
+            _unitCol = suggested.UnitColumn ?? -1;
+        }
+
+        // Guarantee the two required columns are always mapped
+        if (_nameCol < 0 && _headers.Count > 0) _nameCol = 0;
+        if (_barcodeCol < 0 && _headers.Count > 1) _barcodeCol = _nameCol == 0 ? 1 : 0;
+    }
+    private BulkImportColumnMapDto BuildServiceMap() => new()
+    {
+        NameColumn = _nameCol,
+        BarcodeColumn = _barcodeCol,
+        CostColumn = _costCol >= 0 ? _costCol : null,
+        SaleColumn = _saleCol >= 0 ? _saleCol : null,
+        CategoryColumn = _catCol >= 0 ? _catCol : null,
+        UnitColumn = _unitCol >= 0 ? _unitCol : null
+    };
+
+    private void ResetAll()
+    {
+        _step = ImportStep.Upload;
+        _parsed = null;
+        _map = null;
+        _preview = null;
+        _result = null;
+        _headers = new List<string>();
+        _parseError = null;
+        _nameCol = _barcodeCol = _costCol = _saleCol = _catCol = _unitCol = -1;
+        _progressDone = _progressTotal = 0;
+    }
+
+    private void NextToMappingAsync()
+    {
+        if (_parsed is null) return;
+        _step = ImportStep.Mapping;
+    }
+
+    private void BackToUpload() => _step = ImportStep.Upload;
+
+    private async Task NextToPreviewAsync()
+    {
+        if (_nameCol < 0 || _barcodeCol < 0)
+        {
+            Snackbar.Add(Loc["BulkRequireNameBarcode"], Severity.Warning);
+            return;
+        }
+
+        _map = BuildServiceMap();
+        _isParsing = true;
+        StateHasChanged();
+        try
+        {
+            _preview = await ItemService.BuildImportPreviewAsync(_parsed!, _map!);
+            _step = ImportStep.Preview;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+        }
+        finally
+        {
+            _isParsing = false;
+            StateHasChanged();
+        }
+    }
+
+    private void BackToMappingAsync() => _step = ImportStep.Mapping;
+
+    private async Task ExecuteImportAsync()
+    {
+        if (_parsed is null || _map is null) return;
+
+        _step = ImportStep.Executing;
+        _progressDone = 0;
+        _progressTotal = _parsed.TotalRows;
+        StateHasChanged();
+
+        try
+        {
+            _result = await ItemService.ExecuteBulkImportAsync(_parsed, _map, (done, total) =>
+            {
+                _progressDone = done;
+                _progressTotal = total;
+                StateHasChanged();
+            });
+            _step = ImportStep.Done;
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+            _step = ImportStep.Preview;
+        }
+        StateHasChanged();
+    }
+
+    private async Task DownloadErrorsAsync()
+    {
+        if (_result is null) return;
+        if (_result.Failures.Count == 0)
+        {
+            Snackbar.Add(Loc["BulkNoFailures"], Severity.Info);
+            return;
+        }
+
+        var bytes = ItemService.BuildImportFailuresReport(_result.Failures);
+        var b64 = Convert.ToBase64String(bytes);
+        var jsCode = "var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," + b64 + "';a.download='import-errors.xlsx';a.click();";
+        await JS.InvokeVoidAsync("eval", jsCode);
+    }
+
+    private void GoToItemsAsync() => Nav.NavigateTo("/inventory/items");
+
+    private static Color StatusColor(ItemImportRowStatus status) => status switch
+    {
+        ItemImportRowStatus.Ready => Color.Success,
+        ItemImportRowStatus.ExistsInDatabase => Color.Info,
+        ItemImportRowStatus.DuplicateInFile => Color.Error,
+        ItemImportRowStatus.MissingName or ItemImportRowStatus.MissingBarcode => Color.Error,
+        _ => Color.Warning
+    };
+}

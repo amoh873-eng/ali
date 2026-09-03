@@ -41,4 +41,27 @@ public interface IItemService
     /// Toggles the active status of an item.
     /// </summary>
     Task ToggleActiveAsync(Guid id);
+
+    // ────────────────────────── الاستيراد الجماعي ──────────────────────────
+
+    /// <summary>
+    /// يقرأ ملفاً جدولياً (xlsx / csv / txt) ويعيد ترويساته وصفوفه الخام.
+    /// يرمي InvalidOperationException برسالة عربية واضحة عند صيغة غير مدعومة أو ملف تالف.
+    /// </summary>
+    Task<ParsedImportFileDto> ParseImportFileAsync(Stream fileStream, string fileName);
+
+    /// <summary>
+    /// يفسّر الصفوف حسب تعيين الأعمدة ويفحصها (اسم/باركود إلزامي + تكرار + موجودات + أسعار)
+    /// دون كتابة أي شيء في قاعدة البيانات. يعيد ملخصاً + أول 100 صف.
+    /// </summary>
+    Task<ItemImportPreviewDto> BuildImportPreviewAsync(ParsedImportFileDto file, BulkImportColumnMapDto map);
+
+    /// <summary>
+    /// ينفذ الاستيراد الفعلي بدفعات (500 صف) مع توليد أكواد دفعة واحدة وتقدّم قابل للملاحظة.
+    /// الباركود الموجود مسبقاً يُتخطى بلا تعديل (القرار المعتمد).
+    /// </summary>
+    Task<ItemImportResultDto> ExecuteBulkImportAsync(ParsedImportFileDto file, BulkImportColumnMapDto map, Action<int, int>? progress = null);
+
+    /// <summary>ينشئ ملف Excel (xlsx) بصفوف الفشل/التخطّي وأسبابها للتنزيل وإعادة الاستيراد.</summary>
+    byte[] BuildImportFailuresReport(List<ItemImportFailureDto> failures);
 }

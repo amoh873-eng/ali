@@ -928,4 +928,46 @@
   <data name="SystemDate" xml:space="preserve"><value>System date</value></data>
   <data name="BankAmount" xml:space="preserve"><value>Bank amount</value></data>
   <data name="BankDate" xml:space="preserve"><value>Bank date</value></data>
+  <data name="BulkImport" xml:space="preserve"><value>Bulk Item Import</value></data>
+  <data name="BulkStepUpload" xml:space="preserve"><value>Upload File</value></data>
+  <data name="BulkStepMapping" xml:space="preserve"><value>Column Mapping</value></data>
+  <data name="BulkStepPreview" xml:space="preserve"><value>Preview &amp; Validate</value></data>
+  <data name="BulkStepExecuting" xml:space="preserve"><value>Executing</value></data>
+  <data name="BulkStepDone" xml:space="preserve"><value>Final Report</value></data>
+  <data name="BulkFormatsHint" xml:space="preserve"><value>Supported formats: Excel (.xlsx), CSV or tabular text (.txt) up to 15 MB. Name and barcode are required per row; prices are optional.</value></data>
+  <data name="BulkParsedOk" xml:space="preserve"><value>Parsed "{0}" successfully — {1} data rows.</value></data>
+  <data name="BulkStartOver" xml:space="preserve"><value>Start over</value></data>
+  <data name="BulkNext" xml:space="preserve"><value>Next</value></data>
+  <data name="BulkBack" xml:space="preserve"><value>Back</value></data>
+  <data name="BulkMapHint" xml:space="preserve"><value>Map each system field to a file column. Name &amp; barcode are required; prices / category / unit are optional (defaults are used when empty).</value></data>
+  <data name="NotMapped" xml:space="preserve"><value>— Not mapped —</value></data>
+  <data name="BulkNameColumn" xml:space="preserve"><value>Item name (Arabic) *</value></data>
+  <data name="BulkBarcodeColumn" xml:space="preserve"><value>Barcode *</value></data>
+  <data name="BulkCostColumn" xml:space="preserve"><value>Purchase price (optional)</value></data>
+  <data name="BulkSaleColumn" xml:space="preserve"><value>Sale price (optional)</value></data>
+  <data name="BulkCategoryColumn" xml:space="preserve"><value>Category (optional)</value></data>
+  <data name="BulkUnitColumn" xml:space="preserve"><value>Unit (optional)</value></data>
+  <data name="BulkFileColumnsTitle" xml:space="preserve"><value>Detected file columns:</value></data>
+  <data name="BulkRequireNameBarcode" xml:space="preserve"><value>Please map both the Item name and Barcode columns first.</value></data>
+  <data name="BulkPreviewHint" xml:space="preserve"><value>Review before saving — nothing is written to the database in this step.</value></data>
+  <data name="BulkReadyCount" xml:space="preserve"><value>Ready to import</value></data>
+  <data name="BulkExistsCount" xml:space="preserve"><value>Exists in system (will skip)</value></data>
+  <data name="BulkDupCount" xml:space="preserve"><value>Duplicate in file</value></data>
+  <data name="BulkErrorCount" xml:space="preserve"><value>Rejected</value></data>
+  <data name="BulkNoticeCount" xml:space="preserve"><value>Notices (default category/unit)</value></data>
+  <data name="BulkSampleNote" xml:space="preserve"><value>Showing first {0} of {1} rows.</value></data>
+  <data name="BulkConfirmationHint" xml:space="preserve"><value>Execution will skip {0} row(s); every existing item stays untouched.</value></data>
+  <data name="BulkConfirmImport" xml:space="preserve"><value>Confirm Import</value></data>
+  <data name="BulkProcessedOf" xml:space="preserve"><value>Processed {0} of {1} rows...</value></data>
+  <data name="BulkDoneHint" xml:space="preserve"><value>Import completed in {0} seconds.</value></data>
+  <data name="BulkCreatedCount" xml:space="preserve"><value>Created</value></data>
+  <data name="BulkSkippedCount" xml:space="preserve"><value>Skipped (existing barcode)</value></data>
+  <data name="BulkFailedCount" xml:space="preserve"><value>Failed</value></data>
+  <data name="BulkFailuresTableTitle" xml:space="preserve"><value>Rows that were not imported:</value></data>
+  <data name="BulkReason" xml:space="preserve"><value>Reason</value></data>
+  <data name="BulkDownloadErrors" xml:space="preserve"><value>Download error report (Excel)</value></data>
+  <data name="BulkGoItems" xml:space="preserve"><value>View items</value></data>
+  <data name="BulkNoFailures" xml:space="preserve"><value>No failed rows to download — everything imported successfully.</value></data>
+  <data name="BulkUnsupportedFormat" xml:space="preserve"><value>Unsupported format — upload .xlsx, .csv or .txt only.</value></data>
+  <data name="BulkFileTooLarge" xml:space="preserve"><value>File exceeds the maximum size (15 MB).</value></data>
   </root>

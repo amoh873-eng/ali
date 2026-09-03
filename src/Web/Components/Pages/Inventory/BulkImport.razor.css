@@ -1,0 +1,36 @@
+/* ── الاستيراد الجماعي للأصناف (BulkImport) ── */
+.bulk-wrap { max-width: 1080px; margin: 0 auto; padding: 12px 20px 60px; display: flex; flex-direction: column; gap: 16px; }
+.bulk-muted { color: #6B7280; }
+
+.bulk-steps { display: flex; gap: 8px; flex-wrap: wrap; }
+.bulk-step {
+    padding: 7px 14px; border-radius: 999px; background: #F3F4F6; color: #9CA3AF;
+    font-weight: 700; font-size: .82rem; border: 1px solid #E5E7EB;
+}
+.bulk-step.active { background: #6D5BD0; color: #fff; border-color: #6D5BD0; }
+.bulk-step.done { background: #D1FAE5; color: #065F46; border-color: #A7F3D0; }
+
+.bulk-card { border-radius: 14px; background: #fff; padding: 22px; }
+.bulk-actions { display: flex; justify-content: flex-end; gap: 10px; flex-wrap: wrap; }
+
+.bulk-map-grid { display: grid; grid-template-columns: 1fr 300px; gap: 18px; align-items: start; }
+@media (max-width: 860px) { .bulk-map-grid { grid-template-columns: 1fr; } }
+.bulk-map-fields { display: grid; grid-template-columns: 1fr 1fr; gap: 12px; }
+@media (max-width: 700px) { .bulk-map-fields { grid-template-columns: 1fr; } }
+.bulk-map-preview { border-radius: 12px; padding: 12px 16px; max-height: 340px; overflow: auto; background: #FAFAFC; }
+.bulk-map-list { margin: 0; padding-right: 18px; }
+.bulk-map-list li { margin: 3px 0; font-size: .85rem; }
+.bulk-map-col { background: #EEF2FF; color: #3730A3; border-radius: 6px; padding: 2px 8px; font-weight: 600; }
+
+.bulk-summary { display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 10px; margin-bottom: 14px; }
+.bulk-stat { padding: 12px 14px; border-radius: 12px; background: #F9FAFB; border: 1px solid #E5E7EB; border-top: 4px solid #9CA3AF; }
+.bulk-stat.ok { border-top-color: #10B981; }
+.bulk-stat.info { border-top-color: #3B82F6; }
+.bulk-stat.warn { border-top-color: #F59E0B; }
+.bulk-stat.bad { border-top-color: #EF4444; }
+.bulk-stat.neutral { border-top-color: #9CA3AF; }
+.bulk-stat-val { font-size: 1.4rem; font-weight: 800; }
+.bulk-stat-lbl { font-size: .8rem; color: #6B7280; margin-top: 2px; }
+
+.bulk-table { border-radius: 12px; overflow: hidden; }
+.bulk-confirm { min-width: 240px; }
