@@ -1,5 +1,7 @@
 .pos-receipt { font-size: 0.85rem; color: #111; max-width: 320px; margin: 0 auto; }
+.pos-receipt.pos-receipt-58 { max-width: 232px; }
 .rc-shop { text-align: center; font-weight: 800; font-size: 1.1rem; }
+.rc-phone { text-align: center; font-size: 0.9rem; color: #333; margin: 2px 0; }
 .rc-title { text-align: center; font-weight: 700; margin: 4px 0; }
 .rc-sep { border-top: 1px dashed #999; margin: 8px 0; }
 .rc-row { display: flex; justify-content: space-between; padding: 2px 0; }

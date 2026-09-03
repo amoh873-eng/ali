@@ -1,0 +1,97 @@
+@page "/reports/item-profitability"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["ItemProfitability"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["ItemProfitability"]" Icon="@Icons.Material.Filled.BarChart" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+        </MudItem>
+    </MudGrid>
+    <MudSelect @bind-Value="_sort" T="string" Label="@Loc["SortByLabel"]" Variant="Variant.Outlined" Dense="true" Class="mt-3" Style="max-width:280px">
+        <MudSelectItem T="string" Value="@("margin")">@Loc["SortByMargin"]</MudSelectItem>
+        <MudSelectItem T="string" Value="@("revenue")">@Loc["SortByRevenue"]</MudSelectItem>
+        <MudSelectItem T="string" Value="@("marginPct")">@Loc["SortByMarginPct"]</MudSelectItem>
+    </MudSelect>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText></MudPaper>
+}
+else if (_dto.Rows.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoInvoicesForRange"]</MudAlert></MudPaper>
+}
+else
+{
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_sortedRows" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["ItemCode"]</MudTh>
+                <MudTh>@Loc["ItemNameAr"]</MudTh>
+                <MudTh>@Loc["Category"]</MudTh>
+                <MudTh Class="justify-end">@Loc["QtySoldLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["RevenueLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["CostLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["MarginLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["MarginPctLabel"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.ItemCode</MudTd>
+                <MudTd>@context.ItemNameAr</MudTd>
+                <MudTd>@context.CategoryNameAr</MudTd>
+                <MudTd>@context.QtySold.ToString("N2")</MudTd>
+                <MudTd><MoneyDisplay Amount="context.Revenue" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Cost" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Margin" /></MudTd>
+                <MudTd><MudText Style="@MarginStyle(context.MarginPct)">@context.MarginPct.ToString("0.0")%</MudText></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private DateTime? _from = new DateTime(System.DateTime.Today.AddMonths(-1).Year, System.DateTime.Today.AddMonths(-1).Month, 1);
+    private DateTime? _to = System.DateTime.Today;
+    private bool _loading;
+    private ItemProfitabilityDto? _dto;
+    private string _sort = "margin";
+
+    private List<ItemProfitabilityRow> _sortedRows => _sort switch
+    {
+        "revenue" => (_dto?.Rows ?? new()).OrderByDescending(r => r.Revenue).ToList(),
+        "marginPct" => (_dto?.Rows ?? new()).OrderByDescending(r => r.MarginPct).ToList(),
+        _ => (_dto?.Rows ?? new()).OrderByDescending(r => r.Margin).ToList()
+    };
+
+    private static string MarginStyle(decimal pct) => pct >= 0 ? "color:#10B981;font-weight:800" : "color:#EF4444;font-weight:800";
+
+    private async Task LoadAsync()
+    {
+        if (!_from.HasValue || !_to.HasValue) { Snackbar.Add(Loc["PleaseSelectRange"], Severity.Warning); return; }
+        if (_from.Value.Date > _to.Value.Date) { Snackbar.Add(Loc["InvertedDates"], Severity.Warning); return; }
+        _loading = true;
+        try { _dto = await ReportService.GetItemProfitabilityAsync(_from.Value.Date, _to.Value.Date); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+}

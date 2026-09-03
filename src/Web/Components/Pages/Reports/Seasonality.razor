@@ -1,0 +1,128 @@
+@page "/reports/seasonality"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["Seasonality"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["Seasonality"]" Icon="@Icons.Material.Filled.CalendarMonth" />
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null || _dto.Series.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoInvoicesForRange"]</MudAlert></MudPaper>
+}
+else
+{
+    <MudPaper Elevation="1" Class="pa-4 mb-4">
+        <MudText Typo="Typo.h6" Class="mb-2">@Loc["Seasonality"]</MudText>
+        <div class="d-flex flex-wrap mb-2" style="gap:14px">
+            @foreach (var s in _dto.Series)
+            {
+                <span class="d-flex align-center" style="gap:6px">
+                    <span style="width:12px;height:12px;border-radius:3px;background:@s.Color;display:inline-block"></span>
+                    @s.Year
+                </span>
+            }
+        </div>
+        <div class="overflow-x-auto">
+            <svg viewBox="0 0 620 250" style="min-width:620px;width:100%">
+                @((MarkupString)_svg)
+            </svg>
+        </div>
+        <MudText Typo="@Typo.caption" Style="color:var(--erp-muted)" Class="mt-1">@Loc["MonthsRow"]</MudText>
+    </MudPaper>
+
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_dto.Series" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["Year"]</MudTh>
+                @for (int m = 1; m <= 12; m++)
+                {
+                    var mi = m;
+                    <MudTh Class="justify-end">@mi</MudTh>
+                }
+                <MudTh Class="justify-end">@Loc["AnnualTotal"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudText Style="font-weight:700">@context.Year</MudText></MudTd>
+                @for (int m = 0; m < 12; m++)
+                {
+                    var mi = m;
+                    <MudTd Class="justify-end">@context.Months[mi].ToString("N0")</MudTd>
+                }
+                <MudTd Class="justify-end"><MoneyDisplay Amount="context.Total" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+        <div class="pa-3 d-flex justify-space-between">
+            <MudText Typo="@Typo.body2">@Loc["GrandTotal"]</MudText>
+            <MudText Typo="@Typo.h6"><MoneyDisplay Amount="_dto.GrandTotal" /></MudText>
+        </div>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private bool _loading;
+    private SeasonalityDto? _dto;
+    private string _svg = "";
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            _dto = await ReportService.GetSeasonalityAsync();
+            BuildChart();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+
+    private void BuildChart()
+    {
+        _svg = "";
+        if (_dto is null || _dto.Series.Count == 0) return;
+
+        const double padLeft = 8, padTop = 12, padBottom = 26, chartW = 620, chartH = 250;
+        var plotH = chartH - padTop - padBottom;
+        var maxVal = (double)_dto.Series.SelectMany(s => s.Months).DefaultIfEmpty(0).Max();
+        if (maxVal <= 0) return;
+
+        var groupW = (chartW - padLeft) / 12.0;
+        var seriesCount = _dto.Series.Count;
+        var barW = seriesCount > 0 ? (groupW * 0.7) / seriesCount : groupW;
+
+        for (int m = 0; m < 12; m++)
+        {
+            var cx = padLeft + m * groupW + groupW / 2;
+            _svg += "<text x=\"" + cx.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                 + "\" y=\"242\" text-anchor=\"middle\" font-size=\"12\" fill=\"#6B7280\">" + (m + 1) + "</text>";
+        }
+
+        for (int si = 0; si < _dto.Series.Count; si++)
+        {
+            var s = _dto.Series[si];
+            for (int m = 0; m < 12; m++)
+            {
+                var v = (double)s.Months[m];
+                if (v <= 0) continue;
+                var h = v / maxVal * plotH;
+                var x = padLeft + m * groupW + groupW * 0.15 + si * (barW + 1);
+                var y = padTop + (plotH - h);
+                var title = s.Year + " / " + (m + 1) + ": " + v.ToString("N0");
+                _svg += "<rect x=\"" + x.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                     + "\" y=\"" + y.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                     + "\" width=\"" + barW.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                     + "\" height=\"" + h.ToString(System.Globalization.CultureInfo.InvariantCulture)
+                     + "\" rx=\"2\" fill=\"" + s.Color + "\"><title>" + title + "</title></rect>";
+            }
+        }
+    }
+}

@@ -1,0 +1,218 @@
+﻿@page "/reports/sales-tax"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+@inject IDialogService Dialogs
+@inject ISystemSettingsService Settings
+
+<PageTitle>@Loc["SalesTaxReport"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["SalesTaxReport"]" Icon="@Icons.Material.Filled.RequestQuote" />
+
+@* ── قسم الفلاتر: نطاق التاريخ + زر التوليد ── *@
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudText Typo="@Typo.subtitle2" Class="mb-2">@Loc["SalesTaxReportSubtitle"]</MudText>
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="6" md="3">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="GenerateAsync"
+                       Disabled="_loading" FullWidth="true" StartIcon="@Icons.Material.Filled.Search">
+                @Loc["GenerateReport"]
+            </MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="OpenExportPopup"
+                       Disabled="_report is null" FullWidth="true" StartIcon="@Icons.Material.Filled.PictureAsPdf">
+                @Loc["View"] / @Loc["Print"]
+            </MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center">
+        <MudProgressCircular Indeterminate="true" Size="Size.Large" />
+    </MudPaper>
+}
+else if (_report is null)
+{
+    <MudPaper Elevation="0" Class="pa-6">
+        <MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText>
+    </MudPaper>
+}
+else if (_report.Rows.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6">
+        <MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoInvoicesForRange"]</MudAlert>
+    </MudPaper>
+}
+else
+{
+    @* ── جدول شرائح الضريبة (RTL) ── *@
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_report.Rows" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["TaxDescription"]</MudTh>
+                <MudTh Style="min-width:80px">@Loc["TaxRate"]</MudTh>
+                <MudTh Class="justify-end">@Loc["InvoicesCount"]</MudTh>
+                <MudTh Class="justify-end">@Loc["GrossSales"]</MudTh>
+                <MudTh Class="justify-end">@Loc["TaxAmount"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudText Typo="@Typo.body2" Style="font-weight:600">@context.TaxDescription</MudText></MudTd>
+                <MudTd>
+                    <MudChip T="string" Size="Size.Small" Color="@TaxChipColor(context.TaxRate)" Variant="Variant.Filled">
+                        @context.TaxRate.ToString("0.#")%
+                    </MudChip>
+                </MudTd>
+                <MudTd Style="text-align:center">@context.InvoiceCount</MudTd>
+                <MudTd><MoneyDisplay Amount="context.GrossAmount" /></MudTd>
+                <MudTd Style="font-weight:700"><MoneyDisplay Amount="context.TaxAmount" /></MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+
+    @* ── التذييل: الإجماليات + التحقق من التوازن ── *@
+    <MudPaper Elevation="1" Class="mt-3 pa-4" Style="border-top:2px solid #6D5BD0">
+        <MudGrid AlignItems="AlignItems.Center">
+            <MudItem xs="12" md="8">
+                <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px">
+                    <div>
+                        <MudText Typo="@Typo.caption" Style="color:#6B7280">@Loc["InvoicesCount"]</MudText>
+                        <MudText Typo="@Typo.h6">@_report.TotalInvoices.ToString("N0")</MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="@Typo.caption" Style="color:#6B7280">@Loc["GrossSales"]</MudText>
+                        <MudText Typo="@Typo.h6"><MoneyDisplay Amount="_report.TotalGross" /></MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="@Typo.caption" Style="color:#6B7280">@Loc["TaxAmount"]</MudText>
+                        <MudText Typo="@Typo.h6" Style="color:#B45309"><MoneyDisplay Amount="_report.TotalTax" /></MudText>
+                    </div>
+                    <div>
+                        <MudText Typo="@Typo.caption" Style="color:#6B7280">@Loc["Total"]</MudText>
+                        <MudText Typo="@Typo.h6"><MoneyDisplay Amount="_report.TotalSalesInclTax" /></MudText>
+                    </div>
+                </div>
+            </MudItem>
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="0" Class="pa-3" Style="background:#F9FAFB;border:1px dashed #E5E7EB">
+                    <div style="display:flex;justify-content:space-between">
+                        <MudText Typo="@Typo.body2">@Loc["TotalDebit"]</MudText>
+                        <MudText Typo="@Typo.body2"><MoneyDisplay Amount="_report.TotalDebit" /></MudText>
+                    </div>
+                    <div style="display:flex;justify-content:space-between" class="mt-1">
+                        <MudText Typo="@Typo.body2">@Loc["TotalCredit"]</MudText>
+                        <MudText Typo="@Typo.body2"><MoneyDisplay Amount="_report.TotalCredit" /></MudText>
+                    </div>
+                    <MudDivider Class="my-2" />
+                    <MudChip T="string" Size="Size.Small" Color="@(_report.IsBalanced ? Color.Success : Color.Error)" Class="mt-1">
+                        <MudIcon Icon="@(_report.IsBalanced ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Error)" Size="Size.Small" Class="me-1" />
+                        @(_report.IsBalanced ? Loc["Balanced"] : Loc["Unbalanced"])
+                    </MudChip>
+                </MudPaper>
+            </MudItem>
+        </MudGrid>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private DateTime? _from = new DateTime(DateTime.Today.AddMonths(-1).Year, DateTime.Today.AddMonths(-1).Month, 1);
+    private DateTime? _to = DateTime.Today;
+    private bool _loading;
+    private SalesTaxReportDto? _report;
+    private string _brand = "ERP";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { var s = await Settings.GetAsync(); _brand = s.AppDisplayName ?? "ERP"; } catch { }
+    }
+
+    /// <summary>لون شارة النسبة حسب الشريحة (0=رمادي معفاة، نسب عالية=أحمر).</summary>
+    private static Color TaxChipColor(decimal rate) => rate switch
+    {
+        0m => Color.Default,
+        <= 2m => Color.Info,
+        <= 5m => Color.Success,
+        <= 10m => Color.Warning,
+        _ => Color.Error
+    };
+
+    /// <summary>توليد التقرير حسب نطاق التاريخ المحدد (مع تحقق من صحة النطاق).</summary>
+    private async Task GenerateAsync()
+    {
+        if (!_from.HasValue || !_to.HasValue)
+        {
+            Snackbar.Add("يرجى تحديد تاريخ البداية والنهاية", Severity.Warning);
+            return;
+        }
+        if (_from.Value.Date > _to.Value.Date)
+        {
+            Snackbar.Add("تاريخ البداية لا يمكن أن يكون بعد تاريخ النهاية", Severity.Warning);
+            return;
+        }
+
+        _loading = true;
+        try
+        {
+            _report = await ReportService.GetSalesTaxReportAsync(_from.Value.Date, _to.Value.Date);
+            if (_report.Rows.Count == 0)
+                Snackbar.Add(Loc["NoInvoicesForRange"].Value, Severity.Info);
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+            _report = null;
+        }
+        finally { _loading = false; }
+    }
+
+    /// <summary>بناء GenericReportTable لفتح نافذة العرض/الطباعة/التصدير (Excel/PDF عبر ReportPopup).</summary>
+    private GenericReportTable BuildGenericTable()
+    {
+        var headers = new List<string> { "نسبة الضريبة", "وصف الضريبة", "عدد الفواتير", "إجمالي المبيعات", "مبلغ الضريبة" };
+        var rows = _report!.Rows.Select(r => new List<string>
+        {
+            r.TaxRate.ToString("0.#") + "%",
+            r.TaxDescription,
+            r.InvoiceCount.ToString("N0"),
+            r.GrossAmount.ToString("N2"),
+            r.TaxAmount.ToString("N2")
+        }).ToList();
+
+        var totals = new List<string> { "", "الإجمالي", _report.TotalInvoices.ToString("N0"), _report.TotalGross.ToString("N2"), _report.TotalTax.ToString("N2") };
+        var note = $"مدين {_report.TotalDebit:N2} = دائن {_report.TotalCredit:N2}" +
+                   (_report.IsBalanced ? " — متوازن" : " — غير متوازن!");
+
+        return new GenericReportTable
+        {
+            TitleAr = Loc["SalesTaxReport"].Value,
+            Headers = headers,
+            Rows = rows,
+            Totals = totals,
+            ParamSummary = $"{_from:yyyy-MM-dd} → {_to:yyyy-MM-dd}",
+            FooterNote = note,
+            Landscape = true
+        };
+    }
+
+    /// <summary>عرض التقرير في نافذة منبثقة (Excel/PDF/طباعة).</summary>
+    private async Task OpenExportPopup()
+    {
+        if (_report is null) return;
+        var table = BuildGenericTable();
+        await Dialogs.ShowAsync<ReportPopup>(
+            Loc["SalesTaxReport"].Value,
+            new DialogParameters { ["Table"] = table, ["Brand"] = _brand },
+            new DialogOptions { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true });
+    }
+}
+

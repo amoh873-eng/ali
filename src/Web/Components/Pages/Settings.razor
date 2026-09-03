@@ -28,13 +28,76 @@
     </MudPaper>
     <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="Save" Class="mt-3">@Loc["SettingsSaveCurrency"]</MudButton>
 </MudPaper>
+
+@* ── إعدادات باركود الميزان الإلكتروني (EAN-13 للوزن/السعر المدمج) ── *@
+<MudPaper Class="pa-4 mt-4" Elevation="0" Style="border:1px solid #E5E7EB;max-width:720px">
+    <MudText Typo="Typo.h6" Class="mb-1">@Loc["ScaleSettingsTitle"]</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3" Style="color:#6B7280">@Loc["ScaleSettingsSubtitle"]</MudText>
+
+    <MudSwitch T="bool" @bind-Value="_scaleEnabled" Color="Color.Primary" Label="@Loc["ScaleEnabled"]" />
+    <MudText Typo="Typo.caption" Style="color:#6B7280">@Loc["ScaleDisabledHint"]</MudText>
+    <MudText Typo="Typo.caption" Class="mt-1" Style="color:#6B7280">@Loc["ScaleBarcodeFormat"]</MudText>
+
+    @if (_scaleEnabled)
+    {
+        <MudGrid Class="mt-2" Spacing="2">
+            <MudItem xs="6" sm="4">
+                <MudTextField @bind-Value="_prefix" Label="@Loc["ScalePrefix"]" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="6" sm="4">
+                <MudNumericField @bind-Value="_itemStart" T="int" Label="@Loc["ScaleItemCodeStart"]" Min="0" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="6" sm="4">
+                <MudNumericField @bind-Value="_itemLength" T="int" Label="@Loc["ScaleItemCodeLength"]" Min="1" Max="10" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="6" sm="4">
+                <MudNumericField @bind-Value="_valueStart" T="int" Label="@Loc["ScaleValueStart"]" Min="0" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="6" sm="4">
+                <MudNumericField @bind-Value="_valueLength" T="int" Label="@Loc["ScaleValueLength"]" Min="0" Max="10" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="6" sm="4">
+                <MudNumericField @bind-Value="_decimalPlaces" T="int" Label="@Loc["ScaleDecimalPlaces"]" Min="0" Max="5" Variant="Variant.Outlined" Dense="true" />
+            </MudItem>
+            <MudItem xs="12" sm="6">
+                <MudSelect T="int" @bind-Value="_valueType" Label="@Loc["ScaleValueType"]" Variant="Variant.Outlined" Dense="true">
+                    <MudSelectItem T="int" Value="0">@Loc["ScaleWeight"]</MudSelectItem>
+                    <MudSelectItem T="int" Value="1">@Loc["ScalePrice"]</MudSelectItem>
+                </MudSelect>
+            </MudItem>
+        </MudGrid>
+
+        <MudPaper Class="pa-3 mt-3" Style="background:#F0FDF4;border:1px dashed #BBF7D0">
+            <MudText Typo="Typo.caption" Style="color:#065F46">
+                <MudIcon Icon="@Icons.Material.Filled.Info" Size="Size.Small" /> @Loc["ScaleExample"]
+            </MudText>
+        </MudPaper>
+        <MudAlert Severity="Severity.Info" Class="mt-3" Variant="Variant.Outlined">@Loc["ScaleDemoTenHint"]</MudAlert>
+    }
+
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SaveScale" Class="mt-3">
+        <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" /> @Loc["ScaleSave"]
+    </MudButton>
+</MudPaper>
 @code{
     string _code = "JOD";
     string _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
     string _curNameKey => "Currency_" + _code;
+
+    // إعدادات باركود الميزان
+    private bool _scaleEnabled;
+    private string _prefix = "21";
+    private int _itemStart = 2;
+    private int _itemLength = 5;
+    private int _valueStart = 7;
+    private int _valueLength = 5;
+    private int _decimalPlaces = 3;
+    private int _valueType = 0; // 0=وزن، 1=سعر
+
     protected override async Task OnInitializedAsync(){
         try{ var s=await Svc.GetAsync(); _code = string.IsNullOrWhiteSpace(s.CurrencyCode) ? "JOD" : s.CurrencyCode.Trim().ToUpperInvariant(); }catch{}
         _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
+        await LoadScaleRuleAsync();
     }
     void OnLangChanged(string v){
         _lang = v;
@@ -45,5 +108,75 @@
     }
     async Task Save(){
         try{ await Svc.UpdateAsync(s=> s.CurrencyCode = _code); Snack.Add(Loc["SettingsCurrencySaved"].Value, Severity.Success); }catch(Exception ex){ Snack.Add(ex.Message, Severity.Error); }
+    }
+
+    /// <summary>تحميل قاعدة الميزان الحالية من SystemSettings (WeightBarcodeRuleJson) إلى الحقول.</summary>
+    private async Task LoadScaleRuleAsync()
+    {
+        try
+        {
+            var s = await Svc.GetAsync();
+            if (!string.IsNullOrWhiteSpace(s.WeightBarcodeRuleJson))
+            {
+                var rule = ERPSystem.Application.Services.WeightBarcodeRule.FromJson(s.WeightBarcodeRuleJson);
+                if (rule is not null)
+                {
+                    _prefix = rule.Prefix;
+                    _itemStart = rule.ItemCodeStart;
+                    _itemLength = rule.ItemCodeLength;
+                    _valueStart = rule.ValueStart;
+                    _valueLength = rule.ValueLength;
+                    _decimalPlaces = rule.DecimalPlaces;
+                    _valueType = (int)rule.ValueType;
+                    _scaleEnabled = true;
+                }
+            }
+        }
+        catch { /* الافتراضيات تبقى */ }
+    }
+
+    /// <summary>حفظ قاعدة الميزان كـ WeightBarcodeRuleJson في SystemSettings.</summary>
+    private async Task SaveScale()
+    {
+        if (_scaleEnabled)
+        {
+            if (string.IsNullOrWhiteSpace(_prefix)
+                || _itemLength <= 0
+                || _itemStart < 0
+                || _valueLength < 0
+                || _valueStart < 0
+                || _decimalPlaces < 0)
+            {
+                Snack.Add(Loc["ScaleInvalid"].Value, Severity.Warning);
+                return;
+            }
+            // تجنب تداخل رمز الصنف وقيمة الوزن
+            if (_valueLength > 0 && _itemStart < _valueStart + _valueLength && _valueStart < _itemStart + _itemLength)
+            {
+                Snack.Add(Loc["ScaleInvalid"].Value, Severity.Warning);
+                return;
+            }
+        }
+
+        try
+        {
+            await Svc.UpdateAsync(s =>
+            {
+                s.WeightBarcodeRuleJson = _scaleEnabled
+                    ? new ERPSystem.Application.Services.WeightBarcodeRule
+                    {
+                        Prefix = _prefix.Trim(),
+                        ItemCodeStart = _itemStart,
+                        ItemCodeLength = _itemLength,
+                        ValueStart = _valueStart,
+                        ValueLength = _valueLength,
+                        DecimalPlaces = _decimalPlaces,
+                        ValueType = (ERPSystem.Domain.Enums.WeightBarcodeValueType)_valueType
+                    }.ToJson()
+                    : null;
+            });
+            Snack.Add(Loc["ScaleSaved"].Value, Severity.Success);
+        }
+        catch (Exception ex) { Snack.Add(ex.Message, Severity.Error); }
     }
 }

@@ -23,6 +23,8 @@ public class ItemDto
     public bool IsSystem { get; set; }
     public decimal CurrentStock { get; set; }
 
-    /// <summary>هل يتتبّع الصلاحية عبر دفعات؟</summary>
     public bool TracksExpiry { get; set; }
+
+    /// <summary>مسار صورة الصنف (يُعرض في أزرار POS وبطاقة المادة). فارغ إن لا صورة.</summary>
+    public string? ImageUrl { get; set; }
 }

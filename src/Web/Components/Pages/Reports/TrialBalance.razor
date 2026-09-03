@@ -3,7 +3,7 @@
 <ModuleGuard ModuleKey="Reports">
 @inject IStringLocalizer<SharedResources> Loc
 
-@* ØµÙØ­Ø© Ù…ÙŠØ²Ø§Ù† Ø§Ù„Ù…Ø±Ø§Ø¬Ø¹Ø© - Ø£Ø±ØµØ¯Ø© Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª ÙˆØ¥Ø¬Ù…Ø§Ù„ÙŠ Ø§Ù„Ù…Ø¯ÙŠÙ† ÙˆØ§Ù„Ø¯Ø§Ø¦Ù† *@
+@* صفحة ميزان المراجعة - أرصدة الحسابات وإجمالي المدين والدائن *@
 
 <PageTitle>@Loc["TrialBalance"] - @Loc["AppName"]</PageTitle>
 
@@ -59,7 +59,7 @@
         </MudTable>
 
         <MudText Typo="Typo.body2" Class="pa-4">
-            @Loc["TotalDebit"]: <strong>@_trialBalance.TotalDebit.ToString("N2")</strong> â€”
+            @Loc["TotalDebit"]: <strong>@_trialBalance.TotalDebit.ToString("N2")</strong> —
             @Loc["TotalCredit"]: <strong>@_trialBalance.TotalCredit.ToString("N2")</strong>
         </MudText>
     }

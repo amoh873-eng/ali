@@ -1,0 +1,174 @@
+@page "/reports/ar-aging"
+@page "/reports/ap-aging"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+@using ERPSystem.Application.Interfaces
+@using Microsoft.Extensions.Localization
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+@inject ISystemSettingsService Settings
+@inject IDialogService Dialogs
+@inject NavigationManager Nav
+
+<PageTitle>@(Title) - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Title" Icon="@Icons.Material.Filled.FactCheck" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_asOf" Label="@Loc["AsOfDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Outlined" Color="Color.Info" OnClick="OpenExportPopup" Disabled="_report is null" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.PictureAsPdf">@Loc["View"] / @Loc["Print"]</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_report is null)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText></MudPaper>
+}
+else if (_report.Rows.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoOpenInvoices"]</MudAlert></MudPaper>
+}
+else
+{
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_report.Rows" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["PartyName"]</MudTh>
+                <MudTh Class="justify-end">@Loc["Bucket0_30"]</MudTh>
+                <MudTh Class="justify-end">@Loc["Bucket31_60"]</MudTh>
+                <MudTh Class="justify-end">@Loc["Bucket61_90"]</MudTh>
+                <MudTh Class="justify-end">@Loc["Bucket90Plus"]</MudTh>
+                <MudTh Class="justify-end">@Loc["BucketTotal"]</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><b>@context.PartyCode</b> — @context.PartyNameAr</MudTd>
+                <MudTd><MoneyDisplay Amount="context.Bucket0_30" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Bucket31_60" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Bucket61_90" /></MudTd>
+                <MudTd><MoneyDisplay Amount="context.Bucket90Plus" /></MudTd>
+                <MudTd><b><MoneyDisplay Amount="context.Total" /></b></MudTd>
+                <MudTd><MudButton Size="Size.Small" Color="Color.Primary" Variant="Variant.Text" OnClick="() => OpenDrillDown(context)">@Loc["DrillDown"]</MudButton></MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTd><b>@Loc["BucketTotal"]</b></MudTd>
+                <MudTd><b><MoneyDisplay Amount="_report.Total0_30" /></b></MudTd>
+                <MudTd><b><MoneyDisplay Amount="_report.Total31_60" /></b></MudTd>
+                <MudTd><b><MoneyDisplay Amount="_report.Total61_90" /></b></MudTd>
+                <MudTd><b><MoneyDisplay Amount="_report.Total90Plus" /></b></MudTd>
+                <MudTd><b><MoneyDisplay Amount="_report.TotalAll" /></b></MudTd>
+                <MudTd></MudTd>
+            </FooterContent>
+        </MudTable>
+    </MudPaper>
+
+    @if (_topCustomers.Count > 0)
+    {
+        <MudPaper Elevation="1" Class="mt-3 pa-4" Style="border-top:2px solid #F59E0B">
+            <MudText Typo="@Typo.h6" Class="mb-2">@Loc["ConcentrationRisk"] — @Loc["Top5Customers"]</MudText>
+            <MudTable Items="_topCustomers" Dense="true" Hover="true">
+                <HeaderContent>
+                    <MudTh>@Loc["AgingCustomer"]</MudTh>
+                    <MudTh Class="justify-end">@Loc["GrossSales"]</MudTh>
+                    <MudTh Class="justify-end">@Loc["PercentOfSales"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.Name</MudTd>
+                    <MudTd><MoneyDisplay Amount="context.Amount" /></MudTd>
+                    <MudTd><MudText Style="@_warnStyle">@context.Percent.ToString("0.0")%</MudText></MudTd>
+                </RowTemplate>
+            </MudTable>
+            @if (_concentrationWarning)
+            {
+                <MudAlert Severity="Severity.Warning" Class="mt-3">@Loc["ConcentrationWarning"]</MudAlert>
+            }
+        </MudPaper>
+    }
+}
+</ModuleGuard>
+@code {
+    private DateTime? _asOf = DateTime.Today;
+    private bool _loading;
+    private AgingReportDto? _report;
+    private List<ERPSystem.Application.Services.AgingReportQueries.TopCustomerRow> _topCustomers = new();
+    private bool _concentrationWarning;
+    private string _brand = "ERP";
+    private string _warnStyle => "color:#EF4444;font-weight:800";
+
+    private string Title => IsReceivable ? Loc["ArAging"].Value : Loc["ApAging"].Value;
+    private bool IsReceivable => Nav.Uri.Contains("/reports/ar-aging", StringComparison.OrdinalIgnoreCase);
+
+    protected override async Task OnInitializedAsync()
+    {
+        try { var s = await Settings.GetAsync(); _brand = s.AppDisplayName ?? "ERP"; } catch { }
+    }
+
+    private async Task LoadAsync()
+    {
+        if (!_asOf.HasValue) { Snackbar.Add("يرجى تحديد التاريخ", Severity.Warning); return; }
+        _loading = true;
+        try
+        {
+            _report = await ReportService.GetAgingReportAsync(IsReceivable, _asOf.Value.Date);
+            _topCustomers = new(); _concentrationWarning = false;
+            if (IsReceivable)
+            {
+                var (top, warn) = await ReportService.GetTopCustomersAsync(_asOf.Value.Date);
+                _topCustomers = top; _concentrationWarning = warn;
+            }
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _report = null; }
+        finally { _loading = false; }
+    }
+
+    private async Task OpenDrillDown(AgingPartyRow party)
+    {
+        var headers = new List<string> { Loc["InvoiceNumber"].Value, Loc["AgingInvoiceDate"].Value, Loc["AgingDueDate"].Value, Loc["AgingDaysOverdue"].Value, Loc["AgingBalance"].Value };
+        var rows = party.Invoices.Select(i => new List<string>
+        {
+            i.InvoiceNumber, i.InvoiceDate.ToString("yyyy-MM-dd"), i.DueDate.ToString("yyyy-MM-dd"), i.DaysOverdue.ToString(), i.Balance.ToString("N2")
+        }).ToList();
+        var totals = new List<string> { "", "", "", Loc["BucketTotal"].Value, party.Total.ToString("N2") };
+        var table = new GenericReportTable
+        {
+            TitleAr = $"{party.PartyNameAr} — {Loc["OpenInvoices"].Value}",
+            Headers = headers, Rows = rows, Totals = totals,
+            ParamSummary = $"{Loc["AsOfDate"].Value}: {(_asOf ?? DateTime.Today):yyyy-MM-dd}",
+            Landscape = true
+        };
+        await Dialogs.ShowAsync<ReportPopup>(table.TitleAr, new DialogParameters { ["Table"] = table, ["Brand"] = _brand }, new DialogOptions { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true });
+    }
+
+    private async Task OpenExportPopup()
+    {
+        if (_report is null) return;
+        var headers = new List<string> { Loc["PartyName"].Value, Loc["Bucket0_30"].Value, Loc["Bucket31_60"].Value, Loc["Bucket61_90"].Value, Loc["Bucket90Plus"].Value, Loc["BucketTotal"].Value };
+        var rows = _report.Rows.Select(r => new List<string>
+        {
+            r.PartyCode + " — " + r.PartyNameAr, r.Bucket0_30.ToString("N2"), r.Bucket31_60.ToString("N2"), r.Bucket61_90.ToString("N2"), r.Bucket90Plus.ToString("N2"), r.Total.ToString("N2")
+        }).ToList();
+        var totals = new List<string> { Loc["BucketTotal"].Value, _report.Total0_30.ToString("N2"), _report.Total31_60.ToString("N2"), _report.Total61_90.ToString("N2"), _report.Total90Plus.ToString("N2"), _report.TotalAll.ToString("N2") };
+        var table = new GenericReportTable
+        {
+            TitleAr = Title, Headers = headers, Rows = rows, Totals = totals,
+            ParamSummary = $"{Loc["AsOfDate"].Value}: {(_asOf ?? DateTime.Today):yyyy-MM-dd}",
+            Landscape = true
+        };
+        await Dialogs.ShowAsync<ReportPopup>(Title, new DialogParameters { ["Table"] = table, ["Brand"] = _brand }, new DialogOptions { MaxWidth = MaxWidth.ExtraLarge, FullWidth = true });
+    }
+}

@@ -1,5 +1,6 @@
 using System.Globalization;
 using System.Collections.Concurrent;
+using Microsoft.AspNetCore.Hosting;
 using ERPSystem.Application.Interfaces;
 using ERPSystem.Domain.Entities;
 using ERPSystem.Infrastructure;
@@ -20,6 +21,12 @@ using MudBlazor.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// Sprint from build output (dotnet ERPSystem.Web.dll or the ERPWeb scheduled task) in Development:
+// enables Static Web Assets so _framework + wwwroot + RCL assets (MudBlazor) are actually served.
+// Without this, blazor.web.js / _content/* are returned as empty 200s and the interactive UI never loads.
+if (builder.Environment.IsDevelopment())
+    builder.WebHost.UseStaticWebAssets();
+
 // Add MudBlazor services for UI components
 builder.Services.AddMudServices();
 
@@ -39,6 +46,10 @@ localizationOptions.RequestCultureProviders =
 
 // Add infrastructure services (DbContext, AccountService, etc.)
 builder.Services.AddInfrastructure(builder.Configuration);
+
+// Non-invasive scale-barcode interceptor settings (appsettings.json → IOptions).
+builder.Services.Configure<ERPSystem.Web.Configuration.ScaleBarcodeSettings>(
+    builder.Configuration.GetSection(ERPSystem.Web.Configuration.ScaleBarcodeSettings.SectionName));
 
 // ASP.NET Core Identity: المصادقة والصلاحيات (Role-Based)
 builder.Services.AddCascadingAuthenticationState();

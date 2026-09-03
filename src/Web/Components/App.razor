@@ -21,6 +21,10 @@
 </head>
 
 <body>
+    @* Prerendering is enabled: it renders the page HTML server-side on first load.
+       DbContext concurrency during prerender is avoided because MainLayout performs no
+       database work in OnInitializedAsync (it loads after first render) and page queries
+       run sequentially, so never two operations on the shared scoped AppDbContext at once. *@
     <Routes @rendermode="InteractiveServer" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>

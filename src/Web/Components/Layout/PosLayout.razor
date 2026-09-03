@@ -8,8 +8,30 @@
     <MudPopoverProvider />
     <MudDialogProvider />
     <MudSnackbarProvider />
+
+    @* Non-invasive scale-barcode interceptor — see Components/ScaleBarcodeInterceptor.razor
+       (global scanner capture on the POS page, re-injects into the existing search flow). *@
+    <ScaleBarcodeInterceptor />
+
     @Body
 </MudRTLProvider>
+
+<script>
+    // نمرّر قائمة السلة إلى آخر صنف تلقائياً عند إضافته (عند امتلاء السلة).
+    window.erpScrollPosCartToBottom = function () {
+        var el = document.querySelector('.pos-cart-lines');
+        if (el) el.scrollTop = el.scrollHeight;
+    };
+    // نمرّر قائمة السلة إلى الأعلى عند مسحها (مثلاً مع "مسح" / "فاتورة جديدة").
+    window.erpScrollPosCartToTop = function () {
+        var el = document.querySelector('.pos-cart-lines');
+        if (el) el.scrollTop = 0;
+    };
+
+    // إعدادات الطابعة الحرارية: حفظ / تحميل (تُخزَّن في localStorage)
+    window.erpSavePrinterSettings = function (json) { try { localStorage.setItem('posPrinterSettings', json); } catch (e) {} };
+    window.erpLoadPrinterSettings = function () { try { return localStorage.getItem('posPrinterSettings'); } catch (e) { return null; } };
+</script>
 
 @code {
     private readonly MudTheme _theme = new()

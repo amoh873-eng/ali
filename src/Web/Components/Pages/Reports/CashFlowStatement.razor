@@ -1,0 +1,113 @@
+@page "/reports/cash-flow"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+@using ERPSystem.Application.Interfaces
+@using Microsoft.Extensions.Localization
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["CashFlow"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["CashFlow"]" Icon="@Icons.Material.Filled.SwapHoriz" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText></MudPaper>
+}
+else
+{
+    @foreach (var section in _dto.Sections)
+    {
+        <MudPaper Elevation="1" Class="pa-4 mb-3">
+            <MudText Typo="@Typo.h6" Class="mb-2" Style="@SectionStyle(section.Key)">@SectionTitle(section.Key)</MudText>
+            <MudTable Items="section.Lines" Dense="true" Hover="false">
+                <HeaderContent>
+                    <MudTh>@Loc["Account"]</MudTh>
+                    <MudTh Class="justify-end">@Loc["Amount"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@Loc[context.DescriptionKey]</MudTd>
+                    <MudTd Class="justify-end"><MoneyDisplay Amount="context.Amount" /></MudTd>
+                </RowTemplate>
+            </MudTable>
+            <MudDivider Class="my-2" />
+            <div style="display:flex;justify-content:space-between">
+                <MudText Typo="@Typo.body2" Style="font-weight:800">@Loc["CashFlowSubtotal"]</MudText>
+                <MudText Typo="@Typo.body2" Style="font-weight:800"><MoneyDisplay Amount="section.Subtotal" /></MudText>
+            </div>
+        </MudPaper>
+    }
+
+    <MudPaper Elevation="1" Class="pa-4" Style="border-top:2px solid #6D5BD0">
+        <MudText Typo="@Typo.h6" Class="mb-2">@Loc["CashFlow"]</MudText>
+        <div style="display:flex;justify-content:space-between" class="mb-1">
+            <MudText Typo="@Typo.body2">@Loc["CashFlowNetChange"]</MudText>
+            <MudText Typo="@Typo.body2" Style="font-weight:700"><MoneyDisplay Amount="_dto.NetChangeCash" /></MudText>
+        </div>
+        <div style="display:flex;justify-content:space-between" class="mb-1">
+            <MudText Typo="@Typo.body2">@Loc["CashFlowBeginningCash"]</MudText>
+            <MudText Typo="@Typo.body2"><MoneyDisplay Amount="_dto.BeginningCash" /></MudText>
+        </div>
+        <div style="display:flex;justify-content:space-between" class="mb-2">
+            <MudText Typo="@Typo.body2">@Loc["CashFlowEndingCash"]</MudText>
+            <MudText Typo="@Typo.body2" Style="font-weight:800"><MoneyDisplay Amount="_dto.EndingCash" /></MudText>
+        </div>
+        <MudChip T="string" Color="@(_dto.IsBalanced ? Color.Success : Color.Error)" Size="Size.Small">
+            <MudIcon Icon="@(_dto.IsBalanced ? Icons.Material.Filled.CheckCircle : Icons.Material.Filled.Error)" Size="Size.Small" Class="me-1" />
+            @(_dto.IsBalanced ? Loc["Balanced"] : Loc["Unbalanced"])
+        </MudChip>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private DateTime? _from = new DateTime(DateTime.Today.AddMonths(-1).Year, DateTime.Today.AddMonths(-1).Month, 1);
+    private DateTime? _to = DateTime.Today;
+    private bool _loading;
+    private CashFlowStatementDto? _dto;
+
+    private async Task LoadAsync()
+    {
+        if (!_from.HasValue || !_to.HasValue) { Snackbar.Add("ÙŠØ±Ø¬Ù‰ ØªØ­Ø¯ÙŠØ¯ Ø§Ù„ÙØªØ±Ø©", Severity.Warning); return; }
+        if (_from.Value.Date > _to.Value.Date) { Snackbar.Add("ØªØ§Ø±ÙŠØ® Ø§Ù„Ø¨Ø¯Ø§ÙŠØ© Ø¨Ø¹Ø¯ Ø§Ù„Ù†Ù‡Ø§ÙŠØ©", Severity.Warning); return; }
+        _loading = true;
+        try { _dto = await ReportService.GetCashFlowStatementAsync(_from.Value.Date, _to.Value.Date); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+
+    private static string SectionStyle(string key) => "color:" + SectionColor(key);
+
+    private static string SectionColor(string key) => key switch
+    {
+        "investing" => "#06B6D4",
+        "financing" => "#EC4899",
+        _ => "#10B981"
+    };
+
+    private string SectionTitle(string key) => key switch
+    {
+        "investing" => Loc["CashFlowInvesting"].Value,
+        "financing" => Loc["CashFlowFinancing"].Value,
+        _ => Loc["CashFlowOperating"].Value
+    };
+}

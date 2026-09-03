@@ -4,16 +4,16 @@
 @inject IStringLocalizer<SharedResources> Loc
 
 @* 
-Ø´Ø¬Ø±Ø© Ø§Ù„Ø­Ø³Ø§Ø¨Ø§Øª - Ø§Ù„Ù‡ÙŠÙƒÙ„ Ø§Ù„Ø´Ø¬Ø±ÙŠ Ù„Ù„Ø­Ø³Ø§Ø¨Ø§Øª Ø§Ù„Ù…Ø­Ø§Ø³Ø¨ÙŠØ©.
-Ø¨Ø§Ø³ØªØ®Ø¯Ø§Ù… MudTreeView Ù„Ø¹Ø±Ø¶ Ø§Ù„Ø´Ø¬Ø±Ø© Ù…Ø¹ MudDialog Ù„Ù„Ø¥Ø¶Ø§ÙØ© ÙˆØ§Ù„ØªØ¹Ø¯ÙŠÙ„.
+شجرة الحسابات - الهيكل الشجري للحسابات المحاسبية.
+باستخدام MudTreeView لعرض الشجرة مع MudDialog للإضافة والتعديل.
 *@
 
 <PageTitle>@Loc["Accounts"] - @Loc["AppName"]</PageTitle>
 
-@* Ø±Ø£Ø³ Ø§Ù„ØµÙØ­Ø© Ù…Ø¹ Ø§Ù„Ø£ÙŠÙ‚ÙˆÙ†Ø© *@
+@* رأس الصفحة مع الأيقونة *@
 <PageHeader Title="@Loc["Accounts"]" Icon="@Icons.Material.Filled.AccountTree" />
 
-@* Ø£Ø²Ø±Ø§Ø± Ø§Ù„Ø¥Ø¬Ø±Ø§Ø¡Ø§Øª *@
+@* أزرار الإجراءات *@
 <MudToolBar Class="mb-4">
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
@@ -32,7 +32,7 @@
     </MudToggleGroup>
 </MudToolBar>
 
-@* ===== ÙˆØ¶Ø¹ Ø§Ù„Ø´Ø¬Ø±Ø© ===== *@
+@* ===== وضع الشجرة ===== *@
 @if (_viewMode == "tree")
 {
     <MudPaper Elevation="1" Class="pa-4">
@@ -54,7 +54,7 @@
 }
 else
 {
-    @* ===== ÙˆØ¶Ø¹ Ø§Ù„Ù‚Ø§Ø¦Ù…Ø© Ø§Ù„Ù…Ø³Ø·Ø­Ø© ===== *@
+    @* ===== وضع القائمة المسطحة ===== *@
     <MudPaper Elevation="1">
         <MudTable Items="_flatAccounts" Hover="true" Dense="true">
             <HeaderContent>

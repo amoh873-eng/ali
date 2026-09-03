@@ -89,6 +89,13 @@ public partial class ItemService : IItemService
 
     // ==================== Helper Methods ====================
 
+    /// <summary>
+    /// يعيد مسار صورة الصنف في نقطة البيع/البطاقة. الصورة تخزَّن دائماً في
+    /// /uploads/items/{Id}.jpg إن وُجدت؛ المعروض يتعامل مع غيابها عبر onerror.
+    /// (نهج قائم على الملفات فقط — لا تغيير على قاعدة البيانات.)
+    /// </summary>
+    private static string ItemImageUrl(Item item) => $"/uploads/items/{item.Id}.jpg";
+
     private static ItemDto MapToDto(Item item)
     {
         return new ItemDto
@@ -110,7 +117,8 @@ public partial class ItemService : IItemService
             IsActive = item.IsActive,
             IsSystem = item.IsSystem,
             CurrentStock = item.CurrentStock,
-            TracksExpiry = item.TracksExpiry
+            TracksExpiry = item.TracksExpiry,
+            ImageUrl = ItemImageUrl(item)
         };
     }
 }

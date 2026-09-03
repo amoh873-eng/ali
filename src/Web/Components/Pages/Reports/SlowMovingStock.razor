@@ -1,0 +1,71 @@
+@page "/reports/slow-moving-stock"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["SlowMovingStock"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["SlowMovingStock"]" Icon="@Icons.Material.Filled.AccessTime" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudNumericField @bind-Value="_days" T="int" Label="@Loc["DaysWithoutSaleLabel"]" Min="1" Max="365" Variant="Variant.Outlined" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText></MudPaper>
+}
+else if (_dto.Rows.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoStagnantItems"]</MudAlert></MudPaper>
+}
+else
+{
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_dto.Rows" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["ItemCode"]</MudTh>
+                <MudTh>@Loc["ItemNameAr"]</MudTh>
+                <MudTh Class="justify-end">@Loc["StockQtyLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["StockValueLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["DaysSinceLastSaleLabel"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.ItemCode</MudTd>
+                <MudTd>@context.ItemNameAr</MudTd>
+                <MudTd>@context.CurrentStock.ToString("N2")</MudTd>
+                <MudTd><MoneyDisplay Amount="context.StockValue" /></MudTd>
+                <MudTd>@(context.NeverSold ? Loc["NeverSold"] : context.DaysSinceLastSale.ToString())</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private int _days = 90;
+    private bool _loading;
+    private SlowMovingDto? _dto;
+
+    private async Task LoadAsync()
+    {
+        if (_days <= 0) { Snackbar.Add(Loc["EnterValidDays"], Severity.Warning); return; }
+        _loading = true;
+        try { _dto = await ReportService.GetSlowMovingAsync(_days); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+}

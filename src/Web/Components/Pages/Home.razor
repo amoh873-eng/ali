@@ -13,22 +13,37 @@
     @* بطاقات المؤشرات الرئيسية في الأعلى *@
     @* ── بطاقات المال — تعرض بالعملة الموحدة عبر نفس المكون المركزي ── *@
     @* لماذا MoneyDisplay؟ نقطة واحدة للتنسيق، يتغير الرمز تلقائياً عند تغيير العملة في /settings *@
-    <MudItem xs="12" md="4">
-        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
-            <MudIcon Icon="@Icons.Material.Filled.ShoppingCart" Style="background:#E8F5E9;color:#10B981;border-radius:8px;padding:6px" />
-            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["NetSales"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_salesTotal" /></MudText></div>
+    <MudItem xs="12" sm="6" lg="3">
+        <MudPaper Class="pa-2" Style="background:#F0FDF4;border:1px solid #D1FAE5">
+            <div class="d-flex align-center mb-1">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.ShoppingCart" Style="background:#10B981;color:#fff;border-radius:6px;padding:4px" />
+                <div class="ms-2"><MudText Typo="@Typo.overline" Style="color:#16A34A">@Loc["NetSales"]</MudText><MudText Typo="@Typo.subtitle2" Style="font-weight:700"><MoneyDisplay Amount="_salesTotal" /></MudText></div>
+            </div>
+            <PeriodComparison Current="_salesCur" Previous="_salesPrev" YearAgo="_salesYoy" UpIsGood="true" />
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" md="4">
-        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
-            <MudIcon Icon="@Icons.Material.Filled.LocalShipping" Style="background:#FFF3E0;color:#F59E0B;border-radius:8px;padding:6px" />
-            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["NetPurchases"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_purchasesTotal" /></MudText></div>
+    <MudItem xs="12" sm="6" lg="3">
+        <MudPaper Class="pa-2" Style="background:#FFF7ED;border:1px solid #FED7AA">
+            <div class="d-flex align-center mb-1">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.LocalShipping" Style="background:#F59E0B;color:#fff;border-radius:6px;padding:4px" />
+                <div class="ms-2"><MudText Typo="@Typo.overline" Style="color:#D97706">@Loc["NetPurchases"]</MudText><MudText Typo="@Typo.subtitle2" Style="font-weight:700"><MoneyDisplay Amount="_purchasesTotal" /></MudText></div>
+            </div>
+            <PeriodComparison Current="_purchasesCur" Previous="_purchasesPrev" YearAgo="_purchasesYoy" UpIsGood="true" />
         </MudPaper>
     </MudItem>
-    <MudItem xs="12" md="4">
-        <MudPaper Class="pa-3 d-flex align-center" Style="border:1px solid #E5E7EB">
-            <MudIcon Icon="@Icons.Material.Filled.Inventory" Style="background:#F0EDFB;color:#6D5BD0;border-radius:8px;padding:6px" />
-            <div class="ms-3"><MudText Typo="Typo.caption">@Loc["InventoryValue"]</MudText><MudText Typo="Typo.h6"><MoneyDisplay Amount="_inventoryValue" /></MudText></div>
+    <MudItem xs="12" sm="6" lg="3">
+        <MudPaper Class="pa-2" Style="background:#F0F9FF;border:1px solid #BAE6FD">
+            <div class="d-flex align-center mb-1">
+                <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.TrendingUp" Style="background:#0284C7;color:#fff;border-radius:6px;padding:4px" />
+                <div class="ms-2"><MudText Typo="@Typo.overline" Style="color:#0369A1">@Loc["NetIncome"]</MudText><MudText Typo="@Typo.subtitle2" Style="font-weight:700"><MoneyDisplay Amount="_netIncomeTotal" /></MudText></div>
+            </div>
+            <PeriodComparison Current="_netIncomeCur" Previous="_netIncomePrev" YearAgo="_netIncomeYoy" UpIsGood="true" />
+        </MudPaper>
+    </MudItem>
+    <MudItem xs="12" sm="6" lg="3">
+        <MudPaper Class="pa-2 d-flex align-center" Style="background:#F5F3FF;border:1px solid #DDD6FE">
+            <MudIcon Size="Size.Small" Icon="@Icons.Material.Filled.Inventory" Style="background:#6D5BD0;color:#fff;border-radius:6px;padding:4px" />
+            <div class="ms-2"><MudText Typo="@Typo.overline" Style="color:#5B21B6">@Loc["InventoryValue"]</MudText><MudText Typo="@Typo.subtitle2" Style="font-weight:700"><MoneyDisplay Amount="_inventoryValue" /></MudText></div>
         </MudPaper>
     </MudItem>
 
@@ -40,11 +55,10 @@
     </MudItem>
     <MudItem xs="12" md="4">
         <ChartCard Title="@Loc["SalesVsPurchases"]" Subtitle="@Loc["SalesVsPurchasesTotal"]">
-            <DonutChart Segments="_salesPurchasesSegments"
-                        Height="150px"
-                        CenterValue="@_salesPurchasesTotalText"
-                        CenterLabel="@Loc["Total"]"
-                        EmptyText="@Loc["NoSalesPurchases"]" />
+            <DonutChart3D Segments="_salesPurchasesSegments"
+                          ShowLegend="true"
+                          ShowCallouts="true"
+                          EmptyText="@Loc["NoSalesPurchases"]" />
         </ChartCard>
     </MudItem>
 
@@ -56,6 +70,11 @@
     private decimal _salesTotal;
     private decimal _purchasesTotal;
     private decimal _inventoryValue;
+
+    // مقارنة الفترات (هذا الشهر / الشهر الماضي / نفس الشهر العام الماضي)
+    private decimal _salesCur, _salesPrev, _salesYoy;
+    private decimal _purchasesCur, _purchasesPrev, _purchasesYoy;
+    private decimal _netIncomeTotal, _netIncomeCur, _netIncomePrev, _netIncomeYoy;
 
     private List<DonutSegment> _salesPurchasesSegments = new();
     private string _salesPurchasesTotalText = "0";
@@ -83,6 +102,7 @@
         var itemService = scope.ServiceProvider.GetRequiredService<IItemService>();
         var salesService = scope.ServiceProvider.GetRequiredService<ISalesInvoiceService>();
         var purchaseService = scope.ServiceProvider.GetRequiredService<IPurchaseInvoiceService>();
+        var reportService = scope.ServiceProvider.GetRequiredService<ERPSystem.Application.Interfaces.IReportService>();
 
         try { var s = await settingsService.GetAsync(); _curSym = ERPSystem.Domain.CurrencyLookup.SymbolFor(s.CurrencyCode); } catch { }
         try
@@ -95,6 +115,28 @@
 
             var purchases = await purchaseService.GetInvoicesAsync();
             _purchasesTotal = purchases.Sum(i => i.TotalAmount);
+
+            // نوافذ المقارنة: هذا الشهر / الشهر الماضي / نفس الشهر عام ماضٍ
+            var today = System.DateTime.Today;
+            var curFrom = new System.DateTime(today.Year, today.Month, 1);
+            var curTo = today;
+            var prevFrom = curFrom.AddMonths(-1);
+            var prevTo = curFrom.AddDays(-1);
+            var yoyFrom = curFrom.AddYears(-1);
+            var yoyTo = curFrom.AddDays(-1).AddYears(-1);
+
+            _salesCur = sales.Where(i => i.InvoiceDate >= curFrom && i.InvoiceDate <= curTo).Sum(i => i.TotalAmount);
+            _salesPrev = sales.Where(i => i.InvoiceDate >= prevFrom && i.InvoiceDate <= prevTo).Sum(i => i.TotalAmount);
+            _salesYoy = sales.Where(i => i.InvoiceDate >= yoyFrom && i.InvoiceDate <= yoyTo).Sum(i => i.TotalAmount);
+
+            _purchasesCur = purchases.Where(i => i.InvoiceDate >= curFrom && i.InvoiceDate <= curTo).Sum(i => i.TotalAmount);
+            _purchasesPrev = purchases.Where(i => i.InvoiceDate >= prevFrom && i.InvoiceDate <= prevTo).Sum(i => i.TotalAmount);
+            _purchasesYoy = purchases.Where(i => i.InvoiceDate >= yoyFrom && i.InvoiceDate <= yoyTo).Sum(i => i.TotalAmount);
+
+            _netIncomeCur = (await reportService.GetIncomeStatementAsync(curFrom, curTo)).NetIncome;
+            _netIncomePrev = (await reportService.GetIncomeStatementAsync(prevFrom, prevTo)).NetIncome;
+            _netIncomeYoy = (await reportService.GetIncomeStatementAsync(yoyFrom, yoyTo)).NetIncome;
+            _netIncomeTotal = _netIncomeCur;
 
             BuildSalesPurchasesChart();
             await BuildTopItemsChartAsync(salesService);

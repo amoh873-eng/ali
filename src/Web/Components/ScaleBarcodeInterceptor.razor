@@ -1,0 +1,178 @@
+@* =====================================================================================
+   ScaleBarcodeInterceptor.razor — Non-invasive scale-barcode wrapper for the POS.
+   -------------------------------------------------------------------------------------
+   Place <ScaleBarcodeInterceptor /> once in a layout that hosts the interactive POS
+   (PosLayout.razor). It renders nothing; it only:
+     1. imports /scaleBarcode.js as an ES module,
+     2. passes the appsettings config down to the JS interceptor,
+     3. activates the interceptor only while the current route is the POS page,
+     4. receives the parsed EAN-13 payload via [JSInvokable], rebuilds a canonical
+        barcode that the EXISTING Pos.razor handler understands (BarcodeParser rule
+        from SystemSettings), and re-injects it into the POS search field + Enter.
+   No core page, DB schema, or backend business logic is modified.
+   ===================================================================================== *@
+@using Microsoft.Extensions.Options
+@implements IAsyncDisposable
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject IOptions<ERPSystem.Web.Configuration.ScaleBarcodeSettings> ScaleOptions
+@inject ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService
+
+@code {
+    private IJSObjectReference? _module;
+    private DotNetObjectReference<ScaleBarcodeInterceptor>? _selfRef;
+    private bool _enabled;
+    private ERPSystem.Application.Services.WeightBarcodeRule? _cachedRule;
+    private DateTime _ruleCachedAt;
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // firstRender fires again when the interactive circuit starts, so the JS
+        // module is only imported when IJSRuntime is actually available.
+        if (!firstRender) return;
+        try { await InitAsync(); } catch { /* prerender / JS unavailable */ }
+    }
+
+    private async Task InitAsync()
+    {
+        var cfg = ScaleOptions.Value;
+        if (!cfg.Enabled) return;
+
+        _module = await JS.InvokeAsync<IJSObjectReference>("import", "./scaleBarcode.js");
+
+        _selfRef = DotNetObjectReference.Create(this);
+        await _module.InvokeVoidAsync("init", _selfRef, new
+        {
+            prefixes = cfg.Prefixes,
+            mode = cfg.Mode,
+            divisor = cfg.Divisor,
+            scanSpeedMs = cfg.ScanSpeedMs,
+            searchSelector = cfg.SearchSelector
+        });
+
+        ApplyEnabledState();
+        Nav.LocationChanged += OnLocationChanged;
+    }
+
+    private void OnLocationChanged(object? sender, LocationChangedEventArgs e) => ApplyEnabledState();
+
+    private async Task SetEnabledInJsAsync(bool enabled)
+    {
+        if (_module is null) return;
+        try { await _module.InvokeVoidAsync("setEnabled", enabled); }
+        catch { }
+    }
+
+    private void ApplyEnabledState()
+    {
+        var onPage = Nav.Uri.Contains(ScaleOptions.Value.PagePath, StringComparison.OrdinalIgnoreCase);
+        var newValue = onPage && ScaleOptions.Value.Enabled;
+        if (newValue == _enabled) return;
+        _enabled = newValue;
+        _ = SetEnabledInJsAsync(newValue);
+    }
+
+    /// <summary>
+    /// Called by scaleBarcode.js after a valid EAN-13 scale barcode is captured.
+    /// Rebuilds a barcode string the existing Pos.razor BarcodeParser rule understands
+    /// and injects it into the POS search field (falls back to the raw code).
+    /// </summary>
+    [JSInvokable("ReceiveScaleBarcode")]
+    public async Task ReceiveScaleBarcode(ERPSystem.Web.Configuration.ScaleBarcodePayload payload)
+    {
+        if (!_enabled || payload is null) return;
+        try
+        {
+            var rule = await GetBarcodeRuleAsync();
+            var code = BuildCanonicalCode(payload, rule) ?? payload.Raw;
+            if (_module is not null)
+                await _module.InvokeAsync<bool>("injectBarcode", code);
+        }
+        catch
+        {
+            // Non-invasive: an interceptor failure must never break the POS flow.
+        }
+    }
+
+    /// <summary>Reads the DB-configured weight barcode rule once and caches it briefly.</summary>
+    private async Task<ERPSystem.Application.Services.WeightBarcodeRule?> GetBarcodeRuleAsync()
+    {
+        var cfg = ScaleOptions.Value;
+        if (cfg.RuleCacheSeconds > 0 && _cachedRule is not null
+            && DateTime.UtcNow - _ruleCachedAt < TimeSpan.FromSeconds(cfg.RuleCacheSeconds))
+            return _cachedRule;
+
+        ERPSystem.Application.Services.WeightBarcodeRule? rule = null;
+        try
+        {
+            var settings = await SettingsService.GetAsync();
+            rule = ERPSystem.Application.Services.WeightBarcodeRule.FromJson(settings.WeightBarcodeRuleJson);
+        }
+        catch { /* keep null -> raw fallback */ }
+
+        if (cfg.RuleCacheSeconds > 0)
+        {
+            _cachedRule = rule;
+            _ruleCachedAt = DateTime.UtcNow;
+        }
+        return rule;
+    }
+
+    /// <summary>
+    /// Lays the parsed payload into the exact field positions defined by the existing
+    /// WeightBarcodeRule (prefix / item-code / value) so the EXISTING POS parser
+    /// reconstructs the same SKU + weight/price. Returns null when no rule is set.
+    /// </summary>
+    private static string? BuildCanonicalCode(
+        ERPSystem.Web.Configuration.ScaleBarcodePayload payload,
+        ERPSystem.Application.Services.WeightBarcodeRule? rule)
+    {
+        if (rule is null || string.IsNullOrWhiteSpace(rule.Prefix)) return null;
+        if (rule.ItemCodeLength <= 0 && rule.ValueLength <= 0) return null;
+
+        int length = 0;
+        if (rule.ItemCodeLength > 0) length = Math.Max(length, rule.ItemCodeStart + rule.ItemCodeLength);
+        if (rule.ValueLength > 0) length = Math.Max(length, rule.ValueStart + rule.ValueLength);
+        if (length <= 0) return null;
+
+        var chars = new char[length];
+        Array.Fill(chars, '0');
+
+        // Prefix (rule.Prefix defines which prefix the deployed scale prints).
+        for (int i = 0; i < rule.Prefix.Length && i < length; i++)
+            chars[i] = rule.Prefix[i];
+
+        // Item code (digits 3-7 from the EAN-13 scan, zero-padded to field width).
+        var sku = payload.Sku?.Trim() ?? string.Empty;
+        if (rule.ItemCodeLength > 0 && rule.ItemCodeStart + rule.ItemCodeLength <= length)
+        {
+            var skuPart = sku.PadLeft(rule.ItemCodeLength, '0');
+            if (skuPart.Length > rule.ItemCodeLength)
+                skuPart = skuPart.Substring(skuPart.Length - rule.ItemCodeLength);
+            for (int i = 0; i < rule.ItemCodeLength; i++)
+                chars[rule.ItemCodeStart + i] = skuPart[i];
+        }
+
+        // Value (weight or price), encoded as integer with implicit decimal places.
+        if (rule.ValueLength > 0 && rule.ValueStart + rule.ValueLength <= length)
+        {
+            var factor = (decimal)Math.Pow(10, rule.DecimalPlaces);
+            var whole = (long)Math.Round(Math.Abs(payload.Value) * factor, MidpointRounding.AwayFromZero);
+            var valuePart = whole.ToString().PadLeft(rule.ValueLength, '0');
+            if (valuePart.Length > rule.ValueLength)
+                valuePart = valuePart.Substring(valuePart.Length - rule.ValueLength);
+            for (int i = 0; i < rule.ValueLength; i++)
+                chars[rule.ValueStart + i] = valuePart[i];
+        }
+
+        return new string(chars);
+    }
+
+    public async ValueTask DisposeAsync()
+    {
+        try { Nav.LocationChanged -= OnLocationChanged; } catch { }
+        try { if (_module is not null) await _module.DisposeAsync(); } catch { }
+        _selfRef?.Dispose();
+        _selfRef = null;
+    }
+}

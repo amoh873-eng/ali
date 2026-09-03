@@ -1,0 +1,55 @@
+@* مقارنة الفترات مصغّرة (سطر واحد لكل فترة) — مناسبة للبطاقات الضيقة في لوحة التحكم.
+   هذا الشهر / الشهر الماضي / نفس الشهر العام الماضي، مع نسبة تغيّر ملوّنة.
+   UpIsGood = هل الارتفاع "جيد" (مبيعات/إيراد/دخل) أم "سيئ" (مصروف). *@
+@inject IStringLocalizer<SharedResources> Loc
+
+<div class="erp-period-comp">
+    <div class="d-flex align-center justify-space-between" style="gap:6px">
+        <MudText Typo="@Typo.overline" Style="color:var(--erp-muted);font-size:0.68rem">@Loc["PerCur"]</MudText>
+        <MudText Typo="@Typo.body2" Style="white-space:nowrap"><MoneyDisplay Amount="Current" /></MudText>
+    </div>
+    <div class="d-flex align-center justify-space-between" style="gap:6px">
+        <MudText Typo="@Typo.overline" Style="color:var(--erp-muted);font-size:0.68rem">@Loc["PerPrev"]</MudText>
+        <div class="d-flex align-center" style="gap:4px">
+            <MudText Typo="@Typo.body2" Style="white-space:nowrap"><MoneyDisplay Amount="Previous" /></MudText>
+            @Badge(MomPct)
+        </div>
+    </div>
+    <div class="d-flex align-center justify-space-between" style="gap:6px">
+        <MudText Typo="@Typo.overline" Style="color:var(--erp-muted);font-size:0.68rem">@Loc["PerYearAgo"]</MudText>
+        <div class="d-flex align-center" style="gap:4px">
+            <MudText Typo="@Typo.body2" Style="white-space:nowrap"><MoneyDisplay Amount="YearAgo" /></MudText>
+            @Badge(YoyPct)
+        </div>
+    </div>
+</div>
+
+@code {
+    /// <summary>قيمة الفترة الحالية (هذا الشهر).</summary>
+    [Parameter] public decimal Current { get; set; }
+    /// <summary>قيمة الفترة السابقة (الشهر الماضي).</summary>
+    [Parameter] public decimal Previous { get; set; }
+    /// <summary>قيمة نفس الفترة من العام الماضي.</summary>
+    [Parameter] public decimal YearAgo { get; set; }
+    /// <summary>هل الارتفاع دائماً جيد؟ (false للمصروفات — الارتفاع سيئ).</summary>
+    [Parameter] public bool UpIsGood { get; set; } = true;
+
+    private decimal? MomPct => Pct(Previous, Current);
+    private decimal? YoyPct => Pct(YearAgo, Current);
+
+    private static decimal? Pct(decimal baseVal, decimal cur)
+        => baseVal == 0 ? null : Math.Round((cur - baseVal) / Math.Abs(baseVal) * 100m, 1);
+
+    private RenderFragment Badge(decimal? pct)
+    {
+        if (!pct.HasValue) return b => b.AddContent(0, "");
+        var up = pct.Value >= 0;
+        var good = UpIsGood ? up : !up;
+        var color = good ? "#10B981" : "#EF4444";
+        var arrow = up ? "&#9650;" : "&#9660;";
+        var sign = pct.Value > 0 ? "+" : "";
+        var html = "<span style=\"color:" + color + ";font-weight:700;font-size:0.7rem\">" + arrow + " " + sign
+                 + pct.Value.ToString("0.0") + "%</span>";
+        return b => b.AddContent(0, new MarkupString(html));
+    }
+}

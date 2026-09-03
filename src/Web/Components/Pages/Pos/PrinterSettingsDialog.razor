@@ -1,0 +1,91 @@
+@* حوار إعدادات الطابعة: ترويسة اسم المنشأة + رقم الهاتف + كلمة ترحيبية + مقاس ورق الحرارة
+   (يُحفظ في localStorage عبر erpSavePrinterSettings ويُطبَّق على إيصال نقطة البيع). *@
+@inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime Js
+
+<MudDialog>
+    <TitleContent>
+        <div class="d-flex align-center" style="gap:8px;">
+            <MudIcon Icon="@Icons.Material.Filled.Print" Color="Color.Primary" />
+            <MudText Typo="Typo.h6">@Loc["PrinterSettings"]</MudText>
+        </div>
+    </TitleContent>
+    <DialogContent>
+        <div style="display:flex; flex-direction:column; gap:16px;">
+            @* ترويسة الإيصال: اسم المنشأة *@
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["EstablishmentName"]</MudText>
+                <MudTextField T="string" @bind-Value="_shopName" Variant="Variant.Outlined"
+                              Placeholder="@Loc["EstablishmentNamePh"]" />
+            </div>
+
+            @* رقم الهاتف *@
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PhoneNumber"]</MudText>
+                <MudTextField T="string" @bind-Value="_phone" Variant="Variant.Outlined"
+                              Placeholder="@Loc["PhoneNumberPh"]" />
+            </div>
+
+            @* كلمة ترحيبية في نهاية الإيصال *@
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["WelcomeMessage"]</MudText>
+                <MudTextField T="string" @bind-Value="_thanks" Variant="Variant.Outlined"
+                              Placeholder="@Loc["WelcomeMessagePh"]" />
+            </div>
+
+            @* مقاس ورق الطابعة الحرارية (المقاسات العالمية القياسية) *@
+            <div>
+                <MudText Typo="Typo.subtitle2">@Loc["PaperSize"]</MudText>
+                <MudSelect T="string" @bind-Value="_paper" Variant="Variant.Outlined">
+                    <MudSelectItem T="string" Value="@("80")">@Loc["Paper80"]</MudSelectItem>
+                    <MudSelectItem T="string" Value="@("58")">@Loc["Paper58"]</MudSelectItem>
+                </MudSelect>
+                <MudText Typo="Typo.caption" Style="color:var(--erp-muted); margin-top:4px;">@Loc["PaperHint"]</MudText>
+            </div>
+        </div>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SaveAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["Save"]</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private string _shopName = "";
+    private string _phone = "";
+    private string _thanks = "";
+    private string _paper = "80";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var json = await Js.InvokeAsync<string?>("erpLoadPrinterSettings");
+            if (string.IsNullOrEmpty(json)) return;
+            using var doc = System.Text.Json.JsonDocument.Parse(json);
+            var r = doc.RootElement;
+            if (r.TryGetProperty("shopName", out var a)) _shopName = a.GetString() ?? "";
+            if (r.TryGetProperty("phone", out var b)) _phone = b.GetString() ?? "";
+            if (r.TryGetProperty("thanks", out var c)) _thanks = c.GetString() ?? "";
+            if (r.TryGetProperty("paper", out var d)) _paper = d.GetString() ?? "80";
+        }
+        catch { /* ignore */ }
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SaveAsync()
+    {
+        var json = System.Text.Json.JsonSerializer.Serialize(new
+        {
+            shopName = _shopName,
+            phone = _phone,
+            thanks = _thanks,
+            paper = _paper
+        });
+        await Js.InvokeVoidAsync("erpSavePrinterSettings", json);
+        MudDialog.Close(DialogResult.Ok(true));
+    }
+}

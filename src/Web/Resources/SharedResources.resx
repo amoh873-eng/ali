@@ -209,11 +209,29 @@
   <data name="PosButtonSize" xml:space="preserve"><value>حجم الأزرار</value></data>
   <data name="PosAccentColor" xml:space="preserve"><value>لون المنتجات</value></data>
   <data name="PosCartWidth" xml:space="preserve"><value>عرض السلة</value></data>
+  <data name="PosHideItems" xml:space="preserve"><value>إخفاء المنتجات والتصنيفات</value></data>
+  <data name="PosHideItemsHint" xml:space="preserve"><value>تتوسّع السلة لملء المساحة المتبقية دون تغيير حجم عناصرها</value></data>
+  <data name="PosHideCustomer" xml:space="preserve"><value>إخفاء حقل العميل</value></data>
+  <data name="PosHideCustomerHint" xml:space="preserve"><value>عند إخفاء العميل يُستخدم عميل «نقدي» تلقائياً</value></data>
+  <data name="PosHideDiscount" xml:space="preserve"><value>إخفاء حقل الخصم</value></data>
+  <data name="PosHideDiscountHint" xml:space="preserve"><value>يُطبّق الخصم صفراً عند الإخفاء</value></data>
   <data name="Small" xml:space="preserve"><value>صغير</value></data>
   <data name="Medium" xml:space="preserve"><value>متوسط</value></data>
   <data name="Large" xml:space="preserve"><value>كبير</value></data>
   <data name="PosInsufficient" xml:space="preserve"><value>المبلغ المستلم غير كافٍ</value></data>
   <data name="PosCreditNeedsCustomer" xml:space="preserve"><value>البيع الآجل يتطلب اختيار عميل حقيقي</value></data>
+  <data name="PosNoCustomer" xml:space="preserve"><value>يرجى اختيار عميل</value></data>
+  <data name="PrinterSettings" xml:space="preserve"><value>إعدادات الطابعة</value></data>
+  <data name="EstablishmentName" xml:space="preserve"><value>اسم المنشأة (الترويسة)</value></data>
+  <data name="EstablishmentNamePh" xml:space="preserve"><value>مثال: النسر الذهبي للتجارة</value></data>
+  <data name="PhoneNumber" xml:space="preserve"><value>رقم الهاتف</value></data>
+  <data name="PhoneNumberPh" xml:space="preserve"><value>مثال: 07XXXXXXXX</value></data>
+  <data name="WelcomeMessage" xml:space="preserve"><value>الكلمة الترحيبية</value></data>
+  <data name="WelcomeMessagePh" xml:space="preserve"><value>مثال: شكراً لزيارتكم، نتمنى لكم يوماً سعيداً</value></data>
+  <data name="PaperSize" xml:space="preserve"><value>مقاس ورق الطابعة الحرارية</value></data>
+  <data name="Paper80" xml:space="preserve"><value>80 ملم (المقاس القياسي لطابعات الكاشير)</value></data>
+  <data name="Paper58" xml:space="preserve"><value>58 ملم (الطابعات المحمولة / الصغيرة)</value></data>
+  <data name="PaperHint" xml:space="preserve"><value>المقاسات العالمية الشائعة: 80مم بمنطقة طباعة ≈72مم، و58مم بمنطقة طباعة ≈48مم</value></data>
   <data name="PosNoWarehouse" xml:space="preserve"><value>لا يوجد مخزن افتراضي</value></data>
   <data name="SubTotal" xml:space="preserve"><value>الإجمالي الفرعي</value></data>
   <data name="DiscountAmount" xml:space="preserve"><value>الخصم</value></data>
@@ -435,6 +453,8 @@
   <data name="DeleteItemConfirm" xml:space="preserve"><value>هل أنت متأكد من حذف الصنف '{0}'؟</value></data>
   <data name="AddItemTitle" xml:space="preserve"><value>إضافة صنف جديد</value></data>
   <data name="EditItemTitle" xml:space="preserve"><value>تعديل صنف: {0}</value></data>
+  <data name="ItemImage" xml:space="preserve"><value>صورة الصنف</value></data>
+  <data name="ItemImageHint" xml:space="preserve"><value>اختر صورة (JPG/PNG — حتى 5MB) لتظهر في أزرار نقطة البيع وبطاقة المادة</value></data>
   <data name="ItemCode" xml:space="preserve"><value>كود الصنف</value></data>
   <data name="ItemCodeRequired" xml:space="preserve"><value>كود الصنف مطلوب</value></data>
   <data name="Barcode" xml:space="preserve"><value>الباركود</value></data>
@@ -759,4 +779,126 @@
   <data name="Resume" xml:space="preserve"><value>استئناف</value></data>
   <data name="Discard" xml:space="preserve"><value>إلغاء</value></data>
   <data name="HeldDiscarded" xml:space="preserve"><value>تم إلغاء العملية الموقوفة</value></data>
-</root>
+  <data name="ScaleSettingsTitle" xml:space="preserve"><value>باركود الميزان الإلكتروني</value></data>
+  <data name="ScaleSettingsSubtitle" xml:space="preserve"><value>قراءة الباركود الموزون (لحوم، دواجن، ألبان، خضار) في نقطة البيع — تنسيق EAN-13</value></data>
+  <data name="ScaleEnabled" xml:space="preserve"><value>تفعيل الباركود الموزون</value></data>
+  <data name="ScaleDisabledHint" xml:space="preserve"><value>عند التعطيل تُعامل كل المسوحات كبحث عادي بحقل الباركود</value></data>
+  <data name="ScaleBarcodeFormat" xml:space="preserve"><value>تنسيق EAN-13: بادئة (رقمين) + رمز الصنف + الوزن/السعر + خانة تحقق</value></data>
+  <data name="ScalePrefix" xml:space="preserve"><value>بادئة الميزان (مثال 21)</value></data>
+  <data name="ScaleItemCodeStart" xml:space="preserve"><value>بداية رمز الصنف</value></data>
+  <data name="ScaleItemCodeLength" xml:space="preserve"><value>طول رمز الصنف</value></data>
+  <data name="ScaleValueStart" xml:space="preserve"><value>بداية القيمة</value></data>
+  <data name="ScaleValueLength" xml:space="preserve"><value>طول القيمة</value></data>
+  <data name="ScaleValueType" xml:space="preserve"><value>نوع القيمة المدمجة</value></data>
+  <data name="ScaleWeight" xml:space="preserve"><value>وزن (يُضرب بسعر الكيلو)</value></data>
+  <data name="ScalePrice" xml:space="preserve"><value>سعر نهائي (بدون ضرب)</value></data>
+  <data name="ScaleDecimalPlaces" xml:space="preserve"><value>عدد المنازل العشرية الضمنية</value></data>
+  <data name="ScaleExample" xml:space="preserve"><value>مثال: البادئة 21 + رمز 10001 + الوزن 01500 = صنف 10001 بوزن 1.500 كغ</value></data>
+  <data name="ScaleSave" xml:space="preserve"><value>حفظ إعدادات الميزان</value></data>
+  <data name="ScaleSaved" xml:space="preserve"><value>تم حفظ إعدادات باركود الميزان بنجاح</value></data>
+  <data name="ScaleInvalid" xml:space="preserve"><value>بيانات القاعدة غير صحيحة — تحقق من المواضع والأطوال</value></data>
+  <data name="ScaleDemoTenHint" xml:space="preserve"><value>الأصناف التجريبية للميزان (لحم، دواجن، ألبان، خضار، عسل) جاهزة في نقطة البيع بأكواد 10001–10010</value></data>
+  <data name="SalesTaxReport" xml:space="preserve"><value>تقرير ضريبة المبيعات</value></data>
+  <data name="SalesTaxReportSubtitle" xml:space="preserve"><value>ملخص فواتير المبيعات حسب شرائح الضريبة مع إجماليات التحقق</value></data>
+  <data name="GenerateReport" xml:space="preserve"><value>توليد التقرير</value></data>
+  <data name="SelectDateRange" xml:space="preserve"><value>حدد نطاق تاريخ ثم اضغط توليد التقرير</value></data>
+  <data name="NoInvoicesForRange" xml:space="preserve"><value>لا توجد فواتير مبيعات في هذه الفترة</value></data>
+  <data name="VoucherRef" xml:space="preserve"><value>القيود / مرجع المستند</value></data>
+  <data name="TaxDescription" xml:space="preserve"><value>وصف الضريبة</value></data>
+  <data name="TaxRate" xml:space="preserve"><value>نسبة الضريبة</value></data>
+  <data name="InvoicesCount" xml:space="preserve"><value>عدد الفواتير</value></data>
+  <data name="GrossSales" xml:space="preserve"><value>إجمالي المبيعات</value></data>
+  <data name="ArAging" xml:space="preserve"><value>أعمار الذمم - عملاء</value></data>
+  <data name="ApAging" xml:space="preserve"><value>أعمار الذمم - موردون</value></data>
+  <data name="PartyName" xml:space="preserve"><value>الطرف</value></data>
+  <data name="Bucket0_30" xml:space="preserve"><value>0-30</value></data>
+  <data name="Bucket31_60" xml:space="preserve"><value>31-60</value></data>
+  <data name="Bucket61_90" xml:space="preserve"><value>61-90</value></data>
+  <data name="Bucket90Plus" xml:space="preserve"><value>90+</value></data>
+  <data name="BucketTotal" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="DrillDown" xml:space="preserve"><value>التعمّق</value></data>
+  <data name="OpenInvoices" xml:space="preserve"><value>الفواتير المفتوحة</value></data>
+  <data name="AgingInvoiceDate" xml:space="preserve"><value>تاريخ الفاتورة</value></data>
+  <data name="AgingDueDate" xml:space="preserve"><value>الاستحقاق</value></data>
+  <data name="AgingDaysOverdue" xml:space="preserve"><value>أيام التجاوز</value></data>
+  <data name="AgingBalance" xml:space="preserve"><value>الرصيد</value></data>
+  <data name="NoOpenInvoices" xml:space="preserve"><value>لا توجد فواتير مفتوحة في هذا النطاق</value></data>
+  <data name="ConcentrationRisk" xml:space="preserve"><value>مخاطر التركيز</value></data>
+  <data name="Top5Customers" xml:space="preserve"><value>أعلى 5 عملاء حسب المبيعات</value></data>
+  <data name="AgingCustomer" xml:space="preserve"><value>العميل</value></data>
+  <data name="PercentOfSales" xml:space="preserve"><value>% من المبيعات</value></data>
+  <data name="ConcentrationWarning" xml:space="preserve"><value>⚠️ أعلى 5 عملاء يتجاوزون 70% من إجمالي المبيعات — خطر تركيز مرتفع</value></data>
+  <data name="FinancialRatios" xml:space="preserve"><value>المؤشرات المالية</value></data>
+  <data name="RatiosLiquidity" xml:space="preserve"><value>السيولة</value></data>
+  <data name="RatiosProfitability" xml:space="preserve"><value>الربحية</value></data>
+  <data name="RatiosEfficiency" xml:space="preserve"><value>الكفاءة التشغيلية</value></data>
+  <data name="CurrentPeriod" xml:space="preserve"><value>الفترة الحالية</value></data>
+  <data name="PreviousPeriod" xml:space="preserve"><value>الفترة السابقة</value></data>
+  <data name="RatioCurrentRatio" xml:space="preserve"><value>النسبة المتداولة</value></data>
+  <data name="RatioCurrentRatioDesc" xml:space="preserve"><value>تقييم القدرة على تغطية الالتزامات قصيرة الأجل</value></data>
+  <data name="RatioQuickRatio" xml:space="preserve"><value>النسبة السريعة</value></data>
+  <data name="RatioQuickRatioDesc" xml:space="preserve"><value>السيولة دون الاعتماد على المخزون</value></data>
+  <data name="RatioGrossMargin" xml:space="preserve"><value>هامش الربح الإجمالي</value></data>
+  <data name="RatioGrossMarginDesc" xml:space="preserve"><value>ربحية المبيعات قبل المصروفات التشغيلية</value></data>
+  <data name="RatioNetMargin" xml:space="preserve"><value>هامش الربح الصافي</value></data>
+  <data name="RatioNetMarginDesc" xml:space="preserve"><value>صافي الربح مقابل الإيرادات</value></data>
+  <data name="RatioRoa" xml:space="preserve"><value>العائد على الأصول (ROA)</value></data>
+  <data name="RatioRoaDesc" xml:space="preserve"><value>كفاءة استخدام الأصول لتوليد الربح</value></data>
+  <data name="RatioInventoryTurnover" xml:space="preserve"><value>دوران المخزون</value></data>
+  <data name="RatioInventoryTurnoverDesc" xml:space="preserve"><value>كم مرة يباع المخزون ويُستبدل في الفترة</value></data>
+  <data name="RatioArTurnover" xml:space="preserve"><value>دوران الذمم المدينة</value></data>
+  <data name="RatioArTurnoverDesc" xml:space="preserve"><value>كفاءة تحصيل مستحقات العملاء</value></data>
+  <data name="RatioDso" xml:space="preserve"><value>أيام تحصيل الذمم (DSO)</value></data>
+  <data name="RatioDsoDesc" xml:space="preserve"><value>متوسط أيام تحصيل مستحقات العملاء</value></data>
+  <data name="RatioDpo" xml:space="preserve"><value>أيام سداد الذمم الدائنة (DPO)</value></data>
+  <data name="RatioDpoDesc" xml:space="preserve"><value>متوسط أيام سداد التزامات الموردين</value></data>
+  <data name="RatioCcc" xml:space="preserve"><value>دورة التحويل النقدي (CCC)</value></data>
+  <data name="RatioCccDesc" xml:space="preserve"><value>الأيام بين دفع المخزون وتحصيل المبيعات</value></data>
+  <data name="CashFlow" xml:space="preserve"><value>قائمة التدفق النقدي</value></data>
+  <data name="CashFlowOperating" xml:space="preserve"><value>التدفق التشغيلي</value></data>
+  <data name="CashFlowInvesting" xml:space="preserve"><value>التدفق الاستثماري</value></data>
+  <data name="CashFlowFinancing" xml:space="preserve"><value>التدفق التمويلي</value></data>
+  <data name="CashFlowNetIncome" xml:space="preserve"><value>صافي الدخل</value></data>
+  <data name="CashFlowAdjAR" xml:space="preserve"><value>(زيادة)/نقصان الذمم المدينة</value></data>
+  <data name="CashFlowAdjInv" xml:space="preserve"><value>(زيادة)/نقصان المخزون</value></data>
+  <data name="CashFlowAdjAP" xml:space="preserve"><value>زيادة/(نقصان) الذمم الدائنة</value></data>
+  <data name="CashFlowAdjOtherLiab" xml:space="preserve"><value>زيادة/(نقصان) الخصوم المتداولة الأخرى</value></data>
+  <data name="CashFlowSubtotal" xml:space="preserve"><value>الإجمالي الفرعي للقسم</value></data>
+  <data name="CashFlowNetChange" xml:space="preserve"><value>صافي التغيير في النقدية</value></data>
+  <data name="CashFlowBeginningCash" xml:space="preserve"><value>رصيد النقدية الافتتاحي</value></data>
+  <data name="CashFlowEndingCash" xml:space="preserve"><value>رصيد النقدية الختامي</value></data>
+  <data name="ItemProfitability" xml:space="preserve"><value>ربحية الأصناف</value></data>
+  <data name="QtySoldLabel" xml:space="preserve"><value>الكمية المباعة</value></data>
+  <data name="RevenueLabel" xml:space="preserve"><value>الإيراد</value></data>
+  <data name="CostLabel" xml:space="preserve"><value>التكلفة</value></data>
+  <data name="MarginLabel" xml:space="preserve"><value>هامش المساهمة</value></data>
+  <data name="MarginPctLabel" xml:space="preserve"><value>هامش%</value></data>
+  <data name="SortByLabel" xml:space="preserve"><value>الترتيب حسب</value></data>
+  <data name="SortByMargin" xml:space="preserve"><value>هامش المساهمة</value></data>
+  <data name="SortByRevenue" xml:space="preserve"><value>الإيراد</value></data>
+  <data name="SortByMarginPct" xml:space="preserve"><value>نسبة الهامش</value></data>
+  <data name="SlowMovingStock" xml:space="preserve"><value>بطيء الحركة / خامل</value></data>
+  <data name="DaysWithoutSaleLabel" xml:space="preserve"><value>عدد الأيام دون بيع</value></data>
+  <data name="NeverSold" xml:space="preserve"><value>لم يُبع مسبقاً</value></data>
+  <data name="NoStagnantItems" xml:space="preserve"><value>لا توجد أصناف راكدة في هذه الفترة</value></data>
+  <data name="StockQtyLabel" xml:space="preserve"><value>كمية المخزون</value></data>
+  <data name="StockValueLabel" xml:space="preserve"><value>قيمة المخزون</value></data>
+  <data name="AbcAnalysis" xml:space="preserve"><value>تصنيف ABC</value></data>
+  <data name="AbcNote" xml:space="preserve"><value>أساس قيمة المخزون (كمية × تكلفة): A حتى 80% تراكمي، B حتى 95%، C باقي الأصناف</value></data>
+  <data name="TierLabel" xml:space="preserve"><value>الفئة</value></data>
+  <data name="SharePctLabel" xml:space="preserve"><value>النسبة</value></data>
+  <data name="CumulativePctLabel" xml:space="preserve"><value>النسبة التراكمية</value></data>
+  <data name="DaysSinceLastSaleLabel" xml:space="preserve"><value>أيام منذ آخر بيع</value></data>
+  <data name="NoStockItems" xml:space="preserve"><value>لا توجد أصناف بكمية مخزون</value></data>
+  <data name="PleaseSelectRange" xml:space="preserve"><value>يرجى تحديد الفترة</value></data>
+  <data name="InvertedDates" xml:space="preserve"><value>تاريخ البداية بعد نهاية الفترة</value></data>
+  <data name="EnterValidDays" xml:space="preserve"><value>يرجى إدخال عدد أيام صحيح</value></data>
+  <data name="PerCur" xml:space="preserve"><value>هذا الشهر</value></data>
+  <data name="PerPrev" xml:space="preserve"><value>الشهر الماضي</value></data>
+  <data name="PerYearAgo" xml:space="preserve"><value>نفس الشهر عام ماضٍ</value></data>
+  <data name="Seasonality" xml:space="preserve"><value>الموسمية</value></data>
+  <data name="MonthsRow" xml:space="preserve"><value>الأشهر (1-12) — كل مجموعة أعمدة سنة</value></data>
+  <data name="Year" xml:space="preserve"><value>السنة</value></data>
+  <data name="AnnualTotal" xml:space="preserve"><value>إجمالي السنة</value></data>
+  <data name="GrandTotal" xml:space="preserve"><value>الإجمالي الكلي</value></data>
+  </root>

@@ -43,6 +43,7 @@
 .pos-item-icon { font-size: calc(2.6rem * var(--pos-scale, 1)); color: #fff; }
 .pos-item-name { font-weight: 800; text-align: center; font-size: calc(1.05rem * var(--pos-scale, 1)); color: #fff; line-height: 1.25; }
 .pos-item-price { font-weight: 800; font-size: calc(1rem * var(--pos-scale, 1)); color: #FDE68A; }
+.pos-item-img { width: calc(56px * var(--pos-scale, 1)); height: calc(56px * var(--pos-scale, 1)); object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,.7); }
 
 .pos-cart { width: var(--pos-cart-w, 720px); min-width: var(--pos-cart-w, 720px); display: flex; flex-direction: row; gap: 14px; background: #fff; border-inline-start: 1px solid #E5E7EB; padding: 14px; overflow: hidden; min-height: 0; }
 .pos-cart-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
@@ -87,6 +88,11 @@
     background: linear-gradient(180deg, #8B5CF6 0%, #6D5BD0 100%);
     color: #fff;
     box-shadow: 0 3px 0 #46359E, 0 8px 16px rgba(109,91,208,.38);
+}
+.pos-pay.pos-pay-new-invoice {
+    background: linear-gradient(180deg, #34D399 0%, #10B981 100%);
+    color: #fff;
+    box-shadow: 0 3px 0 #059669, 0 8px 16px rgba(16,185,129,.35);
 }
 .pos-change { font-weight: 800; font-size: 1.6rem; color: #10B981; text-align: center; }
 .pos-change.negative { color: #EF4444; }
@@ -134,3 +140,40 @@
     box-shadow: 0 4px 0 #6B7280 !important;
     transform: none !important;
 }
+
+/* ── وضع إخفاء المنتجات والتصنيفات (من إعدادات نقطة البيع) ──
+   تُخفى منطقة الأصناف/التصنيفات بالكامل وتتمدد السلة لملء المساحة المتبقية،
+   مع بقاء حجم عناصر السلة الداخلية (أعمدة يسار/يمين) كما هي. */
+.pos-hide-items .pos-items { display: none; }
+.pos-hide-items .pos-cart { width: auto; min-width: 0; flex: 1; }
+
+/* ── القائمة المنسدلة للبحث الفوري (تظهر عند كتابة أول حرف) ── */
+.pos-search { position: relative; }
+.pos-search-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    right: 0;
+    left: 0;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-radius: 8px;
+    box-shadow: 0 8px 24px rgba(0, 0, 0, .12);
+    max-height: 320px;
+    overflow-y: auto;
+    z-index: 1200;
+}
+.pos-search-option {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    width: 100%;
+    padding: 10px 12px;
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    text-align: right;
+    border-bottom: 1px solid #F1F2F6;
+}
+.pos-search-option:hover { background: #F5F3FF; }
+.pos-search-opt-name { font-weight: 600; }
+.pos-search-opt-price { color: #6D5BD0; font-weight: 800; font-size: .85rem; white-space: nowrap; }

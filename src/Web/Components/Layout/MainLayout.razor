@@ -158,19 +158,26 @@ MudLayout: التخطيط الرئيسي للصفحة.
     private List<ERPSystem.Application.DTOs.Notifications.NotificationDto> _recentNotifications = new();
     protected override async Task OnInitializedAsync()
     {
-        // استعلامات التخطيط تُنفَّذ داخل نطاق DI مستقل (Scope) بدلاً من الخدمات المشتركة
-        // للدائرة، لأن جميع مكوّنات Blazor Server في الدائرة تتقاسم نسخة AppDbContext
-        // المسجّلة Scoped، وأي عمليتين متزامنتين على نفس السياق تسببان خطأ
-        // "A second operation was started on this context instance...".
-        // النطاق المستقل يمنح كل عملية سياق قاعدة بيانات جديداً فلا تتعارض مع استعلامات الصفحة.
-        await LoadCurrentUserAsync();
-        await LoadNotificationsAsync();
-        using (var scope = ScopeFactory.CreateScope())
+        // مهم: لا ننفّذ أي استعلامات قاعدة بيانات هنا عمداً.
+        // جميع مكوّنات الرندر الواحد (التخطيط MainLayout + الصفحة مثل لوحة التحكم)
+        // تبدأ تهيئتها في نفس الوقت، وكلها تتقاسم نسخة واحدة من AppDbContext (Scoped).
+        // أي استعلامين متزامنين على نفس السياق يُرميان خطأ
+        // "A second operation was started on this context instance..." الذي كان يظهر
+        // على لوحة التحكم. لذلك تؤجَّل استعلامات قاعدة البيانات إلى ما بعد أول رندر
+        // (OnAfterRenderAsync) لتُنفَّذ بعد انتهاء استعلامات الصفحة وبشكلٍ متسلسل.
+        await Task.CompletedTask;
+    }
+
+    /// <summary>تحميل إعدادات النظام (الاسم، الشعار، اللون، مدة الترخيص) — مؤجَّل بعد أول رندر لتجنّب تداخل DbContext.</summary>
+    private async Task LoadSettingsAsync()
+    {
+        // استعلامات الإعدادات تُنفَّذ داخل نطاق DI مستقل ليحصل على نسخة AppDbContext
+        // خاصة به، فلا يتعارض مع استعلامات الصفحة الجارية على سياق الدائرة المشترك.
+        using var scope = ScopeFactory.CreateScope();
+        var settingsService = scope.ServiceProvider.GetRequiredService<ERPSystem.Application.Interfaces.ISystemSettingsService>();
+        try
         {
-            var settingsService = scope.ServiceProvider.GetRequiredService<ERPSystem.Application.Interfaces.ISystemSettingsService>();
-            try
-            {
-                var s = await settingsService.GetAsync();
+            var s = await settingsService.GetAsync();
             _displayName = s.AppDisplayName;
             _logoUrl = s.LogoUrl;
             _primaryHex = s.PrimaryColorHex;
@@ -187,7 +194,6 @@ MudLayout: التخطيط الرئيسي للصفحة.
             }
         }
         catch { }
-        }
     }
 
     /// <summary>يقرأ معرّف المستخدم الحالي (مفتاح AspNetUsers.Id) لاستعلام إشعاراته.</summary>
@@ -248,10 +254,23 @@ MudLayout: التخطيط الرئيسي للصفحة.
     [Inject] private Microsoft.JSInterop.IJSRuntime JS { get; set; } = default!;
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
-        if (firstRender && !string.IsNullOrWhiteSpace(_primaryHex))
+        if (!firstRender) { return; }
+
+        // تحميل بيانات قاعدة البيانات هنا بعد أول رندر (وليس في OnInitializedAsync):
+        // يضمن هذا انتهاء استعلامات الصفحة الحالية أولاً، فلا يحدث أي تداخل على
+        // نسخة AppDbContext المشتركة (Scoped) أثناء تحميل لوحة التحكم.
+        try
         {
-            try { await JS.InvokeVoidAsync("erpApplyPrimary", _primaryHex); } catch { }
+            await LoadCurrentUserAsync();
+            await LoadNotificationsAsync();
+            await LoadSettingsAsync();
+            StateHasChanged();
+            if (!string.IsNullOrWhiteSpace(_primaryHex))
+            {
+                await JS.InvokeVoidAsync("erpApplyPrimary", _primaryHex);
+            }
         }
+        catch { }
     }
 
     /// <summary>تسجيل الخروج عبر تحميل كامل للصفحة (طلب HTTP حقيقي) لضمان توفر HttpContext.</summary>

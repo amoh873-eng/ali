@@ -1,4 +1,4 @@
-﻿bin/
+bin/
 obj/
 *.user
 .vs/
@@ -49,4 +49,15 @@ __pycache__/
 .vscode/
 build3.ps1
 restart.ps1
+# أفلام تشخيصية/خاطئة مؤقتة في جذر المشروع (سجلات، لقطات، سكربتات خاصة بالجلسات)
+/_*
+/run_*.log
+/*.orig
+/*.rej
+/D:*
+/d:*
+/*.bin
+/fg_pid.txt
+/fg_ready.txt
+/git
 

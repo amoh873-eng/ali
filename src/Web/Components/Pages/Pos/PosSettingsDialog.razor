@@ -1,6 +1,7 @@
 @* حوار إعدادات نقطة البيع: تحكم في الأعمدة والحجم واللون وعرض السلة (يُحفظ تلقائيًا) *@
 @inject IStringLocalizer<SharedResources> Loc
 @inject IJSRuntime Js
+@inject IDialogService DialogService
 
 <MudDialog>
     <TitleContent>
@@ -37,6 +38,36 @@
                 <MudText Typo="Typo.subtitle2">@Loc["PosCartWidth"]: @_cartWidth px</MudText>
                 <MudSlider T="int" Min="500" Max="800" Step="20" @bind-Value="_cartWidth" />
             </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <MudText Typo="Typo.subtitle2">@Loc["PosHideItems"]</MudText>
+                    <MudText Typo="Typo.caption" Style="color:var(--erp-muted)">@Loc["PosHideItemsHint"]</MudText>
+                </div>
+                <MudSwitch @bind-Value="_hideItems" Color="Color.Primary" />
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <MudText Typo="Typo.subtitle2">@Loc["PosHideCustomer"]</MudText>
+                    <MudText Typo="Typo.caption" Style="color:var(--erp-muted)">@Loc["PosHideCustomerHint"]</MudText>
+                </div>
+                <MudSwitch @bind-Value="_hideCustomer" Color="Color.Primary" />
+            </div>
+
+            <div style="display:flex;align-items:center;justify-content:space-between;">
+                <div>
+                    <MudText Typo="Typo.subtitle2">@Loc["PosHideDiscount"]</MudText>
+                    <MudText Typo="Typo.caption" Style="color:var(--erp-muted)">@Loc["PosHideDiscountHint"]</MudText>
+                </div>
+                <MudSwitch @bind-Value="_hideDiscount" Color="Color.Primary" />
+            </div>
+
+            @* إعدادات الطابعة — تفتح نافذة منبثقة فرعية *@
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Print" OnClick="OpenPrinterSettings">
+                @Loc["PrinterSettings"]
+            </MudButton>
         </div>
     </DialogContent>
     <DialogActions>
@@ -52,11 +83,17 @@
     [Parameter] public string Size { get; set; } = "medium";
     [Parameter] public string Accent { get; set; } = "#6D5BD0";
     [Parameter] public int CartWidth { get; set; } = 720;
+    [Parameter] public bool HideItems { get; set; }
+    [Parameter] public bool HideCustomer { get; set; } = true;
+    [Parameter] public bool HideDiscount { get; set; } = true;
 
     private int _columns = 6;
     private string _size = "medium";
     private string _accent = "#6D5BD0";
     private int _cartWidth = 720;
+    private bool _hideItems;
+    private bool _hideCustomer = true;
+    private bool _hideDiscount = true;
 
     private static readonly string[] _colors = new[]
     {
@@ -69,9 +106,21 @@
         _size = Size;
         _accent = Accent;
         _cartWidth = CartWidth;
+        _hideItems = HideItems;
+        _hideCustomer = HideCustomer;
+        _hideDiscount = HideDiscount;
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    /// <summary>يفتح حوار إعدادات الطابعة (نافذة منبثقة فرعية: الترويسة/الهاتف/الترحيب/مقاس الورق).</summary>
+    private async Task OpenPrinterSettings()
+    {
+        await DialogService.ShowAsync<PrinterSettingsDialog>(
+            Loc["PrinterSettings"],
+            new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+    }
 
     private async Task SaveAsync()
     {
@@ -83,7 +132,10 @@
             columns = _columns,
             size = _size,
             accent = _accent,
-            cartWidth = _cartWidth
+            cartWidth = _cartWidth,
+            hideItems = _hideItems,
+            hideCustomer = _hideCustomer,
+            hideDiscount = _hideDiscount
         });
         await Js.InvokeVoidAsync("erpSavePosSettings", json);
 

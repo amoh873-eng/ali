@@ -1,16 +1,19 @@
 const { chromium } = require('playwright');
 
+let EMAIL = process.env.SMOKE_EMAIL || 'admin@erp.com';
+let PASSWORD = process.env.SMOKE_PASSWORD || 'Admin@1234';
+
 const BASE = 'http://localhost:5186';
 
 async function login(page, email, password) {
     await page.goto(BASE + '/login', { waitUntil: 'networkidle' });
-    await page.fill('input[name="Email"]', email);
-    await page.fill('input[name="Password"]', password);
+    await page.fill('input[name="Email"]', email, { timeout: 15000 });
+    await page.fill('input[name="Password"]', password, { timeout: 15000 });
     await Promise.all([
         page.waitForNavigation({ waitUntil: 'networkidle' }).catch(() => {}),
         page.click('button.login-btn'),
     ]);
-    await page.waitForTimeout(1500);
+    await page.waitForTimeout(2500);
 }
 
 async function main() {
@@ -25,7 +28,7 @@ async function main() {
     const demoText = await page.locator('.login-demo').textContent().catch(() => 'NO-DEMO');
     console.log('DEMO_TEXT=' + (demoText || '').trim());
 
-    await login(page, 'admin@erp.com', 'Admin@1234');
+    await login(page, EMAIL, PASSWORD);
     await page.waitForTimeout(2000);
     console.log('URL_AFTER_LOGIN=' + page.url());
     const bodyText = (await page.locator('body').innerText()).replace(/\s+/g, ' ').trim();

@@ -513,7 +513,74 @@ td.stock-out {
     to { width: var(--w, 0%); }
 }
 
-/* ===== مخطط اتجاه (خط/مساحة) حديث (TrendChart) ===== */
+/* ===== مخطط دونات ثلاثي الأبعاد (DonutChart3D) ===== */
+.erp-donut3d {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: center;
+    gap: 18px;
+    flex-wrap: wrap;
+}
+
+.erp-donut3d-svg {
+    width: 100%;
+    max-width: 300px;
+    flex-shrink: 0;
+}
+
+/* النسبة داخل كل قطعة — أبيض على القرص الملوّن */
+.erp-donut3d-pct {
+    font-size: 13px;
+    font-weight: 800;
+    fill: #ffffff;
+    paint-order: stroke;
+    stroke: rgba(0,0,0,0.18);
+    stroke-width: 0.5px;
+    user-select: none;
+    pointer-events: none;
+}
+
+/* خط التسمية الخارجي + النص */
+.erp-donut3d-line {
+    stroke: #6B7280;
+    stroke-width: 1.5;
+    stroke-dasharray: none;
+}
+.erp-donut3d-callout {
+    font-size: 11px;
+    font-weight: 700;
+    fill: #374151;
+}
+
+/* وسيلة الإيضاح — نفس نمط erp-donut-legend */
+.erp-donut3d-legend {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    min-width: 150px;
+}
+.erp-donut3d-legend-item { display: flex; flex-direction: column; gap: 4px; }
+.erp-donut3d-legend-row { display: flex; align-items: center; gap: 8px; font-size: 0.8125rem; }
+.erp-donut3d-dot { width: 10px; height: 10px; border-radius: 50%; flex-shrink: 0; }
+.erp-donut3d-label { color: var(--erp-text); flex: 1; }
+.erp-donut3d-value { color: var(--erp-text); font-weight: 700; white-space: nowrap; }
+.erp-donut3d-pct { color: var(--erp-muted); min-width: 40px; text-align: end; }
+.erp-donut3d-track { height: 5px; background: #F3F4F6; border-radius: 999px; overflow: hidden; }
+.erp-donut3d-fill { height: 100%; border-radius: 999px; }
+
+/* عند وضع المكوّن داخل ChartCard ضيّق — تكديس عمودي */
+@media (max-width: 600px) {
+    .erp-donut3d { flex-direction: column; align-items: stretch; }
+}
+
+/* ===== مكوّن واجهة تجريبية لدونات 3D (وحدة تحقق) ===== */
+.erp-donut3d-demo {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 8px;
+    padding: 8px 0;
+}
 .erp-trend {
     display: flex;
     flex-direction: column;
@@ -631,4 +698,6 @@ td.stock-out {
         font-size: 12px !important;
         color: #000 !important;
     }
+    /* مقاس 58mm: يثبّت عرض الطباعة على عرض الورق الفعلي */
+    .pos-receipt.pos-receipt-58 { max-width: 58mm !important; width: 58mm !important; }
 }

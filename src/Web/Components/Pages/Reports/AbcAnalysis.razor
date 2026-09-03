@@ -1,0 +1,68 @@
+@page "/reports/abc-analysis"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["AbcAnalysis"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["AbcAnalysis"]" Icon="@Icons.Material.Filled.PieChart" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading"
+               StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+    <MudText Typo="@Typo.caption" Class="mt-2" Style="color:#6B7280">@Loc["AbcNote"]</MudText>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null || _dto.Rows.Count == 0)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudAlert Severity="Severity.Info" Variant="Variant.Outlined">@Loc["NoStockItems"]</MudAlert></MudPaper>
+}
+else
+{
+    <MudPaper Elevation="1" Class="overflow-x-auto">
+        <MudTable Items="_dto.Rows" Hover="true" Dense="true" Striped="true">
+            <HeaderContent>
+                <MudTh>@Loc["TierLabel"]</MudTh>
+                <MudTh>@Loc["ItemCode"]</MudTh>
+                <MudTh>@Loc["ItemNameAr"]</MudTh>
+                <MudTh Class="justify-end">@Loc["StockValueLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["SharePctLabel"]</MudTh>
+                <MudTh Class="justify-end">@Loc["CumulativePctLabel"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd><MudChip T="string" Size="Size.Small" Color="@TierColor(context.Tier)">@context.Tier</MudChip></MudTd>
+                <MudTd>@context.ItemCode</MudTd>
+                <MudTd>@context.ItemNameAr</MudTd>
+                <MudTd><MoneyDisplay Amount="context.Value" /></MudTd>
+                <MudTd>@context.SharePct.ToString("0.0")%</MudTd>
+                <MudTd>@context.CumulativePct.ToString("0.0")%</MudTd>
+            </RowTemplate>
+        </MudTable>
+    </MudPaper>
+}
+</ModuleGuard>
+@code {
+    private bool _loading;
+    private AbcAnalysisDto? _dto;
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try { _dto = await ReportService.GetAbcAnalysisAsync(); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+
+    private static Color TierColor(string tier) => tier switch
+    {
+        "A" => Color.Primary,
+        "B" => Color.Success,
+        _ => Color.Default
+    };
+}

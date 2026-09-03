@@ -1,0 +1,134 @@
+@page "/reports/financial-ratios"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.Reports
+<ModuleGuard ModuleKey="Reports">
+@inject IReportService ReportService
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<PageTitle>@Loc["FinancialRatios"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["FinancialRatios"]" Icon="@Icons.Material.Filled.DonutLarge" />
+
+<MudPaper Class="pa-4 mb-4" Elevation="0" Style="border:1px solid #E5E7EB">
+    <MudGrid AlignItems="AlignItems.End" Spacing="3">
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" Disabled="_loading" FullWidth="true"
+                       StartIcon="@Icons.Material.Filled.Search">@Loc["GenerateReport"]</MudButton>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+
+@if (_loading)
+{
+    <MudPaper Elevation="0" Class="pa-8 d-flex justify-center"><MudProgressCircular Indeterminate="true" Size="Size.Large" /></MudPaper>
+}
+else if (_dto is null)
+{
+    <MudPaper Elevation="0" Class="pa-6"><MudText Align="Align.Center" Style="color:#6B7280">@Loc["SelectDateRange"]</MudText></MudPaper>
+}
+else
+{
+    <MudGrid Spacing="3">
+        @foreach (var cat in _dto.Categories)
+        {
+            <MudItem xs="12" md="4">
+                <MudPaper Elevation="1" Class="pa-4" Style="@($"min-height:100%;border-top:3px solid {CategoryColor(cat.Key)}")">
+                    <MudText Typo="@Typo.h6" Class="mb-3">@CategoryTitle(cat.Key)</MudText>
+                    @foreach (var item in cat.Items)
+                    {
+                        <div style="display:flex;flex-direction:column;gap:2px;padding:10px 0;border-bottom:1px dashed #E5E7EB">
+                            <div style="display:flex;align-items:center;justify-content:space-between;gap:8px">
+                                <span style="font-weight:600;color:var(--erp-text)">@RatioTitle(item.Key)</span>
+                                @if (item.IsPositiveMove)
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowUpward" Size="Size.Small" Style="color:#10B981" />
+                                }
+                                else
+                                {
+                                    <MudIcon Icon="@Icons.Material.Filled.ArrowDownward" Size="Size.Small" Style="color:#EF4444" />
+                                }
+                            </div>
+                            <div style="display:flex;gap:12px;align-items:baseline">
+                                <span style="font-size:1.2rem;font-weight:800;color:var(--erp-text)">@FormatValue(item.CurrentValue)</span>
+                                <span style="font-size:0.75rem;color:var(--erp-muted)">@Loc["PreviousPeriod"]: @FormatValue(item.PreviousValue)</span>
+                            </div>
+                            <span style="font-size:0.75rem;color:var(--erp-muted)">@RatioDesc(item.Key)</span>
+                        </div>
+                    }
+                </MudPaper>
+            </MudItem>
+        }
+    </MudGrid>
+}
+</ModuleGuard>
+@code {
+    private DateTime? _from = new DateTime(DateTime.Today.AddMonths(-1).Year, DateTime.Today.AddMonths(-1).Month, 1);
+    private DateTime? _to = DateTime.Today;
+    private bool _loading;
+    private FinancialRatiosDto? _dto;
+
+    protected override async Task OnInitializedAsync() { }
+
+    private async Task LoadAsync()
+    {
+        if (!_from.HasValue || !_to.HasValue) { Snackbar.Add("يرجى تحديد الفترة", Severity.Warning); return; }
+        if (_from.Value.Date > _to.Value.Date) { Snackbar.Add("تاريخ البداية بعد النهاية", Severity.Warning); return; }
+        _loading = true;
+        try { _dto = await ReportService.GetFinancialRatiosAsync(_from.Value.Date, _to.Value.Date); }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); _dto = null; }
+        finally { _loading = false; }
+    }
+
+    private string CategoryColor(string key) => key switch
+    {
+        "profitability" => "#10B981",
+        "efficiency" => "#06B6D4",
+        _ => "#F59E0B"
+    };
+
+    private string CategoryTitle(string key) => key switch
+    {
+        "profitability" => Loc["RatiosProfitability"].Value,
+        "efficiency" => Loc["RatiosEfficiency"].Value,
+        _ => Loc["RatiosLiquidity"].Value
+    };
+
+    private string RatioTitle(string key) => key switch
+    {
+        "currentRatio" => Loc["RatioCurrentRatio"].Value,
+        "quickRatio" => Loc["RatioQuickRatio"].Value,
+        "grossMargin" => Loc["RatioGrossMargin"].Value,
+        "netMargin" => Loc["RatioNetMargin"].Value,
+        "roa" => Loc["RatioRoa"].Value,
+        "inventoryTurnover" => Loc["RatioInventoryTurnover"].Value,
+        "arTurnover" => Loc["RatioArTurnover"].Value,
+        "dso" => Loc["RatioDso"].Value,
+        "dpo" => Loc["RatioDpo"].Value,
+        "ccc" => Loc["RatioCcc"].Value,
+        _ => key
+    };
+
+    private string RatioDesc(string key) => key switch
+    {
+        "currentRatio" => Loc["RatioCurrentRatioDesc"].Value,
+        "quickRatio" => Loc["RatioQuickRatioDesc"].Value,
+        "grossMargin" => Loc["RatioGrossMarginDesc"].Value,
+        "netMargin" => Loc["RatioNetMarginDesc"].Value,
+        "roa" => Loc["RatioRoaDesc"].Value,
+        "inventoryTurnover" => Loc["RatioInventoryTurnoverDesc"].Value,
+        "arTurnover" => Loc["RatioArTurnoverDesc"].Value,
+        "dso" => Loc["RatioDsoDesc"].Value,
+        "dpo" => Loc["RatioDpoDesc"].Value,
+        "ccc" => Loc["RatioCccDesc"].Value,
+        _ => ""
+    };
+
+    private static string FormatValue(decimal? v)
+        => v.HasValue ? v.Value.ToString("0.##") : "—";
+}

@@ -1,5 +1,6 @@
 @* نموذج حوار لإضافة/تعديل صنف *@
 @inject IStringLocalizer<SharedResources> Loc
+@inject Microsoft.AspNetCore.Hosting.IWebHostEnvironment WebHostEnv
 
 <MudDialog>
     <DialogContent>
@@ -102,6 +103,28 @@
                                   Lines="2"
                                   Variant="Variant.Outlined" />
                 </MudItem>
+
+                @* صورة الصنف (تُعرض في أزرار POS وبطاقة المادة) *@
+                <MudItem xs="12">
+                    <MudText Typo="Typo.subtitle2" Class="mb-1">@Loc["ItemImage"]</MudText>
+                    <div class="d-flex align-center" style="gap:12px;">
+                        @if (!string.IsNullOrWhiteSpace(_imageUrl))
+                        {
+                            <img src="@_imageUrl" alt="@_nameAr"
+                                 onerror="this.style.display='none'"
+                                 style="width:72px;height:72px;object-fit:cover;border-radius:8px;border:1px solid #E5E7EB;" />
+                        }
+                        else
+                        {
+                            <MudIcon Icon="@Icons.Material.Filled.Image" Color="Color.Default"
+                                     Style="width:72px;height:72px;border:1px dashed #CBD5E1;border-radius:8px;display:flex;align-items:center;justify-content:center;" />
+                        }
+                        <div class="d-flex flex-column" style="gap:6px;">
+                            <InputFile OnChange="OnImageSelected" Accept="image/*" />
+                            <MudText Typo="Typo.caption" Style="color:var(--erp-muted)">@Loc["ItemImageHint"]</MudText>
+                        </div>
+                    </div>
+                </MudItem>
             </MudGrid>
         </MudForm>
     </DialogContent>
@@ -120,6 +143,7 @@
     [Parameter] public List<CategoryDto> Categories { get; set; } = new();
     [Parameter] public List<UnitDto> Units { get; set; } = new();
     [Parameter] public ItemDto? EditItem { get; set; }
+[Parameter] public string? ExistingImageUrl { get; set; }
 
     private MudForm? _form;
     private string _code = string.Empty;
@@ -134,6 +158,7 @@
     private string? _barcode;
     private string? _description;
     private bool _tracksExpiry;
+    private string _imageUrl = string.Empty;
     private string? _error;
 
     protected override void OnInitialized()
@@ -152,6 +177,7 @@
             _barcode = EditItem.Barcode;
             _description = EditItem.Description;
             _tracksExpiry = EditItem.TracksExpiry;
+            _imageUrl = EditItem.ImageUrl ?? string.Empty;
         }
         else
         {
@@ -161,6 +187,38 @@
     }
 
     private void Cancel() => MudDialog.Cancel();
+
+    /// <summary>يُحفظ الملف المختار على القرص باسم {ItemId}.jpg وينعش المعاينة فوراً.</summary>
+    private async Task OnImageSelected(InputFileChangeEventArgs e)
+    {
+        if (EditItem is null)
+        {
+            _error = "احفظ الصنف أولاً ثم أضف الصورة";
+            return;
+        }
+        var file = e.File;
+        if (file is null || file.Size == 0) return;
+        if (file.Size > 5 * 1024 * 1024)
+        {
+            _error = "الحد الأقصى لحجم الصورة 5MB";
+            return;
+        }
+        try
+        {
+            var dir = Path.Combine(WebHostEnv.WebRootPath, "uploads", "items");
+            Directory.CreateDirectory(dir);
+            var path = Path.Combine(dir, EditItem.Id + ".jpg");
+            await using (var fs = new FileStream(path, FileMode.Create))
+            {
+                await file.OpenReadStream(5 * 1024 * 1024).CopyToAsync(fs);
+            }
+            _imageUrl = $"/uploads/items/{EditItem.Id}.jpg";
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
 
     private async Task SubmitAsync()
     {
