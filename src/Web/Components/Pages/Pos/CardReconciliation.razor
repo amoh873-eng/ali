@@ -1,0 +1,168 @@
+@page "/pos/card-reconciliation"
+@attribute [Authorize(Roles = "Pos")]
+@layout PosLayout
+@using ERPSystem.Application.DTOs.Reports
+@using ERPSystem.Application.Interfaces
+<ModuleGuard ModuleKey="Pos">
+@inject IStringLocalizer<SharedResources> Loc
+@inject NavigationManager Nav
+@inject ISalesInvoiceService SalesInvoiceService
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+@* تسوية بطاقات الدفع مع كشف البنك (المرحلة 1) *@
+<div class="recon-page">
+    <div class="recon-header">
+        <div class="recon-title">
+            <MudIcon Icon="@Icons.Material.Filled.FactCheck" Style="color:var(--erp-primary); font-size:1.9rem;" />
+            <div>
+                <MudText Typo="Typo.h6" Style="font-weight:800;">@Loc["CardReconciliation"]</MudText>
+                <MudText Typo="Typo.body2" Class="recon-muted">@Loc["CardReconciliationDesc"]</MudText>
+            </div>
+        </div>
+        <div class="recon-actions">
+            <MudButton Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Filled.ArrowForward" OnClick="BackToPos">@Loc["Back"]</MudButton>
+        </div>
+    </div>
+
+    <MudPaper Class="recon-controls" Elevation="0" Outlined="true">
+        <MudDatePicker @bind-Date="_fromDate" Label="@Loc["From"]" />
+        <MudDatePicker @bind-Date="_toDate" Label="@Loc["To"]" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" OnClick="LoadAsync" Disabled="_busy">
+            @Loc["Show"]
+        </MudButton>
+        <label class="recon-import-btn" for="bankStatementFile">
+            <MudIcon Icon="@Icons.Material.Filled.FileUpload" Size="Size.Small" Class="me-1" />
+            @Loc["ImportBankStatement"]
+        </label>
+        <InputFile id="bankStatementFile" OnChange="HandleImport" hidden accept=".csv,.xlsx,.txt" />
+    </MudPaper>
+
+    @if (_result is not null)
+    {
+        <div class="recon-summary">
+            <div class="recon-stat total">
+                <div class="recon-stat-val">@_result.SystemCardTotal.ToString("N2")</div>
+                <div class="recon-stat-lbl">@Loc["ReconSystemCardTotal"]</div>
+            </div>
+            <div class="recon-stat matched">
+                <div class="recon-stat-val">@_result.MatchedCount</div>
+                <div class="recon-stat-lbl">@Loc["ReconMatched"] (@_result.MatchedAmount.ToString("N2"))</div>
+            </div>
+            <div class="recon-stat pending">
+                <div class="recon-stat-val">@_result.PendingCount</div>
+                <div class="recon-stat-lbl">@Loc["ReconPending"] (@_result.PendingAmount.ToString("N2"))</div>
+            </div>
+            <div class="recon-stat bank-only">
+                <div class="recon-stat-val">@_result.BankOnlyCount</div>
+                <div class="recon-stat-lbl">@Loc["ReconBankOnly"] (@_result.BankOnlyAmount.ToString("N2"))</div>
+            </div>
+            @if (_result.MismatchCount > 0)
+            {
+                <div class="recon-stat mismatch">
+                    <div class="recon-stat-val">@_result.MismatchCount</div>
+                    <div class="recon-stat-lbl">@Loc["ReconMismatch"] (@_result.MismatchAmount.ToString("N2"))</div>
+                </div>
+            }
+        </div>
+
+        <MudPaper Class="recon-table-paper" Elevation="0" Outlined="true">
+            @if (_result.Rows.Count == 0)
+            {
+                <MudText Class="recon-muted" Style="padding:24px;">@Loc["NoData"]</MudText>
+            }
+            else
+            {
+                <MudTable Items="_result.Rows" Dense="true" Hover="true" Striped="true">
+                    <HeaderContent>
+                        <MudTh>@Loc["CardReference"]</MudTh>
+                        <MudTh>@Loc["InvoiceNumber"]</MudTh>
+                        <MudTh>@Loc["Customer"]</MudTh>
+                        <MudTh>@Loc["SystemAmount"]</MudTh>
+                        <MudTh>@Loc["SystemDate"]</MudTh>
+                        <MudTh>@Loc["BankAmount"]</MudTh>
+                        <MudTh>@Loc["BankDate"]</MudTh>
+                        <MudTh>@Loc["Status"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd><span dir="ltr" style="font-weight:600;">@context.Reference</span>
+                            @if (!string.IsNullOrWhiteSpace(context.Last4) || !string.IsNullOrWhiteSpace(context.Network))
+                            {
+                                <div class="recon-sub">@(context.Network ?? "") @(context.Last4 is null ? "" : "•••• " + context.Last4)</div>
+                            }
+                        </MudTd>
+                        <MudTd>@context.InvoiceNumber</MudTd>
+                        <MudTd>@context.CustomerName</MudTd>
+                        <MudTd>@(context.SystemAmount?.ToString("N2") ?? "—")</MudTd>
+                        <MudTd>@(context.SystemDate?.ToString("d") ?? "—")</MudTd>
+                        <MudTd>@(context.BankAmount?.ToString("N2") ?? "—")</MudTd>
+                        <MudTd>@(context.BankDate?.ToString("d") ?? "—")</MudTd>
+                        <MudTd>
+                            <span class="recon-badge @StatusClass(context.Status)">@context.StatusNameAr</span>
+                        </MudTd>
+                    </RowTemplate>
+                </MudTable>
+            }
+        </MudPaper>
+    }
+    else
+    {
+        <MudPaper Elevation="0" Outlined="true" Style="padding:24px; text-align:center;">
+            <MudText Class="recon-muted">@Loc["ReconPickPeriod"]</MudText>
+        </MudPaper>
+    }
+</div>
+</ModuleGuard>
+@code {
+    private DateTime? _fromDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateTime? _toDate = DateTime.Today;
+    private CardReconciliationResultDto? _result;
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        if (_fromDate is null || _toDate is null) return;
+        _busy = true;
+        try
+        {
+            _result = await SalesInvoiceService.GetCardReconciliationAsync(_fromDate.Value, _toDate.Value);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+
+    private async Task HandleImport(InputFileChangeEventArgs e)
+    {
+        var file = e.File;
+        if (file is null) return;
+        try
+        {
+            _busy = true;
+            var authState = await AuthStateProvider.GetAuthenticationStateAsync();
+            var userName = authState.User.Identity?.Name ?? "-";
+
+            await using var stream = file.OpenReadStream(maxAllowedSize: 15 * 1024 * 1024);
+            var result = await SalesInvoiceService.ImportBankStatementAsync(stream, file.Name, userName);
+
+            var msg = $"{Loc["ImportDone"]}: {Loc["ImportNew"]} {result.ImportedNew} • {Loc["ImportSkipped"]} {result.SkippedExisting} • {Loc["ImportTotal"]} {result.TotalRows}";
+            if (result.Errors.Count > 0)
+                msg += $" — {result.Errors.Count} {Loc["ImportErrors"]}";
+            Snackbar.Add(msg, result.Errors.Count > 0 ? Severity.Warning : Severity.Success);
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+
+    private static string StatusClass(CardReconciliationStatus status) => status switch
+    {
+        CardReconciliationStatus.Matched => "ok",
+        CardReconciliationStatus.NoBankConfirmation => "warn",
+        CardReconciliationStatus.NotInSystem => "bad",
+        _ => "mism"
+    };
+
+    private void BackToPos() => Nav.NavigateTo("/pos");
+}

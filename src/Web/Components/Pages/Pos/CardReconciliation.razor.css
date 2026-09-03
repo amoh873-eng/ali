@@ -1,0 +1,82 @@
+/* ── شاشة تسوية بطاقات الدفع (Card Reconciliation) ── */
+.recon-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.recon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.recon-title { display: flex; align-items: center; gap: 12px; }
+.recon-muted { color: #6B7280; }
+
+.recon-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    background: #fff;
+}
+.recon-controls .mud-input-control { min-width: 170px; }
+
+.recon-import-btn {
+    display: inline-flex;
+    align-items: center;
+    gap: 4px;
+    padding: 8px 16px;
+    border-radius: 8px;
+    background: #EEF2FF;
+    color: #4338CA;
+    font-weight: 700;
+    cursor: pointer;
+    border: 1px solid #C7D2FE;
+    user-select: none;
+    white-space: nowrap;
+}
+.recon-import-btn:hover { background: #E0E7FF; }
+
+.recon-summary {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(170px, 1fr));
+    gap: 12px;
+}
+.recon-stat {
+    padding: 14px 16px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #E5E7EB;
+    border-top: 4px solid #9CA3AF;
+}
+.recon-stat.total { border-top-color: #6D5BD0; }
+.recon-stat.matched { border-top-color: #10B981; }
+.recon-stat.pending { border-top-color: #F59E0B; }
+.recon-stat.bank-only { border-top-color: #EF4444; }
+.recon-stat.mismatch { border-top-color: #F97316; }
+.recon-stat-val { font-size: 1.35rem; font-weight: 800; }
+.recon-stat-lbl { font-size: .82rem; color: #6B7280; margin-top: 2px; }
+
+.recon-table-paper { border-radius: 12px; background: #fff; overflow: hidden; }
+.recon-sub { font-size: .75rem; color: #6B7280; margin-top: 2px; }
+
+.recon-badge {
+    display: inline-block;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.recon-badge.ok { background: #D1FAE5; color: #065F46; }
+.recon-badge.warn { background: #FEF3C7; color: #92400E; }
+.recon-badge.bad { background: #FEE2E2; color: #991B1B; }
+.recon-badge.mism { background: #FFEDD5; color: #9A3412; }

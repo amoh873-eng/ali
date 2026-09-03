@@ -177,3 +177,20 @@
 .pos-search-option:hover { background: #F5F3FF; }
 .pos-search-opt-name { font-weight: 600; }
 .pos-search-opt-price { color: #6D5BD0; font-weight: 800; font-size: .85rem; white-space: nowrap; }
+
+/* ── حقول الدفع بالبطاقة (رقم الموافقة إلزامي + آخر 4 أرقام + الشبكة) ── */
+.pos-card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px dashed rgba(109, 91, 208, .45);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(109, 91, 208, .06), rgba(109, 91, 208, .02));
+    margin-bottom: 8px;
+}
+.pos-card-row.two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}

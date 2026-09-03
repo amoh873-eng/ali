@@ -19,6 +19,10 @@
             <div class="rc-row"><span>@Loc["PosCashier"]</span><span>@CashierName</span></div>
             <div class="rc-row"><span>@Loc["Customer"]</span><span>@Invoice.CustomerName</span></div>
             <div class="rc-row"><span>@Loc["PaymentMethod"]</span><span>@PaymentMethodLabel</span></div>
+            @if (!string.IsNullOrWhiteSpace(CardReference))
+            {
+                <div class="rc-row"><span>@Loc["CardApprovalCode"]</span><span dir="ltr">@CardReference</span></div>
+            }
 
             <div class="rc-sep"></div>
 
@@ -80,6 +84,9 @@
     [Parameter] public string ThanksText { get; set; } = string.Empty;
     /// <summary>مقاس ورق الحرارة: "58" أو "80" (يُطبَّق عرضه على الإيصال).</summary>
     [Parameter] public string PaperType { get; set; } = "80";
+
+    /// <summary>رقم الموافقة/المرجع لعملية بطاقة (يُطبع على الإيصال للمراجعة والمطابقة).</summary>
+    [Parameter] public string? CardReference { get; set; }
 
     private void Close() => MudDialog.Close(DialogResult.Ok(true));
 }

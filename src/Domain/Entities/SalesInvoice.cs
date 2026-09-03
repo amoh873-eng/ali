@@ -46,9 +46,42 @@ public class SalesInvoice : BaseEntity
     public DateTime InvoiceDate { get; set; }
 
     /// <summary>
-    /// Cash or On-Account (نقدي أو آجل).
+    /// Cash or On-Account (نقدي أو آجل) — how the customer settles the invoice.
+    /// Used by AR aging and the customer balance.
     /// </summary>
     public SalesInvoiceType InvoiceType { get; set; }
+
+    // ── Card payment (بطاقة) — nullable so cash/on-account records are unaffected ──
+    // ⚠️ PCI-DSS: never store full card number, CVV, or expiry — only the reference
+    // code, last 4 digits (display), and the card network name.
+
+    /// <summary>
+    /// How the sale was settled: نقدي / بطاقة / آجل. Defaults to Cash for legacy rows.
+    /// Decides the debit account in the journal entry (1100 / 1205 / 1200).
+    /// </summary>
+    public SalesPaymentMethod PaymentMethod { get; set; } = SalesPaymentMethod.Cash;
+
+    /// <summary>
+    /// Approval / reference code the cashier copies from the card terminal's printed
+    /// receipt. REQUIRED for card sales (non-empty) — this is what reconciliation
+    /// matches against the bank statement.
+    /// </summary>
+    public string? CardApprovalCode { get; set; }
+
+    /// <summary>
+    /// Last 4 digits of the card (display only, helps matching). Optional.
+    /// </summary>
+    public string? CardLast4 { get; set; }
+
+    /// <summary>
+    /// Card network name (Visa / Mastercard / ...). Optional.
+    /// </summary>
+    public string? CardNetwork { get; set; }
+
+    /// <summary>
+    /// Timestamp of the card transaction on the terminal (if printed/shown). Optional.
+    /// </summary>
+    public DateTime? CardTransactionAt { get; set; }
 
     /// <summary>
     /// Lifecycle status (Draft / Posted / Cancelled).

@@ -256,6 +256,23 @@ namespace ERPSystem.Infrastructure.Migrations
                         },
                         new
                         {
+                            Id = new Guid("11000000-0000-0000-0000-000000000005"),
+                            AccountType = 1,
+                            Code = "1205",
+                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
+                            CurrentBalance = 0m,
+                            IsActive = true,
+                            IsDeleted = false,
+                            IsSystem = true,
+                            Level = 0,
+                            NameAr = "ذمم البطاقات (مستحق من البنك)",
+                            NameEn = "Card Receivables",
+                            NormalBalance = 1,
+                            ParentAccountId = new Guid("10000000-0000-0000-0000-000000000001"),
+                            RowVersion = new byte[0]
+                        },
+                        new
+                        {
                             Id = new Guid("12000000-0000-0000-0000-000000000001"),
                             AccountType = 2,
                             Code = "2100",
@@ -495,6 +512,56 @@ namespace ERPSystem.Infrastructure.Migrations
                     b.HasKey("Id");
 
                     b.ToTable("BackupMarkers");
+                });
+
+            modelBuilder.Entity("ERPSystem.Domain.Entities.BankCardStatement", b =>
+                {
+                    b.Property<Guid>("Id")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("uniqueidentifier");
+
+                    b.Property<decimal>("Amount")
+                        .HasColumnType("decimal(18,2)");
+
+                    b.Property<DateTime>("CreatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("CreatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<DateTime>("ImportedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("ImportedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.Property<bool>("IsDeleted")
+                        .HasColumnType("bit");
+
+                    b.Property<string>("Reference")
+                        .IsRequired()
+                        .HasMaxLength(60)
+                        .HasColumnType("nvarchar(60)");
+
+                    b.Property<DateTime>("TransactionDate")
+                        .HasColumnType("datetime2");
+
+                    b.Property<DateTime?>("UpdatedAt")
+                        .HasColumnType("datetime2");
+
+                    b.Property<string>("UpdatedBy")
+                        .HasMaxLength(100)
+                        .HasColumnType("nvarchar(100)");
+
+                    b.HasKey("Id");
+
+                    b.HasIndex("Reference")
+                        .IsUnique()
+                        .HasFilter("[IsDeleted] = 0");
+
+                    b.ToTable("BankCardStatements", (string)null);
                 });
 
             modelBuilder.Entity("ERPSystem.Domain.Entities.Category", b =>
@@ -2227,6 +2294,21 @@ namespace ERPSystem.Infrastructure.Migrations
                         .ValueGeneratedOnAdd()
                         .HasColumnType("uniqueidentifier");
 
+                    b.Property<string>("CardApprovalCode")
+                        .HasMaxLength(50)
+                        .HasColumnType("nvarchar(50)");
+
+                    b.Property<string>("CardLast4")
+                        .HasMaxLength(10)
+                        .HasColumnType("nvarchar(10)");
+
+                    b.Property<string>("CardNetwork")
+                        .HasMaxLength(30)
+                        .HasColumnType("nvarchar(30)");
+
+                    b.Property<DateTime?>("CardTransactionAt")
+                        .HasColumnType("datetime2");
+
                     b.Property<Guid?>("CogsJournalEntryId")
                         .HasColumnType("uniqueidentifier");
 
@@ -2287,6 +2369,11 @@ namespace ERPSystem.Infrastructure.Migrations
 
                     b.Property<decimal>("PaidAmount")
                         .HasColumnType("decimal(18,2)");
+
+                    b.Property<int>("PaymentMethod")
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("int")
+                        .HasDefaultValue(1);
 
                     b.Property<Guid?>("SalesJournalEntryId")
                         .HasColumnType("uniqueidentifier");

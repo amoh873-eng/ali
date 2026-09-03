@@ -72,6 +72,12 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     public DbSet<SalesInvoice> SalesInvoices => Set<SalesInvoice>();
 
     /// <summary>
+    /// Bank card-settlement statement rows (كشف تسوية البنك للبطاقات) — used by
+    /// the POS card reconciliation screen to match system card sales against the bank.
+    /// </summary>
+    public DbSet<BankCardStatement> BankCardStatements => Set<BankCardStatement>();
+
+    /// <summary>
     /// Sales invoice lines table (بنود فواتير المبيعات).
     /// </summary>
     public DbSet<SalesInvoiceLine> SalesInvoiceLines => Set<SalesInvoiceLine>();
@@ -249,6 +255,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new StockMovementConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
         modelBuilder.ApplyConfiguration(new SalesInvoiceConfiguration());
+        modelBuilder.ApplyConfiguration(new BankCardStatementConfiguration());
         modelBuilder.ApplyConfiguration(new SalesInvoiceLineConfiguration());
         modelBuilder.ApplyConfiguration(new SalesReturnConfiguration());
         modelBuilder.ApplyConfiguration(new SalesReturnLineConfiguration());
@@ -523,6 +530,16 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             {
                 Id = Guid.Parse("11000000-0000-0000-0000-000000000004"),
                 Code = "1101", NameAr = "البنك", NameEn = "Bank",
+                AccountType = Domain.Enums.AccountType.Asset,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // ذمم البطاقات: مبيعات أجريت بالبطاقة وتمت من الطرفية لكن البنك لم يسوّيها بعد
+            // (مستحق من البنك — أصل، ليس نقداً فورياً). يُدين عند بيع بطاقة بدل الصندوق.
+            new Account
+            {
+                Id = Guid.Parse("11000000-0000-0000-0000-000000000005"),
+                Code = "1205", NameAr = "ذمم البطاقات (مستحق من البنك)", NameEn = "Card Receivables",
                 AccountType = Domain.Enums.AccountType.Asset,
                 NormalBalance = Domain.Enums.NormalBalance.Debit,
                 ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime

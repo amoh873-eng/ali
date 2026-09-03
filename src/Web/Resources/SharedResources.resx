@@ -901,4 +901,32 @@
   <data name="Year" xml:space="preserve"><value>السنة</value></data>
   <data name="AnnualTotal" xml:space="preserve"><value>إجمالي السنة</value></data>
   <data name="GrandTotal" xml:space="preserve"><value>الإجمالي الكلي</value></data>
+  <data name="Other" xml:space="preserve"><value>أخرى</value></data>
+  <data name="Back" xml:space="preserve"><value>رجوع</value></data>
+  <data name="From" xml:space="preserve"><value>من</value></data>
+  <data name="To" xml:space="preserve"><value>إلى</value></data>
+  <data name="CardReconciliation" xml:space="preserve"><value>تسوية بطاقات الدفع</value></data>
+  <data name="CardReconciliationDesc" xml:space="preserve"><value>مطابقة مبيعات البطاقة في النظام مع كشف البنك — مطابق / بانتظار تأكيد / غير موجود</value></data>
+  <data name="CardApprovalCode" xml:space="preserve"><value>رقم الموافقة/المرجع *</value></data>
+  <data name="CardApprovalPlaceholder" xml:space="preserve"><value>انسخه من إيصال الطرفية</value></data>
+  <data name="CardApprovalRequired" xml:space="preserve"><value>رقم الموافقة/المرجع مطلوب — انسخه من إيصال الطرفية بعد إتمام العملية على الجهاز</value></data>
+  <data name="CardLast4" xml:space="preserve"><value>آخر 4 أرقام</value></data>
+  <data name="CardNetwork" xml:space="preserve"><value>شبكة البطاقة</value></data>
+  <data name="CardNetworkPlaceholder" xml:space="preserve"><value>Visa / Mastercard / …</value></data>
+  <data name="ReconSystemCardTotal" xml:space="preserve"><value>إجمالي مبيعات البطاقة (النظام)</value></data>
+  <data name="ReconMatched" xml:space="preserve"><value>مطابق</value></data>
+  <data name="ReconPending" xml:space="preserve"><value>بانتظار تأكيد البنك</value></data>
+  <data name="ReconBankOnly" xml:space="preserve"><value>من البنك وغير موجود في النظام</value></data>
+  <data name="ReconMismatch" xml:space="preserve"><value>اختلاف بالمبلغ</value></data>
+  <data name="ReconPickPeriod" xml:space="preserve"><value>اختر الفترة واضغط استعراض، أو استورد كشف البنك للمطابقة.</value></data>
+  <data name="ImportBankStatement" xml:space="preserve"><value>استيراد كشف البنك</value></data>
+  <data name="ImportDone" xml:space="preserve"><value>تم الاستيراد</value></data>
+  <data name="ImportNew" xml:space="preserve"><value>جديد</value></data>
+  <data name="ImportSkipped" xml:space="preserve"><value>مكرر (تخطى)</value></data>
+  <data name="ImportTotal" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="ImportErrors" xml:space="preserve"><value>خطأ</value></data>
+  <data name="SystemAmount" xml:space="preserve"><value>مبلغ النظام</value></data>
+  <data name="SystemDate" xml:space="preserve"><value>تاريخ النظام</value></data>
+  <data name="BankAmount" xml:space="preserve"><value>مبلغ البنك</value></data>
+  <data name="BankDate" xml:space="preserve"><value>تاريخ البنك</value></data>
   </root>

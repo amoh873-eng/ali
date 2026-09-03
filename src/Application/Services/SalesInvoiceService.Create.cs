@@ -31,6 +31,20 @@ public partial class SalesInvoiceService
         if (type != SalesInvoiceType.Cash && type != SalesInvoiceType.OnAccount)
             throw new InvalidOperationException("نوع الفاتورة غير صالح.");
 
+        var paymentMethod = (SalesPaymentMethod)dto.PaymentMethod;
+        if (paymentMethod != SalesPaymentMethod.Cash
+            && paymentMethod != SalesPaymentMethod.Card
+            && paymentMethod != SalesPaymentMethod.OnAccount)
+            throw new InvalidOperationException("أسلوب السداد غير صالح.");
+
+        // إلزامية رقم الموافقة للبطاقة: يمنع تسجيل عملية بطاقة بلا مرجع يمكن مطابقته لاحقاً مع كشف البنك
+        if (paymentMethod == SalesPaymentMethod.Card && string.IsNullOrWhiteSpace(dto.CardApprovalCode))
+            throw new InvalidOperationException("رقم الموافقة/المرجع مطلوب عند الدفع بالبطاقة — انسخه من إيصال الطرفية.");
+
+        // الدمج المنطقي مع نوع الفاتورة: فاتورة آجلة بالطريقة القديمة (InvoiceType=2) تساوي آجل دائماً
+        if (type == SalesInvoiceType.OnAccount && paymentMethod == SalesPaymentMethod.Cash)
+            paymentMethod = SalesPaymentMethod.OnAccount;
+
         // 2) جلب الأصناف مرة واحدة والتحقق من وجودها وعدم تكرارها
         var distinctItemIds = dto.Lines.Select(l => l.ItemId).Distinct().ToList();
         if (distinctItemIds.Count != dto.Lines.Count)
@@ -55,6 +69,11 @@ public partial class SalesInvoiceService
             InvoiceDate = dto.InvoiceDate,
             DueDate = dto.DueDate ?? dto.InvoiceDate.AddDays(30),
             InvoiceType = type,
+            PaymentMethod = paymentMethod,
+            CardApprovalCode = paymentMethod == SalesPaymentMethod.Card ? dto.CardApprovalCode : null,
+            CardLast4 = dto.CardLast4,
+            CardNetwork = dto.CardNetwork,
+            CardTransactionAt = dto.CardTransactionAt,
             Status = DocumentStatus.Posted, // هذا الموديول يرحّل الفاتورة فوراً عند الإنشاء
             DiscountPercentage = dto.DiscountPercentage,
             TaxRate = dto.TaxRate,
@@ -132,8 +151,13 @@ public partial class SalesInvoiceService
                 await StockBatchHelper.AllocateFefoAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
         }
 
-        // 5) القيد المحاسبي للبيع: مدين (صندوق/عملاء) ، دائن (إيراد + ضريبة)
-        var receivableAccount = await GetAccountByCodeAsync(type == SalesInvoiceType.Cash ? AccountCash : AccountReceivable);
+        // 5) القيد المحاسبي للبيع: مدين حسب أسلوب السداد (صندوق أو ذمم بطاقات أو عملاء) ، دائن (إيراد + ضريبة)
+        //    البطاقة ليست نقداً فورياً — البنك يسوّيها لاحقاً، لذا تُدين "ذمم البطاقات" بدل "الصندوق".
+        var receivableAccount = (type == SalesInvoiceType.OnAccount || paymentMethod == SalesPaymentMethod.OnAccount)
+            ? await GetAccountByCodeAsync(AccountReceivable)
+            : paymentMethod == SalesPaymentMethod.Card
+                ? await GetAccountByCodeAsync(AccountCardReceivables)
+                : await GetAccountByCodeAsync(AccountCash);
         var revenueAccount = await GetAccountByCodeAsync(AccountSalesRevenue);
         var taxPayableAccount = await GetAccountByCodeAsync(AccountSalesTaxPayable);
 

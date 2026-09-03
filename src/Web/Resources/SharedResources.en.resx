@@ -900,4 +900,32 @@
   <data name="Year" xml:space="preserve"><value>Year</value></data>
   <data name="AnnualTotal" xml:space="preserve"><value>Annual Total</value></data>
   <data name="GrandTotal" xml:space="preserve"><value>Grand Total</value></data>
+  <data name="Other" xml:space="preserve"><value>Other</value></data>
+  <data name="Back" xml:space="preserve"><value>Back</value></data>
+  <data name="From" xml:space="preserve"><value>From</value></data>
+  <data name="To" xml:space="preserve"><value>To</value></data>
+  <data name="CardReconciliation" xml:space="preserve"><value>Card Payments Reconciliation</value></data>
+  <data name="CardReconciliationDesc" xml:space="preserve"><value>Match system card sales against the bank settlement statement</value></data>
+  <data name="CardApprovalCode" xml:space="preserve"><value>Approval / Reference Code *</value></data>
+  <data name="CardApprovalPlaceholder" xml:space="preserve"><value>Copy from the terminal receipt</value></data>
+  <data name="CardApprovalRequired" xml:space="preserve"><value>Approval / reference code is required — copy it from the terminal receipt after the device completes the transaction</value></data>
+  <data name="CardLast4" xml:space="preserve"><value>Last 4 digits</value></data>
+  <data name="CardNetwork" xml:space="preserve"><value>Card network</value></data>
+  <data name="CardNetworkPlaceholder" xml:space="preserve"><value>Visa / Mastercard / …</value></data>
+  <data name="ReconSystemCardTotal" xml:space="preserve"><value>Total card sales (system)</value></data>
+  <data name="ReconMatched" xml:space="preserve"><value>Matched</value></data>
+  <data name="ReconPending" xml:space="preserve"><value>Awaiting bank confirmation</value></data>
+  <data name="ReconBankOnly" xml:space="preserve"><value>In bank, not found in system</value></data>
+  <data name="ReconMismatch" xml:space="preserve"><value>Amount mismatch</value></data>
+  <data name="ReconPickPeriod" xml:space="preserve"><value>Choose a period and click Show, or import the bank statement to match.</value></data>
+  <data name="ImportBankStatement" xml:space="preserve"><value>Import bank statement</value></data>
+  <data name="ImportDone" xml:space="preserve"><value>Import done</value></data>
+  <data name="ImportNew" xml:space="preserve"><value>new</value></data>
+  <data name="ImportSkipped" xml:space="preserve"><value>duplicate (skipped)</value></data>
+  <data name="ImportTotal" xml:space="preserve"><value>total</value></data>
+  <data name="ImportErrors" xml:space="preserve"><value>errors</value></data>
+  <data name="SystemAmount" xml:space="preserve"><value>System amount</value></data>
+  <data name="SystemDate" xml:space="preserve"><value>System date</value></data>
+  <data name="BankAmount" xml:space="preserve"><value>Bank amount</value></data>
+  <data name="BankDate" xml:space="preserve"><value>Bank date</value></data>
   </root>

@@ -40,6 +40,9 @@
         <div class="pos-topbar-right">
             <MudText Typo="Typo.body2" Class="pos-muted">@Loc["PosCashier"]: @_cashierName</MudText>
             <MudText Typo="Typo.body2" Class="pos-muted">@_clock</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.FactCheck" Color="Color.Default"
+                           Title="@Loc["CardReconciliation"]"
+                           OnClick="GoToReconciliation" />
             <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" OnClick="OpenSettings" />
             <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="ExitPos" />
         </div>
@@ -144,14 +147,41 @@
                     <button class="pos-pay pos-pay-new-invoice" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]</button>
                 </div>
 
-                <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" Variant="Variant.Outlined" Dense="true" Immediate="true" />
-                    <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
-                    <div class="pos-keypad">
-                        @foreach (var key in KeypadKeys)
-                        {
-                            <button class="pos-key" @onclick="() => KeypadPress(key)">@key</button>
-                        }
+                @if (_paymentMethod == 2)
+                {
+                    @* حقول الدفع بالبطاقة: رقم الموافقة إلزامي (من إيصال الطرفية) + اختيارية (آخر 4 أرقام / الشبكة) *@
+                    <div class="pos-card-fields">
+                        <MudTextField @bind-Value="_cardApprovalCode" T="string"
+                                     Label="@Loc["CardApprovalCode"]"
+                                     Placeholder="@Loc["CardApprovalPlaceholder"]"
+                                     Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                        <div class="pos-card-row two">
+                            <MudTextField @bind-Value="_cardLast4" T="string"
+                                         Label="@Loc["CardLast4"]" MaxLength="4"
+                                         Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                            <MudSelect @bind-Value="_cardNetwork" T="string"
+                                       Label="@Loc["CardNetwork"]"
+                                       Variant="Variant.Outlined" Dense="true"
+                                       Placeholder="@Loc["CardNetworkPlaceholder"]">
+                                @foreach (var net in CardNetworks)
+                                {
+                                    <MudSelectItem T="string" Value="@net">@net</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </div>
                     </div>
+                }
+                else
+                {
+                    <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                        <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
+                        <div class="pos-keypad">
+                            @foreach (var key in KeypadKeys)
+                            {
+                                <button class="pos-key" @onclick="() => KeypadPress(key)">@key</button>
+                            }
+                        </div>
+                }
 
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy">
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
@@ -204,6 +234,13 @@
     private bool _busy;
     private string _search = string.Empty;
     private string _receivedInput = string.Empty;
+    // حقول البطاقة (المرحلة 1 — متوافقة مع PCI-DSS: بلا رقم كامل أو CVV)
+    private string _cardApprovalCode = string.Empty;
+    private string _cardLast4 = string.Empty;
+    private string? _cardNetwork;
+
+    /// <summary>الشبكات المعروضة في قائمة اختيار البطاقة (اختياري — للتسجيل فقط).</summary>
+    private static readonly string[] CardNetworks = { "Visa", "Mastercard", "Amex", "أخرى" };
     private string _cashierName = "?";
     private string? _cashierUserId;
     private ERPSystem.Application.Services.WeightBarcodeRule? _weightRule;
@@ -553,6 +590,9 @@
         ClearCart();
         _receivedInput = string.Empty;
         _paymentMethod = 1;
+        _cardApprovalCode = string.Empty;
+        _cardLast4 = string.Empty;
+        _cardNetwork = null;
         _search = string.Empty;
         _discountPercent = 0;
     }
@@ -642,14 +682,25 @@
     }
 
     private void ExitPos() => Nav.NavigateTo("/");
+    private void GoToReconciliation() => Nav.NavigateTo("/pos/card-reconciliation");
     private async Task CompleteSale()
     {
         if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
         if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
         if (_selectedCustomer is null) { Snackbar.Add(Loc["PosNoCustomer"], Severity.Warning); return; }
 
+        var isCard = _paymentMethod == 2;
         var total = TotalAmount;
-        if (ReceivedAmount < total)
+
+        // ⚠️ إلزامية رقم الموافقة عند البطاقة: لا يُسجَّل بيع بطاقة بلا مرجع للمطابقة مع كشف البنك
+        if (isCard && string.IsNullOrWhiteSpace(_cardApprovalCode))
+        {
+            Snackbar.Add(Loc["CardApprovalRequired"], Severity.Warning);
+            return;
+        }
+
+        // النقدي فقط يتطلب مبلغاً مستلماً — البطاقة تُشحن بالمبلغ كاملاً من الطرفية
+        if (!isCard && ReceivedAmount < total)
         {
             Snackbar.Add(Loc["PosInsufficient"], Severity.Warning);
             return;
@@ -664,6 +715,11 @@
                 WarehouseId = _defaultWarehouseId.Value,
                 InvoiceDate = DateTime.Today,
                 InvoiceType = (int)SalesInvoiceType.Cash,
+                PaymentMethod = _paymentMethod,
+                CardApprovalCode = isCard ? _cardApprovalCode.Trim() : null,
+                CardLast4 = isCard && !string.IsNullOrWhiteSpace(_cardLast4) ? _cardLast4.Trim() : null,
+                CardNetwork = isCard && !string.IsNullOrWhiteSpace(_cardNetwork) ? _cardNetwork.Trim() : null,
+                CardTransactionAt = isCard ? DateTime.Now : null,
                 DiscountPercentage = _discountPercent,
                 TaxRate = _taxRate,
                 Note = "POS",
@@ -675,15 +731,20 @@
             };
 
             var invoice = await SalesInvoiceService.CreateAsync(dto);
-            var received = ReceivedAmount;
-            var change = Math.Round(received - total, 2);
+            // البطاقة: المبلغ المحصّل هو الإجمالي كاملاً (التسوية البنكية لاحقاً) — النقدي: مبلغ مستلم - إرجاع
+            var received = isCard ? total : ReceivedAmount;
+            var change = isCard ? 0m : Math.Round(received - total, 2);
 
             ClearCart();
             _receivedInput = string.Empty;
             _search = string.Empty;
 
             var paymentLabel = (_paymentMethod switch { 1 => Loc["Cash"], _ => Loc["Card"] }).Value;
+            var cardReference = isCard ? _cardApprovalCode.Trim() : null;
             _paymentMethod = 1;
+            _cardApprovalCode = string.Empty;
+            _cardLast4 = string.Empty;
+            _cardNetwork = null;
 
             Snackbar.Add($"{Loc["PosSaleDone"]} — {invoice.InvoiceNumber}", Severity.Success);
             var receiptParams = new DialogParameters
@@ -696,7 +757,8 @@
                 ["ShopName"] = _printerShopName,
                 ["Phone"] = _printerPhone,
                 ["ThanksText"] = _printerThanks,
-                ["PaperType"] = _printerPaper
+                ["PaperType"] = _printerPaper,
+                ["CardReference"] = cardReference
             };
             await DialogService.ShowAsync<PosReceiptDialog>(
                 Loc["Receipt"], receiptParams,

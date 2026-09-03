@@ -1,3 +1,4 @@
+using ERPSystem.Application.DTOs.Reports;
 using ERPSystem.Application.DTOs.Sales;
 
 namespace ERPSystem.Application.Interfaces;
@@ -33,4 +34,15 @@ public interface ISalesInvoiceService
 
     /// <summary>أفضل 5 أصناف مبيعاً حسب إجمالي المبلغ (للداشبورد).</summary>
     Task<List<TopSellingItemDto>> GetTopSellingItemsAsync(int count = 5);
+
+    /// <summary>
+    /// تسوية مبيعات البطاقات مع كشف البنك للفترة المحددة:
+    /// يطابق كل فاتورة بطاقة في النظام مع صفوف البنك المستوردة عبر رقم المرجع والمبلغ.
+    /// </summary>
+    Task<CardReconciliationResultDto> GetCardReconciliationAsync(DateTime from, DateTime to);
+
+    /// <summary>
+    /// يستورد كشف تسوية البنك (CSV أو XLSX) ويدمج صفوفه مع حالته الحالية.
+    /// </summary>
+    Task<CardBankImportResultDto> ImportBankStatementAsync(Stream fileStream, string fileName, string? importedBy);
 }
