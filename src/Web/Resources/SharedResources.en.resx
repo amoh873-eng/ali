@@ -990,4 +990,11 @@
   <data name="BlGenerating" xml:space="preserve"><value>Generating PDF...</value></data>
   <data name="BlDone" xml:space="preserve"><value>Generated {0} label(s) successfully</value></data>
   <data name="BlClear" xml:space="preserve"><value>Clear selection</value></data>
+  <data name="PosGridSettingsTitle" xml:space="preserve"><value>POS — item grid limit</value></data>
+  <data name="PosGridSettingsSubtitle" xml:space="preserve"><value>Maximum number of item buttons shown on the POS screen. Larger values increase memory &amp; render cost (30 is usually enough for restaurant menus).</value></data>
+  <data name="PosGridLimitLabel" xml:space="preserve"><value>Button count</value></data>
+  <data name="PosGridLimitHint" xml:space="preserve"><value>Allowed range: 10–1000 (default 30). Applied when POS opens.</value></data>
+  <data name="PosGridLimitSave" xml:space="preserve"><value>Save grid limit</value></data>
+  <data name="PosGridLimitSaved" xml:space="preserve"><value>POS grid limit saved</value></data>
+  <data name="PosOutOfStock" xml:space="preserve"><value>Out of stock</value></data>
   </root>

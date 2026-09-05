@@ -79,6 +79,28 @@
         <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" /> @Loc["ScaleSave"]
     </MudButton>
 </MudPaper>
+
+@* ── إعدادات نقطة البيع: حدّ شبكة الأصناف (Admin/SuperAdmin فقط) ── *@
+<AuthorizeView Roles="Admin,SuperAdmin">
+    <MudPaper Class="pa-4 mt-4" Elevation="0" Style="border:1px solid #E5E7EB;max-width:720px">
+        <MudText Typo="Typo.h6" Class="mb-1">@Loc["PosGridSettingsTitle"]</MudText>
+        <MudText Typo="Typo.body2" Class="mb-3" Style="color:#6B7280">@Loc["PosGridSettingsSubtitle"]</MudText>
+
+        <div style="display:flex;align-items:center;gap:16px;flex-wrap:wrap;">
+            <MudNumericField @bind-Value="_posGridLimit"
+                             T="int"
+                             Label="@Loc["PosGridLimitLabel"]"
+                             Min="10"
+                             Max="1000"
+                             Variant="Variant.Outlined"
+                             Style="width:200px;" />
+            <MudText Typo="Typo.caption" Style="color:#6B7280">@Loc["PosGridLimitHint"]</MudText>
+        </div>
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="SavePosGridLimit" Class="mt-3">
+            <MudIcon Icon="@Icons.Material.Filled.Save" Class="mr-2" /> @Loc["PosGridLimitSave"]
+        </MudButton>
+    </MudPaper>
+</AuthorizeView>
 @code{
     string _code = "JOD";
     string _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
@@ -94,8 +116,11 @@
     private int _decimalPlaces = 3;
     private int _valueType = 0; // 0=وزن، 1=سعر
 
+    // حد شبكة نقطة البيع
+    private int _posGridLimit = 30;
+
     protected override async Task OnInitializedAsync(){
-        try{ var s=await Svc.GetAsync(); _code = string.IsNullOrWhiteSpace(s.CurrencyCode) ? "JOD" : s.CurrencyCode.Trim().ToUpperInvariant(); }catch{}
+        try{ var s=await Svc.GetAsync(); _code = string.IsNullOrWhiteSpace(s.CurrencyCode) ? "JOD" : s.CurrencyCode.Trim().ToUpperInvariant(); _posGridLimit = s.PosGridLimit > 0 ? s.PosGridLimit : 30; }catch{}
         _lang = System.Globalization.CultureInfo.CurrentUICulture.Name.StartsWith("en", StringComparison.OrdinalIgnoreCase) ? "en" : "ar";
         await LoadScaleRuleAsync();
     }
@@ -176,6 +201,17 @@
                     : null;
             });
             Snack.Add(Loc["ScaleSaved"].Value, Severity.Success);
+        }
+        catch (Exception ex) { Snack.Add(ex.Message, Severity.Error); }
+    }
+
+    /// <summary>حفظ حد شبكة نقطة البيع في SystemSettings.PosGridLimit (يُبطل ذاكرة التخزين المؤقت تلقائياً).</summary>
+    private async Task SavePosGridLimit()
+    {
+        try
+        {
+            await Svc.UpdateAsync(s => s.PosGridLimit = Math.Max(10, Math.Min(1000, _posGridLimit)));
+            Snack.Add(Loc["PosGridLimitSaved"].Value, Severity.Success);
         }
         catch (Exception ex) { Snack.Add(ex.Message, Severity.Error); }
     }

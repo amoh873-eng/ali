@@ -991,4 +991,11 @@
   <data name="BlGenerating" xml:space="preserve"><value>جارٍ توليد الـ PDF...</value></data>
   <data name="BlDone" xml:space="preserve"><value>تم توليد {0} ملصقاً بنجاح</value></data>
   <data name="BlClear" xml:space="preserve"><value>مسح الاختيار</value></data>
+  <data name="PosGridSettingsTitle" xml:space="preserve"><value>نقطة البيع — حد شبكة الأصناف</value></data>
+  <data name="PosGridSettingsSubtitle" xml:space="preserve"><value>الحد الأقصى لأزرار الأصناف المعروضة في شاشة نقطة البيع. القيم الأكبر تزيد استهلاك الذاكرة والعرض (قوائم المطاعم عادة 30 كافٍ).</value></data>
+  <data name="PosGridLimitLabel" xml:space="preserve"><value>عدد الأزرار</value></data>
+  <data name="PosGridLimitHint" xml:space="preserve"><value>نطاق مسموح: 10–1000 (الافتراضي 30). يُطبَّق عند فتح نقطة البيع.</value></data>
+  <data name="PosGridLimitSave" xml:space="preserve"><value>حفظ حد الشبكة</value></data>
+  <data name="PosGridLimitSaved" xml:space="preserve"><value>تم حفظ حد شبكة نقطة البيع</value></data>
+  <data name="PosOutOfStock" xml:space="preserve"><value>نفد من المخزون</value></data>
   </root>

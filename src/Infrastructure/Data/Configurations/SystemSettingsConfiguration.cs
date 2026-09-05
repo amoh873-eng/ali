@@ -22,5 +22,6 @@ public class SystemSettingsConfiguration : IEntityTypeConfiguration<SystemSettin
 
         builder.Property(e => e.ExpiryWarningWindowDays).HasDefaultValue(7);
         builder.Property(e => e.WeightBarcodeRuleJson).HasColumnType("text");
+        builder.Property(e => e.PosGridLimit).HasDefaultValue(30);
     }
 }

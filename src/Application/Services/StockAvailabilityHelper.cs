@@ -1,4 +1,5 @@
 using System.Data;
+using ERPSystem.Application.Exceptions;
 using ERPSystem.Domain.Entities;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Storage;
@@ -24,8 +25,17 @@ internal static class StockAvailabilityHelper
             .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
 
         if (available < quantity)
-            throw new InvalidOperationException(
-                $"الرصيد غير كافٍ للصنف. المتاح: {available:N0}، المطلوب: {quantity:N0}.");
+        {
+            // جلب اسم الصنف ليظهر في الرسالة ويعرف المستخدم أي صنف يعيق العملية،
+            // مع تمرير المعرّف ليتمكن واجهة المستخدم من تمييز هذا الصنف بصرياً.
+            var item = await context.Set<Item>()
+                .IgnoreQueryFilters()
+                .AsNoTracking()
+                .FirstOrDefaultAsync(i => i.Id == itemId);
+            var itemName = item?.NameAr ?? item?.NameEn ?? itemId.ToString("N");
+
+            throw new InsufficientStockException(itemId, itemName, available, quantity);
+        }
     }
 
     private static async Task LockItemRowAsync(DbContext context, Guid itemId)

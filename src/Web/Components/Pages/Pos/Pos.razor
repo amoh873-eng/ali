@@ -2,6 +2,7 @@
 @attribute [Authorize(Roles = "Pos")]
 @layout PosLayout
 @using ERPSystem.Application.DTOs.Pos
+@using ERPSystem.Application.Exceptions
 <ModuleGuard ModuleKey="Pos">
 @inject IStringLocalizer<SharedResources> Loc
 @inject NavigationManager Nav
@@ -65,9 +66,20 @@
             </div>
 
             <div class="pos-grid">
-                @foreach (var item in FilteredItems)
+                @{
+                    var posVisible = FilteredItems;
+                }
+                @foreach (var item in posVisible)
                 {
-                    <button class="pos-item" @onclick="() => AddItem(item)">
+                    var isOutOfStock = item.CurrentStock <= 0;
+                    var isFailing = item.Id == _insufficientItemId;
+                    <button class="pos-item @(isOutOfStock ? "pos-item--out" : "") @(isFailing ? "pos-item--flash" : "")"
+                            title="@(isOutOfStock ? @Loc["PosOutOfStock"] : item.NameAr)"
+                            @onclick="() => AddItem(item)">
+                        @if (isOutOfStock)
+                        {
+                            <span class="pos-item-stock-badge">@Loc["PosOutOfStock"]</span>
+                        }
                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                         {
                             <img src="@item.ImageUrl" alt=""
@@ -79,7 +91,7 @@
                         <div class="pos-item-price">@item.SalePrice.ToString("N2")</div>
                     </button>
                 }
-                @if (FilteredItems.Count == 0)
+                @if (posVisible.Count == 0)
                 {
                     <MudText Class="pos-muted" Style="padding:16px;">@Loc["NoItems"]</MudText>
                 }
@@ -93,27 +105,70 @@
                 </div>
 
                 <div class="pos-cart-lines">
-                    @foreach (var line in _cart)
-                    {
-                        <div class="pos-line">
-                            <div class="pos-line-info">
-                                <div style="font-weight:600;">@line.Item.NameAr</div>
-                                <div class="pos-muted">@line.Item.SalePrice.ToString("N2")</div>
-                            </div>
-                            <div class="pos-line-qty">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(line)" />
-                                <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
-                                       value="@line.Quantity.ToString("0.##")"
-                                       @onchange="@(e => SetQuantity(line, e.Value?.ToString()))" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(line)" />
-                            </div>
-                            <div class="pos-line-total">@line.LineTotal.ToString("N2")</div>
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(line)" />
-                        </div>
-                    }
                     @if (_cart.Count == 0)
                     {
                         <MudText Class="pos-muted" Style="padding:16px;">@Loc["PosEmptyCart"]</MudText>
+                    }
+                    else
+                    {
+                        @* سلة بعمودين: كل صف يحمل صنفين (يسار ويمين) بتصميم مضغوط لعرض 16 صنفاً في الشاشة،
+                           مع تظليل شطرنجي (أبيض ← بنفسجي أغمق) للتمييز البصري. *@
+                        for (var ri = 0; ri < _cart.Count; ri += 2)
+                        {
+                            var left = _cart[ri];
+                            var right = ri + 1 < _cart.Count ? _cart[ri + 1] : null;
+                            var alt = (ri / 2) % 2 == 1;
+                            var leftOut = left.Item.CurrentStock <= 0 || left.Item.Id == _insufficientItemId;
+                            <div class="pos-cart-row @(alt ? "pos-cart-row--alt" : "")">
+                                <div class="pos-line @(leftOut ? "pos-line--no-stock" : "")">
+                                    <div class="pos-line-top">
+                                        <div class="pos-line-name" title="@left.Item.NameAr">@left.Item.NameAr</div>
+                                        @if (leftOut)
+                                        {
+                                            <span class="pos-line-stock-badge">@Loc["PosOutOfStock"]</span>
+                                        }
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(left)" />
+                                    </div>
+                                    <div class="pos-line-bottom">
+                                        <div class="pos-line-price">@left.Item.SalePrice.ToString("N2")</div>
+                                        <div class="pos-line-qty">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(left)" />
+                                            <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
+                                                   value="@left.Quantity.ToString("0.##")"
+                                                   @onchange="@(e => SetQuantity(left, e.Value?.ToString()))" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(left)" />
+                                        </div>
+                                        <div class="pos-line-total">@left.LineTotal.ToString("N2")</div>
+                                    </div>
+                                </div>
+
+                                @if (right is not null)
+                                {
+                                    var rightOut = right.Item.CurrentStock <= 0 || right.Item.Id == _insufficientItemId;
+                                    <div class="pos-line @(rightOut ? "pos-line--no-stock" : "")">
+                                        <div class="pos-line-top">
+                                            <div class="pos-line-name" title="@right.Item.NameAr">@right.Item.NameAr</div>
+                                            @if (rightOut)
+                                            {
+                                                <span class="pos-line-stock-badge">@Loc["PosOutOfStock"]</span>
+                                            }
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(right)" />
+                                        </div>
+                                        <div class="pos-line-bottom">
+                                            <div class="pos-line-price">@right.Item.SalePrice.ToString("N2")</div>
+                                            <div class="pos-line-qty">
+                                                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(right)" />
+                                                <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
+                                                       value="@right.Quantity.ToString("0.##")"
+                                                       @onchange="@(e => SetQuantity(right, e.Value?.ToString()))" />
+                                                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(right)" />
+                                            </div>
+                                            <div class="pos-line-total">@right.LineTotal.ToString("N2")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     }
                 </div>
 
@@ -190,7 +245,7 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Class="mt-2">
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Disabled="_busy" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
                 </MudButton>
             </div>
@@ -251,6 +306,9 @@
     private Guid? _selectedCategoryId;
     private Guid? _defaultWarehouseId;
 
+    /// <summary>معرّف الصنف الذي فشل فحص الرصيد في آخر محاولة إتمام — يُستخدم لتمييزه بصرياً في الشبكة والسلة.</summary>
+    private Guid? _insufficientItemId;
+
     // إعدادات نقطة البيع (تُحفظ في localStorage وتُطبَّق كمتغيرات CSS)
     private int _posColumns = 6;
     private string _posSize = "medium";
@@ -267,6 +325,35 @@
     private string _printerThanks = "";
     private string _printerPaper = "80";
     private bool _scrollCartToBottom;
+
+    // ── الأداء: حدّ أزرار الشبكة + ذاكرة مؤقتة ──
+    // مع آلاف الأصناف يتحول عرض كل الأزرار كل مرة إلى تجمّد (DOM ضخم + إعادة حساب LINQ).
+    // نعرض فقط أول _posGridLimit نتيجة (البحث يغطي القائمة الكاملة في الذاكرة)،
+    // ونعيد استخدام النتيجة المخبأة طالما لم يتغير البحث/الفئة.
+    // القيمة تُقرأ من SystemSettings.PosGridLimit (قابلة للتعديل من إعدادات المالك)،
+    // مع افتراض آمن = 30 إن لم تكن مهيأة (لا تؤدي إلى انهيار الشاشة).
+    private const int DefaultPosGridLimit = 30;
+    private int _posGridLimit = DefaultPosGridLimit;
+    private List<ItemDto>? _posGridCache;
+    private string _posGridCacheSearch = string.Empty;
+    private Guid? _posGridCacheCategory;
+
+    private void InvalidateItemGrid() => _posGridCache = null;
+
+    /// <summary>يقرأ حدّ شبكة POS من SystemSettings (قيمة آمنة 30 عند أي خطأ/غياب).</summary>
+    private async Task LoadPosGridLimitAsync()
+    {
+        try
+        {
+            var s = await SystemSettingsService.GetAsync();
+            _posGridLimit = s.PosGridLimit > 0 ? s.PosGridLimit : DefaultPosGridLimit;
+        }
+        catch
+        {
+            _posGridLimit = DefaultPosGridLimit;
+        }
+        InvalidateItemGrid();
+    }
 
     private List<ItemDto> _items = new();
     private List<CategoryDto> _categories = new();
@@ -291,6 +378,12 @@
     {
         get
         {
+            // ذاكرة مؤقتة: لا نعيد تصفية/فرز القائمة كاملة عند كل إعادة رسم إلا إذا تغيّر البحث أو الفئة.
+            if (_posGridCache is not null
+                && _posGridCacheSearch == _search
+                && _posGridCacheCategory == _selectedCategoryId)
+                return _posGridCache;
+
             IEnumerable<ItemDto> query = _items;
             if (_selectedCategoryId.HasValue)
                 query = query.Where(i => i.CategoryId == _selectedCategoryId.Value);
@@ -303,7 +396,10 @@
                     i.Code.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                     (i.Barcode != null && i.Barcode.Contains(term, StringComparison.OrdinalIgnoreCase)));
             }
-            return query.ToList();
+            _posGridCacheSearch = _search;
+            _posGridCacheCategory = _selectedCategoryId;
+            _posGridCache = query.Take(_posGridLimit).ToList();
+            return _posGridCache;
         }
     }
 
@@ -356,6 +452,7 @@
         await LoadPosSettingsAsync();
         await LoadPrinterSettingsAsync();
         await LoadWeightBarcodeRuleAsync();
+        await LoadPosGridLimitAsync(); // يقرأ PosGridLimit من SystemSettings (افتراضي 30)
         await LoadAsync();
     }
 
@@ -452,6 +549,7 @@
         try
         {
             _items = await ItemService.GetAllAsync();
+            InvalidateItemGrid(); // القائمة تغيّرت → أعد حساب الشبكة عند أول رسم
             _categories = await CategoryService.GetAllAsync();
             _customers = await CustomerService.GetAllAsync();
             var warehouses = await WarehouseService.GetAllAsync();
@@ -510,19 +608,21 @@
     /// <summary>إيقاف العملية الحالية: حفظ لقطة السلة وحفظها كصف HeldSale ثم مسح السلة.</summary>
     private async Task HoldSaleAsync()
     {
-        if (_cart.Count == 0) return;
-        if (string.IsNullOrWhiteSpace(_cashierUserId)) { Snackbar.Add(Loc["PosNotIdentified"], Severity.Warning); return; }
-
-        var snapshot = _cart.Select(l => new HeldCartLine
-        {
-            ItemId = l.Item.Id,
-            Quantity = l.Quantity,
-            UnitPrice = l.UnitPrice,
-            Discount = 0m
-        }).ToList();
-
+        if (_busy) return;
+        _busy = true;
         try
         {
+            if (_cart.Count == 0) return;
+            if (string.IsNullOrWhiteSpace(_cashierUserId)) { Snackbar.Add(Loc["PosNotIdentified"], Severity.Warning); return; }
+
+            var snapshot = _cart.Select(l => new HeldCartLine
+            {
+                ItemId = l.Item.Id,
+                Quantity = l.Quantity,
+                UnitPrice = l.UnitPrice,
+                Discount = 0m
+            }).ToList();
+
             await HeldSaleService.HoldAsync(new SaveHeldSaleDto
             {
                 CashierUserId = _cashierUserId,
@@ -535,6 +635,7 @@
             Snackbar.Add(Loc["PosHeld"], Severity.Info);
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; InvalidateItemGrid(); }
     }
 
     /// <summary>فتح لوحة العمليات الموقوفة لعرضها واستئناف أو إلغاء إحداها.</summary>
@@ -685,9 +786,16 @@
     private void GoToReconciliation() => Nav.NavigateTo("/pos/card-reconciliation");
     private async Task CompleteSale()
     {
-        if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
-        if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
-        if (_selectedCustomer is null) { Snackbar.Add(Loc["PosNoCustomer"], Severity.Warning); return; }
+        // حارس النقر المزدوج: نفعّل الـ busy فوراً قبل أي تحقق آخر
+        // حتى لا تُشغَّل فاتورتان متزامنتان على نفس DbContext (Scoped في الدائرة).
+        if (_busy) return;
+        _busy = true;
+        _insufficientItemId = null; // مسح تمييز محاولة سابقة قبل التحقق من الرصيد
+        try
+        {
+            if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
+            if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
+            if (_selectedCustomer is null) { Snackbar.Add(Loc["PosNoCustomer"], Severity.Warning); return; }
 
         var isCard = _paymentMethod == 2;
         var total = TotalAmount;
@@ -706,10 +814,7 @@
             return;
         }
 
-        _busy = true;
-        try
-        {
-            var dto = new CreateSalesInvoiceDto
+        var dto = new CreateSalesInvoiceDto
             {
                 CustomerId = _selectedCustomer.Id,
                 WarehouseId = _defaultWarehouseId.Value,
@@ -764,6 +869,12 @@
                 Loc["Receipt"], receiptParams,
                 new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, FullWidth = false });
             await LoadAsync();
+        }
+        catch (InsufficientStockException ex)
+        {
+            // الرصيد غير كافٍ — نُظهر اسم الصنف ونميّزه في الشبكة والسلة ليصحح الكاشير السلة.
+            _insufficientItemId = ex.ItemId;
+            Snackbar.Add(ex.Message, Severity.Error);
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
         finally { _busy = false; }
