@@ -17,7 +17,7 @@ public class StockBatchConfiguration : IEntityTypeConfiguration<StockBatch>
         builder.Property(b => b.ExpiryDate).HasColumnType("date");
         builder.Property(b => b.Quantity).HasColumnType("decimal(18,2)").IsRequired();
         builder.Property(b => b.ReceivedDate).IsRequired();
-        builder.Property(b => b.LastExpiryNotifiedAt).HasColumnType("datetime2");
+        builder.Property(b => b.LastExpiryNotifiedAt).HasColumnType("timestamp with time zone");
 
         // مفتاح أجنبي إلى الصنف والمخزن (ربط كائنات التنقّل بالمفاتيح لتجنّب مفاتيح ظل مكررة)
         builder.HasOne(b => b.Item)

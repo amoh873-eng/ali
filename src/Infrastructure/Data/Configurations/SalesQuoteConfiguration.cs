@@ -21,7 +21,7 @@ public class SalesQuoteConfiguration : IEntityTypeConfiguration<SalesQuote>
 
         builder.HasIndex(q => q.QuoteNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(q => new { q.CustomerId, q.QuoteDate });
 

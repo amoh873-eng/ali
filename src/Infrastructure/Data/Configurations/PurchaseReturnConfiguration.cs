@@ -14,7 +14,7 @@ public class PurchaseReturnConfiguration : IEntityTypeConfiguration<PurchaseRetu
         builder.HasKey(r => r.Id);
 
         builder.Property(r => r.ReturnNumber).IsRequired().HasMaxLength(50);
-        builder.HasIndex(r => r.ReturnNumber).IsUnique().HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(r => r.ReturnNumber).IsUnique().HasFilter("\"IsDeleted\" = false");
 
         builder.Property(r => r.SubTotal).HasColumnType("decimal(18,2)");
         builder.Property(r => r.TotalAmount).HasColumnType("decimal(18,2)");

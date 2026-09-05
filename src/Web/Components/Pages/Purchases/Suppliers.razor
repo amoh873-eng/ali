@@ -10,7 +10,7 @@
 <PageHeader Title="@Loc["Suppliers"]" Icon="@Icons.Material.Filled.LocalShipping" />
 
 <MudToolBar Class="mb-4">
-    <MudTextField @bind-Value="_search" Placeholder="@Loc["SearchCustomers"]" Adornment="Adornment.Start"
+    <MudTextField Value="@SearchText" ValueChanged="@((string v) => OnSearchChanged(v))" Immediate="true" Placeholder="@Loc["SearchCustomers"]" Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search" Class="flex-grow-1" />
     <MudSpacer />
     <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Add" OnClick="OpenCreateDialog">
@@ -67,12 +67,29 @@
     private bool _isLoading = true;
     private List<SupplierDto> _suppliers = new();
     private string _search = string.Empty;
+    private CancellationTokenSource? _searchCts;
 
-    private IEnumerable<SupplierDto> _filteredSuppliers =>
-        string.IsNullOrWhiteSpace(_search)
-            ? _suppliers
-            : _suppliers.Where(s => s.Code.Contains(_search, StringComparison.OrdinalIgnoreCase)
-                                     || s.NameAr.Contains(_search, StringComparison.OrdinalIgnoreCase));
+    private IEnumerable<SupplierDto> _filteredSuppliers => _suppliers;
+
+    private string SearchText { get; set; } = string.Empty;
+
+    private Task OnSearchChanged(string v) { SearchText = v ?? string.Empty; _search = SearchText; return DebouncedSearchAsync(); }
+
+    private async Task DebouncedSearchAsync()
+    {
+        _searchCts?.Cancel();
+        var cts = _searchCts = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(350, cts.Token);
+            if (cts.IsCancellationRequested) return;
+            // بحث خادمي بـ ILike (PostgreSQL — غير حساس لحالة الأحرف) بدل فلترة الذاكرة.
+            _suppliers = await SupplierService.SearchAsync(_search.Trim());
+            StateHasChanged();
+        }
+        catch (TaskCanceledException) { }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
 
     [Inject] private ISupplierService SupplierService { get; set; } = default!;
     [Inject] private IDialogService DialogService { get; set; } = default!;

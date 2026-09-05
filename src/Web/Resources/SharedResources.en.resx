@@ -970,4 +970,24 @@
   <data name="BulkNoFailures" xml:space="preserve"><value>No failed rows to download — everything imported successfully.</value></data>
   <data name="BulkUnsupportedFormat" xml:space="preserve"><value>Unsupported format — upload .xlsx, .csv or .txt only.</value></data>
   <data name="BulkFileTooLarge" xml:space="preserve"><value>File exceeds the maximum size (15 MB).</value></data>
+  <data name="BarcodeLabels" xml:space="preserve"><value>Barcode Labels</value></data>
+  <data name="BlSelectItems" xml:space="preserve"><value>Select items</value></data>
+  <data name="BlSelectHint" xml:space="preserve"><value>Search, or select a whole category, or the last bulk import batch</value></data>
+  <data name="BlSelectedCount" xml:space="preserve"><value>Selected: {0}</value></data>
+  <data name="BlSelectCategory" xml:space="preserve"><value>Select shown category</value></data>
+  <data name="BlSelectBulk" xml:space="preserve"><value>Last bulk import ({0})</value></data>
+  <data name="BlSearchPlaceholder" xml:space="preserve"><value>Search by name / code / barcode...</value></data>
+  <data name="BlSelected" xml:space="preserve"><value>Selected</value></data>
+  <data name="BlCopies" xml:space="preserve"><value>Copies</value></data>
+  <data name="BlOptions" xml:space="preserve"><value>Options</value></data>
+  <data name="BlSameCopies" xml:space="preserve"><value>One copy for all selected items</value></data>
+  <data name="BlShowPrice" xml:space="preserve"><value>Show price on label</value></data>
+  <data name="BlTemplateInfo" xml:space="preserve"><value>Label size: A4 – 63.5×33.9 mm (3×8 = 24 labels/page, Avery) · Code128</value></data>
+  <data name="BlGenerate" xml:space="preserve"><value>Generate &amp; download PDF</value></data>
+  <data name="BlPreview" xml:space="preserve"><value>Preview first page</value></data>
+  <data name="BlPreviewTitle" xml:space="preserve"><value>Preview — {0} label(s)</value></data>
+  <data name="BlNoSelection" xml:space="preserve"><value>Select at least one item first</value></data>
+  <data name="BlGenerating" xml:space="preserve"><value>Generating PDF...</value></data>
+  <data name="BlDone" xml:space="preserve"><value>Generated {0} label(s) successfully</value></data>
+  <data name="BlClear" xml:space="preserve"><value>Clear selection</value></data>
   </root>

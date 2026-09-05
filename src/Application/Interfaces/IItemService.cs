@@ -13,6 +13,13 @@ public interface IItemService
     Task<List<ItemDto>> GetAllAsync();
 
     /// <summary>
+    /// بحث في قاعدة البيانات بمطابقة ILike (غير حساسة لحالة الأحرف — PostgreSQL)
+    /// على الكود والاسم (عربي/إنجليزي) والباركود. يُستخدم في شاشة الأصناف بدل فلترة الذاكرة
+    /// لأن LIKE/Contains على مستوى SQL في PostgreSQL حساس لحالة الأحرف.
+    /// </summary>
+    Task<List<ItemDto>> SearchAsync(string term);
+
+    /// <summary>
     /// Returns items whose current stock is below the minimum level.
     /// </summary>
     Task<List<ItemDto>> GetLowStockAsync();
@@ -64,4 +71,10 @@ public interface IItemService
 
     /// <summary>ينشئ ملف Excel (xlsx) بصفوف الفشل/التخطّي وأسبابها للتنزيل وإعادة الاستيراد.</summary>
     byte[] BuildImportFailuresReport(List<ItemImportFailureDto> failures);
+
+    /// <summary>
+    /// يُعيد الأصناف المنشأة ضمن "آخر دفعة استيراد جماعي" (لا شيء إن لم تكن دفعة).
+    /// تُستخدم في شاشة ملصقات الباركود لاختيارها بضغطة واحدة بعد استيراد آلاف الأصناف.
+    /// </summary>
+    Task<List<ItemDto>> GetItemsFromLastBulkImportAsync();
 }

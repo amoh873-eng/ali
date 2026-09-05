@@ -355,7 +355,7 @@ static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserM
     try
     {
         // احذف أي claims من نوع "Permission" الموروثة من النظام القديم
-        var orphanClaims = dbContext.Database.ExecuteSqlRaw("DELETE FROM [AspNetRoleClaims] WHERE [ClaimType] = 'Permission'");
+        var orphanClaims = dbContext.Database.ExecuteSqlRaw("DELETE FROM \"AspNetRoleClaims\" WHERE \"ClaimType\" = 'Permission'");
     }
     catch { /* قد لا يوجد الجدول في DB جديدة/اختبارات — تجاهل */ }
 

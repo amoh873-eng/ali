@@ -22,7 +22,7 @@ public class DepartmentConfiguration : IEntityTypeConfiguration<Department>
 
         builder.HasIndex(d => d.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(d => d.NameAr)
             .IsRequired()

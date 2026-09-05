@@ -62,13 +62,17 @@ public static class NumberSequenceHelper
             await using var command = connection.CreateCommand();
             command.Transaction = context.Database.CurrentTransaction?.GetDbTransaction();
             command.CommandText = """
-                MERGE dbo.NumberSequences WITH (HOLDLOCK) AS target
-                USING (SELECT @key AS SequenceKey) AS source
-                ON target.SequenceKey = source.SequenceKey
-                WHEN MATCHED THEN UPDATE SET LastValue = target.LastValue + 1
-                WHEN NOT MATCHED THEN INSERT (Id, SequenceKey, LastValue) VALUES (NEWID(), @key, 1)
-                OUTPUT INSERTED.LastValue;
+                INSERT INTO "NumberSequences" ("Id", "SequenceKey", "LastValue")
+                VALUES (@id, @key, 1)
+                ON CONFLICT ("SequenceKey")
+                DO UPDATE SET "LastValue" = "NumberSequences"."LastValue" + 1
+                RETURNING "LastValue";
                 """;
+
+            var idParam = command.CreateParameter();
+            idParam.ParameterName = "id";
+            idParam.Value = Guid.NewGuid();
+            command.Parameters.Add(idParam);
 
             var parameter = command.CreateParameter();
             parameter.ParameterName = "key";
@@ -104,13 +108,17 @@ public static class NumberSequenceHelper
             await using var command = connection.CreateCommand();
             command.Transaction = context.Database.CurrentTransaction?.GetDbTransaction();
             command.CommandText = """
-                MERGE dbo.NumberSequences WITH (HOLDLOCK) AS target
-                USING (SELECT @key AS SequenceKey) AS source
-                ON target.SequenceKey = source.SequenceKey
-                WHEN MATCHED THEN UPDATE SET LastValue = target.LastValue + @count
-                WHEN NOT MATCHED THEN INSERT (Id, SequenceKey, LastValue) VALUES (NEWID(), @key, @count)
-                OUTPUT INSERTED.LastValue;
+                INSERT INTO "NumberSequences" ("Id", "SequenceKey", "LastValue")
+                VALUES (@id, @key, @count)
+                ON CONFLICT ("SequenceKey")
+                DO UPDATE SET "LastValue" = "NumberSequences"."LastValue" + @count
+                RETURNING "LastValue";
                 """;
+
+            var idParam = command.CreateParameter();
+            idParam.ParameterName = "id";
+            idParam.Value = Guid.NewGuid();
+            command.Parameters.Add(idParam);
 
             var keyParam = command.CreateParameter();
             keyParam.ParameterName = "key";

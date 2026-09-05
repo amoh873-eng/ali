@@ -14,7 +14,7 @@ public class SupplierConfiguration : IEntityTypeConfiguration<Supplier>
         builder.HasKey(s => s.Id);
 
         builder.Property(s => s.Code).IsRequired().HasMaxLength(20);
-        builder.HasIndex(s => s.Code).IsUnique().HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(s => s.Code).IsUnique().HasFilter("\"IsDeleted\" = false");
 
         builder.Property(s => s.NameAr).IsRequired().HasMaxLength(200);
         builder.Property(s => s.NameEn).HasMaxLength(200);

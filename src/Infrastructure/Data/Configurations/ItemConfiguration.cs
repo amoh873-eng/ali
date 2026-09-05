@@ -21,11 +21,11 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
 
         builder.HasIndex(i => i.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(i => i.Barcode)
             .IsUnique(false)
-            .HasFilter("[Barcode] IS NOT NULL AND [IsDeleted] = 0");
+            .HasFilter("\"Barcode\" IS NOT NULL AND \"IsDeleted\" = false");
 
         builder.Property(i => i.NameAr)
             .IsRequired()
@@ -66,7 +66,7 @@ public class ItemConfiguration : IEntityTypeConfiguration<Item>
             .HasDefaultValue(false);
 
         builder.Property(i => i.LastLowStockNotifiedAt)
-            .HasColumnType("datetime2");
+            .HasColumnType("timestamp with time zone");
 
         // Relationships
         builder.HasOne(i => i.Category)

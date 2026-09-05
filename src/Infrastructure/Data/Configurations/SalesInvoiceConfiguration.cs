@@ -21,7 +21,7 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
 
         builder.HasIndex(i => i.InvoiceNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(i => new { i.CustomerId, i.InvoiceDate });
 
@@ -75,7 +75,7 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
             .HasForeignKey(i => i.CogsJournalEntryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(i => i.JoFotaraQrCode).HasColumnType("nvarchar(max)");
+        builder.Property(i => i.JoFotaraQrCode).HasColumnType("text");
         builder.Property(i => i.JoFotaraReferenceNumber).HasMaxLength(200);
         builder.Property(i => i.CreatedAt).IsRequired();
         builder.Property(i => i.CreatedBy).HasMaxLength(100);

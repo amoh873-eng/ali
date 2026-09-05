@@ -16,7 +16,7 @@ public class NotificationConfiguration : IEntityTypeConfiguration<Notification>
 
         builder.Property(n => n.RecipientUserId).IsRequired().HasMaxLength(450);
         builder.Property(n => n.Title).IsRequired().HasMaxLength(300);
-        builder.Property(n => n.Message).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(n => n.Message).IsRequired().HasColumnType("text");
         builder.Property(n => n.LinkUrl).HasMaxLength(1000);
         builder.Property(n => n.DedupKey).HasMaxLength(200);
 

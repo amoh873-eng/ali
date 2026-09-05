@@ -21,7 +21,7 @@ public class PositionConfiguration : IEntityTypeConfiguration<Position>
 
         builder.HasIndex(p => p.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(p => p.NameAr)
             .IsRequired()

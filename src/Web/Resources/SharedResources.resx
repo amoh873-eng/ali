@@ -971,4 +971,24 @@
   <data name="BulkNoFailures" xml:space="preserve"><value>لا توجد صفوف فاشلة لتنزيلها — كل شيء استُورد بنجاح.</value></data>
   <data name="BulkUnsupportedFormat" xml:space="preserve"><value>صيغة غير مدعومة — ارفع ملف .xlsx أو .csv أو .txt فقط.</value></data>
   <data name="BulkFileTooLarge" xml:space="preserve"><value>حجم الملف يتجاوز الحد الأقصى (15 ميجابايت).</value></data>
+  <data name="BarcodeLabels" xml:space="preserve"><value>ملصقات الباركود</value></data>
+  <data name="BlSelectItems" xml:space="preserve"><value>اختيار الأصناف</value></data>
+  <data name="BlSelectHint" xml:space="preserve"><value>ابحث، أو اختر فئة كاملة، أو اختر آخر دفعة استيراد جماعي</value></data>
+  <data name="BlSelectedCount" xml:space="preserve"><value>المحدد: {0}</value></data>
+  <data name="BlSelectCategory" xml:space="preserve"><value>اختيار الفئة المعروضة</value></data>
+  <data name="BlSelectBulk" xml:space="preserve"><value>آخر دفعة استيراد ({0})</value></data>
+  <data name="BlSearchPlaceholder" xml:space="preserve"><value>بحث بالاسم/الكود/الباركود...</value></data>
+  <data name="BlSelected" xml:space="preserve"><value>تحديد</value></data>
+  <data name="BlCopies" xml:space="preserve"><value>النسخ</value></data>
+  <data name="BlOptions" xml:space="preserve"><value>الخيارات</value></data>
+  <data name="BlSameCopies" xml:space="preserve"><value>نسخة واحدة لكل الأصناف المحددة</value></data>
+  <data name="BlShowPrice" xml:space="preserve"><value>إظهار السعر على الملصق</value></data>
+  <data name="BlTemplateInfo" xml:space="preserve"><value>مقاس الملصق: A4 — 63.5×33.9 مم (3×8 = 24 ملصقاً بالورقة، Avery L7165) · نمط Code128</value></data>
+  <data name="BlGenerate" xml:space="preserve"><value>توليد PDF وتنزيله</value></data>
+  <data name="BlPreview" xml:space="preserve"><value>معاينة الورقة الأولى</value></data>
+  <data name="BlPreviewTitle" xml:space="preserve"><value>معاينة — {0} ملصقاً</value></data>
+  <data name="BlNoSelection" xml:space="preserve"><value>اختر صنفاً واحداً على الأقل أولاً</value></data>
+  <data name="BlGenerating" xml:space="preserve"><value>جارٍ توليد الـ PDF...</value></data>
+  <data name="BlDone" xml:space="preserve"><value>تم توليد {0} ملصقاً بنجاح</value></data>
+  <data name="BlClear" xml:space="preserve"><value>مسح الاختيار</value></data>
   </root>

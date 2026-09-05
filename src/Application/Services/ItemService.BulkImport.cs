@@ -18,6 +18,15 @@ public partial class ItemService
     private const int ImportBatchSize = 500;
     private const string ItemCodePrefix = "ITM";
 
+    /// <summary>
+    /// علامة زمنية (على مستوى التطبيق قيد التشغيل) لآخر دفعة استيراد جماعي اكتملت.
+    /// تُستخدم في شاشة ملصقات الباركود لاختيار "كل الأصناف من آخر دفعة استيراد"
+    /// دون الحاجة لتغيير schema (ميزة فعلية ومفيدة بعد استيراد 500–5000 صنف دفعة واحدة).
+    /// </summary>
+    private static DateTime? LastBulkImportCompletedAtUtc;
+
+    public static DateTime? GetLastBulkImportTimeUtc() => LastBulkImportCompletedAtUtc;
+
     public async Task<ParsedImportFileDto> ParseImportFileAsync(Stream fileStream, string fileName)
     {
         // دفق المتصفح يمنع القراءة المتزامنة — انسخ غير متزامن ثم حلّل من الذاكرة
@@ -362,7 +371,31 @@ public partial class ItemService
 
         result.NoticeCount = allRows.Sum(r => r.Notices.Count);
         result.ElapsedMs = sw.ElapsedMilliseconds;
+
+        // تسجيل لحظة اكتمال الدفعة (تُستخدم في شاشة ملصقات الباركود → "آخر دفعة استيراد")
+        if (result.CreatedCount > 0)
+            LastBulkImportCompletedAtUtc = DateTime.UtcNow;
+
         return result;
+    }
+
+    /// <summary>
+    /// يُعيد الأصناف المنشأة ضمن "آخر دفعة استيراد جماعي" (التي اكتملت في هذا التشغيل).
+    /// إن لم توجد دفعة ← قائمة فارغة.
+    /// </summary>
+    public async Task<List<ItemDto>> GetItemsFromLastBulkImportAsync()
+    {
+        var marker = LastBulkImportCompletedAtUtc;
+        if (marker is null) return new List<ItemDto>();
+
+        var items = await _context.Set<Item>()
+            .Include(i => i.Category)
+            .Include(i => i.Unit)
+            .Where(i => !i.IsDeleted && i.CreatedAt >= marker)
+            .OrderBy(i => i.Code)
+            .ToListAsync();
+
+        return items.Select(MapToDto).ToList();
     }
 
     /// <summary>فئة «غير مصنف»: تُوجد أو تُنشأ مرة واحدة (ملاحظة فقط، لا خطأ).</summary>

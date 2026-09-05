@@ -13,8 +13,8 @@ public class AppDbContextFactory : IDesignTimeDbContextFactory<AppDbContext>
     public AppDbContext CreateDbContext(string[] args)
     {
         var optionsBuilder = new DbContextOptionsBuilder<AppDbContext>();
-        optionsBuilder.UseSqlServer(
-            "Server=(localdb)\\mssqllocaldb;Database=ERPSystemDb;Trusted_Connection=True;TrustServerCertificate=True");
+        optionsBuilder.UseNpgsql(
+            "Host=localhost;Port=5432;Database=ERPSystemDb;Username=erp_app;Password=ErpPg#2026_K7q");
         return new AppDbContext(optionsBuilder.Options);
     }
 }

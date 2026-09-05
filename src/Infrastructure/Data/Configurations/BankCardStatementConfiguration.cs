@@ -21,7 +21,7 @@ public class BankCardStatementConfiguration : IEntityTypeConfiguration<BankCardS
         // مفتاح فريد: رقم المرجع فريد كفاية على كشف البنك، ونمنع تكراره عند إعادة الاستيراد
         builder.HasIndex(b => b.Reference)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(b => b.Amount).HasColumnType("decimal(18,2)");
         builder.Property(b => b.TransactionDate).IsRequired();

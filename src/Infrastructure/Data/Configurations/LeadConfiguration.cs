@@ -21,7 +21,7 @@ public class LeadConfiguration : IEntityTypeConfiguration<Lead>
 
         builder.HasIndex(l => l.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(l => l.NameAr)
             .IsRequired()

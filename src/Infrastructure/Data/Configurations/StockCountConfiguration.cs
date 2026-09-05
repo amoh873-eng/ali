@@ -16,7 +16,7 @@ public class StockCountConfiguration : IEntityTypeConfiguration<StockCount>
         builder.HasKey(c => c.Id);
 
         builder.Property(c => c.StockCountNumber).IsRequired().HasMaxLength(50);
-        builder.HasIndex(c => c.StockCountNumber).IsUnique().HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(c => c.StockCountNumber).IsUnique().HasFilter("\"IsDeleted\" = false");
 
         builder.Property(c => c.CountDate).IsRequired();
         builder.Property(c => c.Note).HasMaxLength(1000);

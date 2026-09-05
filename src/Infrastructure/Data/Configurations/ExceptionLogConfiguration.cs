@@ -17,7 +17,7 @@ public class ExceptionLogConfiguration : IEntityTypeConfiguration<ExceptionLog>
 
         builder.Property(e => e.OccurredAt).IsRequired();
         builder.Property(e => e.Message).IsRequired().HasMaxLength(2000);
-        builder.Property(e => e.StackTrace).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.StackTrace).HasColumnType("text");
         builder.Property(e => e.UserId).HasMaxLength(450);
         builder.Property(e => e.RequestPath).HasMaxLength(1000);
         builder.Property(e => e.ExceptionType).HasMaxLength(500);

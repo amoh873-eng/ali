@@ -24,18 +24,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Register DbContext with SQL Server
+        // Register DbContext with PostgreSQL
         // لماذا AddDbContext وليس AddDbContextPool؟
         // DbContextPool يعيد استخدام السياق بين الطلبات وهو أسرع،
         // لكننا نستخدم AddDbContext حالياً للبساطة.
         // في الإصدارات المستقبلية يمكن الترقية إلى Pool للتحسين.
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(
+            options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-                sqlOptions =>
+                npgsqlOptions =>
                 {
                     // مكان ملفات الترحيل (Migrations) داخل مشروع Infrastructure
-                    sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                    npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                 }).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         // Register application services

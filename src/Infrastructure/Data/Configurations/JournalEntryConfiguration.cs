@@ -21,7 +21,7 @@ public class JournalEntryConfiguration : IEntityTypeConfiguration<JournalEntry>
 
         builder.HasIndex(e => e.EntryNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(e => e.EntryDate);
         builder.HasIndex(e => e.ReferenceNumber);

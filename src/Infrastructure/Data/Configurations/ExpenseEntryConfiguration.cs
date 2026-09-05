@@ -21,7 +21,7 @@ public class ExpenseEntryConfiguration : IEntityTypeConfiguration<ExpenseEntry>
 
         builder.HasIndex(e => e.EntryNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(e => e.Amount)
             .HasPrecision(18, 2);

@@ -22,7 +22,7 @@ public class ExpenseCategoryConfiguration : IEntityTypeConfiguration<ExpenseCate
 
         builder.HasIndex(c => c.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(c => c.NameAr)
             .IsRequired()

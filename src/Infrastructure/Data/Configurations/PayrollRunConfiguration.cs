@@ -21,12 +21,12 @@ public class PayrollRunConfiguration : IEntityTypeConfiguration<PayrollRun>
 
         builder.HasIndex(p => p.RunNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         // قيد فريد على الفترة — خط الدفاع الثاني (الأول: فحص مقفل داخل معاملة)
         builder.HasIndex(p => new { p.PeriodStart, p.PeriodEnd })
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(p => p.PeriodStart).IsRequired();
         builder.Property(p => p.PeriodEnd).IsRequired();

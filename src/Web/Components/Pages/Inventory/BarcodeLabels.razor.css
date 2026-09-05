@@ -1,0 +1,18 @@
+/* ── شاشة ملصقات الباركود (BarcodeLabels) ── */
+.bl-wrap { max-width: 1200px; margin: 0 auto; padding: 12px 20px 60px; display: flex; flex-direction: column; gap: 16px; }
+.bl-muted { color: #6B7280; }
+
+.bl-card { border-radius: 14px; background: #fff; padding: 20px; }
+
+.bl-head { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; flex-wrap: wrap; }
+.bl-toolbar { display: flex; gap: 10px; align-items: center; flex-wrap: wrap; margin-top: 14px; }
+.bl-search { flex: 1 1 240px; }
+.bl-cat { width: 200px; }
+
+.bl-table { border-radius: 10px; overflow: hidden; }
+
+.bl-options { display: flex; gap: 24px; align-items: center; flex-wrap: wrap; margin: 12px 0 6px; }
+
+.bl-actions { display: flex; gap: 12px; justify-content: flex-end; flex-wrap: wrap; }
+.bl-busy { text-align: center; }
+.bl-preview { width: 100%; border: 1px solid #E5E7EB; border-radius: 10px; background: #fff; min-height: 400px; }

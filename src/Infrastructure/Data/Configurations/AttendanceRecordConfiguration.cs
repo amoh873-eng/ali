@@ -32,7 +32,7 @@ public class AttendanceRecordConfiguration : IEntityTypeConfiguration<Attendance
         // الفلتر يستثني السجلات المحذوفة ناعماً حتى لا تمنع إعادة الإنشاء
         builder.HasIndex(a => new { a.EmployeeId, a.Date })
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(a => a.Notes).HasMaxLength(500);
 

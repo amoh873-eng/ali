@@ -39,7 +39,7 @@ internal static class StockAvailabilityHelper
         {
             await using var command = connection.CreateCommand();
             command.Transaction = context.Database.CurrentTransaction?.GetDbTransaction();
-            command.CommandText = "SELECT 1 FROM [Items] WITH (UPDLOCK, HOLDLOCK) WHERE [Id] = @itemId";
+            command.CommandText = "SELECT 1 FROM \"Items\" WHERE \"Id\" = @itemId FOR UPDATE";
 
             var parameter = command.CreateParameter();
             parameter.ParameterName = "itemId";

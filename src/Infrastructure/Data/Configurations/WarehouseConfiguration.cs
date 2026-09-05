@@ -21,7 +21,7 @@ public class WarehouseConfiguration : IEntityTypeConfiguration<Warehouse>
 
         builder.HasIndex(w => w.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(w => w.NameAr)
             .IsRequired()

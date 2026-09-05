@@ -18,6 +18,21 @@ public partial class SupplierService : ISupplierService
         return suppliers.Select(MapToDto).ToList();
     }
 
+    /// <summary>بحث خادمي بـ ILike على الكود والاسم (غير حساس للحالة — PostgreSQL).</summary>
+    public async Task<List<SupplierDto>> SearchAsync(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term)) return await GetAllAsync();
+
+        var suppliers = await _context.Set<Supplier>()
+            .Where(s => !s.IsDeleted && (
+                EF.Functions.ILike(s.Code, $"%{term}%") ||
+                EF.Functions.ILike(s.NameAr, $"%{term}%") ||
+                (s.NameEn != null && EF.Functions.ILike(s.NameEn, $"%{term}%"))))
+            .OrderBy(s => s.Code)
+            .ToListAsync();
+        return suppliers.Select(MapToDto).ToList();
+    }
+
     public async Task<SupplierDto?> GetByIdAsync(Guid id)
     {
         var supplier = await _context.Set<Supplier>().FirstOrDefaultAsync(s => s.Id == id && !s.IsDeleted);

@@ -14,6 +14,15 @@ namespace ERPSystem.Infrastructure.Data;
 /// </summary>
 public class AppDbContext : IdentityDbContext<IdentityUser>
 {
+    static AppDbContext()
+    {
+        // Npgsql 6+: أعمدة DateTime الافتراضية تُعرض timestamptz (UTC فقط) بينما التطبيق
+        // يستخدم DateTime.Now/Today (Local) في مواضع عديدة. نفعّل السلوك القديم الذي:
+        //  - يقبل أي DateTime.Kind عند الكتابة (Local/Utc/Unspecified)
+        //  - يشغّل القراءة/الكتابة كـ "timestamp without time zone" مع تعامل سليم مع الصيغ.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
     /// <summary>
     /// Constructor accepting DbContextOptions (used by DI to inject connection string).
     /// </summary>
@@ -289,9 +298,21 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new StockBatchConfiguration());
         modelBuilder.ApplyConfiguration(new HeldSaleConfiguration());
 
-        // Concurrency tokens (SQL Server rowversion) — catch lost updates to stock and account balances.
-        modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
-        modelBuilder.Entity<Account>().Property(a => a.RowVersion).IsRowVersion();
+        // Concurrency tokens: SQL Server يصنع rowversion تلقائياً.
+        // PostgreSQL ليس لديه rowversion — نستخدم عمود bytea صريحاً مع ValueGeneratedNever
+        // حتى لا يُسقط NULL عند الإدراج، مع إبقاء عمود التحقق متاحاً للتطبيق إن أراد استخدامه.
+        var isNpgsql = Database.IsNpgsql();
+        if (isNpgsql)
+        {
+            modelBuilder.Entity<Item>().Property(i => i.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+            modelBuilder.Entity<PayrollRun>().Property(p => p.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+        }
+        else
+        {
+            modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).IsRowVersion();
+        }
 
         // ==================== Seed Data ====================
         // بذور أولية لشجرة الحسابات - هذه الحسابات الأساسية ستنشأ تلقائياً
