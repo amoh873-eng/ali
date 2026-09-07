@@ -1,4 +1,7 @@
 @using MudBlazor.Services
+@using Microsoft.AspNetCore.Components.Endpoints
+@using Microsoft.AspNetCore.Components.Routing
+@using Microsoft.AspNetCore.Components.Web
 
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
@@ -25,7 +28,7 @@
        DbContext concurrency during prerender is avoided because MainLayout performs no
        database work in OnInitializedAsync (it loads after first render) and page queries
        run sequentially, so never two operations on the shared scoped AppDbContext at once. *@
-    <Routes @rendermode="InteractiveServer" />
+    <Routes @rendermode="RenderModeForPage" />
     <ReconnectModal />
     <script src="@Assets["_framework/blazor.web.js"]"></script>
     <!-- MudBlazor JavaScript -->
@@ -55,3 +58,16 @@
 </body>
 
 </html>
+
+@code {
+    [CascadingParameter] private HttpContext? HttpContext { get; set; }
+
+    /// <summary>
+    /// وضع التفاعل شرطي لكل طلب: InteractiveServer فقط إذا قبل الطلب التوجيه التفاعلي؛
+    /// وإلا null (SSR ثابت) — مثل صفحة /login فلا تُفتح دائرة أبداً عند تحميلها أول مرة.
+    /// </summary>
+    private IComponentRenderMode? RenderModeForPage
+        => HttpContext?.AcceptsInteractiveRouting() == true
+            ? Microsoft.AspNetCore.Components.Web.RenderMode.InteractiveServer
+            : null;
+}

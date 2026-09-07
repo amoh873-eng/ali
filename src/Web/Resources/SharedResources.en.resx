@@ -997,4 +997,16 @@
   <data name="PosGridLimitSave" xml:space="preserve"><value>Save grid limit</value></data>
   <data name="PosGridLimitSaved" xml:space="preserve"><value>POS grid limit saved</value></data>
   <data name="PosOutOfStock" xml:space="preserve"><value>Out of stock</value></data>
+  <data name="ExpiringBatches" xml:space="preserve"><value>Batches expiring soon</value></data>
+  <data name="ExpiringBatchesSub" xml:space="preserve"><value>All inventory batches that expire within the configured window or are already expired — nearest expiry first</value></data>
+  <data name="Days" xml:space="preserve"><value>days</value></data>
+  <data name="ProductionDate" xml:space="preserve"><value>Production date</value></data>
+  <data name="NoExpiringBatches" xml:space="preserve"><value>No batches expiring soon</value></data>
+  <data name="PosNearExpiry" xml:space="preserve"><value>Batch expiring soon</value></data>
+  <data name="PosNearExpiryShort" xml:space="preserve"><value>Expiring soon</value></data>
+  <data name="BarcodeReceive" xml:space="preserve"><value>Barcode receiving</value></data>
+  <data name="BarcodeReceivePlaceholder" xml:space="preserve"><value>Scan barcode or type item code/name then Enter</value></data>
+  <data name="BarcodeScanOk" xml:space="preserve"><value>Added «{0}» ×{1} — line total: {2}</value></data>
+  <data name="BarcodeScanNotFound" xml:space="preserve"><value>Unknown barcode/code — no line added</value></data>
+  <data name="BarcodeReceiveHint" xml:space="preserve"><value>Each scan adds 1 to quantity; adjust qty/price on lines before posting</value></data>
   </root>

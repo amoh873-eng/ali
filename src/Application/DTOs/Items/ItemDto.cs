@@ -25,6 +25,9 @@ public class ItemDto
 
     public bool TracksExpiry { get; set; }
 
+    /// <summary>هل يتتبّع الدُفعات ItemBatch؟ (اختياري — للأصناف الغذائية/القابلة للتلف)</summary>
+    public bool TracksBatches { get; set; }
+
     /// <summary>مسار صورة الصنف (يُعرض في أزرار POS وبطاقة المادة). فارغ إن لا صورة.</summary>
     public string? ImageUrl { get; set; }
 }

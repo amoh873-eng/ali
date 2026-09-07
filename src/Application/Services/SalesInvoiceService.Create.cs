@@ -149,6 +149,10 @@ public partial class SalesInvoiceService
             // تتم داخل نفس المعاملة/القفل الحالي (قفل صف الصنف من EnsureEnoughStock).
             if (itemDict[line.ItemId].TracksExpiry)
                 await StockBatchHelper.AllocateFefoAsync(_context, line.ItemId, warehouse.Id, line.Quantity);
+
+            // ── تتبّع الدُفعات (ItemBatch): FEFO مع منع بيع المنتهي + تكامل الرصيد ──
+            if (itemDict[line.ItemId].TracksBatches)
+                await AllocateItemBatchesAsync(line.ItemId, warehouse.Id, line.Quantity);
         }
 
         // 5) القيد المحاسبي للبيع: مدين حسب أسلوب السداد (صندوق أو ذمم بطاقات أو عملاء) ، دائن (إيراد + ضريبة)
@@ -211,5 +215,51 @@ public partial class SalesInvoiceService
             await tx.RollbackAsync();
             throw new InvalidOperationException("تعارض في تحديث بيانات الفاتورة — حاول مرة أخرى.");
         }
+    }
+
+    /// <summary>يخصّص كمية البيع FEFO من دُفعات ItemBatch (مع منع بيع المنتهي) ثم يتحقق من التزامن.</summary>
+    private async Task AllocateItemBatchesAsync(Guid itemId, Guid warehouseId, decimal quantity)
+    {
+        var today = DateOnly.FromDateTime(DateTime.Today);
+
+        var batches = await _context.Set<ItemBatch>()
+            .Where(b => b.ItemId == itemId && b.WarehouseId == warehouseId && b.Quantity > 0m)
+            .ToListAsync();
+
+        // نستثني الدُفعات المنتهية فعلياً (ExpiryDate < اليوم) — لا تُبيع أبداً
+        var usable = batches.Where(b => b.ExpiryDate is null || b.ExpiryDate >= today).ToList();
+        if (usable.Count == 0)
+            throw new InvalidOperationException(
+                "لا توجد دُفعات صالحة غير منتهية هذا الصنف — لا يمكن بيع كمية من دُفعة منتهية.");
+
+        var ordered = usable
+            .OrderBy(b => b.ExpiryDate.HasValue ? 0 : 1)
+            .ThenBy(b => b.ExpiryDate)
+            .ToList();
+
+        var total = ordered.Sum(b => b.Quantity);
+        if (total < quantity)
+            throw new InvalidOperationException(
+                $"رصيد الدُفعات الصالحة غير كافٍ للصنف. المتاح غير المنتهي: {total:N0}، المطلوب: {quantity:N0}.");
+
+        var remaining = quantity;
+        foreach (var batch in ordered)
+        {
+            if (remaining <= 0m) break;
+            var take = Math.Min(batch.Quantity, remaining);
+            batch.Quantity -= take;
+            remaining -= take;
+        }
+
+        // ضمانة التزامن: مجموع الدُفعات == رصيد حركات المخزون (نفس المعاملة)
+        var batchTotal = await _context.Set<ItemBatch>()
+            .Where(b => b.ItemId == itemId && b.WarehouseId == warehouseId)
+            .SumAsync(b => (decimal?)b.Quantity) ?? 0m;
+        var movementTotal = await _context.Set<StockMovement>()
+            .Where(m => m.ItemId == itemId && m.WarehouseId == warehouseId)
+            .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
+        if (batchTotal != movementTotal)
+            throw new InvalidOperationException(
+                $"تعارض تكامل دُفعات البيع: مجاميع الدُفعات ({batchTotal:N2}) ≠ حركات المخزون ({movementTotal:N2}).");
     }
 }

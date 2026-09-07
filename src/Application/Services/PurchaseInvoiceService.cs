@@ -161,6 +161,17 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
                     line.Quantity, expiry, batchNoByItem.TryGetValue(line.ItemId, out var bn) ? bn : null,
                     invoice.InvoiceNumber, invoice.InvoiceDate);
             }
+
+            // ── تتبّع الدُفعات (ItemBatch): إلزامي للصنف TracksBatches + إنشاء/دمج دُفعة + تكامل الرصيد ──
+            if (item.TracksBatches)
+            {
+                var expiry = expiryByItem.TryGetValue(line.ItemId, out var e2) ? e2 : null;
+                var bno = batchNoByItem.TryGetValue(line.ItemId, out var b2) ? b2 : null;
+                await ItemBatchHelper.CreateOnReceiveAsync(_context, line.ItemId, warehouse.Id,
+                    line.Quantity, expiry, bno, invoice.InvoiceDate, invoice.Id);
+                // ضمانة التزامن: مجموع الدُفعات == رصيد حركات المخزون (نفس المعاملة)
+                await AssertBatchesConsistentAfterReceiptAsync(line.ItemId, warehouse.Id);
+            }
         }
 
         var inventoryAccount = await GetAccountByCodeAsync(AccountInventory);
@@ -197,6 +208,20 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
         if (account is null)
             throw new InvalidOperationException($"الحساب النظامي '{code}' غير موجود في شجرة الحسابات.");
         return account;
+    }
+
+    /// <summary>تحقق التزامن بعد استلام صنف TracksBatches: مجموع الدُفعات == رصيد حركات المخزون.</summary>
+    private async Task AssertBatchesConsistentAfterReceiptAsync(Guid itemId, Guid warehouseId)
+    {
+        var batchTotal = await _context.Set<ItemBatch>()
+            .Where(b => b.ItemId == itemId && b.WarehouseId == warehouseId)
+            .SumAsync(b => (decimal?)b.Quantity) ?? 0m;
+        var movementTotal = await _context.Set<StockMovement>()
+            .Where(m => m.ItemId == itemId && m.WarehouseId == warehouseId)
+            .SumAsync(m => (decimal?)m.Quantity) ?? 0m;
+        if (batchTotal != movementTotal)
+            throw new InvalidOperationException(
+                $"تعارض تكامل دُفعات الاستلام: مجاميع الدُفعات ({batchTotal:N2}) ≠ حركات المخزون ({movementTotal:N2}).");
     }
 
     private static PurchaseInvoiceDto MapToDto(PurchaseInvoice invoice) => new()

@@ -77,4 +77,30 @@ public interface IItemService
     /// تُستخدم في شاشة ملصقات الباركود لاختيارها بضغطة واحدة بعد استيراد آلاف الأصناف.
     /// </summary>
     Task<List<ItemDto>> GetItemsFromLastBulkImportAsync();
+
+    // ────────────────────────── ملصقات الباركود (خادمي مقسّم — يمنع اللود الضخم) ──────────────────────────
+
+    /// <summary>
+    /// استعلام صفحات خادمي (بحث ILike + فئة + ترقيم) يعيد صفحة واحدة + العدد الإجمالي.
+    /// بديل تحميل كل الأصناف في الذاكرة في شاشة الملصقات (كان يجمّد الجهاز).
+    /// </summary>
+    Task<ItemPageDto> SearchPageAsync(string? term, Guid? categoryId, int skip, int take, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// يجلب أصنافَ محددة فقط (لا كل الأصناف) — لبناء قائمة ملصقات الطباعة من الاختيار.
+    /// لا يعمل أي استعلام إن كانت القائمة فارغة.
+    /// </summary>
+    Task<List<ItemDto>> GetByIdsAsync(IEnumerable<Guid> ids);
+
+    /// <summary>
+    /// أكواد الأصناف الغير محذوفة ضمن فئة (اختيار "كل الفئة" في شاشة الملصقات) —
+    /// نعيد الأكواد فقط لا الأصناف كاملة.
+    /// </summary>
+    Task<List<Guid>> GetIdsByCategoryAsync(Guid categoryId);
+
+    /// <summary>
+    /// أكواد أصناف آخر دفعة استيراد جماعية (التي اكتملت في هذا التشغيل) — لأكواد فقط.
+    /// إن لم توجد دفعة ← قائمة فارغة.
+    /// </summary>
+    Task<List<Guid>> GetLastBulkImportIdsAsync();
 }

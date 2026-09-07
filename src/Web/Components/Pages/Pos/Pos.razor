@@ -6,6 +6,7 @@
 <ModuleGuard ModuleKey="Pos">
 @inject IStringLocalizer<SharedResources> Loc
 @inject NavigationManager Nav
+@inject ERPSystem.Application.Interfaces.IItemBatchService ItemBatchService
 
 <div class="pos-root @(_posHideItems ? "pos-hide-items" : "")">
     @* الشريط العلوي المصغّر *@
@@ -73,9 +74,14 @@
                 {
                     var isOutOfStock = item.CurrentStock <= 0;
                     var isFailing = item.Id == _insufficientItemId;
-                    <button class="pos-item @(isOutOfStock ? "pos-item--out" : "") @(isFailing ? "pos-item--flash" : "")"
-                            title="@(isOutOfStock ? @Loc["PosOutOfStock"] : item.NameAr)"
+                    var isNearExpiry = _nearExpiryItemIds.Contains(item.Id);
+                    <button class="pos-item @(isOutOfStock ? "pos-item--out" : "") @(isFailing ? "pos-item--flash" : "") @(isNearExpiry ? "pos-item--near-expiry" : "")"
+                            title="@(isOutOfStock ? @Loc["PosOutOfStock"] : (isNearExpiry ? @Loc["PosNearExpiry"] : item.NameAr))"
                             @onclick="() => AddItem(item)">
+                        @if (isNearExpiry)
+                        {
+                            <span class="pos-item-expiry-badge" title="@Loc["PosNearExpiry"]">@Loc["PosNearExpiryShort"]</span>
+                        }
                         @if (isOutOfStock)
                         {
                             <span class="pos-item-stock-badge">@Loc["PosOutOfStock"]</span>
@@ -308,6 +314,9 @@
 
     /// <summary>معرّف الصنف الذي فشل فحص الرصيد في آخر محاولة إتمام — يُستخدم لتمييزه بصرياً في الشبكة والسلة.</summary>
     private Guid? _insufficientItemId;
+
+    /// <summary>أصناف لها دُفعة (ItemBatch) قريبة الانتهاء ضمن نافذة التحذير — لتلوين أزرار POS.</summary>
+    private HashSet<Guid> _nearExpiryItemIds = new HashSet<Guid>();
 
     // إعدادات نقطة البيع (تُحفظ في localStorage وتُطبَّق كمتغيرات CSS)
     private int _posColumns = 6;
@@ -550,6 +559,15 @@
         {
             _items = await ItemService.GetAllAsync();
             InvalidateItemGrid(); // القائمة تغيّرت → أعد حساب الشبكة عند أول رسم
+
+            // تحميل مؤشر قرب الانتهاء من دُفعات ItemBatch (ضمن نافذة التحذير من الإعدادات)
+            try
+            {
+                var s = await SystemSettingsService.GetAsync();
+                var windowDays = s.ExpiryWarningWindowDays > 0 ? s.ExpiryWarningWindowDays : 7;
+                _nearExpiryItemIds = await ItemBatchService.GetItemsWithNearExpiryAsync(windowDays);
+            }
+            catch { _nearExpiryItemIds = new HashSet<Guid>(); }
             _categories = await CategoryService.GetAllAsync();
             _customers = await CustomerService.GetAllAsync();
             var warehouses = await WarehouseService.GetAllAsync();
@@ -718,9 +736,11 @@
             var item = _items.FirstOrDefault(i => i.Code == parsed.ItemCode);
             if (item is null)
             {
-                Snackbar.Add(Loc["PosItemNotFound"], Severity.Warning);
+                // باركود/كود غير معروف — رسالة حمراء ولا يُضاف شيء (نفس فاتورة المشتريات).
+                Snackbar.Add(Loc["BarcodeScanNotFound"], Severity.Error);
                 return;
             }
+            var qtyAdded = parsed.ValueType == ERPSystem.Domain.Enums.WeightBarcodeValueType.Price ? 1m : parsed.Value;
             if (parsed.ValueType == ERPSystem.Domain.Enums.WeightBarcodeValueType.Price)
             {
                 // السعر مدمج مباشرة (بدون ضرب بالوزن).
@@ -731,6 +751,8 @@
                 // الوزن مدمج → الكمية = الوزن، والسعر = سعر وحدة البيع.
                 AddWeightedLine(item, parsed.Value, null);
             }
+            var wqty = _cart.FirstOrDefault(l => l.Item.Id == item.Id)?.Quantity ?? qtyAdded;
+            Snackbar.Add(Loc["BarcodeScanOk", item.NameAr, qtyAdded, wqty], Severity.Success);
             _search = string.Empty;
             return;
         }
@@ -744,11 +766,15 @@
         if (match is not null)
         {
             AddItem(match);
+            var lineQty = _cart.FirstOrDefault(l => l.Item.Id == match.Id)?.Quantity ?? 1m;
+            // لمحة خضراء لكل مسح — نفس صيغة فاتورة المشتريات تماماً
+            Snackbar.Add(Loc["BarcodeScanOk", match.NameAr, 1m, lineQty], Severity.Success);
             _search = string.Empty;
         }
         else if (e.Key is "Enter" && term.Length >= 1)
         {
-            // لم يُعثر — نمسح الحقل حتى لا تتراكم نصوص باركود قديمة.
+            // باركود/كود غير معروف — رسالة حمراء ولا يُضاف شيء، ثم نمسح الحقل
+            Snackbar.Add(Loc["BarcodeScanNotFound"], Severity.Error);
             _search = string.Empty;
         }
     }

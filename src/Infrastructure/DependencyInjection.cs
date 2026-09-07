@@ -240,6 +240,7 @@ public static class DependencyInjection
         // ==================== إشعارات الموظفين + دفعات انتهاء الصلاحية + البيع الموقوف ====================
         services.AddScoped<IStaffNotificationService>(sp => new StaffNotificationService(sp.GetRequiredService<AppDbContext>()));
         services.AddScoped<IStockBatchService>(sp => new StockBatchService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<IItemBatchService>(sp => new ItemBatchService(sp.GetRequiredService<AppDbContext>()));
         services.AddScoped<IHeldSaleService>(sp => new HeldSaleService(sp.GetRequiredService<AppDbContext>()));
 
         return services;

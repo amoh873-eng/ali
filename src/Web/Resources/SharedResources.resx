@@ -998,4 +998,16 @@
   <data name="PosGridLimitSave" xml:space="preserve"><value>حفظ حد الشبكة</value></data>
   <data name="PosGridLimitSaved" xml:space="preserve"><value>تم حفظ حد شبكة نقطة البيع</value></data>
   <data name="PosOutOfStock" xml:space="preserve"><value>نفد من المخزون</value></data>
+  <data name="ExpiringBatches" xml:space="preserve"><value>الدُفعات قرب الانتهاء</value></data>
+  <data name="ExpiringBatchesSub" xml:space="preserve"><value>كل دُفعات المخزون التي تنتهي خلال النافذة المحدّدة أو المنتهية فعلياً — الأقرب انتهاءً أولاً</value></data>
+  <data name="Days" xml:space="preserve"><value>أيام</value></data>
+  <data name="ProductionDate" xml:space="preserve"><value>تاريخ الإنتاج</value></data>
+  <data name="NoExpiringBatches" xml:space="preserve"><value>لا توجد دُفعات قريبة الانتهاء</value></data>
+  <data name="PosNearExpiry" xml:space="preserve"><value>دُفعة قريبة الانتهاء</value></data>
+  <data name="PosNearExpiryShort" xml:space="preserve"><value>قرب الانتهاء</value></data>
+  <data name="BarcodeReceive" xml:space="preserve"><value>الاستلام بالباركود</value></data>
+  <data name="BarcodeReceivePlaceholder" xml:space="preserve"><value>امسح الباركود أو اكتب كود/اسم الصنف ثم Enter</value></data>
+  <data name="BarcodeScanOk" xml:space="preserve"><value>تمت إضافة «{0}» ×{1} — إجمالي السطر: {2}</value></data>
+  <data name="BarcodeScanNotFound" xml:space="preserve"><value>باركود/كود غير معروف — لم يُضف أي بند</value></data>
+  <data name="BarcodeReceiveHint" xml:space="preserve"><value>كل مسح يضيف 1 للكمية؛ يمكنك تعديل الكمية والسعر من البنود قبل الترحيل</value></data>
   </root>

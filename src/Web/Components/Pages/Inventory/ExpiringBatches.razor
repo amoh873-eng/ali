@@ -1,0 +1,87 @@
+@page "/inventory/expiring-batches"
+@attribute [Authorize(Roles = "Inventory")]
+@using ERPSystem.Application.DTOs.Inventory
+@inject IStringLocalizer<SharedResources> Loc
+@inject IItemBatchService ItemBatchService
+@inject ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService
+
+<MudContainer MaxWidth="MaxWidth.Large" Class="py-4">
+    <MudText Typo="Typo.h5" Class="mb-2" Style="font-weight:800;">@Loc["ExpiringBatches"]</MudText>
+    <MudText Typo="Typo.body2" Class="mb-3 pos-muted">@Loc["ExpiringBatchesSub"] (@_windowDays @Loc["Days"])</MudText>
+
+    @* ── المفاتيح اللونية ── *@
+    <div style="display:flex; gap:16px; margin-bottom:12px; flex-wrap:wrap;">
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#FDE2E2;border:1px solid #EF4444;"></span> @Loc["Expired"]</span>
+        <span style="display:inline-flex;align-items:center;gap:6px;"><span style="width:12px;height:12px;border-radius:3px;background:#FEF3C7;border:1px solid #F59E0B;"></span> @Loc["ExpiringSoon"]</span>
+    </div>
+
+    <MudPaper Elevation="0" Class="pa-4" Style="background:#fff;border:1px solid var(--erp-border);border-radius:12px;">
+        <MudTable Items="_batches" Dense="true" Hover="true" Striped="false"
+                  RowStyle="RowStyle" Height="520px" FixedHeader="true">
+            <HeaderContent>
+                <MudTh>@Loc["Item"]</MudTh>
+                <MudTh>@Loc["BatchNumber"]</MudTh>
+                <MudTh>@Loc["Warehouse"]</MudTh>
+                <MudTh>@Loc["ProductionDate"]</MudTh>
+                <MudTh>@Loc["ExpiryDate"]</MudTh>
+                <MudTh>@Loc["Quantity"]</MudTh>
+                <MudTh>@Loc["Status"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd DataLabel="@Loc["Item"]">@context.ItemCode - @context.ItemNameAr</MudTd>
+                <MudTd DataLabel="@Loc["BatchNumber"]">@(string.IsNullOrWhiteSpace(context.BatchNumber) ? "—" : context.BatchNumber)</MudTd>
+                <MudTd DataLabel="@Loc["Warehouse"]">@context.WarehouseName</MudTd>
+                <MudTd DataLabel="@Loc["ProductionDate"]">@(context.ProductionDate?.ToString("yyyy-MM-dd") ?? "—")</MudTd>
+                <MudTd DataLabel="@Loc["ExpiryDate"]">@(context.ExpiryDate?.ToString("yyyy-MM-dd") ?? "—")</MudTd>
+                <MudTd DataLabel="@Loc["Quantity"]">@context.Quantity.ToString("N2")</MudTd>
+                <MudTd DataLabel="@Loc["Status"]">
+                    <MudChip T="string" Size="Size.Small" Color="@ChipColor(context.Status)">
+                        @StatusLabel(context.Status)
+                    </MudChip>
+                </MudTd>
+            </RowTemplate>
+            <NoRecordsContent>
+                <MudText Class="pos-muted" Style="padding:16px;">@Loc["NoExpiringBatches"]</MudText>
+            </NoRecordsContent>
+        </MudTable>
+    </MudPaper>
+</MudContainer>
+
+@code {
+    private List<ItemBatchDto> _batches = new();
+    private int _windowDays = 7;
+
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            var s = await SettingsService.GetAsync();
+            _windowDays = s.ExpiryWarningWindowDays > 0 ? s.ExpiryWarningWindowDays : 7;
+            _batches = await ItemBatchService.GetExpiringBatchesAsync(_windowDays);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    private string RowStyle(ItemBatchDto batch) => batch.Status switch
+    {
+        "Expired" => "background:#FDE2E2;",
+        "Expiring" => "background:#FEF3C7;",
+        _ => "background:#F0FDF4;"
+    };
+
+    private Color ChipColor(string status) => status switch
+    {
+        "Expired" => Color.Error,
+        "Expiring" => Color.Warning,
+        _ => Color.Success
+    };
+
+    private string StatusLabel(string status) => status switch
+    {
+        "Expired" => Loc["Expired"],
+        "Expiring" => Loc["ExpiringSoon"],
+        _ => Loc["ExpiryFine"]
+    };
+}

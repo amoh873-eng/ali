@@ -1,6 +1,7 @@
 @page "/login"
 @layout EmptyLayout
 @attribute [AllowAnonymous]
+@attribute [ExcludeFromInteractiveRouting]
 @* ملاحظة معمارية مهمة:
    تسجيل الدخول لم يعد يمر عبر مسار معالجة فورم Blazor SSR إطلاقًا (لا @formname ولا
    [SupplyParameterFromForm]). بدلًا من ذلك، يُرسل النموذج كنموذج HTML عادي (method="post"

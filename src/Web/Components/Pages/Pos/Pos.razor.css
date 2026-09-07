@@ -67,6 +67,25 @@
     box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
     direction: rtl;
 }
+
+/* ── مؤشر قرب انتهاء الصلاحية على زر الصنف (دُفعة ضمن نافذة التحذير من ItemBatch) ── */
+.pos-item--near-expiry {
+    box-shadow: 0 5px 0 color-mix(in srgb, var(--pos-accent, #6D5BD0) 66%, #000), 0 12px 22px rgba(245, 158, 11, .28);
+}
+.pos-item-expiry-badge {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    z-index: 2;
+    background: #F59E0B;
+    color: #fff;
+    font-size: .6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+    direction: rtl;
+}
 .pos-item--flash {
     outline: 3px solid #EF4444;
     outline-offset: 2px;

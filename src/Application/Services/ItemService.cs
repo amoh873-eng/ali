@@ -108,6 +108,7 @@ public partial class ItemService : IItemService
             Barcode = dto.Barcode,
             Description = dto.Description,
             TracksExpiry = dto.TracksExpiry,
+            TracksBatches = dto.TracksBatches,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

@@ -241,6 +241,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     /// <summary>إشعارات الموظفين (نقص مخزون / انتهاء صلاحية / نظام) — جرس الإشعارات للواجهة.</summary>
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    /// <summary>دُفعات المخزون للصنف التي تتبّع الدُفعات (Item.TracksBatches) — إجبارياً داخل مخزن.</summary>
+    public DbSet<ItemBatch> ItemBatches => Set<ItemBatch>();
+
     /// <summary>دفعات المخزون لصنف يتتبّع انتهاء الصلاحية (طبقة موازية اختيارية).</summary>
     public DbSet<StockBatch> StockBatches => Set<StockBatch>();
 
@@ -260,6 +263,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new UnitConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ItemConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemBatchConfiguration());
         modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
         modelBuilder.ApplyConfiguration(new StockMovementConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
