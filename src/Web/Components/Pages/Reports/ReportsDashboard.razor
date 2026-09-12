@@ -1,0 +1,217 @@
+@page "/reports"
+@attribute [Authorize(Roles = "Reports")]
+<ModuleGuard ModuleKey="Reports">
+@inject IStringLocalizer<SharedResources> Loc
+
+<PageTitle>@Loc["ReportsDashboard"] - @Loc["AppName"]</PageTitle>
+
+@* لوحة التقارير — تصميم معزول CSS بادئة repdash- : مؤشرات لحظية + بطاقات تقارير + مركز موحد *@
+<div class="repdash">
+
+    @* ── الترويسة: شعار + عنوان + تاريخ ── *@
+    <div class="repdash-hero">
+        <div class="repdash-logo" aria-hidden="true">
+            <svg viewBox="0 0 96 96" width="52" height="52" fill="none">
+                <defs>
+                    <linearGradient id="repg" x1="0" y1="0" x2="1" y2="1">
+                        <stop offset="0" stop-color="#6D5BD0"/>
+                        <stop offset="1" stop-color="#06B6D4"/>
+                    </linearGradient>
+                </defs>
+                <rect x="8" y="8" width="80" height="80" rx="22" fill="url(#repg)"/>
+                <rect x="22" y="40" width="13" height="34" rx="4" fill="#FFFFFF" opacity=".85"/>
+                <rect x="40" y="26" width="13" height="48" rx="4" fill="#FFFFFF"/>
+                <rect x="58" y="33" width="13" height="41" rx="4" fill="#FDE68A"/>
+                <path d="M52 26 l10 -10 l0 -16 l-4 -3 l8 4 z" fill="#FDE68A" opacity=".9"/>
+                <circle cx="24" cy="24" r="7" fill="#FFFFFF" opacity=".55"/>
+            </svg>
+        </div>
+        <div class="repdash-hero-text">
+            <h1>@Loc["ReportsDashboard"]</h1>
+            <p>@Loc["ReportsDashboardSubtitle"]</p>
+        </div>
+        <div class="repdash-hero-actions">
+            <span class="repdash-date">@System.DateTime.Today.ToString("EEEE, d MMMM yyyy", System.Globalization.CultureInfo.CurrentCulture)</span>
+            <a class="repdash-cta" href="/reports/custom">
+                <MudIcon Icon="@Icons.Material.Filled.TableChart" Size="Size.Small" Class="me-1" /> @Loc["ReportsCenter"]
+            </a>
+        </div>
+    </div>
+
+    @* ── المؤشرات اللحظية ── *@
+    <section class="repdash-section">
+        <div class="repdash-section-head">
+            <h2>@Loc["RepDashKpiTitle"]</h2>
+            <span>@Loc["RepDashKpiSub"]</span>
+        </div>
+        <div class="repdash-kpi-grid">
+            <a class="repdash-kpi" style="--k:#10B981;--g1:#D1FAE5;--g2:#ECFDF5" href="/reports/cash-flow">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.AccountBalance" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashCashOnHand"]</span>
+                <span class="repdash-kpi-value"><MoneyDisplay Amount="_cashOnHand" /></span>
+            </a>
+            <a class="repdash-kpi" style="--k:#F59E0B;--g1:#FEF3C7;--g2:#FFFBEB" href="/reports/ar-aging">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.Groups" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashAr"]</span>
+                <span class="repdash-kpi-value"><MoneyDisplay Amount="_ar" /></span>
+            </a>
+            <a class="repdash-kpi" style="--k:#EF4444;--g1:#FEE2E2;--g2:#FFF5F5" href="/reports/ap-aging">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.LocalShipping" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashAp"]</span>
+                <span class="repdash-kpi-value"><MoneyDisplay Amount="_ap" /></span>
+            </a>
+            <a class="repdash-kpi" style="--k:#3B82F6;--g1:#DBEAFE;--g2:#EFF6FF" href="/reports/item-profitability">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.Inventory" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashInventoryValue"]</span>
+                <span class="repdash-kpi-value"><MoneyDisplay Amount="_inventoryValue" /></span>
+            </a>
+            <a class="repdash-kpi" style="--k:#F97316;--g1:#FFEDD5;--g2:#FFF7ED" href="/reports/slow-moving-stock">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.Warning" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashLowStock"]</span>
+                <span class="repdash-kpi-value">@_lowStockCount</span>
+            </a>
+            <a class="repdash-kpi" style="--k:#8B5CF6;--g1:#EDE9FE;--g2:#F5F3FF" href="/reports/financial-ratios">
+                <span class="repdash-kpi-icon"><MudIcon Icon="@Icons.Material.Filled.TrendingUp" /></span>
+                <span class="repdash-kpi-label">@Loc["RepDashMonthlySales"]</span>
+                <span class="repdash-kpi-value"><MoneyDisplay Amount="_monthSales" /></span>
+            </a>
+        </div>
+    </section>
+
+    @* ── القوائم المالية ── *@
+    <section class="repdash-section">
+        <div class="repdash-section-head">
+            <h2>@Loc["RepDashFinSection"]</h2>
+            <span>@Loc["RepDashFinSub"]</span>
+        </div>
+        <div class="repdash-card-grid">
+            <a class="repdash-card" style="--c:#10B981" href="/reports/financial-statements">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.Receipt" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["FinancialStatements"]</span><span class="repdash-card-sub">@Loc["RepDashFinStatSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#0D9488" href="/reports/cash-flow">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.SwapHoriz" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["CashFlow"]</span><span class="repdash-card-sub">@Loc["RepDashCashFlowSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#EC4899" href="/reports/financial-ratios">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.DonutLarge" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["FinancialRatios"]</span><span class="repdash-card-sub">@Loc["RepDashRatiosSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#3B82F6" href="/general-ledger-legacy">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.Book" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["GeneralLedger"]</span><span class="repdash-card-sub">@Loc["RepDashLedgerSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#6366F1" href="/trial-balance-legacy">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.AccountTree" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["TrialBalance"]</span><span class="repdash-card-sub">@Loc["RepDashTrialSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+        </div>
+    </section>
+
+    @* ── تحليلات الأعمال ── *@
+    <section class="repdash-section">
+        <div class="repdash-section-head">
+            <h2>@Loc["RepDashAnalyticsSection"]</h2>
+            <span>@Loc["RepDashAnalyticsSub"]</span>
+        </div>
+        <div class="repdash-card-grid">
+            <a class="repdash-card" style="--c:#F59E0B" href="/reports/item-profitability">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.BarChart" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["ItemProfitability"]</span><span class="repdash-card-sub">@Loc["RepDashItemProfitSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#6366F1" href="/reports/slow-moving-stock">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.AccessTime" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["SlowMovingStock"]</span><span class="repdash-card-sub">@Loc["RepDashSlowSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#14B8A6" href="/reports/abc-analysis">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.PieChart" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["AbcAnalysis"]</span><span class="repdash-card-sub">@Loc["RepDashAbcSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#DB2777" href="/reports/seasonality">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.CalendarMonth" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["Seasonality"]</span><span class="repdash-card-sub">@Loc["RepDashSeasonSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#7C3AED" href="/reports/ar-aging">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.FactCheck" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["ArAging"]</span><span class="repdash-card-sub">@Loc["RepDashAgingSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+        </div>
+    </section>
+
+    @* ── الضرائب والتقارير المخصصة ── *@
+    <section class="repdash-section">
+        <div class="repdash-section-head">
+            <h2>@Loc["RepDashMiscSection"]</h2>
+            <span>@Loc["RepDashMiscSub"]</span>
+        </div>
+        <div class="repdash-card-grid">
+            <a class="repdash-card" style="--c:#B45309" href="/reports/sales-tax">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.RequestQuote" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["SalesTaxReport"]</span><span class="repdash-card-sub">@Loc["RepDashTaxSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+            <a class="repdash-card" style="--c:#8B5CF6" href="/reports/custom">
+                <span class="repdash-card-icon"><MudIcon Icon="@Icons.Material.Filled.TableChart" /></span>
+                <span class="repdash-card-body"><span class="repdash-card-title">@Loc["ReportsCenter"]</span><span class="repdash-card-sub">@Loc["RepDashCenterSub"]</span></span>
+                <MudIcon Icon="@Icons.Material.Filled.ArrowForward" Class="repdash-card-arrow" />
+            </a>
+        </div>
+    </section>
+
+    <div class="repdash-footer">
+        <MudIcon Icon="@Icons.Material.Filled.Assessment" Size="Size.Small" Class="me-1" />
+        @Loc["ReportsDashboardFooter"]
+    </div>
+</div>
+</ModuleGuard>
+
+@code {
+    private decimal _cashOnHand;
+    private decimal _ar;
+    private decimal _ap;
+    private decimal _inventoryValue;
+    private long _lowStockCount;
+    private decimal _monthSales;
+
+    [Inject] private Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ScopeFactory { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            // كل استعلامات اللوحة داخل نطاق DI مستقل (سياق DbContext جديد) — يمنع
+            // تعارض "A second operation was started on this context instance".
+            using var scope = ScopeFactory.CreateScope();
+            var accounts = scope.ServiceProvider.GetRequiredService<IAccountService>();
+            var items = scope.ServiceProvider.GetRequiredService<IItemService>();
+            var invoices = scope.ServiceProvider.GetRequiredService<ISalesInvoiceService>();
+
+            var accts = await accounts.GetAllAccountsAsync();
+            _cashOnHand = accts.Where(a => a.Code == "1100" || a.Code == "1105").Sum(a => a.CurrentBalance);
+            _ar = Math.Abs(accts.Where(a => a.Code == "1200").Sum(a => a.CurrentBalance));
+            _ap = Math.Abs(accts.Where(a => a.Code == "2200").Sum(a => a.CurrentBalance));
+
+            var all = await items.GetAllAsync();
+            _inventoryValue = all.Sum(i => i.CurrentStock * i.CostPrice);
+            _lowStockCount = all.Count(i => i.CurrentStock <= 5m);
+
+            var today = System.DateTime.Today;
+            var from = new System.DateTime(today.Year, today.Month, 1);
+            var to = new System.DateTime(today.Year, today.Month, today.Day, 23, 59, 59);
+            _monthSales = (await invoices.GetInvoicesAsync())
+                .Where(i => i.InvoiceDate >= from && i.InvoiceDate <= to)
+                .Sum(i => i.TotalAmount);
+        }
+        catch { /* تبقى المؤشرات صفراً */ }
+    }
+}

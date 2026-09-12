@@ -1,0 +1,118 @@
+/* ═══ لوحة التقارير — تصميم خاص (معزول CSS بادئة repdash-) ═══ */
+.repdash {
+    max-width: 1240px;
+    margin: 0 auto;
+    padding: 22px 20px 48px;
+    display: flex;
+    flex-direction: column;
+    gap: 26px;
+}
+
+/* ── الترويسة ── */
+.repdash-hero {
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    flex-wrap: wrap;
+    padding: 22px 24px;
+    border-radius: 18px;
+    background: linear-gradient(120deg, #6D5BD0 0%, #8B5CF6 45%, #0E7490 100%);
+    color: #fff;
+    box-shadow: 0 10px 26px rgba(93, 76, 180, .25), inset 0 1px 0 rgba(255,255,255,.18);
+    overflow: hidden;
+}
+.repdash-hero::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background:
+        radial-gradient(circle at 95% 10%, rgba(255,255,255,.14) 0%, transparent 42%),
+        radial-gradient(circle at 5% 90%, rgba(255,255,255,.10) 0%, transparent 38%);
+    pointer-events: none;
+}
+.repdash-logo svg { display: block; filter: drop-shadow(0 3px 6px rgba(0,0,0,.25)); }
+.repdash-hero-text h1 { margin: 0; font-size: 1.65rem; font-weight: 800; letter-spacing: -.3px; }
+.repdash-hero-text p { margin: 4px 0 0; font-size: .92rem; opacity: .92; }
+.repdash-hero-actions { display: flex; align-items: center; gap: 10px; margin-inline-start: auto; flex-wrap: wrap; }
+.repdash-date {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 7px 14px; border-radius: 999px;
+    background: rgba(255,255,255,.16); color: #fff;
+    font-size: .82rem; font-weight: 600; white-space: nowrap;
+}
+.repdash-cta {
+    display: inline-flex; align-items: center; gap: 6px;
+    padding: 9px 18px; border-radius: 12px;
+    background: #fff; color: #4338CA;
+    font-weight: 800; font-size: .9rem;
+    box-shadow: 0 3px 8px rgba(0,0,0,.16);
+    text-decoration: none; white-space: nowrap;
+    transition: transform .12s ease, box-shadow .12s ease;
+}
+.repdash-cta:hover { transform: translateY(-2px); box-shadow: 0 6px 14px rgba(0,0,0,.22); }
+
+/* ── رؤوس الأقسام ── */
+.repdash-section { display: flex; flex-direction: column; gap: 14px; }
+.repdash-section-head { display: flex; align-items: baseline; gap: 10px; flex-wrap: wrap; border-bottom: 2px solid #E5E7EB; padding-bottom: 8px; }
+.repdash-section-head h2 { margin: 0; font-size: 1.12rem; font-weight: 800; color: #1F2937; }
+.repdash-section-head span { font-size: .8rem; color: #6B7280; }
+
+/* ── بطاقات المؤشرات (KPI) ── */
+.repdash-kpi-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(178px, 1fr));
+    gap: 12px;
+}
+.repdash-kpi {
+    display: flex; flex-direction: column; gap: 8px;
+    padding: 14px 14px 12px;
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    background: linear-gradient(180deg, var(--g1) 0%, var(--g2) 100%);
+    text-decoration: none;
+    transition: transform .13s ease, box-shadow .13s ease, border-color .13s ease;
+}
+.repdash-kpi:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,.12); border-color: var(--k); }
+.repdash-kpi-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 38px; height: 38px; border-radius: 12px;
+    background: var(--k); color: #fff;
+    box-shadow: 0 2px 6px rgba(0,0,0,.18);
+}
+.repdash-kpi-label { font-size: .78rem; font-weight: 700; color: #374151; line-height: 1.25; }
+.repdash-kpi-value { font-size: 1.22rem; font-weight: 800; color: #111827; white-space: nowrap; }
+
+/* ── بطاقات التقارير ── */
+.repdash-card-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(232px, 1fr));
+    gap: 12px;
+}
+.repdash-card {
+    display: flex; align-items: center; gap: 12px;
+    padding: 14px 14px;
+    border-radius: 14px;
+    border: 1px solid #E5E7EB;
+    border-inline-start: 5px solid var(--c);
+    background: #fff;
+    text-decoration: none;
+    transition: transform .13s ease, box-shadow .13s ease, border-color .13s ease;
+}
+.repdash-card:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,0,0,.10); border-color: var(--c); }
+.repdash-card-icon {
+    display: inline-flex; align-items: center; justify-content: center;
+    width: 40px; height: 40px; border-radius: 12px; flex-shrink: 0;
+    background: color-mix(in srgb, var(--c) 14%, #fff); color: var(--c);
+}
+.repdash-card-body { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.repdash-card-title { font-weight: 800; font-size: .95rem; color: #111827; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.repdash-card-sub { font-size: .76rem; color: #6B7280; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.repdash-card-arrow { color: #9CA3AF; flex-shrink: 0; }
+
+/* ── التذييل ── */
+.repdash-footer {
+    display: flex; align-items: center; gap: 6px;
+    padding: 10px 14px; border-radius: 10px;
+    background: #F9FAFB; border: 1px solid #E5E7EB;
+    color: #6B7280; font-size: .84rem;
+}

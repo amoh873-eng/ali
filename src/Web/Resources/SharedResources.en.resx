@@ -1094,4 +1094,34 @@
   <data name="PosShortcutKeyF5" xml:space="preserve"><value>F5</value></data>
   <data name="PosShortcutKeyF6" xml:space="preserve"><value>F6</value></data>
   <data name="PosShortcutKeyF7" xml:space="preserve"><value>F7</value></data>
+  <data name="ReportsDashboard" xml:space="preserve"><value>Reports Dashboard</value></data>
+  <data name="ReportsCenter" xml:space="preserve"><value>Reports Center</value></data>
+  <data name="ReportsDashboardSubtitle" xml:space="preserve"><value>One window for your company KPIs and all system reports</value></data>
+  <data name="RepDashKpiTitle" xml:space="preserve"><value>Live indicators</value></data>
+  <data name="RepDashKpiSub" xml:space="preserve"><value>Auto-computed from your data</value></data>
+  <data name="RepDashCashOnHand" xml:space="preserve"><value>Cash on hand</value></data>
+  <data name="RepDashAr" xml:space="preserve"><value>Accounts receivable</value></data>
+  <data name="RepDashAp" xml:space="preserve"><value>Accounts payable</value></data>
+  <data name="RepDashInventoryValue" xml:space="preserve"><value>Inventory value</value></data>
+  <data name="RepDashLowStock" xml:space="preserve"><value>Low-stock items</value></data>
+  <data name="RepDashMonthlySales" xml:space="preserve"><value>Month-to-date sales</value></data>
+  <data name="RepDashFinSection" xml:space="preserve"><value>Financial statements</value></data>
+  <data name="RepDashFinSub" xml:space="preserve"><value>Balance sheet, ledger &amp; cash flow</value></data>
+  <data name="RepDashFinStatSub" xml:space="preserve"><value>Balance sheet &amp; income statement</value></data>
+  <data name="RepDashCashFlowSub" xml:space="preserve"><value>Operating &amp; investing cash flow</value></data>
+  <data name="RepDashRatiosSub" xml:space="preserve"><value>Liquidity, profitability, efficiency</value></data>
+  <data name="RepDashLedgerSub" xml:space="preserve"><value>Account-by-account ledger</value></data>
+  <data name="RepDashTrialSub" xml:space="preserve"><value>Debit/credit balances</value></data>
+  <data name="RepDashAnalyticsSection" xml:space="preserve"><value>Business analytics</value></data>
+  <data name="RepDashAnalyticsSub" xml:space="preserve"><value>Performance, stock &amp; trends</value></data>
+  <data name="RepDashItemProfitSub" xml:space="preserve"><value>Margin &amp; return per item</value></data>
+  <data name="RepDashSlowSub" xml:space="preserve"><value>Slow-moving items</value></data>
+  <data name="RepDashAbcSub" xml:space="preserve"><value>A/B/C importance ranking</value></data>
+  <data name="RepDashSeasonSub" xml:space="preserve"><value>Seasonal demand patterns</value></data>
+  <data name="RepDashAgingSub" xml:space="preserve"><value>Aged receivables &amp; payables</value></data>
+  <data name="RepDashMiscSection" xml:space="preserve"><value>Tax &amp; custom reports</value></data>
+  <data name="RepDashMiscSub" xml:space="preserve"><value>Sales tax and your own queries</value></data>
+  <data name="RepDashTaxSub" xml:space="preserve"><value>Sales tax register</value></data>
+  <data name="RepDashCenterSub" xml:space="preserve"><value>Built-in &amp; custom reports</value></data>
+  <data name="ReportsDashboardFooter" xml:space="preserve"><value>Reports dashboard — indicators refresh automatically when the page opens</value></data>
   </root>
