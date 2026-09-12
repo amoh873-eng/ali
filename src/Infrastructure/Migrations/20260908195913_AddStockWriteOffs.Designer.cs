@@ -3,6 +3,7 @@ using System;
 using ERPSystem.Infrastructure.Data;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.EntityFrameworkCore.Infrastructure;
+using Microsoft.EntityFrameworkCore.Migrations;
 using Microsoft.EntityFrameworkCore.Storage.ValueConversion;
 using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 
@@ -11,9 +12,11 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace ERPSystem.Infrastructure.Migrations
 {
     [DbContext(typeof(AppDbContext))]
-    partial class AppDbContextModelSnapshot : ModelSnapshot
+    [Migration("20260908195913_AddStockWriteOffs")]
+    partial class AddStockWriteOffs
     {
-        protected override void BuildModel(ModelBuilder modelBuilder)
+        /// <inheritdoc />
+        protected override void BuildTargetModel(ModelBuilder modelBuilder)
         {
 #pragma warning disable 612, 618
             modelBuilder
@@ -265,23 +268,6 @@ namespace ERPSystem.Infrastructure.Migrations
                             Level = 0,
                             NameAr = "ذمم البطاقات (مستحق من البنك)",
                             NameEn = "Card Receivables",
-                            NormalBalance = 1,
-                            ParentAccountId = new Guid("10000000-0000-0000-0000-000000000001"),
-                            RowVersion = new byte[0]
-                        },
-                        new
-                        {
-                            Id = new Guid("11000000-0000-0000-0000-000000000006"),
-                            AccountType = 1,
-                            Code = "1105",
-                            CreatedAt = new DateTime(2026, 1, 1, 0, 0, 0, 0, DateTimeKind.Utc),
-                            CurrentBalance = 0m,
-                            IsActive = true,
-                            IsDeleted = false,
-                            IsSystem = true,
-                            Level = 0,
-                            NameAr = "نقدية - درج الكاش",
-                            NameEn = "Cash - Till Drawer",
                             NormalBalance = 1,
                             ParentAccountId = new Guid("10000000-0000-0000-0000-000000000001"),
                             RowVersion = new byte[0]
@@ -577,47 +563,6 @@ namespace ERPSystem.Infrastructure.Migrations
                         .HasFilter("\"IsDeleted\" = false");
 
                     b.ToTable("BankCardStatements", (string)null);
-                });
-
-            modelBuilder.Entity("ERPSystem.Domain.Entities.CashDrawerTransaction", b =>
-                {
-                    b.Property<Guid>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("uuid");
-
-                    b.Property<decimal>("Amount")
-                        .HasColumnType("numeric(18,2)");
-
-                    b.Property<string>("CashierUserId")
-                        .IsRequired()
-                        .HasMaxLength(450)
-                        .HasColumnType("character varying(450)");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<Guid>("JournalEntryId")
-                        .HasColumnType("uuid");
-
-                    b.Property<string>("Notes")
-                        .HasMaxLength(500)
-                        .HasColumnType("character varying(500)");
-
-                    b.Property<DateTime>("Timestamp")
-                        .HasColumnType("timestamp without time zone");
-
-                    b.Property<int>("Type")
-                        .HasColumnType("integer");
-
-                    b.HasKey("Id");
-
-                    b.HasIndex("CashierUserId");
-
-                    b.HasIndex("JournalEntryId");
-
-                    b.HasIndex("Timestamp");
-
-                    b.ToTable("CashDrawerTransactions", (string)null);
                 });
 
             modelBuilder.Entity("ERPSystem.Domain.Entities.Category", b =>
@@ -3755,17 +3700,6 @@ namespace ERPSystem.Infrastructure.Migrations
                         .IsRequired();
 
                     b.Navigation("Employee");
-                });
-
-            modelBuilder.Entity("ERPSystem.Domain.Entities.CashDrawerTransaction", b =>
-                {
-                    b.HasOne("ERPSystem.Domain.Entities.JournalEntry", "JournalEntry")
-                        .WithMany()
-                        .HasForeignKey("JournalEntryId")
-                        .OnDelete(DeleteBehavior.Restrict)
-                        .IsRequired();
-
-                    b.Navigation("JournalEntry");
                 });
 
             modelBuilder.Entity("ERPSystem.Domain.Entities.Category", b =>

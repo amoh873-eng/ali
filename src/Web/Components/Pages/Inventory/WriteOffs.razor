@@ -1,0 +1,295 @@
+@page "/inventory/write-offs"
+@attribute [Authorize(Roles = "Inventory,Accounting")]
+<ModuleGuard ModuleKey="Inventory">
+@inject IStringLocalizer<SharedResources> Loc
+@using ERPSystem.Application.DTOs.Inventory
+
+<PageTitle>@Loc["WriteOffs"] - @Loc["AppName"]</PageTitle>
+
+<PageHeader Title="@Loc["WriteOffs"]" Subtitle="سجل إتلاف المخزون (هالك/توالف) مع القيد المحاسبي الآلي" Icon="@Icons.Material.Filled.DeleteSweep" />
+
+<MudToolBar Class="mb-4">
+    <AuthorizeView Roles="Accounting,Admin,SuperAdmin" Context="woCreate">
+        <Authorized>
+            <MudButton Variant="Variant.Filled" Color="Color.Error"
+                       StartIcon="@Icons.Material.Filled.PostAdd" OnClick="OpenCreateDialog">
+                @Loc["NewWriteOff"]
+            </MudButton>
+        </Authorized>
+    </AuthorizeView>
+    <MudButton Variant="Variant.Outlined" Color="Color.Default"
+               StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync">
+        @Loc["Refresh"]
+    </MudButton>
+</MudToolBar>
+
+@* التقرير الملخّص: إجمالي الهالك + تفصيل حسب السبب + توزيع شهري *@
+<MudPaper Elevation="1" Class="mb-4 pa-4">
+    <MudText Typo="Typo.h6" Class="mb-3" Style="font-weight:700;">@Loc["WriteOffReport"]</MudText>
+
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Value="@_summary.TotalValue.ToString("N2")"
+                      Label="@Loc["TotalWriteOffValue"]"
+                      Icon="@Icons.Material.Filled.WarningAmber"
+                      IconBackground="#FEE2E2" IconColor="#EF4444" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Value="@_summary.TotalQuantity.ToString("N0")"
+                      Label="@Loc["WriteOffQty"]"
+                      Icon="@Icons.Material.Filled.DeleteSweep"
+                      IconBackground="#FEF3C7" IconColor="#D97706" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Value="@_summary.Count.ToString("N0")"
+                      Label="@Loc["WriteOffCount"]"
+                      Icon="@Icons.Material.Filled.ReceiptLong"
+                      IconBackground="#DBEAFE" IconColor="#2563EB" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <StatCard Value="@DateRangeLabel()"
+                      Label="@Loc["Period"]"
+                      Icon="@Icons.Material.Filled.Event"
+                      IconBackground="#F0EDFB" IconColor="#6D5BD0" />
+        </MudItem>
+    </MudGrid>
+
+    <MudGrid Class="mt-3">
+        <MudItem xs="12" md="6">
+            <ChartCard Title="@Loc["PerReasonBreakdown"]" Subtitle="توزيع قيمة الهالك حسب سبب الإتلاف">
+                <DonutChart3D Segments="_reasonSegments" ShowLegend="true" ShowCallouts="false"
+                              AriaLabel="Write-off by reason" EmptyText="@Loc["NoWriteOffs"]" />
+            </ChartCard>
+        </MudItem>
+        <MudItem xs="12" md="6">
+            <ChartCard Title="@Loc["MonthlyBreakdown"]" Subtitle="الخسارة الشهرية بسبب الهالك/التوالف">
+                <BarChart Items="_monthSegments" EmptyText="@Loc["NoWriteOffs"]" />
+            </ChartCard>
+        </MudItem>
+    </MudGrid>
+</MudPaper>
+@* الفلاتر: الفترة + السبب + بحث صنف *@
+<MudPaper Elevation="1" Class="mb-4 pa-4">
+    <MudGrid>
+        <MudItem xs="12" sm="6" md="3">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["DateFrom"]" T="DateTime?"
+                           Variant="Variant.Outlined" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["DateTo"]" T="DateTime?"
+                           Variant="Variant.Outlined" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudSelect @bind-Value="_reasonFilter" Label="@Loc["Reason"]" T="int" Variant="Variant.Outlined">
+                <MudSelectItem Value="0">@Loc["All"]</MudSelectItem>
+                <MudSelectItem Value="1">@Loc["ReasonExpired"]</MudSelectItem>
+                <MudSelectItem Value="2">@Loc["ReasonDamaged"]</MudSelectItem>
+                <MudSelectItem Value="3">@Loc["ReasonStolen"]</MudSelectItem>
+                <MudSelectItem Value="4">@Loc["ReasonOther"]</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="6" md="3">
+            <MudTextField @bind-Value="_itemSearch"
+                          Label="@Loc["Search"]"
+                          Placeholder="اسم / كود / باركود الصنف"
+                          Variant="Variant.Outlined" />
+        </MudItem>
+    </MudGrid>
+    <div class="mt-3">
+        <MudButton Variant="Variant.Filled" Color="Color.Primary"
+                   StartIcon="@Icons.Material.Filled.FilterAlt" OnClick="ApplyAsync">
+            @Loc["Search"]
+        </MudButton>
+        <MudButton Variant="Variant.Text" Color="Color.Default" OnClick="ResetAsync">@Loc["All"]</MudButton>
+    </div>
+</MudPaper>
+
+@* قائمة السندات *@
+<MudPaper Elevation="1">
+    @if (_loading)
+    {
+        <MudProgressLinear Indeterminate="true" Class="my-4" />
+    }
+    else if (_filtered.Count == 0)
+    {
+        <MudAlert Severity="Severity.Info" Class="m-4">@Loc["NoWriteOffs"]</MudAlert>
+    }
+    else
+    {
+        <MudTable Items="_filtered" Hover="true" Dense="true">
+            <HeaderContent>
+                <MudTh>@Loc["DocNumber"]</MudTh>
+                <MudTh>@Loc["Date"]</MudTh>
+                <MudTh>@Loc["Item"]</MudTh>
+                <MudTh>@Loc["Warehouse"]</MudTh>
+                <MudTh>@Loc["Batch"]</MudTh>
+                <MudTh>@Loc["Reason"]</MudTh>
+                <MudTh>@Loc["Quantity"]</MudTh>
+                <MudTh>@Loc["UnitCost"]</MudTh>
+                <MudTh>@Loc["Total"]</MudTh>
+                <MudTh>@Loc["EntryNumber"]</MudTh>
+                <MudTh>@Loc["Actions"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd style="font-weight:600;">@context.DocumentNumber</MudTd>
+                <MudTd>@context.Date.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
+                <MudTd>@context.WarehouseNameAr</MudTd>
+                <MudTd>@BatchLabel(context)</MudTd>
+                <MudTd><MudChip T="string" Size="Size.Small" Color="@ReasonColor(context.Reason)">@context.ReasonNameAr</MudChip></MudTd>
+                <MudTd>@context.Quantity.ToString("N0")</MudTd>
+                <MudTd>@context.UnitCost.ToString("N2")</MudTd>
+                <MudTd style="font-weight:600;">@context.TotalCost.ToString("N2")</MudTd>
+                <MudTd>@context.EntryNumber</MudTd>
+                <MudTd>
+                    <MudIconButton Icon="@Icons.Material.Filled.ReceiptLong" Size="Size.Small" Color="Color.Primary"
+                                   Title="عرض القيد المحاسبي" OnClick="() => OpenDetailsDialog(context)" />
+                </MudTd>
+            </RowTemplate>
+            <PagerContent>
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
+            </PagerContent>
+        </MudTable>
+    }
+</MudPaper>
+@code {
+    private bool _loading = true;
+    private List<StockWriteOffDto> _documents = new();
+    private List<StockWriteOffDto> _filtered = new();
+    private StockWriteOffSummaryDto _summary = new();
+
+    private DateTime? _from;
+    private DateTime? _to;
+    private int _reasonFilter;
+    private string _itemSearch = string.Empty;
+    private List<DonutSegment> _reasonSegments = new();
+    private List<DonutSegment> _monthSegments = new();
+
+    [Inject] private IStockWriteOffService WriteOffService { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _from = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+        _to = DateTime.Today;
+        await LoadAsync();
+    }
+
+    private async Task ApplyAsync() => await LoadAsync();
+
+    private async Task ResetAsync()
+    {
+        _from = null;
+        _to = null;
+        _reasonFilter = 0;
+        _itemSearch = string.Empty;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _loading = true;
+        try
+        {
+            var itemId = (Guid?)null;
+            var reason = _reasonFilter > 0 ? _reasonFilter : (int?)null;
+            _documents = await WriteOffService.GetAsync(itemId, reason, _from, _to);
+            _summary = await WriteOffService.GetSummaryAsync(itemId, reason, _from, _to);
+            BuildSummaryVisuals();
+            ApplyItemSearch();
+        }
+        catch (Exception ex) { Snackbar.Add($"{Loc["LoadError"]} {ex.Message}", Severity.Error); }
+        finally { _loading = false; }
+    }
+
+    private void ApplyItemSearch()
+    {
+        var q = _itemSearch?.Trim();
+        _filtered = string.IsNullOrEmpty(q)
+            ? _documents
+            : _documents
+                .Where(w => w.ItemCode.Contains(q, StringComparison.OrdinalIgnoreCase)
+                            || w.ItemNameAr.Contains(q, StringComparison.OrdinalIgnoreCase))
+                .ToList();
+    }
+
+    private string BatchLabel(StockWriteOffDto w)
+    {
+        if (w.BatchId is null) return "—";
+        var expiry = w.ExpiryDate?.ToString("yyyy-MM-dd") ?? "";
+        return string.IsNullOrWhiteSpace(w.BatchNumber) ? expiry : $"{w.BatchNumber} ({expiry})";
+    }
+
+    private static Color ReasonColor(int reason) => reason switch
+    {
+        1 => Color.Warning,
+        2 => Color.Error,
+        3 => Color.Error,
+        _ => Color.Default
+    };
+
+    private static string ReasonHex(int reason) => reason switch
+    {
+        1 => "#F59E0B",   // منتهي الصلاحية
+        2 => "#EF4444",   // تالف/مكسور
+        3 => "#8B5CF6",   // سرقة أو فقد
+        _ => "#6B7280"    // أخرى
+    };
+
+    private static readonly string[] MonthPalette =
+    {
+        "#3B82F6", "#6366F1", "#8B5CF6", "#F59E0B", "#10B981", "#EC4899",
+        "#06B6D4", "#F97316", "#84CC16", "#EF4444", "#14B8A6", "#A855F7"
+    };
+
+    private void BuildSummaryVisuals()
+    {
+        _reasonSegments = _summary.ByReason.Select(r => new DonutSegment
+        {
+            Label = r.ReasonNameAr,
+            Value = (double)r.Value,
+            ValueText = $"{r.Count.ToString("N0")} سند • {r.Quantity.ToString("N0")} وحدة • {r.Value.ToString("N2")}",
+            Color = ReasonHex(r.Reason)
+        }).ToList();
+
+        _monthSegments = _summary.ByMonth.Select((m, i) => new DonutSegment
+        {
+            Label = m.MonthLabel,
+            Value = (double)m.Value,
+            ValueText = m.Value.ToString("N2"),
+            Color = MonthPalette[i % MonthPalette.Length]
+        }).ToList();
+    }
+
+    private string DateRangeLabel()
+    {
+        if (_from is null && _to is null) return "—";
+        var f = _from?.ToString("yyyy-MM-dd") ?? "…";
+        var t = _to?.ToString("yyyy-MM-dd") ?? "…";
+        return $"{f} → {t}";
+    }
+
+    private async Task OpenCreateDialog()
+    {
+        var parameters = new DialogParameters { [nameof(WriteOffFormDialog.WriteOffService)] = WriteOffService };
+        var dialog = await DialogService.ShowAsync<WriteOffFormDialog>(
+            Loc["NewWriteOff"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true)
+        {
+            Snackbar.Add(Loc["WriteOffSaved"], Severity.Success);
+            await LoadAsync();
+        }
+    }
+
+    private async Task OpenDetailsDialog(StockWriteOffDto writeOff)
+    {
+        var parameters = new DialogParameters { [nameof(WriteOffDetailsDialog.WriteOff)] = writeOff };
+        await DialogService.ShowAsync<WriteOffDetailsDialog>(
+            $"{Loc["WriteOffs"]} — {writeOff.DocumentNumber}", parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+    }
+}
+</ModuleGuard>

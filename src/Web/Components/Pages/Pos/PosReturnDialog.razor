@@ -1,0 +1,229 @@
+@* مردود مبيعات سريع من نقطة البيع — يستخدم نفس خدمة المردودات الموجودة (SalesReturnService.CreateAsync)
+   بلا إعادة تنفيذ منطق القيود أو المخزون. البحث بالفاتورة / العميل / التاريخ، وردّ كامل أو جزئي.
+   إتمام المردود مقصور على دور «المبيعات» (لا يكفي دور الكاشير وحده). *@
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISalesInvoiceService InvoiceService
+@inject ISalesReturnService ReturnService
+@inject IWarehouseService WarehouseService
+@inject AuthenticationStateProvider AuthStateProvider
+
+<MudDialog>
+    <DialogContent>
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+        }
+
+        @if (!_canComplete)
+        {
+            <MudAlert Severity="Severity.Warning" Class="mb-3">
+                <MudIcon Icon="@Icons.Material.Filled.Lock" Size="Size.Small" Class="me-1" />
+                @Loc["PosReturnNoSalesRole"]
+            </MudAlert>
+        }
+
+        @* 1) البحث عن الفاتورة الأصلية *@
+        <MudText Typo="Typo.subtitle2" Class="mb-2" Style="font-weight:700;">@Loc["PosReturnTitle"]</MudText>
+        <div class="pos-return-search">
+            <MudTextField @bind-Value="_searchNumber" T="string" Label="@Loc["PosReturnLookupInvoice"]" Variant="Variant.Outlined" Dense="true" Class="pos-return-inv" Immediate="true" />
+            <MudTextField @bind-Value="_searchCustomer" T="string" Label="@Loc["PosReturnLookupCustomer"]" Variant="Variant.Outlined" Dense="true" Class="pos-return-cust" Immediate="true" />
+            <MudDatePicker @bind-Date="_searchDate" Label="@Loc["PosReturnLookupDate"]" Variant="Variant.Outlined" Dense="true" T="DateTime?" AutoClose="true" Class="pos-return-date" />
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" OnClick="SearchAsync" Disabled="_busy" Class="pos-return-search-btn">
+                @Loc["PosReturnSearch"]
+            </MudButton>
+        </div>
+
+        @* 2) نتائج البحث *@
+        @if (_results.Count > 0)
+        {
+            <MudTable Items="_results" Dense="true" Hover="true" Elevation="0" Class="mt-2 pos-return-results"
+                      OnRowClick="@((TableRowClickEventArgs<SalesInvoiceSearchResultDto> e) => OnInvoiceSelected(e.Item))">
+                <HeaderContent>
+                    <MudTh>@Loc["PosReturnOriginalInvoice"]</MudTh>
+                    <MudTh>@Loc["PosReturnCustomerCol"]</MudTh>
+                    <MudTh>@Loc["PosReturnDateCol"]</MudTh>
+                    <MudTh>@Loc["PosReturnTotalCol"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd><span dir="ltr" style="font-weight:600;">@context.InvoiceNumber</span>
+                        @if (context.IsPos)
+                        {
+                            <span class="pos-return-badge">POS</span>
+                        }
+                    </MudTd>
+                    <MudTd>@context.CustomerName</MudTd>
+                    <MudTd>@context.InvoiceDate.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd>@context.TotalAmount.ToString("N2")</MudTd>
+                </RowTemplate>
+                <NoRecordsContent>@Loc["PosReturnNoResults"]</NoRecordsContent>
+            </MudTable>
+        }
+        else if (_searched)
+        {
+            <MudText Class="muted-text mt-2">@Loc["PosReturnNoResults"]</MudText>
+        }
+
+        @* 3) بنود الفاتورة المختارة + كميات الرد *@
+        @if (_lines.Count > 0)
+        {
+            <MudText Typo="Typo.subtitle2" Class="mt-4 mb-2" Style="font-weight:700;">
+                @Loc["PosReturnOriginalInvoice"]: <span dir="ltr">@_invoiceNumber</span>
+            </MudText>
+
+            <MudButton Variant="Variant.Text" Color="Color.Secondary" Size="Size.Small" StartIcon="@Icons.Material.Filled.CheckCircleOutline" OnClick="SetFullReturn" Class="mb-2">
+                @Loc["PosReturnFull"]
+            </MudButton>
+
+            <MudTable Items="_lines" Dense="true" Hover="true" Elevation="0" Class="pos-return-lines">
+                <HeaderContent>
+                    <MudTh>@Loc["PosReturnItem"]</MudTh>
+                    <MudTh>@Loc["PosReturnSoldQty"]</MudTh>
+                    <MudTh>@Loc["PosReturnQty"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.ItemCode - @context.ItemNameAr</MudTd>
+                    <MudTd>@context.MaxQuantity.ToString("N0")</MudTd>
+                    <MudTd>
+                        <MudNumericField T="decimal" @bind-Value="context.ReturnQuantity" Variant="Variant.Outlined" Margin="Margin.Dense"
+                                         Min="0" Max="context.MaxQuantity" Format="0.##" />
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+
+            <MudText Typo="Typo.h6" Class="mt-3">@Loc["PosReturnTotal"]: @ReturnTotal.ToString("N2")</MudText>
+            <MudText Typo="Typo.body2" Class="muted-text"><MudIcon Icon="@Icons.Material.Filled.Payments" Size="Size.Small" /> @Loc["PosReturnRefundCash"]</MudText>
+            <MudTextField @bind-Value="_note" Label="@Loc["PosReturnNote"]" Lines="2" Variant="Variant.Outlined" Class="mt-2" />
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy || !_canComplete || _lines.Count == 0" Class="pos-return-save">
+            @Loc["SaveAndPost"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    private class ReturnLineEditor
+    {
+        public Guid ItemId { get; set; }
+        public string ItemCode { get; set; } = string.Empty;
+        public string ItemNameAr { get; set; } = string.Empty;
+        public decimal MaxQuantity { get; set; }
+        public decimal UnitPrice { get; set; }
+        public decimal ReturnQuantity { get; set; }
+    }
+
+    private string _searchNumber = string.Empty;
+    private string _searchCustomer = string.Empty;
+    private DateTime? _searchDate;
+    private bool _searched;
+    private bool _busy;
+    private bool _canComplete;
+    private string? _error;
+    private string? _note;
+
+    private List<SalesInvoiceSearchResultDto> _results = new();
+    private List<ReturnLineEditor> _lines = new();
+    private Guid _invoiceId;
+    private string _invoiceNumber = string.Empty;
+    private Guid _warehouseId;
+
+    private decimal ReturnTotal => Math.Round(_lines.Sum(l => l.ReturnQuantity * l.UnitPrice), 2);
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        _canComplete = auth.User.IsInRole("Sales") || auth.User.IsInRole("Admin") || auth.User.IsInRole("SuperAdmin");
+    }
+
+    private async Task SearchAsync()
+    {
+        _busy = true;
+        _error = null;
+        try
+        {
+            _results = await InvoiceService.SearchPostableInvoicesAsync(
+                string.IsNullOrWhiteSpace(_searchNumber) ? null : _searchNumber,
+                string.IsNullOrWhiteSpace(_searchCustomer) ? null : _searchCustomer,
+                _searchDate,
+                30);
+            _lines = new();
+            _searched = true;
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private async Task OnInvoiceSelected(SalesInvoiceSearchResultDto? inv)
+    {
+        if (inv is null) return;
+        _error = null;
+        _busy = true;
+        try
+        {
+            var full = await InvoiceService.GetByIdAsync(inv.Id);
+            if (full is null) { _error = Loc["PosReturnNoResults"]; return; }
+
+            _invoiceId = full.Id;
+            _invoiceNumber = full.InvoiceNumber;
+            _warehouseId = full.WarehouseId;
+
+            var remaining = await ReturnService.GetRemainingReturnableAsync(full.Id);
+
+            _lines = full.Lines.Select(l => new ReturnLineEditor
+            {
+                ItemId = l.ItemId,
+                ItemCode = l.ItemCode,
+                ItemNameAr = l.ItemNameAr,
+                MaxQuantity = remaining.TryGetValue(l.ItemId, out var rem) ? rem : 0m,
+                UnitPrice = l.UnitPrice,
+                ReturnQuantity = 0m
+            }).Where(l => l.MaxQuantity > 0m).ToList();
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private void SetFullReturn()
+    {
+        foreach (var line in _lines)
+            line.ReturnQuantity = line.MaxQuantity;
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        _error = null;
+        if (_invoiceId == Guid.Empty) { _error = Loc["PosReturnSelectInvoice"]; return; }
+        var lines = _lines.Where(l => l.ReturnQuantity > 0).ToList();
+        if (lines.Count == 0) { _error = Loc["PosReturnSelectLine"]; return; }
+        if (lines.Any(l => l.ReturnQuantity > l.MaxQuantity)) { _error = Loc["PosReturnInsufficient"]; return; }
+
+        _busy = true;
+        try
+        {
+            await ReturnService.CreateAsync(new CreateSalesReturnDto
+            {
+                SalesInvoiceId = _invoiceId,
+                WarehouseId = _warehouseId,
+                ReturnDate = DateTime.Today,
+                Note = _note,
+                Lines = lines.Select(l => new CreateSalesReturnLineDto
+                {
+                    ItemId = l.ItemId,
+                    Quantity = l.ReturnQuantity,
+                    UnitPrice = l.UnitPrice
+                }).ToList()
+            });
+            Snackbar.Add(Loc["PosReturnSaved"], Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; _busy = false; }
+    }
+}
+

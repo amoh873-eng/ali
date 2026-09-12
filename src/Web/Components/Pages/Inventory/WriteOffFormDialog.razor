@@ -1,0 +1,244 @@
+@* نموذج إنشاء سند إتلاف: صنف (بحث موحد) + مخزن + دفعة + كمية + سبب + تاريخ + ملاحظات *@
+@inject IStringLocalizer<SharedResources> Loc
+@using ERPSystem.Application.DTOs.Inventory
+@using System.Security.Claims
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+
+            <MudGrid>
+                <MudItem xs="12">
+                    <MudAutocomplete T="ItemDto"
+                                     @bind-Value="_item"
+                                     @bind-Value:after="OnItemSelected"
+                                     SearchFunc="SearchItems"
+                                     ToStringFunc="@(i => $"{i.Code} - {i.NameAr}")"
+                                     Label="@Loc["Item"]"
+                                     HelperText="بحث بالاسم / الكود / الباركود — الرصيد الإجمالي بين قوسين"
+                                     Variant="Variant.Outlined" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_warehouseId"
+                               @bind-Value:after="OnWarehouseSelected"
+                               Label="@Loc["Warehouse"]"
+                               Required="true"
+                               RequiredError="@Loc["WarehouseRequired"]"
+                               Variant="Variant.Outlined"
+                               T="Guid">
+                        @foreach (var warehouse in _warehouses)
+                        {
+                            <MudSelectItem Value="@warehouse.Id">@warehouse.Code - @warehouse.NameAr</MudSelectItem>
+                        }
+                    </MudSelect>
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudText Typo="Typo.body2" Class="mt-3">
+                        <MudIcon Icon="@Icons.Material.Filled.Info" Style="vertical-align:middle;" />
+                        تكلفة الوحدة الحالية: <strong>@(_item?.CostPrice.ToString("N2") ?? "0.00")</strong>
+                        — إجمالي المتوفر: <strong>@(_item?.CurrentStock.ToString("N0") ?? "0")</strong>
+                    </MudText>
+                </MudItem>
+
+                @if (_item is { TracksBatches: true })
+                {
+                    <MudItem xs="12">
+                        <MudSelect @bind-Value="_batchId"
+                                   Label="@Loc["Batch"]"
+                                   HelperText="الأقرب انتهاءً أولاً (افتراضياً) — قابل للتغيير"
+                                   Required="true"
+                                   RequiredError="يجب اختيار دُفعة لهذا الصنف"
+                                   Variant="Variant.Outlined"
+                                   T="Guid?">
+                            @foreach (var batch in _batches)
+                            {
+                                <MudSelectItem Value="@((Guid?)batch.Id)">
+                                    @BatchLabel(batch) — متاح: @batch.Quantity.ToString("N0")
+                                </MudSelectItem>
+                            }
+                            @if (_batches.Count == 0)
+                            {
+                                <MudText Typo="Typo.body2" Class="px-3 py-2 muted-text">لا توجد دُفعات متاحة لهذا الصنف في المخزن المحدد.</MudText>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+<MudItem xs="12" sm="6">
+                    <MudNumericField @bind-Value="_quantity"
+                                     Label="@Loc["Quantity"]"
+                                     Required="true"
+                                     RequiredError="@Loc["QuantityRequired"]"
+                                     Variant="Variant.Outlined"
+                                     T="decimal" DecimalPlaces="2" Format="0.00" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudSelect @bind-Value="_reason"
+                               Label="@Loc["Reason"]"
+                               Required="true"
+                               RequiredError="اختر سبب الإتلاف"
+                               Variant="Variant.Outlined"
+                               T="int">
+                        <MudSelectItem Value="1">@Loc["ReasonExpired"]</MudSelectItem>
+                        <MudSelectItem Value="2">@Loc["ReasonDamaged"]</MudSelectItem>
+                        <MudSelectItem Value="3">@Loc["ReasonStolen"]</MudSelectItem>
+                        <MudSelectItem Value="4">@Loc["ReasonOther"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+
+                @if (_reason == (int)StockWriteOffReason.Other)
+                {
+                    <MudItem xs="12">
+                        <MudTextField @bind-Value="_otherReason"
+                                      Label="@Loc["OtherReasonLabel"]"
+                                      Required="true"
+                                      RequiredError="يجب توضيح سبب الإتلاف عند اختيار «أخرى»"
+                                      Variant="Variant.Outlined" />
+                    </MudItem>
+                }
+
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_date"
+                                   Label="@Loc["Date"]"
+                                   Variant="Variant.Outlined"
+                                   T="DateTime?"
+                                   AutoClose="true" />
+                </MudItem>
+
+                <MudItem xs="12" sm="6">
+                    <MudTextField @bind-Value="_notes"
+                                  Label="@Loc["Notes"]"
+                                  Lines="1"
+                                  Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+
+        @* معاينة الأثر عند الحفظ (بسعر التكلفة الحالي) *@
+        <MudPaper Elevation="0" Class="pa-3 mt-3" Style="background:#F9FAFB;border:1px solid var(--erp-border);border-radius:10px;">
+            <MudText Typo="Typo.subtitle2" Style="font-weight:700;">القيد المحاسبي القادم (المبلغ @PreviewTotal.ToString("N2"))</MudText>
+            <MudText Typo="Typo.body2" Class="mt-1">مدين: <strong>مصروف الهالك/التوالف (5300)</strong></MudText>
+            <MudText Typo="Typo.body2">دائن: <strong>المخزون (1300)</strong></MudText>
+        </MudPaper>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Error"
+                   StartIcon="@Icons.Material.Filled.PostAdd">@Loc["RegisterWriteOff"]</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Parameter] public IStockWriteOffService WriteOffService { get; set; } = default!;
+
+    [Inject] private IItemService ItemService { get; set; } = default!;
+    [Inject] private IWarehouseService WarehouseService { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+
+    private MudForm? _form;
+    private List<WarehouseDto> _warehouses = new();
+    private List<ItemBatchOptionDto> _batches = new();
+
+    private ItemDto? _item;
+    private Guid _warehouseId;
+    private Guid? _batchId;
+    private decimal _quantity;
+    private int _reason = 1;
+    private string? _otherReason;
+    private DateTime? _date = DateTime.Today;
+    private string? _notes;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _warehouses = await WarehouseService.GetAllAsync();
+        _warehouseId = _warehouses.FirstOrDefault(w => w.IsDefault)?.Id
+                       ?? _warehouses.FirstOrDefault()?.Id
+                       ?? Guid.Empty;
+    }
+
+    private async Task<IEnumerable<ItemDto>> SearchItems(string text, CancellationToken ct)
+    {
+        var q = string.IsNullOrWhiteSpace(text) ? string.Empty : text.Trim();
+        return await ItemService.SearchAsync(q);
+    }
+
+    private async Task OnItemSelected()
+    {
+        _batchId = null;
+        _batches = new List<ItemBatchOptionDto>();
+        if (_item is { TracksBatches: true })
+            await LoadBatchesAsync();
+    }
+
+    private async Task OnWarehouseSelected()
+    {
+        _batchId = null;
+        _batches = new List<ItemBatchOptionDto>();
+        if (_item is { TracksBatches: true })
+            await LoadBatchesAsync();
+    }
+
+    /// <summary>يجلب دُفعات الصنف في المخزن (الأقرب انتهاءً أولاً) مع افتراضي = الأقرب انتهاءً.</summary>
+    private async Task LoadBatchesAsync()
+    {
+        if (_item is null || _warehouseId == Guid.Empty) return;
+        _batches = await WriteOffService.GetBatchesForAsync(_item.Id, _warehouseId);
+        _batchId = _batches.FirstOrDefault()?.Id;
+    }
+
+    private string BatchLabel(ItemBatchOptionDto b)
+    {
+        var expiry = b.ExpiryDate?.ToString("yyyy-MM-dd") ?? "بدون تاريخ";
+        return string.IsNullOrWhiteSpace(b.BatchNumber)
+            ? $"انتهاء: {expiry}"
+            : $"دُفعة {b.BatchNumber} — انتهاء: {expiry}";
+    }
+
+    private decimal PreviewTotal => Math.Round(_quantity * (_item?.CostPrice ?? 0m), 2);
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        _error = null;
+        if (_item is null)
+        {
+            _error = "يجب اختيار الصنف أولاً.";
+            return;
+        }
+
+        try
+        {
+            var userId = (await AuthStateProvider.GetAuthenticationStateAsync())
+                .User.FindFirstValue(ClaimTypes.NameIdentifier);
+
+            await WriteOffService.CreateAsync(new CreateStockWriteOffDto
+            {
+                ItemId = _item.Id,
+                WarehouseId = _warehouseId,
+                BatchId = _item.TracksBatches ? _batchId : null,
+                Quantity = _quantity,
+                Reason = _reason,
+                OtherReasonText = _reason == (int)StockWriteOffReason.Other ? _otherReason : null,
+                Date = _date ?? DateTime.Today,
+                Notes = _notes
+            }, userId ?? string.Empty);
+
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+        }
+    }
+}

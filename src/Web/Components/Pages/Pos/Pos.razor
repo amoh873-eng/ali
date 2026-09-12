@@ -254,6 +254,12 @@
                 <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Disabled="_busy" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
                 </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="mt-2 pos-action-return" OnClick="OpenReturnAsync" Disabled="_busy">
+                    <MudIcon Icon="@Icons.Material.Filled.Replay" Class="mr-2" /> @Loc["PosReturn"]
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="mt-2 pos-action-cash" OnClick="OpenCashTransferAsync" Disabled="_busy">
+                    <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-2" /> @Loc["CashTransfer"]
+                </MudButton>
             </div>
             </div>
         </div>
@@ -382,6 +388,8 @@
     [Inject] private IJSRuntime Js { get; set; } = default!;
     [Inject] private ISystemSettingsService SystemSettingsService { get; set; } = default!;
     [Inject] private IHeldSaleService HeldSaleService { get; set; } = default!;
+    [Inject] private ISalesReturnService ReturnService { get; set; } = default!;
+    [Inject] private ICashDrawerService CashDrawerService { get; set; } = default!;
 
     private List<ItemDto> FilteredItems
     {
@@ -810,6 +818,27 @@
 
     private void ExitPos() => Nav.NavigateTo("/");
     private void GoToReconciliation() => Nav.NavigateTo("/pos/card-reconciliation");
+
+    /// <summary>فتح حوار مردود مبيعات من نقطة البيع (يستخدم خدمة المردودات الموجودة).</summary>
+    private async Task OpenReturnAsync()
+    {
+        if (_busy) return;
+        var dialog = await DialogService.ShowAsync<PosReturnDialog>(
+            Loc["PosReturnTitle"], new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        await dialog.Result;
+    }
+
+    /// <summary>فتح حوار تحويل نقد بين الخزنة ودرج الكاش.</summary>
+    private async Task OpenCashTransferAsync()
+    {
+        if (_busy) return;
+        var parameters = new DialogParameters { ["CashierUserId"] = _cashierUserId };
+        var dialog = await DialogService.ShowAsync<CashTransferDialog>(
+            Loc["CashTransferTitle"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        await dialog.Result;
+    }
     private async Task CompleteSale()
     {
         // حارس النقر المزدوج: نفعّل الـ busy فوراً قبل أي تحقق آخر

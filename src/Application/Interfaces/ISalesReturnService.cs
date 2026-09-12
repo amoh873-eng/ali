@@ -23,4 +23,10 @@ public interface ISalesReturnService
     /// returns goods to stock and reverses the sale + COGS journal entries. Atomic.
     /// </summary>
     Task<SalesReturnDto> CreateAsync(CreateSalesReturnDto dto);
+
+    /// <summary>
+    /// يعيد الكمية المتبقية القابلة للرد لكل صنف في فاتورة معينة (الكمية المباعة − ما سبق ردّه).
+    /// يُستخدم في واجهات المردود لضبط الحد الأقصى للكمية بدقة.
+    /// </summary>
+    Task<Dictionary<Guid, decimal>> GetRemainingReturnableAsync(Guid invoiceId);
 }

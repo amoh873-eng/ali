@@ -31,6 +31,29 @@ public partial class SalesReturnService
     }
 
     /// <summary>
+    /// الكمية المتبقية القابلة للرد لكل صنف في فاتورة (الكمية المباعة − ما سبق ردّه).
+    /// يعيد قاموساً: ItemId → الكمية المتبقية (صفر إن لم يبقَ شيء أو لم يوجد الصنف).
+    /// </summary>
+    public async Task<Dictionary<Guid, decimal>> GetRemainingReturnableAsync(Guid invoiceId)
+    {
+        var invoice = await _context.Set<SalesInvoice>()
+            .Include(i => i.Lines)
+            .FirstOrDefaultAsync(i => i.Id == invoiceId && !i.IsDeleted);
+
+        if (invoice is null)
+            return new Dictionary<Guid, decimal>();
+
+        var result = new Dictionary<Guid, decimal>();
+        foreach (var line in invoice.Lines)
+        {
+            var already = await AlreadyReturnedQuantityAsync(invoiceId, line.ItemId);
+            result[line.ItemId] = Math.Max(0m, line.Quantity - already);
+        }
+
+        return result;
+    }
+
+    /// <summary>
     /// يبحث عن حساب نظامي حسب كوده الثابت (يجب مطابقة أكواد SeedSalesAccounts).
     /// </summary>
     private async Task<Account> GetAccountByCodeAsync(string code)

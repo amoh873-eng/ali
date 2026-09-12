@@ -1010,4 +1010,75 @@
   <data name="BarcodeScanOk" xml:space="preserve"><value>تمت إضافة «{0}» ×{1} — إجمالي السطر: {2}</value></data>
   <data name="BarcodeScanNotFound" xml:space="preserve"><value>باركود/كود غير معروف — لم يُضف أي بند</value></data>
   <data name="BarcodeReceiveHint" xml:space="preserve"><value>كل مسح يضيف 1 للكمية؛ يمكنك تعديل الكمية والسعر من البنود قبل الترحيل</value></data>
+<data name="WriteOffs" xml:space="preserve"><value>سندات الإتلاف</value></data>
+  <data name="NewWriteOff" xml:space="preserve"><value>سند إتلاف جديد</value></data>
+  <data name="RegisterWriteOff" xml:space="preserve"><value>ترحيل سند الإتلاف</value></data>
+  <data name="WriteOffReport" xml:space="preserve"><value>ملخص قيمة الهالك (إتلاف)</value></data>
+  <data name="TotalWriteOffValue" xml:space="preserve"><value>إجمالي قيمة الهالك</value></data>
+  <data name="WriteOffQty" xml:space="preserve"><value>إجمالي الكمية</value></data>
+  <data name="WriteOffCount" xml:space="preserve"><value>عدد السندات</value></data>
+  <data name="PerReasonBreakdown" xml:space="preserve"><value>تفصيل حسب السبب</value></data>
+  <data name="MonthlyBreakdown" xml:space="preserve"><value>التوزيع الشهري</value></data>
+  <data name="Reason" xml:space="preserve"><value>السبب</value></data>
+  <data name="Batch" xml:space="preserve"><value>دُفعة المخزون</value></data>
+  <data name="ReasonExpired" xml:space="preserve"><value>منتهي الصلاحية</value></data>
+  <data name="ReasonDamaged" xml:space="preserve"><value>تالف/مكسور</value></data>
+  <data name="ReasonStolen" xml:space="preserve"><value>سرقة أو فقد</value></data>
+  <data name="ReasonOther" xml:space="preserve"><value>أخرى</value></data>
+  <data name="OtherReasonLabel" xml:space="preserve"><value>توضيح السبب (أخرى)</value></data>
+  <data name="NoWriteOffs" xml:space="preserve"><value>لا توجد سندات إتلاف</value></data>
+  <data name="WriteOffSaved" xml:space="preserve"><value>تم ترحيل سند الإتلاف بنجاح مع قيده المحاسبي</value></data>
+  <data name="DocNumber" xml:space="preserve"><value>رقم السند</value></data>
+  <data name="Quantity" xml:space="preserve"><value>الكمية</value></data>
+  <data name="Search" xml:space="preserve"><value>بحث</value></data>
+  <data name="DateFrom" xml:space="preserve"><value>من تاريخ</value></data>
+  <data name="DateTo" xml:space="preserve"><value>إلى تاريخ</value></data>
+  <data name="Month" xml:space="preserve"><value>الشهر</value></data>
+  <data name="WriteOffValue" xml:space="preserve"><value>قيمة الهالك</value></data>
+  <data name="PosReturn" xml:space="preserve"><value>إرجاع</value></data>
+  <data name="PosReturnTitle" xml:space="preserve"><value>مردود من نقطة البيع</value></data>
+  <data name="PosReturnLookupInvoice" xml:space="preserve"><value>رقم الفاتورة</value></data>
+  <data name="PosReturnLookupCustomer" xml:space="preserve"><value>العميل (اسم / رقم)</value></data>
+  <data name="PosReturnLookupDate" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="PosReturnSearch" xml:space="preserve"><value>بحث</value></data>
+  <data name="PosReturnNoResults" xml:space="preserve"><value>لا توجد فواتير مرحّلة مطابقة</value></data>
+  <data name="PosReturnSelectInvoice" xml:space="preserve"><value>اختر فاتورة لعرض بنودها</value></data>
+  <data name="PosReturnOriginalInvoice" xml:space="preserve"><value>الفاتورة الأصلية</value></data>
+  <data name="PosReturnCustomerCol" xml:space="preserve"><value>العميل</value></data>
+  <data name="PosReturnDateCol" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="PosReturnTotalCol" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="PosReturnItem" xml:space="preserve"><value>الصنف</value></data>
+  <data name="PosReturnSoldQty" xml:space="preserve"><value>كمية مباعة</value></data>
+  <data name="PosReturnQty" xml:space="preserve"><value>كمية الرد</value></data>
+  <data name="PosReturnTotal" xml:space="preserve"><value>إجمالي المردود</value></data>
+  <data name="PosReturnFull" xml:space="preserve"><value>رد كامل</value></data>
+  <data name="PosReturnRefundCash" xml:space="preserve"><value>الاسترداد نقداً من درج الكاش</value></data>
+  <data name="PosReturnNote" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="PosReturnSaved" xml:space="preserve"><value>تم ترحيل المردود بنجاح</value></data>
+  <data name="PosReturnNoSalesRole" xml:space="preserve"><value>يتطلب صلاحية «المبيعات» لإتمام المردود من نقطة البيع</value></data>
+  <data name="PosReturnSelectLine" xml:space="preserve"><value>حدد كمية الرد لبند واحد على الأقل</value></data>
+  <data name="PosReturnInsufficient" xml:space="preserve"><value>الكمية المطلوبة تتجاوز المتاح للرد</value></data>
+  <data name="CashTransfer" xml:space="preserve"><value>تحويل نقد</value></data>
+  <data name="CashTransferTitle" xml:space="preserve"><value>تحويل نقد بين الخزنة ودرج الكاش</value></data>
+  <data name="CashTransferDirection" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="CashTransferFloatIn" xml:space="preserve"><value>تمويل درج الكاش (من الخزنة)</value></data>
+  <data name="CashTransferCashOut" xml:space="preserve"><value>سحب نقد (إلى الخزنة)</value></data>
+  <data name="CashTransferAmount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="CashTransferNotes" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="CashTransferSaved" xml:space="preserve"><value>تم تنفيذ التحويل وترحيل القيد</value></data>
+  <data name="CashTransferLog" xml:space="preserve"><value>سجل التحويلات النقدية</value></data>
+  <data name="CashTransferLogDesc" xml:space="preserve"><value>سجل حركات النقد بين الخزنة الرئيسية ودرج الكاش</value></data>
+  <data name="CashTransferFrom" xml:space="preserve"><value>من تاريخ</value></data>
+  <data name="CashTransferTo" xml:space="preserve"><value>إلى تاريخ</value></data>
+  <data name="CashTransferAllDirections" xml:space="preserve"><value>كل الاتجاهات</value></data>
+  <data name="CashTransferCashier" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="CashTransferTypeCol" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="CashTransferAmountCol" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="CashTransferCashierCol" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="CashTransferTimeCol" xml:space="preserve"><value>الوقت</value></data>
+  <data name="CashTransferNotesCol" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="CashTransferEntryCol" xml:space="preserve"><value>القيد</value></data>
+  <data name="CashTransferShow" xml:space="preserve"><value>عرض</value></data>
+  <data name="CashTransferBack" xml:space="preserve"><value>رجوع</value></data>
+  <data name="CashTransferInvalidAmount" xml:space="preserve"><value>أدخل مبلغاً أكبر من صفر</value></data>
   </root>

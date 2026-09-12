@@ -76,6 +76,7 @@ public partial class StockMovementService : IStockMovementService
             MovementType.PurchaseReceipt or MovementType.OpeningBalance
                 or MovementType.AdjustmentIn or MovementType.TransferIn
                 or MovementType.SalesReturnIn => 1,
+            MovementType.WriteOff => -1,
             _ => -1
         };
     }
@@ -112,6 +113,7 @@ public partial class StockMovementService : IStockMovementService
             MovementType.TransferIn => "وارد تحويل",
             MovementType.TransferOut => "صادر تحويل",
             MovementType.SalesReturnIn => "وارد مردود مبيعات",
+            MovementType.WriteOff => "صادر إتلاف",
             _ => "غير معروف"
         };
     }

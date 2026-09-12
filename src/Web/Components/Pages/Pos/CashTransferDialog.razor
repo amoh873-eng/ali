@@ -1,0 +1,88 @@
+@* تحويل نقد بين الخزنة الرئيسية «الصندوق» (1100) ودرج الكاش (1105).
+   ليست مصروفاً ولا إيراداً — نقل نفس المال بين موقعين نقديين، ويرافقه قيد محاسبي متوازن. *@
+@using ERPSystem.Application.DTOs.CashDrawer
+@inject IStringLocalizer<SharedResources> Loc
+
+<MudDialog>
+    <DialogContent>
+        @if (_error is not null)
+        {
+            <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+        }
+
+        <MudForm @ref="_form">
+            <MudSelect T="CashTransferDirection" @bind-Value="_direction" Label="@Loc["CashTransferDirection"]"
+                       Required="true" Variant="Variant.Outlined" Class="mb-3 pos-transfer-dir">
+                <MudSelectItem T="CashTransferDirection" Value="CashTransferDirection.FloatIn">
+                    <MudIcon Icon="@Icons.Material.Filled.TrendingDown" Size="Size.Small" Class="me-1" />
+                    @Loc["CashTransferFloatIn"]
+                </MudSelectItem>
+                <MudSelectItem T="CashTransferDirection" Value="CashTransferDirection.CashOut">
+                    <MudIcon Icon="@Icons.Material.Filled.TrendingUp" Size="Size.Small" Class="me-1" />
+                    @Loc["CashTransferCashOut"]
+                </MudSelectItem>
+            </MudSelect>
+
+            <MudNumericField T="decimal" @bind-Value="_amount" Label="@Loc["CashTransferAmount"]" DecimalPlaces="2" Min="0"
+                             Variant="Variant.Outlined" Class="mb-3 pos-transfer-amt" />
+            <MudTextField @bind-Value="_notes" Label="@Loc["CashTransferNotes"]" Lines="2" Variant="Variant.Outlined" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary" Disabled="_busy" Class="pos-transfer-save">
+            @Loc["SaveAndPost"]
+        </MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+    [Inject] private ICashDrawerService CashDrawerService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+
+    [Parameter] public string? CashierUserId { get; set; }
+
+    private MudForm? _form;
+    private CashTransferDirection _direction = CashTransferDirection.FloatIn;
+    private decimal _amount;
+    private string? _notes;
+    private bool _busy;
+    private string? _error;
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+
+        if (_amount <= 0m)
+        {
+            _error = Loc["CashTransferInvalidAmount"];
+            return;
+        }
+
+        _error = null;
+        _busy = true;
+        try
+        {
+            var userId = string.IsNullOrWhiteSpace(CashierUserId) ? "unknown" : CashierUserId;
+            await CashDrawerService.CreateAsync(new CreateCashTransferDto
+            {
+                Type = _direction,
+                Amount = Math.Round(_amount, 2),
+                Notes = _notes,
+                Timestamp = DateTime.Now
+            }, userId);
+
+            Snackbar.Add(Loc["CashTransferSaved"], Severity.Success);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex)
+        {
+            _error = ex.Message;
+            _busy = false;
+        }
+    }
+}

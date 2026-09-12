@@ -1,0 +1,131 @@
+@page "/pos/cash-transfer"
+@attribute [Authorize(Roles = "Pos")]
+@layout PosLayout
+@using ERPSystem.Application.DTOs.CashDrawer
+@using ERPSystem.Application.Interfaces
+<ModuleGuard ModuleKey="Pos">
+@inject IStringLocalizer<SharedResources> Loc
+@inject NavigationManager Nav
+@inject ICashDrawerService CashDrawerService
+@inject IDialogService DialogService
+@inject ISnackbar Snackbar
+@inject AuthenticationStateProvider AuthStateProvider
+
+@* سجل التحويلات النقدية بين الخزنة الرئيسية ودرج الكاش *@
+<div class="recon-page">
+    <div class="recon-header">
+        <div class="recon-title">
+            <MudIcon Icon="@Icons.Material.Filled.Savings" Style="color:var(--erp-primary); font-size:1.9rem;" />
+            <div>
+                <MudText Typo="Typo.h6" Style="font-weight:800;">@Loc["CashTransferLog"]</MudText>
+                <MudText Typo="Typo.body2" Class="recon-muted">@Loc["CashTransferLogDesc"]</MudText>
+            </div>
+        </div>
+        <div class="recon-actions">
+            <MudButton Variant="Variant.Text" Color="Color.Default" StartIcon="@Icons.Material.Filled.ArrowForward" OnClick="BackToPos">@Loc["CashTransferBack"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.SwapHoriz" OnClick="OpenNewTransfer">
+                @Loc["CashTransfer"]
+            </MudButton>
+        </div>
+    </div>
+
+    <MudPaper Class="recon-controls" Elevation="0" Outlined="true">
+        <MudDatePicker @bind-Date="_fromDate" Label="@Loc["CashTransferFrom"]" />
+        <MudDatePicker @bind-Date="_toDate" Label="@Loc["CashTransferTo"]" />
+        <MudSelect T="int" @bind-Value="_directionFilter" Label="@Loc["CashTransferDirection"]" Variant="Variant.Outlined" Dense="true">
+            <MudSelectItem T="int" Value="0">@Loc["CashTransferAllDirections"]</MudSelectItem>
+            <MudSelectItem T="int" Value="1">@Loc["CashTransferFloatIn"]</MudSelectItem>
+            <MudSelectItem T="int" Value="2">@Loc["CashTransferCashOut"]</MudSelectItem>
+        </MudSelect>
+        <MudTextField @bind-Value="_cashierFilter" Label="@Loc["CashTransferCashier"]" Variant="Variant.Outlined" Dense="true" />
+        <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Search" OnClick="LoadAsync" Disabled="_busy">
+            @Loc["CashTransferShow"]
+        </MudButton>
+    </MudPaper>
+
+    <MudPaper Class="recon-table-paper" Elevation="0" Outlined="true">
+        @if (_rows.Count == 0)
+        {
+            <MudText Class="recon-muted" Style="padding:24px;">@Loc["NoData"]</MudText>
+        }
+        else
+        {
+            <MudTable Items="_rows" Dense="true" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>@Loc["CashTransferTypeCol"]</MudTh>
+                    <MudTh>@Loc["CashTransferAmountCol"]</MudTh>
+                    <MudTh>@Loc["CashTransferCashierCol"]</MudTh>
+                    <MudTh>@Loc["CashTransferTimeCol"]</MudTh>
+                    <MudTh>@Loc["CashTransferNotesCol"]</MudTh>
+                    <MudTh>@Loc["CashTransferEntryCol"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>
+                        <span class="recon-badge @DirectionClass(context.Type)">
+                            <MudIcon Icon="@DirectionIcon(context.Type)" Size="Size.Small" Class="me-1" />@context.TypeNameAr
+                        </span>
+                    </MudTd>
+                    <MudTd Style="font-weight:700;">@context.Amount.ToString("N2")</MudTd>
+                    <MudTd>@context.CashierUserId</MudTd>
+                    <MudTd>@context.Timestamp.ToString("yyyy-MM-dd HH:mm")</MudTd>
+                    <MudTd>@(context.Notes ?? "—")</MudTd>
+                    <MudTd><span dir="ltr" style="font-weight:600;">@context.EntryNumber</span></MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudPaper>
+</div>
+</ModuleGuard>
+@code {
+    private DateTime? _fromDate = new DateTime(DateTime.Today.Year, DateTime.Today.Month, 1);
+    private DateTime? _toDate = DateTime.Today;
+    private int _directionFilter;
+    private string _cashierFilter = string.Empty;
+    private List<CashDrawerTransactionDto> _rows = new();
+    private bool _busy;
+    private string? _cashierUserId;
+
+    protected override async Task OnInitializedAsync()
+    {
+        var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+        _cashierUserId = auth.User.FindFirst(System.Security.Claims.ClaimTypes.NameIdentifier)?.Value ?? auth.User.Identity?.Name;
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        _busy = true;
+        try
+        {
+            var filter = new CashDrawerFilterDto
+            {
+                From = _fromDate,
+                To = _toDate,
+                Type = _directionFilter switch { 1 => CashTransferDirection.FloatIn, 2 => CashTransferDirection.CashOut, _ => null },
+                Cashier = string.IsNullOrWhiteSpace(_cashierFilter) ? null : _cashierFilter
+            };
+            _rows = await CashDrawerService.GetAsync(filter);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+
+    private async Task OpenNewTransfer()
+    {
+        var parameters = new DialogParameters { ["CashierUserId"] = _cashierUserId };
+        var dialog = await DialogService.ShowAsync<CashTransferDialog>(
+            Loc["CashTransferTitle"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        var result = await dialog.Result;
+        if (result?.Canceled != true) await LoadAsync();
+    }
+
+    private void BackToPos() => Nav.NavigateTo("/pos");
+
+    private static string DirectionClass(CashTransferDirection d)
+        => d == CashTransferDirection.FloatIn ? "matched" : "pending";
+
+    private static string DirectionIcon(CashTransferDirection d)
+        => d == CashTransferDirection.FloatIn ? Icons.Material.Filled.TrendingDown : Icons.Material.Filled.TrendingUp;
+}
+

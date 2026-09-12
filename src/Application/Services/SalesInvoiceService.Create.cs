@@ -161,7 +161,9 @@ public partial class SalesInvoiceService
             ? await GetAccountByCodeAsync(AccountReceivable)
             : paymentMethod == SalesPaymentMethod.Card
                 ? await GetAccountByCodeAsync(AccountCardReceivables)
-                : await GetAccountByCodeAsync(AccountCash);
+                : invoice.IsPos
+                    ? await GetAccountByCodeAsync(AccountTillDrawer) // مبيعات نقطة البيع النقدية → درج الكاش (1105)
+                    : await GetAccountByCodeAsync(AccountCash);     // مبيعات الوحدة النقدية → الخزنة الرئيسية (1100)
         var revenueAccount = await GetAccountByCodeAsync(AccountSalesRevenue);
         var taxPayableAccount = await GetAccountByCodeAsync(AccountSalesTaxPayable);
 

@@ -129,7 +129,12 @@ public partial class SalesReturnService
         // 4) القيد العكسي للبيع: مدين (مردودات + ضريبة) ، دائن (صندوق/عملاء)
         var returnsAccount = await GetAccountByCodeAsync(AccountSalesReturns);
         var taxPayableAccount = await GetAccountByCodeAsync(AccountSalesTaxPayable);
-        var payableAccount = await GetAccountByCodeAsync(invoice.InvoiceType == SalesInvoiceType.OnAccount ? AccountReceivable : AccountCash);
+        var payableAccount = await GetAccountByCodeAsync(
+            invoice.InvoiceType == SalesInvoiceType.OnAccount
+                ? AccountReceivable
+                : invoice.IsPos && invoice.PaymentMethod == SalesPaymentMethod.Cash
+                    ? AccountTillDrawer // مردود مبيعات نقدية من نقطة البيع → درج الكاش (1105)
+                    : AccountCash);     // مردود مبيعات نقدية من الوحدة → الخزنة الرئيسية (1100)
 
         var reverseSaleEntry = await _journalService.PrepareEntryAsync(
             JournalEntryType.SalesReturn,

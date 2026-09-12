@@ -1009,4 +1009,75 @@
   <data name="BarcodeScanOk" xml:space="preserve"><value>Added «{0}» ×{1} — line total: {2}</value></data>
   <data name="BarcodeScanNotFound" xml:space="preserve"><value>Unknown barcode/code — no line added</value></data>
   <data name="BarcodeReceiveHint" xml:space="preserve"><value>Each scan adds 1 to quantity; adjust qty/price on lines before posting</value></data>
+<data name="WriteOffs" xml:space="preserve"><value>Stock Write-Offs</value></data>
+  <data name="NewWriteOff" xml:space="preserve"><value>New Write-Off</value></data>
+  <data name="RegisterWriteOff" xml:space="preserve"><value>Post Write-Off</value></data>
+  <data name="WriteOffReport" xml:space="preserve"><value>Write-Off Summary</value></data>
+  <data name="TotalWriteOffValue" xml:space="preserve"><value>Total Write-Off Value</value></data>
+  <data name="WriteOffQty" xml:space="preserve"><value>Total Quantity</value></data>
+  <data name="WriteOffCount" xml:space="preserve"><value>Documents</value></data>
+  <data name="PerReasonBreakdown" xml:space="preserve"><value>By Reason</value></data>
+  <data name="MonthlyBreakdown" xml:space="preserve"><value>Monthly Breakdown</value></data>
+  <data name="Reason" xml:space="preserve"><value>Reason</value></data>
+  <data name="Batch" xml:space="preserve"><value>Stock Batch</value></data>
+  <data name="ReasonExpired" xml:space="preserve"><value>Expired</value></data>
+  <data name="ReasonDamaged" xml:space="preserve"><value>Damaged/Broken</value></data>
+  <data name="ReasonStolen" xml:space="preserve"><value>Stolen or Lost</value></data>
+  <data name="ReasonOther" xml:space="preserve"><value>Other</value></data>
+  <data name="OtherReasonLabel" xml:space="preserve"><value>Other Reason Details</value></data>
+  <data name="NoWriteOffs" xml:space="preserve"><value>No write-off documents</value></data>
+  <data name="WriteOffSaved" xml:space="preserve"><value>Write-off posted successfully with its journal entry</value></data>
+  <data name="DocNumber" xml:space="preserve"><value>Doc. No.</value></data>
+  <data name="Quantity" xml:space="preserve"><value>Quantity</value></data>
+  <data name="Search" xml:space="preserve"><value>Search</value></data>
+  <data name="DateFrom" xml:space="preserve"><value>From Date</value></data>
+  <data name="DateTo" xml:space="preserve"><value>To Date</value></data>
+  <data name="Month" xml:space="preserve"><value>Month</value></data>
+  <data name="WriteOffValue" xml:space="preserve"><value>Write-Off Value</value></data>
+  <data name="PosReturn" xml:space="preserve"><value>Return</value></data>
+  <data name="PosReturnTitle" xml:space="preserve"><value>Return from POS</value></data>
+  <data name="PosReturnLookupInvoice" xml:space="preserve"><value>Invoice number</value></data>
+  <data name="PosReturnLookupCustomer" xml:space="preserve"><value>Customer (name / code)</value></data>
+  <data name="PosReturnLookupDate" xml:space="preserve"><value>Date</value></data>
+  <data name="PosReturnSearch" xml:space="preserve"><value>Search</value></data>
+  <data name="PosReturnNoResults" xml:space="preserve"><value>No matching posted invoices</value></data>
+  <data name="PosReturnSelectInvoice" xml:space="preserve"><value>Select an invoice to view its lines</value></data>
+  <data name="PosReturnOriginalInvoice" xml:space="preserve"><value>Original invoice</value></data>
+  <data name="PosReturnCustomerCol" xml:space="preserve"><value>Customer</value></data>
+  <data name="PosReturnDateCol" xml:space="preserve"><value>Date</value></data>
+  <data name="PosReturnTotalCol" xml:space="preserve"><value>Total</value></data>
+  <data name="PosReturnItem" xml:space="preserve"><value>Item</value></data>
+  <data name="PosReturnSoldQty" xml:space="preserve"><value>Sold qty</value></data>
+  <data name="PosReturnQty" xml:space="preserve"><value>Return qty</value></data>
+  <data name="PosReturnTotal" xml:space="preserve"><value>Return total</value></data>
+  <data name="PosReturnFull" xml:space="preserve"><value>Full return</value></data>
+  <data name="PosReturnRefundCash" xml:space="preserve"><value>Refund cash from the till</value></data>
+  <data name="PosReturnNote" xml:space="preserve"><value>Note</value></data>
+  <data name="PosReturnSaved" xml:space="preserve"><value>Return posted successfully</value></data>
+  <data name="PosReturnNoSalesRole" xml:space="preserve"><value>Requires the "Sales" role to complete a return from POS</value></data>
+  <data name="PosReturnSelectLine" xml:space="preserve"><value>Set a return quantity on at least one line</value></data>
+  <data name="PosReturnInsufficient" xml:space="preserve"><value>The requested quantity exceeds the amount available to return</value></data>
+  <data name="CashTransfer" xml:space="preserve"><value>Cash Transfer</value></data>
+  <data name="CashTransferTitle" xml:space="preserve"><value>Cash transfer between safe and till</value></data>
+  <data name="CashTransferDirection" xml:space="preserve"><value>Direction</value></data>
+  <data name="CashTransferFloatIn" xml:space="preserve"><value>Float in till (from safe)</value></data>
+  <data name="CashTransferCashOut" xml:space="preserve"><value>Cash out (to safe)</value></data>
+  <data name="CashTransferAmount" xml:space="preserve"><value>Amount</value></data>
+  <data name="CashTransferNotes" xml:space="preserve"><value>Note</value></data>
+  <data name="CashTransferSaved" xml:space="preserve"><value>Transfer executed and journal entry posted</value></data>
+  <data name="CashTransferLog" xml:space="preserve"><value>Cash Transfer Log</value></data>
+  <data name="CashTransferLogDesc" xml:space="preserve"><value>Log of cash movements between the main safe and the till drawer</value></data>
+  <data name="CashTransferFrom" xml:space="preserve"><value>From date</value></data>
+  <data name="CashTransferTo" xml:space="preserve"><value>To date</value></data>
+  <data name="CashTransferAllDirections" xml:space="preserve"><value>All directions</value></data>
+  <data name="CashTransferCashier" xml:space="preserve"><value>Cashier</value></data>
+  <data name="CashTransferTypeCol" xml:space="preserve"><value>Direction</value></data>
+  <data name="CashTransferAmountCol" xml:space="preserve"><value>Amount</value></data>
+  <data name="CashTransferCashierCol" xml:space="preserve"><value>Cashier</value></data>
+  <data name="CashTransferTimeCol" xml:space="preserve"><value>Time</value></data>
+  <data name="CashTransferNotesCol" xml:space="preserve"><value>Note</value></data>
+  <data name="CashTransferEntryCol" xml:space="preserve"><value>Entry</value></data>
+  <data name="CashTransferShow" xml:space="preserve"><value>Show</value></data>
+  <data name="CashTransferBack" xml:space="preserve"><value>Back</value></data>
+  <data name="CashTransferInvalidAmount" xml:space="preserve"><value>Enter an amount greater than zero</value></data>
   </root>

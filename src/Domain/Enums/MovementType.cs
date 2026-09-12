@@ -33,5 +33,8 @@ public enum MovementType
     SalesReturnIn = 8,
 
     /// <summary>صادر مردود مشتريات - Purchase return out (Out)</summary>
-    PurchaseReturnOut = 9
+    PurchaseReturnOut = 9,
+
+    /// <summary>صادر إتلاف مخزون - Stock write-off (Out) — من سند الإتلاف StockWriteOff</summary>
+    WriteOff = 10
 }
