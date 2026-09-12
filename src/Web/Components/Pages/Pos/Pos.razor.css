@@ -235,6 +235,18 @@
 .pos-change { font-weight: 800; font-size: 1.6rem; color: #10B981; text-align: center; }
 .pos-change.negative { color: #EF4444; }
 
+/* ── شارة مفتاح الاختصار (F1..F7) على أزرار نقطة البيع — يراها الكاشير مباشرة ── */
+.pos-kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 26px; height: 20px; padding: 0 6px;
+    border-radius: 6px;
+    background: #EEF2FF; color: #4338CA;
+    border: 1px solid #C7D2FE;
+    font-size: .68rem; font-weight: 800;
+    margin-inline-start: 6px;
+    white-space: nowrap; user-select: none; line-height: 1;
+}
+
 .pos-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .pos-key {
     padding: calc(15px * var(--pos-scale, 1)) calc(12px * var(--pos-scale, 1)); border: none; border-radius: 12px;

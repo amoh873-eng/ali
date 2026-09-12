@@ -1088,4 +1088,11 @@
   <data name="PosShortcutF5" xml:space="preserve"><value>إيقاف العملية (F5)</value></data>
   <data name="PosShortcutF6" xml:space="preserve"><value>مردود (F6)</value></data>
   <data name="PosShortcutF7" xml:space="preserve"><value>تحويل نقد (F7)</value></data>
+  <data name="PosShortcutKeyF1" xml:space="preserve"><value>F1</value></data>
+  <data name="PosShortcutKeyF2" xml:space="preserve"><value>F2</value></data>
+  <data name="PosShortcutKeyF3" xml:space="preserve"><value>F3</value></data>
+  <data name="PosShortcutKeyF4" xml:space="preserve"><value>F4</value></data>
+  <data name="PosShortcutKeyF5" xml:space="preserve"><value>F5</value></data>
+  <data name="PosShortcutKeyF6" xml:space="preserve"><value>F6</value></data>
+  <data name="PosShortcutKeyF7" xml:space="preserve"><value>F7</value></data>
   </root>

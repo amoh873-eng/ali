@@ -204,9 +204,9 @@
             <div class="pos-cart-right">
             <div class="pos-payment">
                 <div class="pos-pay-methods">
-                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" title="@Loc["PosShortcutF3"]" @onclick="() => _paymentMethod = 1">@Loc["Cash"]</button>
-                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" title="@Loc["PosShortcutF4"]" @onclick="() => _paymentMethod = 2">@Loc["Card"]</button>
-                    <button class="pos-pay pos-pay-new-invoice" title="@Loc["PosShortcutF1"]" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]</button>
+                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" title="@Loc["PosShortcutF3"]" @onclick="() => _paymentMethod = 1">@Loc["Cash"]<span class="pos-kbd">@Loc["PosShortcutKeyF3"]</span></button>
+                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" title="@Loc["PosShortcutF4"]" @onclick="() => _paymentMethod = 2">@Loc["Card"]<span class="pos-kbd">@Loc["PosShortcutKeyF4"]</span></button>
+                    <button class="pos-pay pos-pay-new-invoice" title="@Loc["PosShortcutF1"]" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]<span class="pos-kbd">@Loc["PosShortcutKeyF1"]</span></button>
                 </div>
 
                 @if (_paymentMethod == 2)
@@ -247,19 +247,19 @@
 
                 <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy" title="@Loc["PosShortcutF2"]">
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
-                    @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))
+                    @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))<span class="pos-kbd">@Loc["PosShortcutKeyF2"]</span>
                 </MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2" title="@Loc["PosShortcutF5"]">
-                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]
+                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]<span class="pos-kbd">@Loc["PosShortcutKeyF5"]</span>
                 </MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Disabled="_busy" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
                 </MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="mt-2 pos-action-return" OnClick="OpenReturnAsync" Disabled="_busy" title="@Loc["PosShortcutF6"]">
-                    <MudIcon Icon="@Icons.Material.Filled.Replay" Class="mr-2" /> @Loc["PosReturn"]
+                    <MudIcon Icon="@Icons.Material.Filled.Replay" Class="mr-2" /> @Loc["PosReturn"]<span class="pos-kbd">@Loc["PosShortcutKeyF6"]</span>
                 </MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="mt-2 pos-action-cash" OnClick="OpenCashTransferAsync" Disabled="_busy" title="@Loc["PosShortcutF7"]">
-                    <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-2" /> @Loc["CashTransfer"]
+                    <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-2" /> @Loc["CashTransfer"]<span class="pos-kbd">@Loc["PosShortcutKeyF7"]</span>
                 </MudButton>
             </div>
             </div>
