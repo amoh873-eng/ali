@@ -1081,4 +1081,11 @@
   <data name="CashTransferShow" xml:space="preserve"><value>عرض</value></data>
   <data name="CashTransferBack" xml:space="preserve"><value>رجوع</value></data>
   <data name="CashTransferInvalidAmount" xml:space="preserve"><value>أدخل مبلغاً أكبر من صفر</value></data>
+  <data name="PosShortcutF1" xml:space="preserve"><value>فاتورة جديدة (F1)</value></data>
+  <data name="PosShortcutF2" xml:space="preserve"><value>إتمام البيع (F2)</value></data>
+  <data name="PosShortcutF3" xml:space="preserve"><value>نقدي (F3)</value></data>
+  <data name="PosShortcutF4" xml:space="preserve"><value>بطاقة (F4)</value></data>
+  <data name="PosShortcutF5" xml:space="preserve"><value>إيقاف العملية (F5)</value></data>
+  <data name="PosShortcutF6" xml:space="preserve"><value>مردود (F6)</value></data>
+  <data name="PosShortcutF7" xml:space="preserve"><value>تحويل نقد (F7)</value></data>
   </root>

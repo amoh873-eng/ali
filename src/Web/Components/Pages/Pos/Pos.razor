@@ -1,6 +1,7 @@
 @page "/pos"
 @attribute [Authorize(Roles = "Pos")]
 @layout PosLayout
+@implements IAsyncDisposable
 @using ERPSystem.Application.DTOs.Pos
 @using ERPSystem.Application.Exceptions
 <ModuleGuard ModuleKey="Pos">
@@ -203,9 +204,9 @@
             <div class="pos-cart-right">
             <div class="pos-payment">
                 <div class="pos-pay-methods">
-                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" @onclick="() => _paymentMethod = 1">@Loc["Cash"]</button>
-                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" @onclick="() => _paymentMethod = 2">@Loc["Card"]</button>
-                    <button class="pos-pay pos-pay-new-invoice" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]</button>
+                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" title="@Loc["PosShortcutF3"]" @onclick="() => _paymentMethod = 1">@Loc["Cash"]</button>
+                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" title="@Loc["PosShortcutF4"]" @onclick="() => _paymentMethod = 2">@Loc["Card"]</button>
+                    <button class="pos-pay pos-pay-new-invoice" title="@Loc["PosShortcutF1"]" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]</button>
                 </div>
 
                 @if (_paymentMethod == 2)
@@ -244,20 +245,20 @@
                         </div>
                 }
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy" title="@Loc["PosShortcutF2"]">
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
                     @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2">
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2" title="@Loc["PosShortcutF5"]">
                     <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]
                 </MudButton>
                 <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Disabled="_busy" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="mt-2 pos-action-return" OnClick="OpenReturnAsync" Disabled="_busy">
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="mt-2 pos-action-return" OnClick="OpenReturnAsync" Disabled="_busy" title="@Loc["PosShortcutF6"]">
                     <MudIcon Icon="@Icons.Material.Filled.Replay" Class="mr-2" /> @Loc["PosReturn"]
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="mt-2 pos-action-cash" OnClick="OpenCashTransferAsync" Disabled="_busy">
+                <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="mt-2 pos-action-cash" OnClick="OpenCashTransferAsync" Disabled="_busy" title="@Loc["PosShortcutF7"]">
                     <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-2" /> @Loc["CashTransfer"]
                 </MudButton>
             </div>
@@ -299,6 +300,13 @@
     };
 
     private bool _busy;
+
+    // ── F1–F7 keyboard shortcuts ──
+    // جدول بحث واحد: المفتاح → نفس دالة الزر على الشاشة (لا نسخة موازية). لإضافة F8..F12
+    // لاحقاً: أضف المفتاح هنا + إلى posShortcuts.js ثم لا شيء آخر.
+    private Dictionary<string, Func<Task>> _shortcuts = new();
+    private IJSObjectReference? _shortcutModule;
+    private IDisposable? _shortcutRef;
     private string _search = string.Empty;
     private string _receivedInput = string.Empty;
     // حقول البطاقة (المرحلة 1 — متوافقة مع PCI-DSS: بلا رقم كامل أو CVV)
@@ -466,6 +474,8 @@
         }
         catch { /* ignore */ }
 
+        BuildShortcutTable();
+
         await LoadPosSettingsAsync();
         await LoadPrinterSettingsAsync();
         await LoadWeightBarcodeRuleAsync();
@@ -473,9 +483,69 @@
         await LoadAsync();
     }
 
+    /// <summary>
+    /// يبني جدول اختصارات F1–F7: كل مفتاح → نفس دالة الزر الذي يفعّله حرفياً
+    /// (لا مسار موازٍ)، فتلتزم الاختصارات تلقائياً بحالة تعطيل الأزرار على الشاشة
+    /// (مثل _busy أو سلة فارغة) لأن الدوال نفسها تتحقق منها.
+    /// F3/F4 (نقدي/بطاقة) عمداً بلا حارس _busy — مطابقة لأزرار الدفع التي لا تُعطَّل أبداً؛
+    /// تغيير الاختيار أثناء إتمام البيع لا يمس الفاتورة الجارية (المبلغ والأسلوب يُلتقطان
+    /// في DTO قبل الـ await) ويعود إلى حالة سليمة بعد الانتهاء.
+    /// </summary>
+    private void BuildShortcutTable()
+    {
+        _shortcuts = new Dictionary<string, Func<Task>>
+        {
+            ["F1"] = () => { NewInvoice(); return Task.CompletedTask; },
+            ["F2"] = CompleteSale,
+            ["F3"] = () => GuardedNotBusy(() => SelectPaymentMethod(1)),
+            ["F4"] = () => GuardedNotBusy(() => SelectPaymentMethod(2)),
+            ["F5"] = HoldSaleAsync,
+            ["F6"] = OpenReturnAsync,
+            ["F7"] = OpenCashTransferAsync
+        };
+    }
+
+    /// <summary>
+    /// ينفّذ الاختصار فقط إذا لم يكن هناك إتمام بيع قيد التنفيذ. هذا يضمن أن F3/F4 أثناء
+    /// _busy تكون بلا أثر (harmless no-op) — وإلا فقد يقلب اختيار البطاقة بيعاً نقدياً
+    /// جارياً إلى بطاقة ويتعطل لغياب رقم الموافقة. مطابقة للمبدأ: لا تتحايل الاختصارات
+    /// على أي حارس سلامة.
+    /// </summary>
+    private Task GuardedNotBusy(Action action)
+    {
+        if (!_busy) action();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>يستقبل ضغطة مفتاح اختصار من posShortcuts.js ويوجّهها عبر جدول البحث.</summary>
+    [JSInvokable]
+    public async Task HandleShortcut(string key)
+    {
+        if (_shortcuts.TryGetValue(key, out var action))
+        {
+            await action();
+            // [JSInvokable] لا يستدعي إعادة الرسم تلقائياً (خلافاً لأحداث @onclick) —
+            // نعيد الرسم صراحةً ليظهر أثر الاختصار (مسح السلة، تغيير الدفع، ...).
+            StateHasChanged();
+        }
+    }
+
+    private void SelectPaymentMethod(int method) => _paymentMethod = method;
+
     /// <summary>بعد أي تغيير في السلة نمرّر القائمة تلقائياً لإظهار آخر صنف مُدخل (عند امتلاء السلة).</summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && _shortcutModule is null)
+        {
+            // استيراد وحدة posShortcuts.js (ES module) وربطها — فقط أثناء وجود نقطة البيع.
+            try
+            {
+                _shortcutModule = await Js.InvokeAsync<IJSObjectReference>("import", "./posShortcuts.js");
+                _shortcutRef = DotNetObjectReference.Create(this);
+                await _shortcutModule.InvokeVoidAsync("attach", _shortcutRef);
+            }
+            catch { /* prerender / JS غير متاح */ }
+        }
         if (_scrollCartToTop)
         {
             _scrollCartToTop = false;
@@ -486,6 +556,16 @@
             _scrollCartToBottom = false;
             await Js.InvokeVoidAsync("erpScrollPosCartToBottom");
         }
+    }
+
+    /// <summary>فكّ مستمع الاختصاصات عند مغادرة الشاشة (لا يتسرب عبر الجلسات).</summary>
+    public async ValueTask DisposeAsync()
+    {
+        try { if (_shortcutModule is not null) await _shortcutModule.InvokeVoidAsync("detach"); } catch { }
+        try { if (_shortcutModule is not null) await _shortcutModule.DisposeAsync(); } catch { }
+        _shortcutModule = null;
+        _shortcutRef?.Dispose();
+        _shortcutRef = null;
     }
 
     /// <summary>يقرأ قاعدة باركود الميزان من إعدادات النظام (قد تكون معطلة).</summary>
