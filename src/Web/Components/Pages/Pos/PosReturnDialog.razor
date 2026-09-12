@@ -142,6 +142,8 @@
 
     private async Task SearchAsync()
     {
+        // حارس إعادة الدخول: يمنع تشغيل استعلامين على نفس DbContext (Scoped في الدائرة)
+        if (_busy) return;
         _busy = true;
         _error = null;
         try
@@ -161,8 +163,10 @@
     private async Task OnInvoiceSelected(SalesInvoiceSearchResultDto? inv)
     {
         if (inv is null) return;
-        _error = null;
+        // حارس إعادة الدخول: النقر السريع المتكرر على صفوف النتائج قد يفتح استعلامين على نفس DbContext
+        if (_busy) return;
         _busy = true;
+        _error = null;
         try
         {
             var full = await InvoiceService.GetByIdAsync(inv.Id);
@@ -198,15 +202,17 @@
 
     private async Task SubmitAsync()
     {
-        _error = null;
-        if (_invoiceId == Guid.Empty) { _error = Loc["PosReturnSelectInvoice"]; return; }
-        var lines = _lines.Where(l => l.ReturnQuantity > 0).ToList();
-        if (lines.Count == 0) { _error = Loc["PosReturnSelectLine"]; return; }
-        if (lines.Any(l => l.ReturnQuantity > l.MaxQuantity)) { _error = Loc["PosReturnInsufficient"]; return; }
-
+        // حارس إعادة الدخول: يمنع نقرة مزدوجة من تشغيل ترحيلين على نفس DbContext
+        if (_busy) return;
         _busy = true;
+        _error = null;
         try
         {
+            if (_invoiceId == Guid.Empty) { _error = Loc["PosReturnSelectInvoice"]; return; }
+            var lines = _lines.Where(l => l.ReturnQuantity > 0).ToList();
+            if (lines.Count == 0) { _error = Loc["PosReturnSelectLine"]; return; }
+            if (lines.Any(l => l.ReturnQuantity > l.MaxQuantity)) { _error = Loc["PosReturnInsufficient"]; return; }
+
             await ReturnService.CreateAsync(new CreateSalesReturnDto
             {
                 SalesInvoiceId = _invoiceId,
@@ -223,7 +229,8 @@
             Snackbar.Add(Loc["PosReturnSaved"], Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
         }
-        catch (Exception ex) { _error = ex.Message; _busy = false; }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
     }
 }
 

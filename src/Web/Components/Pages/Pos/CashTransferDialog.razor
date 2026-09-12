@@ -54,19 +54,21 @@
 
     private async Task SubmitAsync()
     {
-        await _form!.Validate();
-        if (!_form.IsValid) return;
-
-        if (_amount <= 0m)
-        {
-            _error = Loc["CashTransferInvalidAmount"];
-            return;
-        }
-
-        _error = null;
+        // حارس إعادة الدخول: يمنع نقرة مزدوجة من تشغيل تحويلين على نفس DbContext
+        if (_busy) return;
         _busy = true;
+        _error = null;
         try
         {
+            await _form!.Validate();
+            if (!_form.IsValid) return;
+
+            if (_amount <= 0m)
+            {
+                _error = Loc["CashTransferInvalidAmount"];
+                return;
+            }
+
             var userId = string.IsNullOrWhiteSpace(CashierUserId) ? "unknown" : CashierUserId;
             await CashDrawerService.CreateAsync(new CreateCashTransferDto
             {
@@ -79,10 +81,7 @@
             Snackbar.Add(Loc["CashTransferSaved"], Severity.Success);
             MudDialog.Close(DialogResult.Ok(true));
         }
-        catch (Exception ex)
-        {
-            _error = ex.Message;
-            _busy = false;
-        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
     }
 }

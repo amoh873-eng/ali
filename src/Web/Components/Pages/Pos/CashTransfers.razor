@@ -94,6 +94,7 @@
 
     private async Task LoadAsync()
     {
+        if (_busy) return;
         _busy = true;
         try
         {

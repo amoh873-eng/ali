@@ -148,6 +148,7 @@
     private ItemDto? _item;
     private Guid _warehouseId;
     private Guid? _batchId;
+    private bool _busy;
     private decimal _quantity;
     private int _reason = 1;
     private string? _otherReason;
@@ -207,18 +208,21 @@
 
     private async Task SubmitAsync()
     {
-        await _form!.Validate();
-        if (!_form.IsValid) return;
-
+        // حارس إعادة الدخول: يمنع نقرة مزدوجة من تشغيل ترحيلين على نفس DbContext (Scoped في الدائرة)
+        if (_busy) return;
+        _busy = true;
         _error = null;
-        if (_item is null)
-        {
-            _error = "يجب اختيار الصنف أولاً.";
-            return;
-        }
-
         try
         {
+            await _form!.Validate();
+            if (!_form.IsValid) return;
+
+            if (_item is null)
+            {
+                _error = "يجب اختيار الصنف أولاً.";
+                return;
+            }
+
             var userId = (await AuthStateProvider.GetAuthenticationStateAsync())
                 .User.FindFirstValue(ClaimTypes.NameIdentifier);
 
@@ -240,5 +244,6 @@
         {
             _error = ex.Message;
         }
+        finally { _busy = false; }
     }
 }

@@ -189,6 +189,8 @@
 
     private async Task LoadAsync()
     {
+        // حارس إعادة الدخول: يمنع استعلامين متزامنين على نفس DbContext (Scoped في الدائرة)
+        if (_loading) return;
         _loading = true;
         try
         {
