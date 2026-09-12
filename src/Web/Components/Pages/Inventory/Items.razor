@@ -10,12 +10,25 @@
 <PageHeader Title="@Loc["Items"]" Icon="@Icons.Material.Filled.Inventory" />
 
 <MudToolBar Class="mb-4">
-    <MudTextField @bind-Value="_search"
+    <MudTextField Value="@SearchText" ValueChanged="@((string v) => OnSearchChanged(v))" Immediate="true"
                   Placeholder="@Loc["SearchItems"]"
                   Adornment="Adornment.Start"
                   AdornmentIcon="@Icons.Material.Filled.Search"
                   Class="flex-grow-1" />
     <MudSpacer />
+    @if (_isAdmin)
+    {
+        <MudButton Variant="Variant.Outlined" Color="Color.Secondary"
+                   StartIcon="@Icons.Material.Filled.FileUpload"
+                   OnClick="GoToBulkImport">
+            @Loc["BulkImport"]
+        </MudButton>
+        <MudButton Variant="Variant.Outlined" Color="Color.Info"
+                   StartIcon="@Icons.Material.Filled.QrCode2"
+                   OnClick="GoToBarcodeLabels">
+            @Loc["BarcodeLabels"]
+        </MudButton>
+    }
     <MudButton Variant="Variant.Filled"
                Color="Color.Primary"
                StartIcon="@Icons.Material.Filled.Add"
@@ -104,14 +117,29 @@
     private bool _isLoading = true;
     private List<ItemDto> _items = new();
     private string _search = string.Empty;
+    private CancellationTokenSource? _searchCts;
 
-    private IEnumerable<ItemDto> _filteredItems =>
-        string.IsNullOrWhiteSpace(_search)
-            ? _items
-            : _items.Where(i =>
-                i.Code.Contains(_search, StringComparison.OrdinalIgnoreCase)
-                || i.NameAr.Contains(_search, StringComparison.OrdinalIgnoreCase)
-                || (i.Barcode?.Contains(_search, StringComparison.OrdinalIgnoreCase) ?? false));
+    private IEnumerable<ItemDto> _filteredItems => _items;
+
+    private string SearchText { get; set; } = string.Empty;
+
+    private Task OnSearchChanged(string v) { SearchText = v ?? string.Empty; _search = SearchText; return DebouncedSearchAsync(); }
+
+    private async Task DebouncedSearchAsync()
+    {
+        _searchCts?.Cancel();
+        var cts = _searchCts = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(350, cts.Token);
+            if (cts.IsCancellationRequested) return;
+            // بحث خادمي بـ ILike (PostgreSQL — غير حساس لحالة الأحرف) بدل فلترة الذاكرة.
+            _items = await ItemService.SearchAsync(_search.Trim());
+            StateHasChanged();
+        }
+        catch (TaskCanceledException) { }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
 
     private int _lowStockCount;
     private List<CategoryDto> _categoriesCache = new();
@@ -122,6 +150,8 @@
     [Inject] private IUnitService UnitService { get; set; } = default!;
     [Inject] private IDialogService DialogService { get; set; } = default!;
     [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    [Inject] private NavigationManager Nav { get; set; } = default!;
 
     protected override async Task OnInitializedAsync() => await LoadAsync();
 
@@ -130,6 +160,7 @@
         _isLoading = true;
         try
         {
+            await LoadAdminFlagAsync();
             _items = await ItemService.GetAllAsync();
             _categoriesCache = await CategoryService.GetAllAsync();
             _unitsCache = await UnitService.GetAllAsync();
@@ -180,6 +211,21 @@
         try { await ItemService.DeleteAsync(item.Id); Snackbar.Add(Loc["ItemDeleted"], Severity.Success); await LoadAsync(); }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
     }
+
+    private bool _isAdmin;
+
+    private async Task LoadAdminFlagAsync()
+    {
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            _isAdmin = auth.User.IsInRole("Admin") || auth.User.IsInRole("SuperAdmin");
+        }
+        catch { _isAdmin = false; }
+    }
+
+    private void GoToBulkImport() => Nav.NavigateTo("/inventory/bulk-import");
+    private void GoToBarcodeLabels() => Nav.NavigateTo("/inventory/barcode-labels");
 }
 
 </ModuleGuard>

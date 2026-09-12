@@ -1,0 +1,44 @@
+/* ── سجل التحويلات النقدية (Cash Transfer Log) ── */
+.recon-page {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 24px 20px 60px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.recon-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    gap: 12px;
+    flex-wrap: wrap;
+}
+.recon-title { display: flex; align-items: center; gap: 12px; }
+.recon-muted { color: #6B7280; }
+
+.recon-controls {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 14px 16px;
+    border-radius: 12px;
+    flex-wrap: wrap;
+    background: #fff;
+}
+.recon-controls .mud-input-control { min-width: 170px; }
+
+.recon-table-paper { border-radius: 12px; background: #fff; overflow: hidden; }
+
+.recon-badge {
+    display: inline-flex;
+    align-items: center;
+    padding: 3px 10px;
+    border-radius: 999px;
+    font-size: .78rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+.recon-badge.matched { background: #D1FAE5; color: #065F46; } /* تمويل درج الكاش */
+.recon-badge.pending { background: #FEF3C7; color: #92400E; } /* سحب نقد */

@@ -35,10 +35,12 @@ public partial class CustomerService : ICustomerService
         if (!string.IsNullOrWhiteSpace(search))
         {
             var term = search.Trim();
+            // PostgreSQL: ILike = مطابقة نصية غير حساسة لحالة الأحرف (تم تحويلها من Contains/LIKE
+            // لأن LIKE في PostgreSQL حساس للحالة — وهذا كان سيفشل صامتاً مع باركودات/أسماء لاتينية).
             query = query.Where(c =>
-                c.Code.Contains(term) ||
-                c.NameAr.Contains(term) ||
-                (c.NameEn != null && c.NameEn.Contains(term)));
+                EF.Functions.ILike(c.Code, $"%{term}%") ||
+                EF.Functions.ILike(c.NameAr, $"%{term}%") ||
+                (c.NameEn != null && EF.Functions.ILike(c.NameEn, $"%{term}%")));
         }
 
         var customers = await query.OrderBy(c => c.Code).ToListAsync();

@@ -14,7 +14,7 @@ public class HeldSaleConfiguration : IEntityTypeConfiguration<HeldSale>
         builder.HasKey(h => h.Id);
 
         builder.Property(h => h.CashierUserId).IsRequired().HasMaxLength(450);
-        builder.Property(h => h.LinesJson).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(h => h.LinesJson).IsRequired().HasColumnType("text");
         builder.Property(h => h.Note).HasMaxLength(500);
         builder.Property(h => h.CreatedAt).IsRequired();
 

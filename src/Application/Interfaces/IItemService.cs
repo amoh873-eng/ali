@@ -13,6 +13,13 @@ public interface IItemService
     Task<List<ItemDto>> GetAllAsync();
 
     /// <summary>
+    /// بحث في قاعدة البيانات بمطابقة ILike (غير حساسة لحالة الأحرف — PostgreSQL)
+    /// على الكود والاسم (عربي/إنجليزي) والباركود. يُستخدم في شاشة الأصناف بدل فلترة الذاكرة
+    /// لأن LIKE/Contains على مستوى SQL في PostgreSQL حساس لحالة الأحرف.
+    /// </summary>
+    Task<List<ItemDto>> SearchAsync(string term);
+
+    /// <summary>
     /// Returns items whose current stock is below the minimum level.
     /// </summary>
     Task<List<ItemDto>> GetLowStockAsync();
@@ -41,4 +48,59 @@ public interface IItemService
     /// Toggles the active status of an item.
     /// </summary>
     Task ToggleActiveAsync(Guid id);
+
+    // ────────────────────────── الاستيراد الجماعي ──────────────────────────
+
+    /// <summary>
+    /// يقرأ ملفاً جدولياً (xlsx / csv / txt) ويعيد ترويساته وصفوفه الخام.
+    /// يرمي InvalidOperationException برسالة عربية واضحة عند صيغة غير مدعومة أو ملف تالف.
+    /// </summary>
+    Task<ParsedImportFileDto> ParseImportFileAsync(Stream fileStream, string fileName);
+
+    /// <summary>
+    /// يفسّر الصفوف حسب تعيين الأعمدة ويفحصها (اسم/باركود إلزامي + تكرار + موجودات + أسعار)
+    /// دون كتابة أي شيء في قاعدة البيانات. يعيد ملخصاً + أول 100 صف.
+    /// </summary>
+    Task<ItemImportPreviewDto> BuildImportPreviewAsync(ParsedImportFileDto file, BulkImportColumnMapDto map);
+
+    /// <summary>
+    /// ينفذ الاستيراد الفعلي بدفعات (500 صف) مع توليد أكواد دفعة واحدة وتقدّم قابل للملاحظة.
+    /// الباركود الموجود مسبقاً يُتخطى بلا تعديل (القرار المعتمد).
+    /// </summary>
+    Task<ItemImportResultDto> ExecuteBulkImportAsync(ParsedImportFileDto file, BulkImportColumnMapDto map, Action<int, int>? progress = null);
+
+    /// <summary>ينشئ ملف Excel (xlsx) بصفوف الفشل/التخطّي وأسبابها للتنزيل وإعادة الاستيراد.</summary>
+    byte[] BuildImportFailuresReport(List<ItemImportFailureDto> failures);
+
+    /// <summary>
+    /// يُعيد الأصناف المنشأة ضمن "آخر دفعة استيراد جماعي" (لا شيء إن لم تكن دفعة).
+    /// تُستخدم في شاشة ملصقات الباركود لاختيارها بضغطة واحدة بعد استيراد آلاف الأصناف.
+    /// </summary>
+    Task<List<ItemDto>> GetItemsFromLastBulkImportAsync();
+
+    // ────────────────────────── ملصقات الباركود (خادمي مقسّم — يمنع اللود الضخم) ──────────────────────────
+
+    /// <summary>
+    /// استعلام صفحات خادمي (بحث ILike + فئة + ترقيم) يعيد صفحة واحدة + العدد الإجمالي.
+    /// بديل تحميل كل الأصناف في الذاكرة في شاشة الملصقات (كان يجمّد الجهاز).
+    /// </summary>
+    Task<ItemPageDto> SearchPageAsync(string? term, Guid? categoryId, int skip, int take, CancellationToken cancellationToken = default);
+
+    /// <summary>
+    /// يجلب أصنافَ محددة فقط (لا كل الأصناف) — لبناء قائمة ملصقات الطباعة من الاختيار.
+    /// لا يعمل أي استعلام إن كانت القائمة فارغة.
+    /// </summary>
+    Task<List<ItemDto>> GetByIdsAsync(IEnumerable<Guid> ids);
+
+    /// <summary>
+    /// أكواد الأصناف الغير محذوفة ضمن فئة (اختيار "كل الفئة" في شاشة الملصقات) —
+    /// نعيد الأكواد فقط لا الأصناف كاملة.
+    /// </summary>
+    Task<List<Guid>> GetIdsByCategoryAsync(Guid categoryId);
+
+    /// <summary>
+    /// أكواد أصناف آخر دفعة استيراد جماعية (التي اكتملت في هذا التشغيل) — لأكواد فقط.
+    /// إن لم توجد دفعة ← قائمة فارغة.
+    /// </summary>
+    Task<List<Guid>> GetLastBulkImportIdsAsync();
 }

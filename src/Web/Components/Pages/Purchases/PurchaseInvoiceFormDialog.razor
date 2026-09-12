@@ -1,5 +1,6 @@
 @* نموذج حوار لإنشاء فاتورة مشتريات جديدة (المورد + البنود) *@
 @inject IStringLocalizer<SharedResources> Loc
+@inject IJSRuntime Js
 
 <MudDialog>
     <DialogContent>
@@ -36,7 +37,46 @@
                 </MudItem>
             </MudGrid>
 
-            <MudText Typo="Typo.subtitle2" Class="mt-4">@Loc["Lines"]</MudText>
+            @* ── لوحة الاستلام بالباركود (وضع إضافي — لا يستبدل الإدخال اليدوي) ── *@
+            <MudPaper Class="mb-3 pa-3" Style="background:#F5F3FF;border:1px dashed #C4B5FD;border-radius:10px;">
+                <div style="display:flex;align-items:center;gap:10px;">
+                    <MudIcon Icon="@Icons.Material.Filled.QrCodeScanner" Style="color:#6D5BD0;" />
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:700;flex:1;">@Loc["BarcodeReceive"]</MudText>
+                    <MudButton Variant="@(_receiveMode ? Variant.Filled : Variant.Outlined)"
+                          Color="@(_receiveMode ? Color.Primary : Color.Default)"
+                          StartIcon="@Icons.Material.Filled.QrCodeScanner"
+                          OnClick="ToggleReceiveMode"
+                          UserAttributes="@(new Dictionary<string, object> { { "id", "barcodeReceiveToggle" }, { "aria-pressed", _receiveMode ? "true" : "false" } })">
+                    @Loc["BarcodeReceive"]
+                </MudButton>
+                </div>
+
+                @if (_receiveMode)
+                {
+                    <MudTextField @ref="_scanInput"
+                                  @bind-Value="_scanTerm" T="string"
+                                  Placeholder="@Loc["BarcodeReceivePlaceholder"]"
+                                  Variant="Variant.Outlined" Dense="true" Class="mt-2"
+                                  Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                                  Immediate="true" OnKeyDown="HandleScanKeyDown" />
+
+                    @if (_lastScan is { } last)
+                    {
+                        <MudAlert Severity="Severity.Success" Class="mt-2" Dense="true">
+                            @Loc["BarcodeScanOk", last.Name, last.QtyAdded, last.LineQty]
+                        </MudAlert>
+                    }
+                    else if (_scanFailed)
+                    {
+                        <MudAlert Severity="Severity.Error" Class="mt-2" Dense="true">
+                            @Loc["BarcodeScanNotFound"]
+                        </MudAlert>
+                    }
+                    <MudText Typo="Typo.caption" Class="pos-muted mt-1">@Loc["BarcodeReceiveHint"]</MudText>
+                }
+            </MudPaper>
+
+            <MudText Typo="Typo.subtitle2" Class="mt-2">@Loc["Lines"]</MudText>
 
             @foreach (var line in _lines)
             {
@@ -110,7 +150,13 @@
         public string? BatchNumber { get; set; }
 
         public bool RequiresExpiry { get; set; }
+
+        /// <summary>اسم الصنف لأغراض العرض في آخر مسح (ملء من Item عند الإنشاء).</summary>
+        public string? ItemName { get; set; }
     }
+
+    /// <summary>حالة آخر مسح ناجح في وضع الاستلام بالباركود.</summary>
+    private sealed record LastScanInfo(string Name, decimal QtyAdded, decimal LineQty);
 
     private MudForm? _form;
     private List<SupplierDto> _suppliers = new();
@@ -124,6 +170,16 @@
     private DateTime? _invoiceDate = DateTime.Today;
     private string? _note;
     private string? _error;
+
+    private bool _submitting;
+
+    // ── حالة وضع الاستلام بالباركود ──
+    private bool _receiveMode;
+    private string _scanTerm = string.Empty;
+    private MudTextField<string>? _scanInput;
+    private bool _refocusScan;
+    private LastScanInfo? _lastScan;
+    private bool _scanFailed;
 
     private decimal _total => Math.Round(_lines.Sum(l => l.Quantity * l.UnitCost), 2);
 
@@ -155,23 +211,122 @@
         if (item is not null)
         {
             line.UnitCost = item.CostPrice;
-            line.RequiresExpiry = item.TracksExpiry;
+            line.ItemName = item.NameAr;
+            // إلزامي للدفعات أيضاً — ليس فقط TracksExpiry (الخدمة تفرضه عند الاستلام للصنف TracksBatches)
+            line.RequiresExpiry = item.TracksExpiry || item.TracksBatches;
         }
         return Task.CompletedTask;
+    }
+
+    /// <summary>
+    /// معالجة المسح (Enter) في وضع الاستلام بالباركود — بحث موحّد كـ POS:
+    /// باركود مطابق تماماً أولاً، ثم بداية الكود/الاسم. يُحدّث قائمة _lines في الذاكرة فقط
+    /// (لا استدعاء قاعدة بيانات أثناء المسح) — لذا لا توجد أي فرصة لخطأ تزامن DbContext
+    /// من مسح سريع متكرر. الحفظ يتم مرة واحدة عند الترحيل عبر الخدمة نفسها.
+    /// </summary>
+    private void HandleScanKeyDown(KeyboardEventArgs e)
+    {
+        if (e.Key != "Enter") return;
+
+        var term = _scanTerm?.Trim();
+        if (string.IsNullOrWhiteSpace(term)) return;
+
+        _scanTerm = string.Empty;
+        _scanFailed = false;
+
+        // البحث الموحّد: باركود مطابق تماماً → ثم بداية الكود/الاسم (نفس منطق POS)
+        var item = _items.FirstOrDefault(i => !string.IsNullOrEmpty(i.Barcode)
+                                              && string.Equals(i.Barcode, term, StringComparison.OrdinalIgnoreCase));
+        item ??= _items.FirstOrDefault(i =>
+            i.Code.StartsWith(term, StringComparison.OrdinalIgnoreCase)
+            || i.NameAr.StartsWith(term, StringComparison.OrdinalIgnoreCase)
+            || (i.NameEn != null && i.NameEn.StartsWith(term, StringComparison.OrdinalIgnoreCase)));
+
+        if (item is null)
+        {
+            _scanFailed = true;
+            _lastScan = null; // إظهار رسالة الخطأ بدل رسالة النجاح السابقة
+            _refocusScan = true;
+            return;
+        }
+
+        var line = _lines.FirstOrDefault(l => l.ItemId == item.Id);
+        if (line is null)
+        {
+            // أزل سطر العنصر الفارغ الافتراضي (يأتي من AddLine() التمهيدي) عند أول مسح
+            _lines.RemoveAll(l => l.ItemId == Guid.Empty);
+
+            line = new LineEditor
+            {
+                ItemId = item.Id,
+                Quantity = 1,
+                UnitCost = item.CostPrice,
+                RequiresExpiry = item.TracksExpiry || item.TracksBatches,
+                ItemName = item.NameAr
+            };
+            _lines.Add(line);
+            _lastScan = new LastScanInfo(item.NameAr, 1, 1);
+        }
+        else
+        {
+            line.Quantity += 1;
+            _lastScan = new LastScanInfo(line.ItemName ?? item.NameAr, 1, line.Quantity);
+        }
+
+        _refocusScan = true;
+        // امسح حقل المسح برمجياً (MudBlazor Clear يمسح أيضاً Text الداخلي ← حقل فارغ للرمز التالي)
+        _scanInput?.Clear();
+    }
+
+    protected override async Task OnAfterRenderAsync(bool firstRender)
+    {
+        // إعادة التركيز إلى حقل المسح بعد كل مسح (الماسح يرسل دون أن يركز المستخدم بنفسه)
+        if (_refocusScan)
+        {
+            _refocusScan = false;
+            try
+            {
+                if (_scanInput is not null) await _scanInput.FocusAsync();
+            }
+            catch { /* تجاهل — التركيز غير حرج */ }
+        }
+
+        // إرفاق ممتص الطفرة (باختصار مستند إليه) لحقل المسح — نفس نمط POS:
+        // فيدفع ضغطة واحدة لكل مسح بدل إغراق الدائرة بكل ضغطة مفتاح
+        if (_receiveMode)
+        {
+            try
+            {
+                var module = await Js.InvokeAsync<IJSObjectReference>("import", "./purchaseScan.js");
+                await module.InvokeVoidAsync("attach");
+            }
+            catch { /* لا يوقف تجربة المسح لو فشل تحميل الموديول */ }
+        }
+    }
+
+    private void ToggleReceiveMode()
+    {
+        _receiveMode = !_receiveMode;
+        if (_receiveMode) _refocusScan = true;
     }
 
     private void Cancel() => MudDialog.Cancel();
 
     private async Task SubmitAsync()
     {
+        if (_submitting) return; // حارس النقر المزدوج — نفس نمط حارس POS
+        // السطور الفارغة (placeholder) لا تُعد بنوداً — أزل أي سطر لم يُحدَّد صنفه
+        _lines.RemoveAll(l => l.ItemId == Guid.Empty);
+        if (_lines.Count == 0) { _error = Loc["LineItemRequired"]; return; }
+
         await _form!.Validate();
         if (!_form.IsValid) return;
 
-        if (_lines.Any(l => l.ItemId == Guid.Empty)) { _error = Loc["LineItemRequired"]; return; }
         if (_lines.Any(l => l.Quantity <= 0)) { _error = Loc["QuantityPositive"]; return; }
         if (_lines.Any(l => l.RequiresExpiry && !l.ExpiryDate.HasValue)) { _error = Loc["ExpiryDateRequired"]; return; }
 
         _error = null;
+        _submitting = true;
         try
         {
             await InvoiceService.CreateAsync(new CreatePurchaseInvoiceDto
@@ -193,6 +348,7 @@
             MudDialog.Close(DialogResult.Ok(true));
         }
         catch (Exception ex) { _error = ex.Message; }
+        finally { _submitting = false; }
     }
 }
 

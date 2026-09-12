@@ -13,8 +13,8 @@ public class CustomReportDefinitionConfiguration : IEntityTypeConfiguration<Cust
         b.Property(x => x.Name).IsRequired().HasMaxLength(200);
         b.Property(x => x.Description).HasMaxLength(1000);
         b.Property(x => x.ClientRequestNote).HasMaxLength(2000);
-        b.Property(x => x.SqlQuery).HasColumnType("nvarchar(max)");
+        b.Property(x => x.SqlQuery).HasColumnType("text");
         b.Property(x => x.ExistingReportKey).HasMaxLength(100);
-        b.Property(x => x.ParametersJson).HasColumnType("nvarchar(max)");
+        b.Property(x => x.ParametersJson).HasColumnType("text");
     }
 }

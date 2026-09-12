@@ -27,6 +27,25 @@ public static class NumberSequenceHelper
     }
 
     /// <summary>
+    /// يولّد دفعة من الأرقام التسلسلية في استدعاء ذرّي واحد (العدد = count)
+    /// بدل count عملية MERGE منفصلة — للاستيراد الجماعي للأصناف (5000+ صف).
+    /// يستخدم نفس الآلية والجدول (NumberSequences) فلا يعتبر منطق ترقيم جديداً.
+    /// </summary>
+    public static async Task<IReadOnlyList<string>> NextBatchAsync(DbContext context, string prefix, int count)
+    {
+        if (count <= 0) return Array.Empty<string>();
+
+        var key = $"{prefix}-{DateTime.Now:yyyyMMdd}";
+        var next = await GetNextValueBatchAsync(context, key, count);
+        var date = DateTime.Now.ToString("yyyyMMdd");
+
+        var codes = new string[count];
+        for (var i = 0; i < count; i++)
+            codes[i] = $"{prefix}-{date}-{next - count + 1 + i:D4}";
+        return codes;
+    }
+
+    /// <summary>
     /// يزيد العدّاد ذرياً ويعيد القيمة الجديدة.
     /// </summary>
     private static async Task<long> GetNextValueAsync(DbContext context, string key)
@@ -43,18 +62,73 @@ public static class NumberSequenceHelper
             await using var command = connection.CreateCommand();
             command.Transaction = context.Database.CurrentTransaction?.GetDbTransaction();
             command.CommandText = """
-                MERGE dbo.NumberSequences WITH (HOLDLOCK) AS target
-                USING (SELECT @key AS SequenceKey) AS source
-                ON target.SequenceKey = source.SequenceKey
-                WHEN MATCHED THEN UPDATE SET LastValue = target.LastValue + 1
-                WHEN NOT MATCHED THEN INSERT (Id, SequenceKey, LastValue) VALUES (NEWID(), @key, 1)
-                OUTPUT INSERTED.LastValue;
+                INSERT INTO "NumberSequences" ("Id", "SequenceKey", "LastValue")
+                VALUES (@id, @key, 1)
+                ON CONFLICT ("SequenceKey")
+                DO UPDATE SET "LastValue" = "NumberSequences"."LastValue" + 1
+                RETURNING "LastValue";
                 """;
+
+            var idParam = command.CreateParameter();
+            idParam.ParameterName = "id";
+            idParam.Value = Guid.NewGuid();
+            command.Parameters.Add(idParam);
 
             var parameter = command.CreateParameter();
             parameter.ParameterName = "key";
             parameter.Value = key;
             command.Parameters.Add(parameter);
+
+            var result = await command.ExecuteScalarAsync();
+            return Convert.ToInt64(result);
+        }
+        finally
+        {
+            if (wasClosed && connection.State == ConnectionState.Open)
+            {
+                await connection.CloseAsync();
+            }
+        }
+    }
+
+    /// <summary>
+    /// يزيد العدّاد ذرياً بمقدار count ويعيد القيمة الجديدة (كتلة متسلسلة كاملة).
+    /// </summary>
+    private static async Task<long> GetNextValueBatchAsync(DbContext context, string key, int count)
+    {
+        var connection = context.Database.GetDbConnection();
+        var wasClosed = connection.State != ConnectionState.Open;
+        if (wasClosed)
+        {
+            await connection.OpenAsync();
+        }
+
+        try
+        {
+            await using var command = connection.CreateCommand();
+            command.Transaction = context.Database.CurrentTransaction?.GetDbTransaction();
+            command.CommandText = """
+                INSERT INTO "NumberSequences" ("Id", "SequenceKey", "LastValue")
+                VALUES (@id, @key, @count)
+                ON CONFLICT ("SequenceKey")
+                DO UPDATE SET "LastValue" = "NumberSequences"."LastValue" + @count
+                RETURNING "LastValue";
+                """;
+
+            var idParam = command.CreateParameter();
+            idParam.ParameterName = "id";
+            idParam.Value = Guid.NewGuid();
+            command.Parameters.Add(idParam);
+
+            var keyParam = command.CreateParameter();
+            keyParam.ParameterName = "key";
+            keyParam.Value = key;
+            command.Parameters.Add(keyParam);
+
+            var countParam = command.CreateParameter();
+            countParam.ParameterName = "count";
+            countParam.Value = count;
+            command.Parameters.Add(countParam);
 
             var result = await command.ExecuteScalarAsync();
             return Convert.ToInt64(result);

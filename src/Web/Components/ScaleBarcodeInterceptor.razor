@@ -16,7 +16,7 @@
 @inject IJSRuntime JS
 @inject NavigationManager Nav
 @inject IOptions<ERPSystem.Web.Configuration.ScaleBarcodeSettings> ScaleOptions
-@inject ERPSystem.Application.Interfaces.ISystemSettingsService SettingsService
+@inject IServiceScopeFactory ScopeFactory
 
 @code {
     private IJSObjectReference? _module;
@@ -105,7 +105,14 @@
         ERPSystem.Application.Services.WeightBarcodeRule? rule = null;
         try
         {
-            var settings = await SettingsService.GetAsync();
+            // عزل قراءة إعدادات قاعدة البيانات في نطاق DI مستقل (وليس نطاق دائرة Blazor).
+            // في Blazor Server تشارك كل المكونات نفس AppDbContext (Scoped لكل دائرة)؛
+            // لو حدث مسح باركود ميزان أثناء تنفيذ عملية بيع في نفس اللحظة لأدى استخدام
+            // نفس السياق إلى خطأ "A second operation was started on this context".
+            await using var scope = ScopeFactory.CreateAsyncScope();
+            var settings = await scope.ServiceProvider
+                .GetRequiredService<ERPSystem.Application.Interfaces.ISystemSettingsService>()
+                .GetAsync();
             rule = ERPSystem.Application.Services.WeightBarcodeRule.FromJson(settings.WeightBarcodeRuleJson);
         }
         catch { /* keep null -> raw fallback */ }

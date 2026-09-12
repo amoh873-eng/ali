@@ -26,7 +26,7 @@ public class AccountConfiguration : IEntityTypeConfiguration<Account>
 
         builder.HasIndex(a => a.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0"); // Soft-deleted accounts don't block unique codes
+            .HasFilter("\"IsDeleted\" = false"); // Soft-deleted accounts don't block unique codes
 
         // NameAr: required, Arabic name is mandatory
         builder.Property(a => a.NameAr)

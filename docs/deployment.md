@@ -1,5 +1,39 @@
 # Deployment — Owner Console Extensions (Parts C–F)
 
+## ⚠️ Database connection string — secrets policy (PostgreSQL migration)
+
+The repository **must never contain a real database password**. Both `appsettings.json` and
+`appsettings.Development.json` keep `ConnectionStrings:DefaultConnection` **empty** (`""`) on purpose.
+
+### Local development
+Use .NET **user-secrets** (stored per-user outside the repo, never committed):
+
+```powershell
+cd src/Web
+dotnet user-secrets init                                 # if not present
+dotnet user-secrets set "ConnectionStrings:DefaultConnection" "Host=localhost;Port=5432;Database=ERPSystemDb;Username=erp_app;Password=<YOUR_LOCAL_PASSWORD>"
+```
+
+The `UserSecretsId` lives in `ERPSystem.Web.csproj`; ASP.NET Core loads it automatically in the
+`Development` environment — **no code change required**.
+
+### Production / server deployment
+Supply the connection string via an **environment variable** (the `__` separator maps to `:`):
+
+```text
+ConnectionStrings__DefaultConnection=Host=...;Port=5432;Database=...;Username=...;Password=...
+```
+
+On Windows (service/scheduled task) set it in the service' environment or via:
+```powershell
+[System.Environment]::SetEnvironmentVariable('ConnectionStrings__DefaultConnection', $value, 'Machine')
+```
+On Linux systemd, put it under `[Service] Environment=`.
+
+> 🔒 **Do not** put the real password back into any committed `appsettings*.json`. If a password
+> is ever printed/shared in a chat or committed to Git, change the DB password immediately and treat
+> the old one as leaked (a new password is cheap; a rebased shared repo is not).
+
 ## Read-only DB login for CustomReport SqlQuery
 ```sql
 CREATE LOGIN erp_readonly WITH PASSWORD = 'Strong!Pass123';

@@ -21,7 +21,7 @@ public class CustomerConfiguration : IEntityTypeConfiguration<Customer>
 
         builder.HasIndex(c => c.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(c => c.NameAr)
             .IsRequired()

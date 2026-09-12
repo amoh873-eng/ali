@@ -1,5 +1,4 @@
 using ERPSystem.Application.Interfaces;
-using Microsoft.Data.SqlClient;
 using Microsoft.Extensions.Configuration;
 
 namespace ERPSystem.Infrastructure.Services;
@@ -18,14 +17,63 @@ public class BackupService : IBackupService
 
     public async Task<string> CreateLocalBackupAsync(CancellationToken ct = default)
     {
-        var file = Path.Combine(_localDir, $"ERP_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bak");
         var connStr = _cfg.GetConnectionString("DefaultConnection")!;
-        var dbName = new SqlConnectionStringBuilder(connStr).InitialCatalog;
-        using var conn = new SqlConnection(connStr);
+
+        // PostgreSQL: نسخة عبر pg_dump (تنسيق custom) — لا توجد أداة BACKUP DATABASE هناك.
+        if (IsPostgresConnection(connStr))
+            return await CreatePostgresBackupAsync(connStr, ct);
+
+        // SQL Server: BACKUP DATABASE الكلاسيكي.
+        var file = Path.Combine(_localDir, $"ERP_{DateTime.UtcNow:yyyyMMdd_HHmmss}.bak");
+        var dbName = new Microsoft.Data.SqlClient.SqlConnectionStringBuilder(connStr).InitialCatalog;
+        using var conn = new Microsoft.Data.SqlClient.SqlConnection(connStr);
         await conn.OpenAsync(ct);
-        using var cmd = new SqlCommand($"BACKUP DATABASE [{dbName}] TO DISK = @p WITH INIT", conn);
+        using var cmd = new Microsoft.Data.SqlClient.SqlCommand($"BACKUP DATABASE [{dbName}] TO DISK = @p WITH INIT", conn);
         cmd.Parameters.AddWithValue("@p", file);
         await cmd.ExecuteNonQueryAsync(ct);
+        return file;
+    }
+
+    private static bool IsPostgresConnection(string connStr)
+        => connStr.Contains("Host=", StringComparison.OrdinalIgnoreCase)
+           || connStr.Contains("Server=localhost", StringComparison.OrdinalIgnoreCase) && connStr.Contains("Port=", StringComparison.OrdinalIgnoreCase);
+
+    /// <summary>نسخة احتياطية عبر pg_dump (يُبحث عنه في PG_BIN ثم المسار الافتراضي للتثبيت المحلي).</summary>
+    private async Task<string> CreatePostgresBackupAsync(string connStr, CancellationToken ct)
+    {
+        var file = Path.Combine(_localDir, $"ERP_{DateTime.UtcNow:yyyyMMdd_HHmmss}.dump");
+        var pgBin = _cfg["Backup:PgBin"]
+                    ?? Environment.GetEnvironmentVariable("PG_BIN")
+                    ?? @"D:\PostgreSQL\pgsql\bin";
+        var pgDump = Path.Combine(pgBin, "pg_dump.exe");
+        if (!File.Exists(pgDump))
+            throw new InvalidOperationException($"pg_dump غير موجود في '{pgDump}'. اضبط Backup:PgBin أو متغير PG_BIN.");
+
+        var builder = new Npgsql.NpgsqlConnectionStringBuilder(connStr);
+        var psi = new System.Diagnostics.ProcessStartInfo
+        {
+            FileName = pgDump,
+            ArgumentList =
+            {
+                "-h", builder.Host,
+                "-p", builder.Port.ToString(),
+                "-U", builder.Username,
+                "-Fc",
+                "-f", file,
+                builder.Database
+            },
+            UseShellExecute = false,
+            RedirectStandardError = true,
+            CreateNoWindow = true
+        };
+        psi.Environment["PGPASSWORD"] = builder.Password;
+
+        using var p = System.Diagnostics.Process.Start(psi)
+            ?? throw new InvalidOperationException("تعذر تشغيل pg_dump.");
+        var err = await p.StandardError.ReadToEndAsync(ct);
+        await p.WaitForExitAsync(ct);
+        if (p.ExitCode != 0)
+            throw new InvalidOperationException($"pg_dump فشل ({p.ExitCode}): {err}");
         return file;
     }
 

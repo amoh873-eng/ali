@@ -14,6 +14,15 @@ namespace ERPSystem.Infrastructure.Data;
 /// </summary>
 public class AppDbContext : IdentityDbContext<IdentityUser>
 {
+    static AppDbContext()
+    {
+        // Npgsql 6+: أعمدة DateTime الافتراضية تُعرض timestamptz (UTC فقط) بينما التطبيق
+        // يستخدم DateTime.Now/Today (Local) في مواضع عديدة. نفعّل السلوك القديم الذي:
+        //  - يقبل أي DateTime.Kind عند الكتابة (Local/Utc/Unspecified)
+        //  - يشغّل القراءة/الكتابة كـ "timestamp without time zone" مع تعامل سليم مع الصيغ.
+        AppContext.SetSwitch("Npgsql.EnableLegacyTimestampBehavior", true);
+    }
+
     /// <summary>
     /// Constructor accepting DbContextOptions (used by DI to inject connection string).
     /// </summary>
@@ -70,6 +79,12 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     /// Sales invoices table (فواتير المبيعات).
     /// </summary>
     public DbSet<SalesInvoice> SalesInvoices => Set<SalesInvoice>();
+
+    /// <summary>
+    /// Bank card-settlement statement rows (كشف تسوية البنك للبطاقات) — used by
+    /// the POS card reconciliation screen to match system card sales against the bank.
+    /// </summary>
+    public DbSet<BankCardStatement> BankCardStatements => Set<BankCardStatement>();
 
     /// <summary>
     /// Sales invoice lines table (بنود فواتير المبيعات).
@@ -226,11 +241,20 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     /// <summary>إشعارات الموظفين (نقص مخزون / انتهاء صلاحية / نظام) — جرس الإشعارات للواجهة.</summary>
     public DbSet<Notification> Notifications => Set<Notification>();
 
+    /// <summary>دُفعات المخزون للصنف التي تتبّع الدُفعات (Item.TracksBatches) — إجبارياً داخل مخزن.</summary>
+    public DbSet<ItemBatch> ItemBatches => Set<ItemBatch>();
+
+    /// <summary>سندات إتلاف المخزون (StockWriteOff) — سجل الإتلافات مع قيودها المحاسبية.</summary>
+    public DbSet<StockWriteOff> StockWriteOffs => Set<StockWriteOff>();
+
     /// <summary>دفعات المخزون لصنف يتتبّع انتهاء الصلاحية (طبقة موازية اختيارية).</summary>
     public DbSet<StockBatch> StockBatches => Set<StockBatch>();
 
     /// <summary>عمليات بيع موقوفة من نقطة البيع (Hold) — سلة محلية فقط.</summary>
     public DbSet<HeldSale> HeldSales => Set<HeldSale>();
+
+    /// <summary>تحويلات النقد بين الخزنة الرئيسية ودرج الكاش (Cash Drawer Transactions).</summary>
+    public DbSet<CashDrawerTransaction> CashDrawerTransactions => Set<CashDrawerTransaction>();
 
     /// <summary>
     /// Configures the model using Fluent API from configuration classes.
@@ -245,10 +269,13 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new UnitConfiguration());
         modelBuilder.ApplyConfiguration(new CategoryConfiguration());
         modelBuilder.ApplyConfiguration(new ItemConfiguration());
+        modelBuilder.ApplyConfiguration(new ItemBatchConfiguration());
+        modelBuilder.ApplyConfiguration(new StockWriteOffConfiguration());
         modelBuilder.ApplyConfiguration(new WarehouseConfiguration());
         modelBuilder.ApplyConfiguration(new StockMovementConfiguration());
         modelBuilder.ApplyConfiguration(new CustomerConfiguration());
         modelBuilder.ApplyConfiguration(new SalesInvoiceConfiguration());
+        modelBuilder.ApplyConfiguration(new BankCardStatementConfiguration());
         modelBuilder.ApplyConfiguration(new SalesInvoiceLineConfiguration());
         modelBuilder.ApplyConfiguration(new SalesReturnConfiguration());
         modelBuilder.ApplyConfiguration(new SalesReturnLineConfiguration());
@@ -281,10 +308,23 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new NotificationConfiguration());
         modelBuilder.ApplyConfiguration(new StockBatchConfiguration());
         modelBuilder.ApplyConfiguration(new HeldSaleConfiguration());
+        modelBuilder.ApplyConfiguration(new CashDrawerTransactionConfiguration());
 
-        // Concurrency tokens (SQL Server rowversion) — catch lost updates to stock and account balances.
-        modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
-        modelBuilder.Entity<Account>().Property(a => a.RowVersion).IsRowVersion();
+        // Concurrency tokens: SQL Server يصنع rowversion تلقائياً.
+        // PostgreSQL ليس لديه rowversion — نستخدم عمود bytea صريحاً مع ValueGeneratedNever
+        // حتى لا يُسقط NULL عند الإدراج، مع إبقاء عمود التحقق متاحاً للتطبيق إن أراد استخدامه.
+        var isNpgsql = Database.IsNpgsql();
+        if (isNpgsql)
+        {
+            modelBuilder.Entity<Item>().Property(i => i.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+            modelBuilder.Entity<PayrollRun>().Property(p => p.RowVersion).HasColumnType("bytea").ValueGeneratedNever();
+        }
+        else
+        {
+            modelBuilder.Entity<Item>().Property(i => i.RowVersion).IsRowVersion();
+            modelBuilder.Entity<Account>().Property(a => a.RowVersion).IsRowVersion();
+        }
 
         // ==================== Seed Data ====================
         // بذور أولية لشجرة الحسابات - هذه الحسابات الأساسية ستنشأ تلقائياً
@@ -523,6 +563,26 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             {
                 Id = Guid.Parse("11000000-0000-0000-0000-000000000004"),
                 Code = "1101", NameAr = "البنك", NameEn = "Bank",
+                AccountType = Domain.Enums.AccountType.Asset,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // ذمم البطاقات: مبيعات أجريت بالبطاقة وتمت من الطرفية لكن البنك لم يسوّيها بعد
+            // (مستحق من البنك — أصل، ليس نقداً فورياً). يُدين عند بيع بطاقة بدل الصندوق.
+            new Account
+            {
+                Id = Guid.Parse("11000000-0000-0000-0000-000000000005"),
+                Code = "1205", NameAr = "ذمم البطاقات (مستحق من البنك)", NameEn = "Card Receivables",
+                AccountType = Domain.Enums.AccountType.Asset,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // درج الكاش: موقع نقدي منفصل عن الخزنة الرئيسية «الصندوق» (1100) — تُرحَّل إليه مبيعات
+            // نقطة البيع النقدية وتحويلات التمويل، فيتسنّى مطابقة رصيده لاحقاً (إيراد نقدي − مردود − سحوبات).
+            new Account
+            {
+                Id = Guid.Parse("11000000-0000-0000-0000-000000000006"),
+                Code = "1105", NameAr = "نقدية - درج الكاش", NameEn = "Cash - Till Drawer",
                 AccountType = Domain.Enums.AccountType.Asset,
                 NormalBalance = Domain.Enums.NormalBalance.Debit,
                 ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime

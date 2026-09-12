@@ -15,12 +15,13 @@ public class SystemSettingsConfiguration : IEntityTypeConfiguration<SystemSettin
         builder.Property(e => e.PrimaryColorHex).HasMaxLength(20);
         builder.Property(e => e.LicensedToClientName).IsRequired().HasMaxLength(300);
         builder.Property(e => e.SupportContactInfo).HasMaxLength(1000);
-        builder.Property(e => e.FeatureFlagsJson).IsRequired().HasColumnType("nvarchar(max)");
+        builder.Property(e => e.FeatureFlagsJson).IsRequired().HasColumnType("text");
         builder.Property(e => e.BackupDestination).HasMaxLength(500);
-        builder.Property(e => e.TrialStartedAt).HasColumnType("datetime2");
-        builder.Property(e => e.TrialExpiresAt).HasColumnType("datetime2");
+        builder.Property(e => e.TrialStartedAt).HasColumnType("timestamp with time zone");
+        builder.Property(e => e.TrialExpiresAt).HasColumnType("timestamp with time zone");
 
         builder.Property(e => e.ExpiryWarningWindowDays).HasDefaultValue(7);
-        builder.Property(e => e.WeightBarcodeRuleJson).HasColumnType("nvarchar(max)");
+        builder.Property(e => e.WeightBarcodeRuleJson).HasColumnType("text");
+        builder.Property(e => e.PosGridLimit).HasDefaultValue(30);
     }
 }

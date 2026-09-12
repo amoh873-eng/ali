@@ -21,7 +21,7 @@ public class SalesReturnConfiguration : IEntityTypeConfiguration<SalesReturn>
 
         builder.HasIndex(r => r.ReturnNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(r => new { r.CustomerId, r.ReturnDate });
 

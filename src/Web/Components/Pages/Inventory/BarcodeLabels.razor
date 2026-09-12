@@ -1,0 +1,308 @@
+@page "/inventory/barcode-labels"
+@attribute [Authorize(Roles = "Admin,SuperAdmin")]
+@implements IDisposable
+<ModuleGuard ModuleKey="Inventory">
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+@inject IJSRuntime JS
+@inject NavigationManager Nav
+@inject Microsoft.Extensions.DependencyInjection.IServiceScopeFactory ScopeFactory
+
+<PageTitle>@Loc["BarcodeLabels"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["BarcodeLabels"]" Icon="@Icons.Material.Filled.QrCode2" />
+
+<div class="bl-wrap">
+    <MudPaper Elevation="0" Outlined="true" Class="bl-card">
+        <div class="bl-head">
+            <div>
+                <MudText Typo="Typo.subtitle1" Style="font-weight:700;">@Loc["BlSelectItems"]</MudText>
+                <MudText Typo="Typo.body2" Class="bl-muted">@Loc["BlSelectHint"]</MudText>
+            </div>
+            <MudText Typo="Typo.body2" Class="bl-muted">@Loc["BlSelectedCount", _selected.Count]</MudText>
+        </div>
+        <div class="bl-toolbar">
+            <MudTextField Value="@_search" ValueChanged="OnSearchChanged" T="string"
+                          Placeholder="@Loc["BlSearchPlaceholder"]"
+                          Adornment="Adornment.Start" AdornmentIcon="@Icons.Material.Filled.Search"
+                          Immediate="true" Dense="true" Variant="Variant.Outlined" Class="bl-search" />
+            <MudSelect T="Guid" Value="@_categoryFilter" ValueChanged="OnCategoryChanged" Label="@Loc["Category"]"
+                        Dense="true" Variant="Variant.Outlined" Class="bl-cat">
+                <MudSelectItem Value="@(Guid.Empty)">@Loc["All"]</MudSelectItem>
+                @foreach (var c in _categories)
+                {
+                    <MudSelectItem Value="@c.Id">@c.NameAr</MudSelectItem>
+                }
+            </MudSelect>
+            <MudButton Variant="Variant.Outlined" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Checklist"
+                        OnClick="SelectCategoryFiltered">@Loc["BlSelectCategory"]</MudButton>
+            <MudButton Variant="Variant.Outlined" Color="Color.Secondary" StartIcon="@Icons.Material.Filled.ImportExport"
+                        OnClick="SelectLastBulkImport" Disabled="@(_lastBulkItemCount == 0)">@Loc["BlSelectBulk", _lastBulkItemCount]</MudButton>
+            <MudSpacer />
+            <MudButton Variant="Variant.Text" Color="Color.Error" OnClick="ClearSelection">@Loc["BlClear"]</MudButton>
+        </div>
+
+        @* جدول خادمي مقسّم (ServerData): يجلب أول 50 صفاً فقط ويصفح عند الحاجة —
+             لا يحمّل كل الأصناف في الذاكرة ولا يرسمها كلها (كان يجمّد الجهاز). *@
+        <MudTable T="ItemDto" @ref="_table" ServerData="LoadServerData" Dense="true" Hover="true"
+                  RowsPerPage="50" Class="mt-3 bl-table">
+            <HeaderContent>
+                <MudTh>@Loc["BlSelected"]</MudTh>
+                <MudTh>@Loc["Code"]</MudTh>
+                <MudTh>@Loc["ItemName"]</MudTh>
+                <MudTh>@Loc["Barcode"]</MudTh>
+                <MudTh>@Loc["Price"]</MudTh>
+                <MudTh>@Loc["BlCopies"]</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>
+                    <MudCheckBox T="bool" Value="IsSelected(context.Id)" ValueChanged="(bool v) => ToggleSelection(context.Id, v)" />
+                </MudTd>
+                <MudTd>@context.Code</MudTd>
+                <MudTd>@context.NameAr</MudTd>
+                <MudTd dir="ltr">@context.Barcode</MudTd>
+                <MudTd><MoneyDisplay Amount="context.SalePrice" /></MudTd>
+                <MudTd Style="width:110px;">
+                    <MudNumericField T="int" Value="GetCopies(context.Id)"
+                                          ValueChanged="(int v) => SetCopies(context.Id, v)"
+                                          Min="1" Max="999" Dense="true" Variant="Variant.Outlined" />
+                </MudTd>
+            </RowTemplate>
+            <LoadingContent>
+                <MudText Align="Align.Center" Class="pa-4 bl-muted">@Loc["BlGenerating"]</MudText>
+            </LoadingContent>
+            <NoRecordsContent>
+                <MudText Align="Align.Center" Class="pa-4 bl-muted">@Loc["NoData"]</MudText>
+            </NoRecordsContent>
+            <PagerContent>
+                <MudTablePager />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+    <MudPaper Elevation="0" Outlined="true" Class="bl-card">
+        <MudText Typo="Typo.subtitle1" Style="font-weight:700;">@Loc["BlOptions"]</MudText>
+        <div class="bl-options">
+            <MudSwitch T="bool" @bind-Value="_sameCopies" Color="Color.Primary">@Loc["BlSameCopies"]</MudSwitch>
+            @if (_sameCopies)
+            {
+                <MudNumericField T="int" @bind-Value="_globalCopies" Label="@Loc["BlCopies"]"
+                                 Min="1" Max="999" Dense="true" Style="width:140px;" />
+            }
+            <MudSwitch T="bool" @bind-Value="_showPrice" Color="Color.Primary">@Loc["BlShowPrice"]</MudSwitch>
+        </div>
+        <MudText Typo="Typo.body2" Class="bl-muted">@Loc["BlTemplateInfo"]</MudText>
+    </MudPaper>
+@if (_selected.Count > 0)
+    {
+        <div class="bl-actions">
+            <MudButton Variant="Variant.Outlined" Color="Color.Info" StartIcon="@Icons.Material.Filled.Pageview"
+                        Disabled="@_busy" OnClick="PreviewFirstPageAsync">@Loc["BlPreview"]</MudButton>
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Download"
+                        Disabled="@_busy" OnClick="GenerateAndDownloadAsync">@Loc["BlGenerate"]</MudButton>
+        </div>
+    }
+
+    @if (_busy)
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bl-card bl-busy">
+            <MudText Align="Align.Center" Class="pb-2">@Loc["BlGenerating"]</MudText>
+            <MudProgressLinear Indeterminate="true" Color="Color.Primary" />
+        </MudPaper>
+    }
+
+    @if (!string.IsNullOrWhiteSpace(_previewTitle))
+    {
+        <MudPaper Elevation="0" Outlined="true" Class="bl-card">
+            <MudText Typo="Typo.subtitle1" Style="font-weight:700;">@_previewTitle</MudText>
+            <iframe id="erpLabelPreview" title="@Loc["BlPreview"]"
+                    style="border:none;width:100%;height:480px;background:#fff;"></iframe>
+        </MudPaper>
+    }
+</div>
+</ModuleGuard>
+@code {
+    private MudTable<ERPSystem.Application.DTOs.Items.ItemDto>? _table;
+    private List<CategoryDto> _categories = new();
+    private string _search = string.Empty;
+    private Guid _categoryFilter = Guid.Empty;
+    private HashSet<Guid> _selected = new();
+    private Dictionary<Guid, int> _copies = new();
+    private bool _sameCopies;
+    private int _globalCopies = 1;
+    private bool _showPrice;
+    private bool _busy;
+    private string _previewTitle = string.Empty;
+    private int _lastBulkItemCount;
+    private CancellationTokenSource? _searchCts;
+
+    // ─────────────────────────────── تهيئة (ضمن نطاق DI مستقل) ───────────────────────────────
+    // كل استعلام هنا يعمل داخل CreateScope → نسخة AppDbContext خاصة به، فلا يحدث أي
+    // "A second operation was started on this context instance..." مع بقية مكونات
+    // الدائرة (التخطيط/التنبيهات/الصفحة نفسها) التي تتقاسم سياق Scoped في الوضع القديم.
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            await using var scope = ScopeFactory.CreateAsyncScope();
+            var categoryService = scope.ServiceProvider.GetRequiredService<ICategoryService>();
+            var itemService = scope.ServiceProvider.GetRequiredService<IItemService>();
+            _categories = await categoryService.GetAllAsync();
+            _lastBulkItemCount = (await itemService.GetLastBulkImportIdsAsync()).Count;
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+    }
+
+    public void Dispose()
+    {
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        _searchCts = null;
+    }
+// ─────────────────────────────── الجدول الخادمي المقسم (ServerData) ───────────────────────────────
+    private async Task<TableData<ERPSystem.Application.DTOs.Items.ItemDto>> LoadServerData(
+        TableState state, CancellationToken cancellationToken)
+    {
+        await using var scope = ScopeFactory.CreateAsyncScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IItemService>();
+
+        var term = string.IsNullOrWhiteSpace(_search) ? null : _search.Trim();
+        var category = _categoryFilter == Guid.Empty ? (Guid?)null : _categoryFilter;
+
+        var page = await svc.SearchPageAsync(term, category, state.Page * state.PageSize, state.PageSize, cancellationToken);
+        return new TableData<ERPSystem.Application.DTOs.Items.ItemDto>
+        {
+            Items = page.Items,
+            TotalItems = page.Total
+        };
+    }
+
+    /// <summary>بحث بعد تأخير قصير (debounce) — لا نضرب قاعدة البيانات عند كل حرف.</summary>
+    private async Task OnSearchChanged(string? v)
+    {
+        _search = v ?? string.Empty;
+        _searchCts?.Cancel();
+        _searchCts?.Dispose();
+        _searchCts = new CancellationTokenSource();
+        try
+        {
+            await Task.Delay(300, _searchCts.Token);
+            if (_table is not null) await _table.ReloadServerData();
+        }
+        catch (TaskCanceledException) { /* كتابة جديدة ألغت القديمة */ }
+    }
+
+    private async Task OnCategoryChanged(Guid v)
+    {
+        _categoryFilter = v;
+        if (_table is not null) await _table.ReloadServerData();
+    }
+
+    // ─────────────────────────────── الاختيار (أكواد فقط — لا أصناف كاملة) ───────────────────────────────
+    private void ToggleSelection(Guid id, bool v)
+    {
+        if (v) _selected.Add(id); else _selected.Remove(id);
+        StateHasChanged();
+    }
+
+    private bool IsSelected(Guid id) => _selected.Contains(id);
+
+    private int GetCopies(Guid id) => _copies.TryGetValue(id, out var c) ? Math.Max(1, c) : 1;
+
+    private void SetCopies(Guid id, int v) => _copies[id] = Math.Max(1, v);
+
+    private async Task SelectCategoryFiltered()
+    {
+        if (_categoryFilter == Guid.Empty) { Snackbar.Add(Loc["BlSelectCategory"], Severity.Warning); return; }
+        await using var scope = ScopeFactory.CreateAsyncScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IItemService>();
+        var ids = await svc.GetIdsByCategoryAsync(_categoryFilter);
+        foreach (var id in ids) _selected.Add(id);
+        Snackbar.Add(Loc["BlSelectedCount", _selected.Count], Severity.Success);
+        StateHasChanged();
+    }
+
+    private async Task SelectLastBulkImport()
+    {
+        await using var scope = ScopeFactory.CreateAsyncScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IItemService>();
+        var ids = await svc.GetLastBulkImportIdsAsync();
+        _lastBulkItemCount = ids.Count;
+        foreach (var id in ids) _selected.Add(id);
+        Snackbar.Add(Loc["BlSelectedCount", _selected.Count], Severity.Success);
+        StateHasChanged();
+    }
+
+    private void ClearSelection() { _selected.Clear(); _copies.Clear(); StateHasChanged(); }
+// ─────────────────────────────── بناء قائمة الطباعة (المحدّد فقط) ───────────────────────────────
+    private async Task<List<ERPSystem.Application.DTOs.Items.BarcodeLabelItemDto>> BuildFlattenedAsync(int take)
+    {
+        if (_selected.Count == 0) return new List<ERPSystem.Application.DTOs.Items.BarcodeLabelItemDto>();
+
+        await using var scope = ScopeFactory.CreateAsyncScope();
+        var svc = scope.ServiceProvider.GetRequiredService<IItemService>();
+        var selected = await svc.GetByIdsAsync(_selected);
+
+        var list = new List<ERPSystem.Application.DTOs.Items.BarcodeLabelItemDto>();
+        foreach (var i in selected.OrderBy(x => x.Code))
+        {
+            var copies = _sameCopies ? Math.Max(1, _globalCopies) : GetCopies(i.Id);
+            for (var k = 0; k < copies; k++)
+            {
+                if (list.Count >= take) return list;
+                list.Add(new ERPSystem.Application.DTOs.Items.BarcodeLabelItemDto
+                {
+                    Id = i.Id,
+                    Code = i.Code,
+                    NameAr = i.NameAr,
+                    Barcode = i.Barcode,
+                    SalePrice = i.SalePrice
+                });
+            }
+        }
+        return list;
+    }
+
+    private async Task PreviewFirstPageAsync()
+    {
+        _busy = true; _previewTitle = ""; StateHasChanged();
+        try
+        {
+            var items = await BuildFlattenedAsync(24);
+            if (items.Count == 0) { Snackbar.Add(Loc["BlNoSelection"], Severity.Warning); return; }
+            var bytes = await Task.Run(() => BarcodeLabelExporter.Generate(items, _showPrice, 1));
+            _previewTitle = Loc["BlPreviewTitle", items.Count];
+            await ShowPdfInFrameAsync(bytes);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; StateHasChanged(); }
+    }
+
+    private async Task GenerateAndDownloadAsync()
+    {
+        _busy = true; StateHasChanged();
+        try
+        {
+            var items = await BuildFlattenedAsync(int.MaxValue);
+            if (items.Count == 0) { Snackbar.Add(Loc["BlNoSelection"], Severity.Warning); return; }
+            var bytes = await Task.Run(() => BarcodeLabelExporter.Generate(items, _showPrice, 1));
+            var b64 = Convert.ToBase64String(bytes);
+            await JS.InvokeVoidAsync("eval",
+                "var a=document.createElement('a');a.href='data:application/pdf;base64," + b64 + "';a.download='barcode-labels.pdf';a.click();");
+            Snackbar.Add(Loc["BlDone", items.Count], Severity.Success);
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; StateHasChanged(); }
+    }
+
+    private async Task ShowPdfInFrameAsync(byte[] pdfBytes)
+    {
+        var b64 = Convert.ToBase64String(pdfBytes);
+        var js = "var bytes=Uint8Array.from(atob('" + b64 + "'),function(c){return c.charCodeAt(0);});" +
+                 "var blob=new Blob([bytes],{type:'application/pdf'});var url=URL.createObjectURL(blob);" +
+                 "var cont=document.querySelector('.bl-wrap');var el=document.getElementById('erpLabelPreview');" +
+                 "if(!el&&cont){el=document.createElement('iframe');el.id='erpLabelPreview';" +
+                 "el.style.cssText='border:none;width:100%;height:480px;background:#fff;';cont.appendChild(el);}" +
+                 "if(el){el.src=url;}";
+        await JS.InvokeVoidAsync("eval", js);
+    }
+}

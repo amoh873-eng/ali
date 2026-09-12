@@ -1,0 +1,102 @@
+@* حوار عرض تفاصيل سند الإتلاف: بيانات السند + القيد المحاسبي الكامل (المدين/الدائن) *@
+@inject IStringLocalizer<SharedResources> Loc
+@using ERPSystem.Application.DTOs.Inventory
+
+<MudDialog>
+    <DialogContent>
+        @if (WriteOff is null)
+        {
+            <MudAlert Severity="Severity.Info">@Loc["NoData"]</MudAlert>
+        }
+        else
+        {
+            <MudGrid>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["DocNumber"]</MudText><MudText Style="font-weight:700;">@WriteOff.DocumentNumber</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Date"]</MudText><MudText>@WriteOff.Date.ToString("yyyy-MM-dd")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Item"]</MudText><MudText>@WriteOff.ItemCode - @WriteOff.ItemNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Warehouse"]</MudText><MudText>@WriteOff.WarehouseNameAr</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Batch"]</MudText><MudText>@BatchInfo()</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Reason"]</MudText><MudText>@WriteOff.ReasonNameAr@(string.IsNullOrWhiteSpace(WriteOff.OtherReasonText) ? "" : $" — {WriteOff.OtherReasonText}")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Quantity"]</MudText><MudText>@WriteOff.Quantity.ToString("N0")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["UnitCost"]</MudText><MudText>@WriteOff.UnitCost.ToString("N2")</MudText></MudItem>
+                <MudItem xs="12" sm="6"><MudText Typo="Typo.caption">@Loc["Total"]</MudText><MudText Style="font-weight:700;">@WriteOff.TotalCost.ToString("N2")</MudText></MudItem>
+                @if (!string.IsNullOrWhiteSpace(WriteOff.Notes))
+                {
+                    <MudItem xs="12"><MudText Typo="Typo.caption">@Loc["Notes"]</MudText><MudText>@WriteOff.Notes</MudText></MudItem>
+                }
+            </MudGrid>
+
+            @* القيد المحاسبي المرتبط *@
+            <MudPaper Elevation="0" Class="pa-3 mt-3" Style="background:#F9FAFB;border:1px solid var(--erp-border);border-radius:10px;">
+                <div class="d-flex align-center" style="display:flex;align-items:center;gap:8px;">
+                    <MudIcon Icon="@Icons.Material.Filled.ReceiptLong" Style="color:#3B82F6;" />
+                    <MudText Typo="Typo.subtitle2" Style="font-weight:700;">القيد المحاسبي: @(_entry?.EntryNumber ?? WriteOff.EntryNumber)</MudText>
+                    @if (_entry is not null)
+                    {
+                        <MudChip T="string" Size="Size.Small" Color="@(_entry.IsBalanced ? Color.Success : Color.Error)">
+                            @(_entry.IsBalanced ? "متوازن ✓" : "غير متوازن ✗")
+                        </MudChip>
+                    }
+                </div>
+                @if (!string.IsNullOrWhiteSpace(_entry?.Description))
+                {
+                    <MudText Typo="Typo.body2" Class="mt-1 muted-text">@_entry.Description</MudText>
+                }
+
+                @if (_entry is null)
+                {
+                    <MudProgressLinear Indeterminate="true" Class="my-2" />
+                }
+                else
+                {
+                    <MudTable Items="_entry.Lines" Hover="true" Dense="true" Elevation="0" Class="mt-2">
+                        <HeaderContent>
+                            <MudTh>الحساب</MudTh>
+                            <MudTh>@Loc["Debit"]</MudTh>
+                            <MudTh>@Loc["Credit"]</MudTh>
+                            <MudTh>ملاحظة</MudTh>
+                        </HeaderContent>
+                        <RowTemplate>
+                            <MudTd>@context.AccountCode - @context.AccountNameAr</MudTd>
+                            <MudTd Style="@(context.DebitAmount > 0 ? "font-weight:600;" : "")">@context.DebitAmount.ToString("N2")</MudTd>
+                            <MudTd Style="@(context.CreditAmount > 0 ? "font-weight:600;" : "")">@context.CreditAmount.ToString("N2")</MudTd>
+                            <MudTd>@context.Note</MudTd>
+                        </RowTemplate>
+                    </MudTable>
+                    <MudText Typo="Typo.body2" Class="mt-2">
+                        @Loc["Total"] المدين: <strong>@_entry.TotalDebit.ToString("N2")</strong> — إجمالي الدائن: <strong>@_entry.TotalCredit.ToString("N2")</strong>
+                    </MudText>
+                }
+            </MudPaper>
+        }
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Close" Color="Color.Default">@Loc["Close"]</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    [Parameter] public StockWriteOffDto? WriteOff { get; set; }
+
+    [Inject] private IJournalEntryService JournalService { get; set; } = default!;
+
+    private JournalEntryDto? _entry;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (WriteOff is null) return;
+        _entry = await JournalService.GetByIdAsync(WriteOff.JournalEntryId);
+    }
+
+    private string BatchInfo()
+    {
+        if (WriteOff?.BatchId is null) return "—";
+        var expiry = WriteOff.ExpiryDate?.ToString("yyyy-MM-dd") ?? "بدون تاريخ";
+        return string.IsNullOrWhiteSpace(WriteOff.BatchNumber)
+            ? $"انتهاء: {expiry}"
+            : $"{WriteOff.BatchNumber} — انتهاء: {expiry}";
+    }
+
+    private void Close() => MudDialog.Close(DialogResult.Ok(true));
+}

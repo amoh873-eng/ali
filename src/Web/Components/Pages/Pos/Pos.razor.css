@@ -25,6 +25,7 @@
 .pos-grid { flex: 1; display: grid; grid-template-columns: repeat(var(--pos-cols, 6), 1fr); gap: 12px; overflow-y: auto; align-content: start; }
 
 .pos-item {
+    position: relative;
     display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 8px;
     padding: calc(22px * var(--pos-scale, 1)) calc(12px * var(--pos-scale, 1));
     border: none; border-radius: 14px;
@@ -45,29 +46,166 @@
 .pos-item-price { font-weight: 800; font-size: calc(1rem * var(--pos-scale, 1)); color: #FDE68A; }
 .pos-item-img { width: calc(56px * var(--pos-scale, 1)); height: calc(56px * var(--pos-scale, 1)); object-fit: cover; border-radius: 10px; border: 2px solid rgba(255,255,255,.7); }
 
-.pos-cart { width: var(--pos-cart-w, 720px); min-width: var(--pos-cart-w, 720px); display: flex; flex-direction: row; gap: 14px; background: #fff; border-inline-start: 1px solid #E5E7EB; padding: 14px; overflow: hidden; min-height: 0; }
-.pos-cart-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 10px; min-height: 0; }
+/* ── تمييز الأصناف النافدة (الرصيد 0) والأصناف التي فشل فحص رصيدها في الشبكة ── */
+.pos-item--out {
+    filter: grayscale(1);
+    opacity: .55;
+    box-shadow: none;
+}
+.pos-item--out:hover { transform: none; filter: grayscale(1); opacity: .6; box-shadow: none; }
+.pos-item-stock-badge {
+    position: absolute;
+    top: 4px;
+    inset-inline-start: 4px;
+    z-index: 2;
+    background: #EF4444;
+    color: #fff;
+    font-size: .62rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+    direction: rtl;
+}
+
+/* ── مؤشر قرب انتهاء الصلاحية على زر الصنف (دُفعة ضمن نافذة التحذير من ItemBatch) ── */
+.pos-item--near-expiry {
+    box-shadow: 0 5px 0 color-mix(in srgb, var(--pos-accent, #6D5BD0) 66%, #000), 0 12px 22px rgba(245, 158, 11, .28);
+}
+.pos-item-expiry-badge {
+    position: absolute;
+    top: 4px;
+    inset-inline-end: 4px;
+    z-index: 2;
+    background: #F59E0B;
+    color: #fff;
+    font-size: .6rem;
+    font-weight: 800;
+    padding: 2px 6px;
+    border-radius: 6px;
+    box-shadow: 0 1px 4px rgba(0, 0, 0, .3);
+    direction: rtl;
+}
+.pos-item--flash {
+    outline: 3px solid #EF4444;
+    outline-offset: 2px;
+    animation: pos-flash 0.8s ease-in-out infinite alternate;
+}
+@keyframes pos-flash {
+    from { box-shadow: 0 0 0 0 rgba(239, 68, 68, 0); }
+    to   { box-shadow: 0 0 0 8px rgba(239, 68, 68, .35); }
+}
+
+.pos-cart { width: var(--pos-cart-w, 720px); min-width: var(--pos-cart-w, 720px); display: flex; flex-direction: row; gap: 10px; background: #fff; border-inline-start: 1px solid #E5E7EB; padding: 10px; overflow: hidden; min-height: 0; }
+.pos-cart-left { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 7px; min-height: 0; }
 .pos-cart-right { width: 340px; min-width: 340px; display: flex; flex-direction: column; min-height: 0; overflow-y: auto; }
 .pos-cart-header { display: flex; align-items: center; justify-content: space-between; }
 .pos-cart-lines { flex: 1; overflow-y: auto; min-height: 0; }
-.pos-line { display: flex; align-items: center; gap: 8px; padding: 8px 0; border-bottom: 1px solid #F1F2F6; }
-.pos-line-info { flex: 1; min-width: 0; }
-.pos-line-qty { display: flex; align-items: center; gap: 4px; }
-.pos-qty-box {
-    width: 90px;
-    padding: 7px 4px;
-    border: 2px solid #D8D2F0;
+
+/* ── سلة عمودين مضغوطة: صف شبكة من صنفين، بارتفاع صغير لعرض 16 صنفاً في الشاشة،
+      مع تظليل شطرنجي (أبيض ← بنفسجي أغمق) للتمييز البصري ── */
+.pos-cart-row {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 6px;
+    padding: 1px 3px;
     border-radius: 8px;
+    margin-bottom: 1px;
+}
+.pos-cart-row--alt { background: #EBE1F9; }
+
+.pos-line {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    gap: 1px;
+    padding: 1px 5px;
+    background: #fff;
+    border: 1px solid #E9E5F6;
+    border-radius: 7px;
+    min-width: 0;
+    box-shadow: none;
+}
+.pos-cart-row--alt .pos-line { background: #E2D5F6; border-color: #CDBEEE; }
+
+.pos-line-top { display: flex; align-items: center; gap: 3px; min-width: 0; padding-inline-end: 22px; }
+.pos-line-name {
+    flex: 1;
+    min-width: 0;
+    font-weight: 600;
+    font-size: .74rem;
+    line-height: 1.15;
+    color: #1F2937;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    direction: rtl;
+    text-align: right;
+}
+.pos-line-price { font-size: .7rem; font-weight: 700; color: #8B5CF6; white-space: nowrap; }
+
+.pos-line-bottom { display: flex; align-items: center; justify-content: space-between; gap: 3px; }
+.pos-line-qty { display: flex; align-items: center; gap: 1px; }
+.pos-qty-box {
+    width: 34px;
+    height: 28px;
+    padding: 0;
+    border: 1px solid #CFC5EC;
+    border-radius: 5px;
     text-align: center;
-    font-size: 1.35rem;
+    font-size: .82rem;
     font-weight: 700;
     color: #1F2937;
     background: #fff;
-    box-shadow: inset 0 1px 3px rgba(16,24,40,.08);
-    transition: border-color .15s ease, box-shadow .15s ease;
+    box-shadow: none;
 }
-.pos-qty-box:focus { border-color: #6D5BD0; outline: none; box-shadow: 0 0 0 3px rgba(109,91,208,.15); }
-.pos-line-total { font-weight: 700; min-width: 60px; text-align: end; }
+.pos-qty-box:focus { border-color: #6D5BD0; outline: none; box-shadow: 0 0 0 2px rgba(109, 91, 208, .18); }
+.pos-line-total { font-weight: 800; font-size: .76rem; color: #6D5BD0; white-space: nowrap; text-align: end; min-width: 40px; }
+
+/* ── تمييز سطر السلة الذي تعذّر إتمامه لنقص الرصيد (أو صنف نفد من المخزون) ── */
+.pos-line--no-stock {
+    background: #FEF2F2;
+    border: 1.5px solid #FCA5A5;
+}
+.pos-cart-row--alt .pos-line--no-stock { background: #FDE8E8; border-color: #FCA5A5; }
+.pos-line--no-stock .pos-line-name { color: #B91C1C; }
+.pos-line--no-stock .pos-line-total { color: #B91C1C; }
+.pos-line-stock-badge {
+    flex-shrink: 0;
+    background: #EF4444;
+    color: #fff;
+    font-size: .58rem;
+    font-weight: 800;
+    padding: 1px 5px;
+    border-radius: 4px;
+    line-height: 1.4;
+    white-space: nowrap;
+    direction: rtl;
+}
+
+/* تكبير أزرار + / − فقط لأصابع شاشة اللمس (منطقة لمس 30×30px) —
+   زر الحذف يبقى صغيراً عائماً في زاوية البطاقة كي لا يرفع ارتفاع السطر ويحافظ على عرض 16 صنفاً */
+.pos-cart-lines ::deep .pos-line .pos-line-qty .mud-icon-button {
+    width: 30px;
+    height: 30px;
+    min-width: 30px;
+    min-height: 30px;
+    padding: 0;
+    flex-shrink: 0;
+}
+.pos-cart-lines ::deep .pos-line .pos-line-qty .mud-icon-button .mud-icon-size-small { font-size: 21px; }
+
+.pos-cart-lines ::deep .pos-line .pos-line-top > .mud-icon-button {
+    position: absolute;
+    top: 1px;
+    inset-inline-end: 1px;
+    width: 20px;
+    height: 20px;
+    min-width: 20px;
+    min-height: 20px;
+    padding: 0;
+}
+.pos-cart-lines ::deep .pos-line .pos-line-top > .mud-icon-button .mud-icon-size-small { font-size: 16px; }
 
 .pos-totals { border-top: 1px solid #E5E7EB; padding-top: 6px; }
 .pos-total-row { display: flex; justify-content: space-between; padding: 3px 0; font-size: 1.1rem; }
@@ -96,6 +234,18 @@
 }
 .pos-change { font-weight: 800; font-size: 1.6rem; color: #10B981; text-align: center; }
 .pos-change.negative { color: #EF4444; }
+
+/* ── شارة مفتاح الاختصار (F1..F7) على أزرار نقطة البيع — يراها الكاشير مباشرة ── */
+.pos-kbd {
+    display: inline-flex; align-items: center; justify-content: center;
+    min-width: 26px; height: 20px; padding: 0 6px;
+    border-radius: 6px;
+    background: #EEF2FF; color: #4338CA;
+    border: 1px solid #C7D2FE;
+    font-size: .68rem; font-weight: 800;
+    margin-inline-start: 6px;
+    white-space: nowrap; user-select: none; line-height: 1;
+}
 
 .pos-keypad { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; }
 .pos-key {
@@ -177,3 +327,20 @@
 .pos-search-option:hover { background: #F5F3FF; }
 .pos-search-opt-name { font-weight: 600; }
 .pos-search-opt-price { color: #6D5BD0; font-weight: 800; font-size: .85rem; white-space: nowrap; }
+
+/* ── حقول الدفع بالبطاقة (رقم الموافقة إلزامي + آخر 4 أرقام + الشبكة) ── */
+.pos-card-fields {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 10px;
+    border: 1px dashed rgba(109, 91, 208, .45);
+    border-radius: 10px;
+    background: linear-gradient(180deg, rgba(109, 91, 208, .06), rgba(109, 91, 208, .02));
+    margin-bottom: 8px;
+}
+.pos-card-row.two {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 8px;
+}

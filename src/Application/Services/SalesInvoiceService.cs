@@ -25,6 +25,10 @@ public partial class SalesInvoiceService : ISalesInvoiceService
     // أكواد الحسابات النظامية المزروعة في SeedSalesAccounts (يجب تطابقها تماماً)
     private const string AccountCash = "1100";
     private const string AccountReceivable = "1200";
+    // ذمم البطاقات: مبالغ البطاقات التي أوفتها المنشأة للبنك وما زالت قيد التسوية (مستحق من البنك)
+    private const string AccountCardReceivables = "1205";
+    // درج الكاش: موقع نقدي منفصل عن الخزنة الرئيسية «الصندوق» — تُرحَّل إليه مبيعات نقطة البيع النقدية
+    private const string AccountTillDrawer = "1105";
     private const string AccountInventory = "1300";
     private const string AccountSalesTaxPayable = "2100";
     private const string AccountSalesRevenue = "4100";

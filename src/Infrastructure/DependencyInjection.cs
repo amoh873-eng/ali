@@ -24,18 +24,18 @@ public static class DependencyInjection
         this IServiceCollection services,
         IConfiguration configuration)
     {
-        // Register DbContext with SQL Server
+        // Register DbContext with PostgreSQL
         // لماذا AddDbContext وليس AddDbContextPool؟
         // DbContextPool يعيد استخدام السياق بين الطلبات وهو أسرع،
         // لكننا نستخدم AddDbContext حالياً للبساطة.
         // في الإصدارات المستقبلية يمكن الترقية إلى Pool للتحسين.
         services.AddDbContext<AppDbContext>(options =>
-            options.UseSqlServer(
+            options.UseNpgsql(
                 configuration.GetConnectionString("DefaultConnection"),
-                sqlOptions =>
+                npgsqlOptions =>
                 {
                     // مكان ملفات الترحيل (Migrations) داخل مشروع Infrastructure
-                    sqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
+                    npgsqlOptions.MigrationsAssembly(typeof(AppDbContext).Assembly.FullName);
                 }).ConfigureWarnings(w => w.Ignore(Microsoft.EntityFrameworkCore.Diagnostics.RelationalEventId.PendingModelChangesWarning)));
 
         // Register application services
@@ -240,7 +240,20 @@ public static class DependencyInjection
         // ==================== إشعارات الموظفين + دفعات انتهاء الصلاحية + البيع الموقوف ====================
         services.AddScoped<IStaffNotificationService>(sp => new StaffNotificationService(sp.GetRequiredService<AppDbContext>()));
         services.AddScoped<IStockBatchService>(sp => new StockBatchService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<IItemBatchService>(sp => new ItemBatchService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<IStockWriteOffService>(sp =>
+        {
+            var dbContext = sp.GetRequiredService<AppDbContext>();
+            var journal = sp.GetRequiredService<IJournalEntryService>();
+            return new StockWriteOffService(dbContext, journal);
+        });
         services.AddScoped<IHeldSaleService>(sp => new HeldSaleService(sp.GetRequiredService<AppDbContext>()));
+        services.AddScoped<ICashDrawerService>(sp =>
+        {
+            var dbContext = sp.GetRequiredService<AppDbContext>();
+            var journal = sp.GetRequiredService<IJournalEntryService>();
+            return new CashDrawerService(dbContext, journal);
+        });
 
         return services;
     }

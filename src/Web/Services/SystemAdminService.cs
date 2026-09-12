@@ -59,7 +59,7 @@ public class SystemAdminService : ISystemAdminService
             query = query.Where(e => e.OccurredAt <= to.Value.AddDays(1)); // يشمل اليوم كاملاً
 
         if (!string.IsNullOrWhiteSpace(exceptionType))
-            query = query.Where(e => e.ExceptionType != null && e.ExceptionType.Contains(exceptionType));
+            query = query.Where(e => e.ExceptionType != null && EF.Functions.ILike(e.ExceptionType, $"%{exceptionType}%"));
 
         var logs = await query
             .OrderByDescending(e => e.OccurredAt)

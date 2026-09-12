@@ -21,7 +21,7 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
 
         builder.HasIndex(i => i.InvoiceNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(i => new { i.CustomerId, i.InvoiceDate });
 
@@ -37,6 +37,14 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
         builder.Property(i => i.Note).HasMaxLength(1000);
         builder.Property(i => i.InvoiceDate).IsRequired();
         builder.Property(i => i.IsPos).HasDefaultValue(false);
+
+        // ── Card payment fields (backward-compatible: nullable / default) ──
+        builder.Property(i => i.PaymentMethod)
+            .HasDefaultValue(Domain.Enums.SalesPaymentMethod.Cash);
+        builder.Property(i => i.CardApprovalCode).HasMaxLength(50);
+        builder.Property(i => i.CardLast4).HasMaxLength(10);
+        builder.Property(i => i.CardNetwork).HasMaxLength(30);
+        builder.Property(i => i.CardTransactionAt);
 
         // Relationships
         builder.HasOne(i => i.Customer)
@@ -67,7 +75,7 @@ public class SalesInvoiceConfiguration : IEntityTypeConfiguration<SalesInvoice>
             .HasForeignKey(i => i.CogsJournalEntryId)
             .OnDelete(DeleteBehavior.Restrict);
 
-        builder.Property(i => i.JoFotaraQrCode).HasColumnType("nvarchar(max)");
+        builder.Property(i => i.JoFotaraQrCode).HasColumnType("text");
         builder.Property(i => i.JoFotaraReferenceNumber).HasMaxLength(200);
         builder.Property(i => i.CreatedAt).IsRequired();
         builder.Property(i => i.CreatedBy).HasMaxLength(100);

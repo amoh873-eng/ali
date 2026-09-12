@@ -1,10 +1,13 @@
 @page "/pos"
 @attribute [Authorize(Roles = "Pos")]
 @layout PosLayout
+@implements IAsyncDisposable
 @using ERPSystem.Application.DTOs.Pos
+@using ERPSystem.Application.Exceptions
 <ModuleGuard ModuleKey="Pos">
 @inject IStringLocalizer<SharedResources> Loc
 @inject NavigationManager Nav
+@inject ERPSystem.Application.Interfaces.IItemBatchService ItemBatchService
 
 <div class="pos-root @(_posHideItems ? "pos-hide-items" : "")">
     @* الشريط العلوي المصغّر *@
@@ -40,6 +43,9 @@
         <div class="pos-topbar-right">
             <MudText Typo="Typo.body2" Class="pos-muted">@Loc["PosCashier"]: @_cashierName</MudText>
             <MudText Typo="Typo.body2" Class="pos-muted">@_clock</MudText>
+            <MudIconButton Icon="@Icons.Material.Filled.FactCheck" Color="Color.Default"
+                           Title="@Loc["CardReconciliation"]"
+                           OnClick="GoToReconciliation" />
             <MudIconButton Icon="@Icons.Material.Filled.Settings" Color="Color.Default" OnClick="OpenSettings" />
             <MudIconButton Icon="@Icons.Material.Filled.Close" Color="Color.Error" OnClick="ExitPos" />
         </div>
@@ -62,9 +68,25 @@
             </div>
 
             <div class="pos-grid">
-                @foreach (var item in FilteredItems)
+                @{
+                    var posVisible = FilteredItems;
+                }
+                @foreach (var item in posVisible)
                 {
-                    <button class="pos-item" @onclick="() => AddItem(item)">
+                    var isOutOfStock = item.CurrentStock <= 0;
+                    var isFailing = item.Id == _insufficientItemId;
+                    var isNearExpiry = _nearExpiryItemIds.Contains(item.Id);
+                    <button class="pos-item @(isOutOfStock ? "pos-item--out" : "") @(isFailing ? "pos-item--flash" : "") @(isNearExpiry ? "pos-item--near-expiry" : "")"
+                            title="@(isOutOfStock ? @Loc["PosOutOfStock"] : (isNearExpiry ? @Loc["PosNearExpiry"] : item.NameAr))"
+                            @onclick="() => AddItem(item)">
+                        @if (isNearExpiry)
+                        {
+                            <span class="pos-item-expiry-badge" title="@Loc["PosNearExpiry"]">@Loc["PosNearExpiryShort"]</span>
+                        }
+                        @if (isOutOfStock)
+                        {
+                            <span class="pos-item-stock-badge">@Loc["PosOutOfStock"]</span>
+                        }
                         @if (!string.IsNullOrEmpty(item.ImageUrl))
                         {
                             <img src="@item.ImageUrl" alt=""
@@ -76,7 +98,7 @@
                         <div class="pos-item-price">@item.SalePrice.ToString("N2")</div>
                     </button>
                 }
-                @if (FilteredItems.Count == 0)
+                @if (posVisible.Count == 0)
                 {
                     <MudText Class="pos-muted" Style="padding:16px;">@Loc["NoItems"]</MudText>
                 }
@@ -90,27 +112,70 @@
                 </div>
 
                 <div class="pos-cart-lines">
-                    @foreach (var line in _cart)
-                    {
-                        <div class="pos-line">
-                            <div class="pos-line-info">
-                                <div style="font-weight:600;">@line.Item.NameAr</div>
-                                <div class="pos-muted">@line.Item.SalePrice.ToString("N2")</div>
-                            </div>
-                            <div class="pos-line-qty">
-                                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(line)" />
-                                <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
-                                       value="@line.Quantity.ToString("0.##")"
-                                       @onchange="@(e => SetQuantity(line, e.Value?.ToString()))" />
-                                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(line)" />
-                            </div>
-                            <div class="pos-line-total">@line.LineTotal.ToString("N2")</div>
-                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(line)" />
-                        </div>
-                    }
                     @if (_cart.Count == 0)
                     {
                         <MudText Class="pos-muted" Style="padding:16px;">@Loc["PosEmptyCart"]</MudText>
+                    }
+                    else
+                    {
+                        @* سلة بعمودين: كل صف يحمل صنفين (يسار ويمين) بتصميم مضغوط لعرض 16 صنفاً في الشاشة،
+                           مع تظليل شطرنجي (أبيض ← بنفسجي أغمق) للتمييز البصري. *@
+                        for (var ri = 0; ri < _cart.Count; ri += 2)
+                        {
+                            var left = _cart[ri];
+                            var right = ri + 1 < _cart.Count ? _cart[ri + 1] : null;
+                            var alt = (ri / 2) % 2 == 1;
+                            var leftOut = left.Item.CurrentStock <= 0 || left.Item.Id == _insufficientItemId;
+                            <div class="pos-cart-row @(alt ? "pos-cart-row--alt" : "")">
+                                <div class="pos-line @(leftOut ? "pos-line--no-stock" : "")">
+                                    <div class="pos-line-top">
+                                        <div class="pos-line-name" title="@left.Item.NameAr">@left.Item.NameAr</div>
+                                        @if (leftOut)
+                                        {
+                                            <span class="pos-line-stock-badge">@Loc["PosOutOfStock"]</span>
+                                        }
+                                        <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(left)" />
+                                    </div>
+                                    <div class="pos-line-bottom">
+                                        <div class="pos-line-price">@left.Item.SalePrice.ToString("N2")</div>
+                                        <div class="pos-line-qty">
+                                            <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(left)" />
+                                            <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
+                                                   value="@left.Quantity.ToString("0.##")"
+                                                   @onchange="@(e => SetQuantity(left, e.Value?.ToString()))" />
+                                            <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(left)" />
+                                        </div>
+                                        <div class="pos-line-total">@left.LineTotal.ToString("N2")</div>
+                                    </div>
+                                </div>
+
+                                @if (right is not null)
+                                {
+                                    var rightOut = right.Item.CurrentStock <= 0 || right.Item.Id == _insufficientItemId;
+                                    <div class="pos-line @(rightOut ? "pos-line--no-stock" : "")">
+                                        <div class="pos-line-top">
+                                            <div class="pos-line-name" title="@right.Item.NameAr">@right.Item.NameAr</div>
+                                            @if (rightOut)
+                                            {
+                                                <span class="pos-line-stock-badge">@Loc["PosOutOfStock"]</span>
+                                            }
+                                            <MudIconButton Icon="@Icons.Material.Filled.Delete" Size="Size.Small" Color="Color.Error" OnClick="() => Remove(right)" />
+                                        </div>
+                                        <div class="pos-line-bottom">
+                                            <div class="pos-line-price">@right.Item.SalePrice.ToString("N2")</div>
+                                            <div class="pos-line-qty">
+                                                <MudIconButton Icon="@Icons.Material.Filled.Add" Size="Size.Small" Color="Color.Primary" OnClick="() => Increment(right)" />
+                                                <input class="pos-qty-box" type="number" min="0" step="any" inputmode="decimal"
+                                                       value="@right.Quantity.ToString("0.##")"
+                                                       @onchange="@(e => SetQuantity(right, e.Value?.ToString()))" />
+                                                <MudIconButton Icon="@Icons.Material.Filled.Remove" Size="Size.Small" Color="Color.Default" OnClick="() => Decrement(right)" />
+                                            </div>
+                                            <div class="pos-line-total">@right.LineTotal.ToString("N2")</div>
+                                        </div>
+                                    </div>
+                                }
+                            </div>
+                        }
                     }
                 </div>
 
@@ -139,29 +204,62 @@
             <div class="pos-cart-right">
             <div class="pos-payment">
                 <div class="pos-pay-methods">
-                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" @onclick="() => _paymentMethod = 1">@Loc["Cash"]</button>
-                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" @onclick="() => _paymentMethod = 2">@Loc["Card"]</button>
-                    <button class="pos-pay pos-pay-new-invoice" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]</button>
+                    <button class="pos-pay @(_paymentMethod == 1 ? "active" : "")" title="@Loc["PosShortcutF3"]" @onclick="() => _paymentMethod = 1">@Loc["Cash"]<span class="pos-kbd">@Loc["PosShortcutKeyF3"]</span></button>
+                    <button class="pos-pay @(_paymentMethod == 2 ? "active" : "")" title="@Loc["PosShortcutF4"]" @onclick="() => _paymentMethod = 2">@Loc["Card"]<span class="pos-kbd">@Loc["PosShortcutKeyF4"]</span></button>
+                    <button class="pos-pay pos-pay-new-invoice" title="@Loc["PosShortcutF1"]" @onclick="NewInvoice"><MudIcon Icon="@Icons.Material.Filled.Receipt" Size="Size.Small" Class="me-1" />@Loc["NewInvoice"]<span class="pos-kbd">@Loc["PosShortcutKeyF1"]</span></button>
                 </div>
 
-                <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" Variant="Variant.Outlined" Dense="true" Immediate="true" />
-                    <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
-                    <div class="pos-keypad">
-                        @foreach (var key in KeypadKeys)
-                        {
-                            <button class="pos-key" @onclick="() => KeypadPress(key)">@key</button>
-                        }
+                @if (_paymentMethod == 2)
+                {
+                    @* حقول الدفع بالبطاقة: رقم الموافقة إلزامي (من إيصال الطرفية) + اختيارية (آخر 4 أرقام / الشبكة) *@
+                    <div class="pos-card-fields">
+                        <MudTextField @bind-Value="_cardApprovalCode" T="string"
+                                     Label="@Loc["CardApprovalCode"]"
+                                     Placeholder="@Loc["CardApprovalPlaceholder"]"
+                                     Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                        <div class="pos-card-row two">
+                            <MudTextField @bind-Value="_cardLast4" T="string"
+                                         Label="@Loc["CardLast4"]" MaxLength="4"
+                                         Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                            <MudSelect @bind-Value="_cardNetwork" T="string"
+                                       Label="@Loc["CardNetwork"]"
+                                       Variant="Variant.Outlined" Dense="true"
+                                       Placeholder="@Loc["CardNetworkPlaceholder"]">
+                                @foreach (var net in CardNetworks)
+                                {
+                                    <MudSelectItem T="string" Value="@net">@net</MudSelectItem>
+                                }
+                            </MudSelect>
+                        </div>
                     </div>
+                }
+                else
+                {
+                    <MudTextField @bind-Value="_receivedInput" T="string" Label="@Loc["PosReceived"]" Variant="Variant.Outlined" Dense="true" Immediate="true" />
+                        <div class="pos-change @(Change < 0 ? "negative" : "")">@Loc["PosChange"]: @Change.ToString("N2")</div>
+                        <div class="pos-keypad">
+                            @foreach (var key in KeypadKeys)
+                            {
+                                <button class="pos-key" @onclick="() => KeypadPress(key)">@key</button>
+                            }
+                        </div>
+                }
 
-                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy">
+                <MudButton Variant="Variant.Filled" Color="Color.Primary" FullWidth="true" Class="pos-checkout" OnClick="CompleteSale" Disabled="_busy" title="@Loc["PosShortcutF2"]">
                     <MudIcon Icon="@Icons.Material.Filled.CheckCircle" Class="mr-2" />
-                    @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))
+                    @Loc["PosCheckout"] (@TotalAmount.ToString("N2"))<span class="pos-kbd">@Loc["PosShortcutKeyF2"]</span>
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2">
-                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]
+                <MudButton Variant="Variant.Outlined" Color="Color.Info" FullWidth="true" Disabled="_cart.Count == 0 || _busy" OnClick="HoldSaleAsync" Class="mt-2" title="@Loc["PosShortcutF5"]">
+                    <MudIcon Icon="@Icons.Material.Filled.PauseCircle" Class="mr-2" /> @Loc["HoldSale"]<span class="pos-kbd">@Loc["PosShortcutKeyF5"]</span>
                 </MudButton>
-                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Class="mt-2">
+                <MudButton Variant="Variant.Outlined" Color="Color.Secondary" FullWidth="true" OnClick="OpenHeldSalesAsync" Disabled="_busy" Class="mt-2">
                     <MudIcon Icon="@Icons.Material.Filled.History" Class="mr-2" /> @Loc["HeldSales"]
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Error" FullWidth="true" Class="mt-2 pos-action-return" OnClick="OpenReturnAsync" Disabled="_busy" title="@Loc["PosShortcutF6"]">
+                    <MudIcon Icon="@Icons.Material.Filled.Replay" Class="mr-2" /> @Loc["PosReturn"]<span class="pos-kbd">@Loc["PosShortcutKeyF6"]</span>
+                </MudButton>
+                <MudButton Variant="Variant.Outlined" Color="Color.Warning" FullWidth="true" Class="mt-2 pos-action-cash" OnClick="OpenCashTransferAsync" Disabled="_busy" title="@Loc["PosShortcutF7"]">
+                    <MudIcon Icon="@Icons.Material.Filled.SwapHoriz" Class="mr-2" /> @Loc["CashTransfer"]<span class="pos-kbd">@Loc["PosShortcutKeyF7"]</span>
                 </MudButton>
             </div>
             </div>
@@ -202,8 +300,22 @@
     };
 
     private bool _busy;
+
+    // ── F1–F7 keyboard shortcuts ──
+    // جدول بحث واحد: المفتاح → نفس دالة الزر على الشاشة (لا نسخة موازية). لإضافة F8..F12
+    // لاحقاً: أضف المفتاح هنا + إلى posShortcuts.js ثم لا شيء آخر.
+    private Dictionary<string, Func<Task>> _shortcuts = new();
+    private IJSObjectReference? _shortcutModule;
+    private IDisposable? _shortcutRef;
     private string _search = string.Empty;
     private string _receivedInput = string.Empty;
+    // حقول البطاقة (المرحلة 1 — متوافقة مع PCI-DSS: بلا رقم كامل أو CVV)
+    private string _cardApprovalCode = string.Empty;
+    private string _cardLast4 = string.Empty;
+    private string? _cardNetwork;
+
+    /// <summary>الشبكات المعروضة في قائمة اختيار البطاقة (اختياري — للتسجيل فقط).</summary>
+    private static readonly string[] CardNetworks = { "Visa", "Mastercard", "Amex", "أخرى" };
     private string _cashierName = "?";
     private string? _cashierUserId;
     private ERPSystem.Application.Services.WeightBarcodeRule? _weightRule;
@@ -213,6 +325,12 @@
     private decimal _taxRate = 16;
     private Guid? _selectedCategoryId;
     private Guid? _defaultWarehouseId;
+
+    /// <summary>معرّف الصنف الذي فشل فحص الرصيد في آخر محاولة إتمام — يُستخدم لتمييزه بصرياً في الشبكة والسلة.</summary>
+    private Guid? _insufficientItemId;
+
+    /// <summary>أصناف لها دُفعة (ItemBatch) قريبة الانتهاء ضمن نافذة التحذير — لتلوين أزرار POS.</summary>
+    private HashSet<Guid> _nearExpiryItemIds = new HashSet<Guid>();
 
     // إعدادات نقطة البيع (تُحفظ في localStorage وتُطبَّق كمتغيرات CSS)
     private int _posColumns = 6;
@@ -230,6 +348,35 @@
     private string _printerThanks = "";
     private string _printerPaper = "80";
     private bool _scrollCartToBottom;
+
+    // ── الأداء: حدّ أزرار الشبكة + ذاكرة مؤقتة ──
+    // مع آلاف الأصناف يتحول عرض كل الأزرار كل مرة إلى تجمّد (DOM ضخم + إعادة حساب LINQ).
+    // نعرض فقط أول _posGridLimit نتيجة (البحث يغطي القائمة الكاملة في الذاكرة)،
+    // ونعيد استخدام النتيجة المخبأة طالما لم يتغير البحث/الفئة.
+    // القيمة تُقرأ من SystemSettings.PosGridLimit (قابلة للتعديل من إعدادات المالك)،
+    // مع افتراض آمن = 30 إن لم تكن مهيأة (لا تؤدي إلى انهيار الشاشة).
+    private const int DefaultPosGridLimit = 30;
+    private int _posGridLimit = DefaultPosGridLimit;
+    private List<ItemDto>? _posGridCache;
+    private string _posGridCacheSearch = string.Empty;
+    private Guid? _posGridCacheCategory;
+
+    private void InvalidateItemGrid() => _posGridCache = null;
+
+    /// <summary>يقرأ حدّ شبكة POS من SystemSettings (قيمة آمنة 30 عند أي خطأ/غياب).</summary>
+    private async Task LoadPosGridLimitAsync()
+    {
+        try
+        {
+            var s = await SystemSettingsService.GetAsync();
+            _posGridLimit = s.PosGridLimit > 0 ? s.PosGridLimit : DefaultPosGridLimit;
+        }
+        catch
+        {
+            _posGridLimit = DefaultPosGridLimit;
+        }
+        InvalidateItemGrid();
+    }
 
     private List<ItemDto> _items = new();
     private List<CategoryDto> _categories = new();
@@ -249,11 +396,19 @@
     [Inject] private IJSRuntime Js { get; set; } = default!;
     [Inject] private ISystemSettingsService SystemSettingsService { get; set; } = default!;
     [Inject] private IHeldSaleService HeldSaleService { get; set; } = default!;
+    [Inject] private ISalesReturnService ReturnService { get; set; } = default!;
+    [Inject] private ICashDrawerService CashDrawerService { get; set; } = default!;
 
     private List<ItemDto> FilteredItems
     {
         get
         {
+            // ذاكرة مؤقتة: لا نعيد تصفية/فرز القائمة كاملة عند كل إعادة رسم إلا إذا تغيّر البحث أو الفئة.
+            if (_posGridCache is not null
+                && _posGridCacheSearch == _search
+                && _posGridCacheCategory == _selectedCategoryId)
+                return _posGridCache;
+
             IEnumerable<ItemDto> query = _items;
             if (_selectedCategoryId.HasValue)
                 query = query.Where(i => i.CategoryId == _selectedCategoryId.Value);
@@ -266,7 +421,10 @@
                     i.Code.Contains(term, StringComparison.OrdinalIgnoreCase) ||
                     (i.Barcode != null && i.Barcode.Contains(term, StringComparison.OrdinalIgnoreCase)));
             }
-            return query.ToList();
+            _posGridCacheSearch = _search;
+            _posGridCacheCategory = _selectedCategoryId;
+            _posGridCache = query.Take(_posGridLimit).ToList();
+            return _posGridCache;
         }
     }
 
@@ -316,15 +474,78 @@
         }
         catch { /* ignore */ }
 
+        BuildShortcutTable();
+
         await LoadPosSettingsAsync();
         await LoadPrinterSettingsAsync();
         await LoadWeightBarcodeRuleAsync();
+        await LoadPosGridLimitAsync(); // يقرأ PosGridLimit من SystemSettings (افتراضي 30)
         await LoadAsync();
     }
+
+    /// <summary>
+    /// يبني جدول اختصارات F1–F7: كل مفتاح → نفس دالة الزر الذي يفعّله حرفياً
+    /// (لا مسار موازٍ)، فتلتزم الاختصارات تلقائياً بحالة تعطيل الأزرار على الشاشة
+    /// (مثل _busy أو سلة فارغة) لأن الدوال نفسها تتحقق منها.
+    /// F3/F4 (نقدي/بطاقة) عمداً بلا حارس _busy — مطابقة لأزرار الدفع التي لا تُعطَّل أبداً؛
+    /// تغيير الاختيار أثناء إتمام البيع لا يمس الفاتورة الجارية (المبلغ والأسلوب يُلتقطان
+    /// في DTO قبل الـ await) ويعود إلى حالة سليمة بعد الانتهاء.
+    /// </summary>
+    private void BuildShortcutTable()
+    {
+        _shortcuts = new Dictionary<string, Func<Task>>
+        {
+            ["F1"] = () => { NewInvoice(); return Task.CompletedTask; },
+            ["F2"] = CompleteSale,
+            ["F3"] = () => GuardedNotBusy(() => SelectPaymentMethod(1)),
+            ["F4"] = () => GuardedNotBusy(() => SelectPaymentMethod(2)),
+            ["F5"] = HoldSaleAsync,
+            ["F6"] = OpenReturnAsync,
+            ["F7"] = OpenCashTransferAsync
+        };
+    }
+
+    /// <summary>
+    /// ينفّذ الاختصار فقط إذا لم يكن هناك إتمام بيع قيد التنفيذ. هذا يضمن أن F3/F4 أثناء
+    /// _busy تكون بلا أثر (harmless no-op) — وإلا فقد يقلب اختيار البطاقة بيعاً نقدياً
+    /// جارياً إلى بطاقة ويتعطل لغياب رقم الموافقة. مطابقة للمبدأ: لا تتحايل الاختصارات
+    /// على أي حارس سلامة.
+    /// </summary>
+    private Task GuardedNotBusy(Action action)
+    {
+        if (!_busy) action();
+        return Task.CompletedTask;
+    }
+
+    /// <summary>يستقبل ضغطة مفتاح اختصار من posShortcuts.js ويوجّهها عبر جدول البحث.</summary>
+    [JSInvokable]
+    public async Task HandleShortcut(string key)
+    {
+        if (_shortcuts.TryGetValue(key, out var action))
+        {
+            await action();
+            // [JSInvokable] لا يستدعي إعادة الرسم تلقائياً (خلافاً لأحداث @onclick) —
+            // نعيد الرسم صراحةً ليظهر أثر الاختصار (مسح السلة، تغيير الدفع، ...).
+            StateHasChanged();
+        }
+    }
+
+    private void SelectPaymentMethod(int method) => _paymentMethod = method;
 
     /// <summary>بعد أي تغيير في السلة نمرّر القائمة تلقائياً لإظهار آخر صنف مُدخل (عند امتلاء السلة).</summary>
     protected override async Task OnAfterRenderAsync(bool firstRender)
     {
+        if (firstRender && _shortcutModule is null)
+        {
+            // استيراد وحدة posShortcuts.js (ES module) وربطها — فقط أثناء وجود نقطة البيع.
+            try
+            {
+                _shortcutModule = await Js.InvokeAsync<IJSObjectReference>("import", "./posShortcuts.js");
+                _shortcutRef = DotNetObjectReference.Create(this);
+                await _shortcutModule.InvokeVoidAsync("attach", _shortcutRef);
+            }
+            catch { /* prerender / JS غير متاح */ }
+        }
         if (_scrollCartToTop)
         {
             _scrollCartToTop = false;
@@ -335,6 +556,16 @@
             _scrollCartToBottom = false;
             await Js.InvokeVoidAsync("erpScrollPosCartToBottom");
         }
+    }
+
+    /// <summary>فكّ مستمع الاختصاصات عند مغادرة الشاشة (لا يتسرب عبر الجلسات).</summary>
+    public async ValueTask DisposeAsync()
+    {
+        try { if (_shortcutModule is not null) await _shortcutModule.InvokeVoidAsync("detach"); } catch { }
+        try { if (_shortcutModule is not null) await _shortcutModule.DisposeAsync(); } catch { }
+        _shortcutModule = null;
+        _shortcutRef?.Dispose();
+        _shortcutRef = null;
     }
 
     /// <summary>يقرأ قاعدة باركود الميزان من إعدادات النظام (قد تكون معطلة).</summary>
@@ -415,6 +646,16 @@
         try
         {
             _items = await ItemService.GetAllAsync();
+            InvalidateItemGrid(); // القائمة تغيّرت → أعد حساب الشبكة عند أول رسم
+
+            // تحميل مؤشر قرب الانتهاء من دُفعات ItemBatch (ضمن نافذة التحذير من الإعدادات)
+            try
+            {
+                var s = await SystemSettingsService.GetAsync();
+                var windowDays = s.ExpiryWarningWindowDays > 0 ? s.ExpiryWarningWindowDays : 7;
+                _nearExpiryItemIds = await ItemBatchService.GetItemsWithNearExpiryAsync(windowDays);
+            }
+            catch { _nearExpiryItemIds = new HashSet<Guid>(); }
             _categories = await CategoryService.GetAllAsync();
             _customers = await CustomerService.GetAllAsync();
             var warehouses = await WarehouseService.GetAllAsync();
@@ -473,19 +714,21 @@
     /// <summary>إيقاف العملية الحالية: حفظ لقطة السلة وحفظها كصف HeldSale ثم مسح السلة.</summary>
     private async Task HoldSaleAsync()
     {
-        if (_cart.Count == 0) return;
-        if (string.IsNullOrWhiteSpace(_cashierUserId)) { Snackbar.Add(Loc["PosNotIdentified"], Severity.Warning); return; }
-
-        var snapshot = _cart.Select(l => new HeldCartLine
-        {
-            ItemId = l.Item.Id,
-            Quantity = l.Quantity,
-            UnitPrice = l.UnitPrice,
-            Discount = 0m
-        }).ToList();
-
+        if (_busy) return;
+        _busy = true;
         try
         {
+            if (_cart.Count == 0) return;
+            if (string.IsNullOrWhiteSpace(_cashierUserId)) { Snackbar.Add(Loc["PosNotIdentified"], Severity.Warning); return; }
+
+            var snapshot = _cart.Select(l => new HeldCartLine
+            {
+                ItemId = l.Item.Id,
+                Quantity = l.Quantity,
+                UnitPrice = l.UnitPrice,
+                Discount = 0m
+            }).ToList();
+
             await HeldSaleService.HoldAsync(new SaveHeldSaleDto
             {
                 CashierUserId = _cashierUserId,
@@ -498,6 +741,7 @@
             Snackbar.Add(Loc["PosHeld"], Severity.Info);
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; InvalidateItemGrid(); }
     }
 
     /// <summary>فتح لوحة العمليات الموقوفة لعرضها واستئناف أو إلغاء إحداها.</summary>
@@ -553,6 +797,9 @@
         ClearCart();
         _receivedInput = string.Empty;
         _paymentMethod = 1;
+        _cardApprovalCode = string.Empty;
+        _cardLast4 = string.Empty;
+        _cardNetwork = null;
         _search = string.Empty;
         _discountPercent = 0;
     }
@@ -577,9 +824,11 @@
             var item = _items.FirstOrDefault(i => i.Code == parsed.ItemCode);
             if (item is null)
             {
-                Snackbar.Add(Loc["PosItemNotFound"], Severity.Warning);
+                // باركود/كود غير معروف — رسالة حمراء ولا يُضاف شيء (نفس فاتورة المشتريات).
+                Snackbar.Add(Loc["BarcodeScanNotFound"], Severity.Error);
                 return;
             }
+            var qtyAdded = parsed.ValueType == ERPSystem.Domain.Enums.WeightBarcodeValueType.Price ? 1m : parsed.Value;
             if (parsed.ValueType == ERPSystem.Domain.Enums.WeightBarcodeValueType.Price)
             {
                 // السعر مدمج مباشرة (بدون ضرب بالوزن).
@@ -590,6 +839,8 @@
                 // الوزن مدمج → الكمية = الوزن، والسعر = سعر وحدة البيع.
                 AddWeightedLine(item, parsed.Value, null);
             }
+            var wqty = _cart.FirstOrDefault(l => l.Item.Id == item.Id)?.Quantity ?? qtyAdded;
+            Snackbar.Add(Loc["BarcodeScanOk", item.NameAr, qtyAdded, wqty], Severity.Success);
             _search = string.Empty;
             return;
         }
@@ -603,11 +854,15 @@
         if (match is not null)
         {
             AddItem(match);
+            var lineQty = _cart.FirstOrDefault(l => l.Item.Id == match.Id)?.Quantity ?? 1m;
+            // لمحة خضراء لكل مسح — نفس صيغة فاتورة المشتريات تماماً
+            Snackbar.Add(Loc["BarcodeScanOk", match.NameAr, 1m, lineQty], Severity.Success);
             _search = string.Empty;
         }
         else if (e.Key is "Enter" && term.Length >= 1)
         {
-            // لم يُعثر — نمسح الحقل حتى لا تتراكم نصوص باركود قديمة.
+            // باركود/كود غير معروف — رسالة حمراء ولا يُضاف شيء، ثم نمسح الحقل
+            Snackbar.Add(Loc["BarcodeScanNotFound"], Severity.Error);
             _search = string.Empty;
         }
     }
@@ -642,28 +897,69 @@
     }
 
     private void ExitPos() => Nav.NavigateTo("/");
+    private void GoToReconciliation() => Nav.NavigateTo("/pos/card-reconciliation");
+
+    /// <summary>فتح حوار مردود مبيعات من نقطة البيع (يستخدم خدمة المردودات الموجودة).</summary>
+    private async Task OpenReturnAsync()
+    {
+        if (_busy) return;
+        var dialog = await DialogService.ShowAsync<PosReturnDialog>(
+            Loc["PosReturnTitle"], new DialogParameters(),
+            new DialogOptions { MaxWidth = MaxWidth.Large, FullWidth = true });
+        await dialog.Result;
+    }
+
+    /// <summary>فتح حوار تحويل نقد بين الخزنة ودرج الكاش.</summary>
+    private async Task OpenCashTransferAsync()
+    {
+        if (_busy) return;
+        var parameters = new DialogParameters { ["CashierUserId"] = _cashierUserId };
+        var dialog = await DialogService.ShowAsync<CashTransferDialog>(
+            Loc["CashTransferTitle"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        await dialog.Result;
+    }
     private async Task CompleteSale()
     {
-        if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
-        if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
-        if (_selectedCustomer is null) { Snackbar.Add(Loc["PosNoCustomer"], Severity.Warning); return; }
+        // حارس النقر المزدوج: نفعّل الـ busy فوراً قبل أي تحقق آخر
+        // حتى لا تُشغَّل فاتورتان متزامنتان على نفس DbContext (Scoped في الدائرة).
+        if (_busy) return;
+        _busy = true;
+        _insufficientItemId = null; // مسح تمييز محاولة سابقة قبل التحقق من الرصيد
+        try
+        {
+            if (_cart.Count == 0) { Snackbar.Add(Loc["PosEmptyCart"], Severity.Warning); return; }
+            if (_defaultWarehouseId is null) { Snackbar.Add(Loc["PosNoWarehouse"], Severity.Error); return; }
+            if (_selectedCustomer is null) { Snackbar.Add(Loc["PosNoCustomer"], Severity.Warning); return; }
 
+        var isCard = _paymentMethod == 2;
         var total = TotalAmount;
-        if (ReceivedAmount < total)
+
+        // ⚠️ إلزامية رقم الموافقة عند البطاقة: لا يُسجَّل بيع بطاقة بلا مرجع للمطابقة مع كشف البنك
+        if (isCard && string.IsNullOrWhiteSpace(_cardApprovalCode))
+        {
+            Snackbar.Add(Loc["CardApprovalRequired"], Severity.Warning);
+            return;
+        }
+
+        // النقدي فقط يتطلب مبلغاً مستلماً — البطاقة تُشحن بالمبلغ كاملاً من الطرفية
+        if (!isCard && ReceivedAmount < total)
         {
             Snackbar.Add(Loc["PosInsufficient"], Severity.Warning);
             return;
         }
 
-        _busy = true;
-        try
-        {
-            var dto = new CreateSalesInvoiceDto
+        var dto = new CreateSalesInvoiceDto
             {
                 CustomerId = _selectedCustomer.Id,
                 WarehouseId = _defaultWarehouseId.Value,
                 InvoiceDate = DateTime.Today,
                 InvoiceType = (int)SalesInvoiceType.Cash,
+                PaymentMethod = _paymentMethod,
+                CardApprovalCode = isCard ? _cardApprovalCode.Trim() : null,
+                CardLast4 = isCard && !string.IsNullOrWhiteSpace(_cardLast4) ? _cardLast4.Trim() : null,
+                CardNetwork = isCard && !string.IsNullOrWhiteSpace(_cardNetwork) ? _cardNetwork.Trim() : null,
+                CardTransactionAt = isCard ? DateTime.Now : null,
                 DiscountPercentage = _discountPercent,
                 TaxRate = _taxRate,
                 Note = "POS",
@@ -675,15 +971,20 @@
             };
 
             var invoice = await SalesInvoiceService.CreateAsync(dto);
-            var received = ReceivedAmount;
-            var change = Math.Round(received - total, 2);
+            // البطاقة: المبلغ المحصّل هو الإجمالي كاملاً (التسوية البنكية لاحقاً) — النقدي: مبلغ مستلم - إرجاع
+            var received = isCard ? total : ReceivedAmount;
+            var change = isCard ? 0m : Math.Round(received - total, 2);
 
             ClearCart();
             _receivedInput = string.Empty;
             _search = string.Empty;
 
             var paymentLabel = (_paymentMethod switch { 1 => Loc["Cash"], _ => Loc["Card"] }).Value;
+            var cardReference = isCard ? _cardApprovalCode.Trim() : null;
             _paymentMethod = 1;
+            _cardApprovalCode = string.Empty;
+            _cardLast4 = string.Empty;
+            _cardNetwork = null;
 
             Snackbar.Add($"{Loc["PosSaleDone"]} — {invoice.InvoiceNumber}", Severity.Success);
             var receiptParams = new DialogParameters
@@ -696,12 +997,19 @@
                 ["ShopName"] = _printerShopName,
                 ["Phone"] = _printerPhone,
                 ["ThanksText"] = _printerThanks,
-                ["PaperType"] = _printerPaper
+                ["PaperType"] = _printerPaper,
+                ["CardReference"] = cardReference
             };
             await DialogService.ShowAsync<PosReceiptDialog>(
                 Loc["Receipt"], receiptParams,
                 new DialogOptions { MaxWidth = MaxWidth.ExtraSmall, FullWidth = false });
             await LoadAsync();
+        }
+        catch (InsufficientStockException ex)
+        {
+            // الرصيد غير كافٍ — نُظهر اسم الصنف ونميّزه في الشبكة والسلة ليصحح الكاشير السلة.
+            _insufficientItemId = ex.ItemId;
+            Snackbar.Add(ex.Message, Severity.Error);
         }
         catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
         finally { _busy = false; }

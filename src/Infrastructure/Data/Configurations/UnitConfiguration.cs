@@ -21,7 +21,7 @@ public class UnitConfiguration : IEntityTypeConfiguration<Unit>
 
         builder.HasIndex(u => u.Code)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(u => u.NameAr)
             .IsRequired()

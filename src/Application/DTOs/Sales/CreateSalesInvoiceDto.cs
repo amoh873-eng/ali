@@ -47,6 +47,31 @@ public class CreateSalesInvoiceDto
     public bool IsPos { get; set; }
 
     /// <summary>
+    /// How the sale is settled: 1 = نقدي (Cash), 2 = بطاقة (Card), 3 = آجل (On-Account).
+    /// Card sales route the debit to the "Card Receivables" (ذمم البطاقات) account.
+    /// </summary>
+    [Range(1, 3, ErrorMessage = "أسلوب السداد غير صالح")]
+    public int PaymentMethod { get; set; } = 1;
+
+    // ── Card payment details (إلزامي للبطاقة فقط، وغير جوهري لغيره) ──
+    // ⚠️ PCI-DSS: الاتحاد لا يستقبل أبداً رقم البطاقة الكامل/CVV/تاريخ الانتهاء.
+
+    /// <summary>رقم الموافقة/المرجع من إيصال الطرفية — إلزامي عندما PaymentMethod = 2.</summary>
+    [StringLength(50)]
+    public string? CardApprovalCode { get; set; }
+
+    /// <summary>آخر 4 أرقام من البطاقة (اختياري — لأغراض العرض والمطابقة).</summary>
+    [StringLength(10)]
+    public string? CardLast4 { get; set; }
+
+    /// <summary>اسم شبكة البطاقة: Visa / Mastercard / ... (اختياري).</summary>
+    [StringLength(30)]
+    public string? CardNetwork { get; set; }
+
+    /// <summary>وقت العملية على الطرفية إن طُبع (اختياري).</summary>
+    public DateTime? CardTransactionAt { get; set; }
+
+    /// <summary>
     /// The line items of the invoice. Must contain at least one line.
     /// </summary>
     [MinLength(1, ErrorMessage = "يجب إضافة بند واحد على الأقل")]

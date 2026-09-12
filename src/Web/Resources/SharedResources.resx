@@ -901,4 +901,198 @@
   <data name="Year" xml:space="preserve"><value>السنة</value></data>
   <data name="AnnualTotal" xml:space="preserve"><value>إجمالي السنة</value></data>
   <data name="GrandTotal" xml:space="preserve"><value>الإجمالي الكلي</value></data>
+  <data name="Other" xml:space="preserve"><value>أخرى</value></data>
+  <data name="Back" xml:space="preserve"><value>رجوع</value></data>
+  <data name="From" xml:space="preserve"><value>من</value></data>
+  <data name="To" xml:space="preserve"><value>إلى</value></data>
+  <data name="CardReconciliation" xml:space="preserve"><value>تسوية بطاقات الدفع</value></data>
+  <data name="CardReconciliationDesc" xml:space="preserve"><value>مطابقة مبيعات البطاقة في النظام مع كشف البنك — مطابق / بانتظار تأكيد / غير موجود</value></data>
+  <data name="CardApprovalCode" xml:space="preserve"><value>رقم الموافقة/المرجع *</value></data>
+  <data name="CardApprovalPlaceholder" xml:space="preserve"><value>انسخه من إيصال الطرفية</value></data>
+  <data name="CardApprovalRequired" xml:space="preserve"><value>رقم الموافقة/المرجع مطلوب — انسخه من إيصال الطرفية بعد إتمام العملية على الجهاز</value></data>
+  <data name="CardLast4" xml:space="preserve"><value>آخر 4 أرقام</value></data>
+  <data name="CardNetwork" xml:space="preserve"><value>شبكة البطاقة</value></data>
+  <data name="CardNetworkPlaceholder" xml:space="preserve"><value>Visa / Mastercard / …</value></data>
+  <data name="ReconSystemCardTotal" xml:space="preserve"><value>إجمالي مبيعات البطاقة (النظام)</value></data>
+  <data name="ReconMatched" xml:space="preserve"><value>مطابق</value></data>
+  <data name="ReconPending" xml:space="preserve"><value>بانتظار تأكيد البنك</value></data>
+  <data name="ReconBankOnly" xml:space="preserve"><value>من البنك وغير موجود في النظام</value></data>
+  <data name="ReconMismatch" xml:space="preserve"><value>اختلاف بالمبلغ</value></data>
+  <data name="ReconPickPeriod" xml:space="preserve"><value>اختر الفترة واضغط استعراض، أو استورد كشف البنك للمطابقة.</value></data>
+  <data name="ImportBankStatement" xml:space="preserve"><value>استيراد كشف البنك</value></data>
+  <data name="ImportDone" xml:space="preserve"><value>تم الاستيراد</value></data>
+  <data name="ImportNew" xml:space="preserve"><value>جديد</value></data>
+  <data name="ImportSkipped" xml:space="preserve"><value>مكرر (تخطى)</value></data>
+  <data name="ImportTotal" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="ImportErrors" xml:space="preserve"><value>خطأ</value></data>
+  <data name="SystemAmount" xml:space="preserve"><value>مبلغ النظام</value></data>
+  <data name="SystemDate" xml:space="preserve"><value>تاريخ النظام</value></data>
+  <data name="BankAmount" xml:space="preserve"><value>مبلغ البنك</value></data>
+  <data name="BankDate" xml:space="preserve"><value>تاريخ البنك</value></data>
+  <data name="BulkImport" xml:space="preserve"><value>الاستيراد الجماعي للأصناف</value></data>
+  <data name="BulkStepUpload" xml:space="preserve"><value>رفع الملف</value></data>
+  <data name="BulkStepMapping" xml:space="preserve"><value>تعيين الأعمدة</value></data>
+  <data name="BulkStepPreview" xml:space="preserve"><value>المعاينة والتحقق</value></data>
+  <data name="BulkStepExecuting" xml:space="preserve"><value>التنفيذ</value></data>
+  <data name="BulkStepDone" xml:space="preserve"><value>التقرير النهائي</value></data>
+  <data name="BulkFormatsHint" xml:space="preserve"><value>الصيغ المدعومة: Excel (.xlsx) أو CSV أو نص جدولي (.txt) — حتى 15MB. الاسم والباركود إلزاميان في كل صف، والأسعار اختيارية.</value></data>
+  <data name="BulkParsedOk" xml:space="preserve"><value>تم تحليل «{0}» بنجاح — {1} صف بيانات.</value></data>
+  <data name="BulkStartOver" xml:space="preserve"><value>بدء من جديد</value></data>
+  <data name="BulkNext" xml:space="preserve"><value>التالي</value></data>
+  <data name="BulkBack" xml:space="preserve"><value>رجوع</value></data>
+  <data name="BulkMapHint" xml:space="preserve"><value>اختر عمود الملف لكل حقل نظامي. الاسم والباركود إلزاميان قبل المتابعة؛ الأسعار والفئة والوحدة اختيارية (تُستخدم قيم افتراضية عند غيابها).</value></data>
+  <data name="NotMapped" xml:space="preserve"><value>— غير محدد —</value></data>
+  <data name="BulkNameColumn" xml:space="preserve"><value>اسم الصنف (عربي) *</value></data>
+  <data name="BulkBarcodeColumn" xml:space="preserve"><value>الباركود *</value></data>
+  <data name="BulkCostColumn" xml:space="preserve"><value>سعر الشراء (اختياري)</value></data>
+  <data name="BulkSaleColumn" xml:space="preserve"><value>سعر البيع (اختياري)</value></data>
+  <data name="BulkCategoryColumn" xml:space="preserve"><value>الفئة (اختياري)</value></data>
+  <data name="BulkUnitColumn" xml:space="preserve"><value>الوحدة (اختياري)</value></data>
+  <data name="BulkFileColumnsTitle" xml:space="preserve"><value>أعمدة الملف المكتشفة:</value></data>
+  <data name="BulkRequireNameBarcode" xml:space="preserve"><value>يجب تعيين عمودي «اسم الصنف» و«الباركود» أولاً.</value></data>
+  <data name="BulkPreviewHint" xml:space="preserve"><value>مراجعة قبل الحفظ — لا تُكتب أي بيانات في قاعدة البيانات في هذه المرحلة.</value></data>
+  <data name="BulkReadyCount" xml:space="preserve"><value>جاهز للاستيراد</value></data>
+  <data name="BulkExistsCount" xml:space="preserve"><value>موجود في النظام (سيُتخطى)</value></data>
+  <data name="BulkDupCount" xml:space="preserve"><value>مكرر داخل الملف</value></data>
+  <data name="BulkErrorCount" xml:space="preserve"><value>مرفوض</value></data>
+  <data name="BulkNoticeCount" xml:space="preserve"><value>ملاحظات (فئة/وحدة افتراضية)</value></data>
+  <data name="BulkSampleNote" xml:space="preserve"><value>عرض أول {0} من أصل {1} صف.</value></data>
+  <data name="BulkConfirmationHint" xml:space="preserve"><value>سيتأكد التنفيذ من تخطي {0} صف، وسيبقى كل صنف قائم دون أي تعديل.</value></data>
+  <data name="BulkConfirmImport" xml:space="preserve"><value>تأكيد الاستيراد</value></data>
+  <data name="BulkProcessedOf" xml:space="preserve"><value>تمت معالجة {0} من {1} صف...</value></data>
+  <data name="BulkDoneHint" xml:space="preserve"><value>اكتمل الاستيراد في {0} ثانية.</value></data>
+  <data name="BulkCreatedCount" xml:space="preserve"><value>أُنشئ فعلياً</value></data>
+  <data name="BulkSkippedCount" xml:space="preserve"><value>تخطّى (باركود موجود)</value></data>
+  <data name="BulkFailedCount" xml:space="preserve"><value>فشل</value></data>
+  <data name="BulkFailuresTableTitle" xml:space="preserve"><value>الصفوف التي لم تُستورد:</value></data>
+  <data name="BulkReason" xml:space="preserve"><value>السبب</value></data>
+  <data name="BulkDownloadErrors" xml:space="preserve"><value>تنزيل تقرير الأخطاء (Excel)</value></data>
+  <data name="BulkGoItems" xml:space="preserve"><value>عرض الأصناف</value></data>
+  <data name="BulkNoFailures" xml:space="preserve"><value>لا توجد صفوف فاشلة لتنزيلها — كل شيء استُورد بنجاح.</value></data>
+  <data name="BulkUnsupportedFormat" xml:space="preserve"><value>صيغة غير مدعومة — ارفع ملف .xlsx أو .csv أو .txt فقط.</value></data>
+  <data name="BulkFileTooLarge" xml:space="preserve"><value>حجم الملف يتجاوز الحد الأقصى (15 ميجابايت).</value></data>
+  <data name="BarcodeLabels" xml:space="preserve"><value>ملصقات الباركود</value></data>
+  <data name="BlSelectItems" xml:space="preserve"><value>اختيار الأصناف</value></data>
+  <data name="BlSelectHint" xml:space="preserve"><value>ابحث، أو اختر فئة كاملة، أو اختر آخر دفعة استيراد جماعي</value></data>
+  <data name="BlSelectedCount" xml:space="preserve"><value>المحدد: {0}</value></data>
+  <data name="BlSelectCategory" xml:space="preserve"><value>اختيار الفئة المعروضة</value></data>
+  <data name="BlSelectBulk" xml:space="preserve"><value>آخر دفعة استيراد ({0})</value></data>
+  <data name="BlSearchPlaceholder" xml:space="preserve"><value>بحث بالاسم/الكود/الباركود...</value></data>
+  <data name="BlSelected" xml:space="preserve"><value>تحديد</value></data>
+  <data name="BlCopies" xml:space="preserve"><value>النسخ</value></data>
+  <data name="BlOptions" xml:space="preserve"><value>الخيارات</value></data>
+  <data name="BlSameCopies" xml:space="preserve"><value>نسخة واحدة لكل الأصناف المحددة</value></data>
+  <data name="BlShowPrice" xml:space="preserve"><value>إظهار السعر على الملصق</value></data>
+  <data name="BlTemplateInfo" xml:space="preserve"><value>مقاس الملصق: A4 — 63.5×33.9 مم (3×8 = 24 ملصقاً بالورقة، Avery L7165) · نمط Code128</value></data>
+  <data name="BlGenerate" xml:space="preserve"><value>توليد PDF وتنزيله</value></data>
+  <data name="BlPreview" xml:space="preserve"><value>معاينة الورقة الأولى</value></data>
+  <data name="BlPreviewTitle" xml:space="preserve"><value>معاينة — {0} ملصقاً</value></data>
+  <data name="BlNoSelection" xml:space="preserve"><value>اختر صنفاً واحداً على الأقل أولاً</value></data>
+  <data name="BlGenerating" xml:space="preserve"><value>جارٍ توليد الـ PDF...</value></data>
+  <data name="BlDone" xml:space="preserve"><value>تم توليد {0} ملصقاً بنجاح</value></data>
+  <data name="BlClear" xml:space="preserve"><value>مسح الاختيار</value></data>
+  <data name="PosGridSettingsTitle" xml:space="preserve"><value>نقطة البيع — حد شبكة الأصناف</value></data>
+  <data name="PosGridSettingsSubtitle" xml:space="preserve"><value>الحد الأقصى لأزرار الأصناف المعروضة في شاشة نقطة البيع. القيم الأكبر تزيد استهلاك الذاكرة والعرض (قوائم المطاعم عادة 30 كافٍ).</value></data>
+  <data name="PosGridLimitLabel" xml:space="preserve"><value>عدد الأزرار</value></data>
+  <data name="PosGridLimitHint" xml:space="preserve"><value>نطاق مسموح: 10–1000 (الافتراضي 30). يُطبَّق عند فتح نقطة البيع.</value></data>
+  <data name="PosGridLimitSave" xml:space="preserve"><value>حفظ حد الشبكة</value></data>
+  <data name="PosGridLimitSaved" xml:space="preserve"><value>تم حفظ حد شبكة نقطة البيع</value></data>
+  <data name="PosOutOfStock" xml:space="preserve"><value>نفد من المخزون</value></data>
+  <data name="ExpiringBatches" xml:space="preserve"><value>الدُفعات قرب الانتهاء</value></data>
+  <data name="ExpiringBatchesSub" xml:space="preserve"><value>كل دُفعات المخزون التي تنتهي خلال النافذة المحدّدة أو المنتهية فعلياً — الأقرب انتهاءً أولاً</value></data>
+  <data name="Days" xml:space="preserve"><value>أيام</value></data>
+  <data name="ProductionDate" xml:space="preserve"><value>تاريخ الإنتاج</value></data>
+  <data name="NoExpiringBatches" xml:space="preserve"><value>لا توجد دُفعات قريبة الانتهاء</value></data>
+  <data name="PosNearExpiry" xml:space="preserve"><value>دُفعة قريبة الانتهاء</value></data>
+  <data name="PosNearExpiryShort" xml:space="preserve"><value>قرب الانتهاء</value></data>
+  <data name="BarcodeReceive" xml:space="preserve"><value>الاستلام بالباركود</value></data>
+  <data name="BarcodeReceivePlaceholder" xml:space="preserve"><value>امسح الباركود أو اكتب كود/اسم الصنف ثم Enter</value></data>
+  <data name="BarcodeScanOk" xml:space="preserve"><value>تمت إضافة «{0}» ×{1} — إجمالي السطر: {2}</value></data>
+  <data name="BarcodeScanNotFound" xml:space="preserve"><value>باركود/كود غير معروف — لم يُضف أي بند</value></data>
+  <data name="BarcodeReceiveHint" xml:space="preserve"><value>كل مسح يضيف 1 للكمية؛ يمكنك تعديل الكمية والسعر من البنود قبل الترحيل</value></data>
+<data name="WriteOffs" xml:space="preserve"><value>سندات الإتلاف</value></data>
+  <data name="NewWriteOff" xml:space="preserve"><value>سند إتلاف جديد</value></data>
+  <data name="RegisterWriteOff" xml:space="preserve"><value>ترحيل سند الإتلاف</value></data>
+  <data name="WriteOffReport" xml:space="preserve"><value>ملخص قيمة الهالك (إتلاف)</value></data>
+  <data name="TotalWriteOffValue" xml:space="preserve"><value>إجمالي قيمة الهالك</value></data>
+  <data name="WriteOffQty" xml:space="preserve"><value>إجمالي الكمية</value></data>
+  <data name="WriteOffCount" xml:space="preserve"><value>عدد السندات</value></data>
+  <data name="PerReasonBreakdown" xml:space="preserve"><value>تفصيل حسب السبب</value></data>
+  <data name="MonthlyBreakdown" xml:space="preserve"><value>التوزيع الشهري</value></data>
+  <data name="Reason" xml:space="preserve"><value>السبب</value></data>
+  <data name="Batch" xml:space="preserve"><value>دُفعة المخزون</value></data>
+  <data name="ReasonExpired" xml:space="preserve"><value>منتهي الصلاحية</value></data>
+  <data name="ReasonDamaged" xml:space="preserve"><value>تالف/مكسور</value></data>
+  <data name="ReasonStolen" xml:space="preserve"><value>سرقة أو فقد</value></data>
+  <data name="ReasonOther" xml:space="preserve"><value>أخرى</value></data>
+  <data name="OtherReasonLabel" xml:space="preserve"><value>توضيح السبب (أخرى)</value></data>
+  <data name="NoWriteOffs" xml:space="preserve"><value>لا توجد سندات إتلاف</value></data>
+  <data name="WriteOffSaved" xml:space="preserve"><value>تم ترحيل سند الإتلاف بنجاح مع قيده المحاسبي</value></data>
+  <data name="DocNumber" xml:space="preserve"><value>رقم السند</value></data>
+  <data name="Quantity" xml:space="preserve"><value>الكمية</value></data>
+  <data name="Search" xml:space="preserve"><value>بحث</value></data>
+  <data name="DateFrom" xml:space="preserve"><value>من تاريخ</value></data>
+  <data name="DateTo" xml:space="preserve"><value>إلى تاريخ</value></data>
+  <data name="Month" xml:space="preserve"><value>الشهر</value></data>
+  <data name="WriteOffValue" xml:space="preserve"><value>قيمة الهالك</value></data>
+  <data name="PosReturn" xml:space="preserve"><value>إرجاع</value></data>
+  <data name="PosReturnTitle" xml:space="preserve"><value>مردود من نقطة البيع</value></data>
+  <data name="PosReturnLookupInvoice" xml:space="preserve"><value>رقم الفاتورة</value></data>
+  <data name="PosReturnLookupCustomer" xml:space="preserve"><value>العميل (اسم / رقم)</value></data>
+  <data name="PosReturnLookupDate" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="PosReturnSearch" xml:space="preserve"><value>بحث</value></data>
+  <data name="PosReturnNoResults" xml:space="preserve"><value>لا توجد فواتير مرحّلة مطابقة</value></data>
+  <data name="PosReturnSelectInvoice" xml:space="preserve"><value>اختر فاتورة لعرض بنودها</value></data>
+  <data name="PosReturnOriginalInvoice" xml:space="preserve"><value>الفاتورة الأصلية</value></data>
+  <data name="PosReturnCustomerCol" xml:space="preserve"><value>العميل</value></data>
+  <data name="PosReturnDateCol" xml:space="preserve"><value>التاريخ</value></data>
+  <data name="PosReturnTotalCol" xml:space="preserve"><value>الإجمالي</value></data>
+  <data name="PosReturnItem" xml:space="preserve"><value>الصنف</value></data>
+  <data name="PosReturnSoldQty" xml:space="preserve"><value>كمية مباعة</value></data>
+  <data name="PosReturnQty" xml:space="preserve"><value>كمية الرد</value></data>
+  <data name="PosReturnTotal" xml:space="preserve"><value>إجمالي المردود</value></data>
+  <data name="PosReturnFull" xml:space="preserve"><value>رد كامل</value></data>
+  <data name="PosReturnRefundCash" xml:space="preserve"><value>الاسترداد نقداً من درج الكاش</value></data>
+  <data name="PosReturnNote" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="PosReturnSaved" xml:space="preserve"><value>تم ترحيل المردود بنجاح</value></data>
+  <data name="PosReturnNoSalesRole" xml:space="preserve"><value>يتطلب صلاحية «المبيعات» لإتمام المردود من نقطة البيع</value></data>
+  <data name="PosReturnSelectLine" xml:space="preserve"><value>حدد كمية الرد لبند واحد على الأقل</value></data>
+  <data name="PosReturnInsufficient" xml:space="preserve"><value>الكمية المطلوبة تتجاوز المتاح للرد</value></data>
+  <data name="CashTransfer" xml:space="preserve"><value>تحويل نقد</value></data>
+  <data name="CashTransferTitle" xml:space="preserve"><value>تحويل نقد بين الخزنة ودرج الكاش</value></data>
+  <data name="CashTransferDirection" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="CashTransferFloatIn" xml:space="preserve"><value>تمويل درج الكاش (من الخزنة)</value></data>
+  <data name="CashTransferCashOut" xml:space="preserve"><value>سحب نقد (إلى الخزنة)</value></data>
+  <data name="CashTransferAmount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="CashTransferNotes" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="CashTransferSaved" xml:space="preserve"><value>تم تنفيذ التحويل وترحيل القيد</value></data>
+  <data name="CashTransferLog" xml:space="preserve"><value>سجل التحويلات النقدية</value></data>
+  <data name="CashTransferLogDesc" xml:space="preserve"><value>سجل حركات النقد بين الخزنة الرئيسية ودرج الكاش</value></data>
+  <data name="CashTransferFrom" xml:space="preserve"><value>من تاريخ</value></data>
+  <data name="CashTransferTo" xml:space="preserve"><value>إلى تاريخ</value></data>
+  <data name="CashTransferAllDirections" xml:space="preserve"><value>كل الاتجاهات</value></data>
+  <data name="CashTransferCashier" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="CashTransferTypeCol" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="CashTransferAmountCol" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="CashTransferCashierCol" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="CashTransferTimeCol" xml:space="preserve"><value>الوقت</value></data>
+  <data name="CashTransferNotesCol" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="CashTransferEntryCol" xml:space="preserve"><value>القيد</value></data>
+  <data name="CashTransferShow" xml:space="preserve"><value>عرض</value></data>
+  <data name="CashTransferBack" xml:space="preserve"><value>رجوع</value></data>
+  <data name="CashTransferInvalidAmount" xml:space="preserve"><value>أدخل مبلغاً أكبر من صفر</value></data>
+  <data name="PosShortcutF1" xml:space="preserve"><value>فاتورة جديدة (F1)</value></data>
+  <data name="PosShortcutF2" xml:space="preserve"><value>إتمام البيع (F2)</value></data>
+  <data name="PosShortcutF3" xml:space="preserve"><value>نقدي (F3)</value></data>
+  <data name="PosShortcutF4" xml:space="preserve"><value>بطاقة (F4)</value></data>
+  <data name="PosShortcutF5" xml:space="preserve"><value>إيقاف العملية (F5)</value></data>
+  <data name="PosShortcutF6" xml:space="preserve"><value>مردود (F6)</value></data>
+  <data name="PosShortcutF7" xml:space="preserve"><value>تحويل نقد (F7)</value></data>
+  <data name="PosShortcutKeyF1" xml:space="preserve"><value>F1</value></data>
+  <data name="PosShortcutKeyF2" xml:space="preserve"><value>F2</value></data>
+  <data name="PosShortcutKeyF3" xml:space="preserve"><value>F3</value></data>
+  <data name="PosShortcutKeyF4" xml:space="preserve"><value>F4</value></data>
+  <data name="PosShortcutKeyF5" xml:space="preserve"><value>F5</value></data>
+  <data name="PosShortcutKeyF6" xml:space="preserve"><value>F6</value></data>
+  <data name="PosShortcutKeyF7" xml:space="preserve"><value>F7</value></data>
   </root>

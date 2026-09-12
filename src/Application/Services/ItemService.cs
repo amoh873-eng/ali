@@ -32,6 +32,28 @@ public partial class ItemService : IItemService
         return items.Select(MapToDto).ToList();
     }
 
+    /// <summary>
+    /// بحث مخزون خادمي (ILike غير حساس لحالة الأحرف على PostgreSQL) بالكود/الاسم/الباركود.
+    /// حُلّ محل فلترة Contains في الذاكرة لأن Contains يُترجم إلى LIKE حساس للحالة في PostgreSQL.
+    /// </summary>
+    public async Task<List<ItemDto>> SearchAsync(string term)
+    {
+        if (string.IsNullOrWhiteSpace(term)) return await GetAllAsync();
+
+        var items = await _context.Set<Item>()
+            .Include(i => i.Category)
+            .Include(i => i.Unit)
+            .Where(i => !i.IsDeleted && (
+                EF.Functions.ILike(i.Code, $"%{term}%") ||
+                EF.Functions.ILike(i.NameAr, $"%{term}%") ||
+                (i.NameEn != null && EF.Functions.ILike(i.NameEn, $"%{term}%")) ||
+                (i.Barcode != null && EF.Functions.ILike(i.Barcode, $"%{term}%"))))
+            .OrderBy(i => i.Code)
+            .ToListAsync();
+
+        return items.Select(MapToDto).ToList();
+    }
+
     public async Task<List<ItemDto>> GetLowStockAsync()
     {
         var items = await _context.Set<Item>()
@@ -86,6 +108,7 @@ public partial class ItemService : IItemService
             Barcode = dto.Barcode,
             Description = dto.Description,
             TracksExpiry = dto.TracksExpiry,
+            TracksBatches = dto.TracksBatches,
             IsActive = true,
             CreatedAt = DateTime.UtcNow
         };

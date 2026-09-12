@@ -10,7 +10,7 @@ public class SystemSettingsHistoryConfiguration : IEntityTypeConfiguration<Syste
     {
         b.ToTable("SystemSettingsHistory");
         b.HasKey(x => x.Id);
-        b.Property(x => x.SnapshotJson).IsRequired().HasColumnType("nvarchar(max)");
+        b.Property(x => x.SnapshotJson).IsRequired().HasColumnType("text");
         b.Property(x => x.ChangedBy).HasMaxLength(200);
         b.Property(x => x.ChangeNote).HasMaxLength(500);
         b.HasIndex(x => x.ChangedAt);

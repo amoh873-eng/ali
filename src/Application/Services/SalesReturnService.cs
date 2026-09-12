@@ -26,6 +26,8 @@ public partial class SalesReturnService : ISalesReturnService
     private const string AccountSalesTaxPayable = "2100";
     private const string AccountSalesReturns = "4110";
     private const string AccountCostOfGoodsSold = "5100";
+    // درج الكاش: مردود مبيعات نقدية مصدرها نقطة البيع تُرَد إلى درج الكاش (نفس الحساب الذي دُين عند البيع)
+    private const string AccountTillDrawer = "1105";
 
     private readonly DbContext _context;
     private readonly IJournalEntryService _journalService;

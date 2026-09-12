@@ -56,6 +56,7 @@ public partial class JournalEntryService
             JournalEntryType.StockAdjustment => "تسوية مخزون",
             JournalEntryType.Payroll => "رواتب",
             JournalEntryType.Expense => "مصروف",
+            JournalEntryType.StockWriteOff => "سند إتلاف",
             _ => "غير معروف"
         };
     }

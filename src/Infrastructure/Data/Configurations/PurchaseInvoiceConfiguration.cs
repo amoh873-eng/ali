@@ -14,7 +14,7 @@ public class PurchaseInvoiceConfiguration : IEntityTypeConfiguration<PurchaseInv
         builder.HasKey(i => i.Id);
 
         builder.Property(i => i.InvoiceNumber).IsRequired().HasMaxLength(50);
-        builder.HasIndex(i => i.InvoiceNumber).IsUnique().HasFilter("[IsDeleted] = 0");
+        builder.HasIndex(i => i.InvoiceNumber).IsUnique().HasFilter("\"IsDeleted\" = false");
 
         builder.HasIndex(i => new { i.SupplierId, i.InvoiceDate });
 

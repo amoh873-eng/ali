@@ -29,5 +29,11 @@ public enum JournalEntryType
     Expense = 7,
 
     /// <summary>ناتج عن دورة رواتب - Payroll</summary>
-    Payroll = 8
+    Payroll = 8,
+
+    /// <summary>ناتج عن سند إتلاف مخزون - Stock Write-Off</summary>
+    StockWriteOff = 9,
+
+    /// <summary>ناتج عن تحويل نقد بين الخزنة ودرج الكاش - Cash Transfer</summary>
+    CashTransfer = 10
 }

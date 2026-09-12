@@ -17,6 +17,21 @@ public class SalesInvoiceDto
     public string InvoiceTypeNameAr => InvoiceType == 1 ? "نقدي" : "آجل";
     public int Status { get; set; }
     public string StatusNameAr => Status switch { 1 => "مسودة", 2 => "مرحّلة", 3 => "ملغاة", _ => "غير معروف" };
+
+    /// <summary>أسلوب السداد: 1 نقدي / 2 بطاقة / 3 آجل.</summary>
+    public int PaymentMethod { get; set; } = 1;
+    public string PaymentMethodNameAr => PaymentMethod switch
+    {
+        2 => "بطاقة",
+        3 => "آجل",
+        _ => "نقدي"
+    };
+
+    /// <summary>رقم الموافقة/المرجع من إيصال الطرفية (البطاقة فقط).</summary>
+    public string? CardApprovalCode { get; set; }
+    public string? CardLast4 { get; set; }
+    public string? CardNetwork { get; set; }
+    public DateTime? CardTransactionAt { get; set; }
     public decimal SubTotal { get; set; }
     public decimal DiscountPercentage { get; set; }
     public decimal DiscountAmount { get; set; }

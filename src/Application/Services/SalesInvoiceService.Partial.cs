@@ -1,5 +1,6 @@
 using ERPSystem.Application.DTOs.Sales;
 using ERPSystem.Domain.Entities;
+using ERPSystem.Domain.Enums;
 using Microsoft.EntityFrameworkCore;
 
 namespace ERPSystem.Application.Services;
@@ -25,6 +26,61 @@ public partial class SalesInvoiceService
         return account;
     }
 
+    /// <summary>
+    /// بحث سريع عن فواتير مرحّلة (لمردود نقطة البيع) حسب رقم الفاتورة أو العميل أو التاريخ.
+    /// كل المرشّحات اختيارية — لا مرشّح = أحدث 30 فاتورة مرحّلة.
+    /// </summary>
+    public async Task<List<SalesInvoiceSearchResultDto>> SearchPostableInvoicesAsync(
+        string? invoiceNumber, string? customer, DateTime? date, int max = 30)
+    {
+        var query = _context.Set<SalesInvoice>()
+            .Include(i => i.Customer)
+            .Where(i => !i.IsDeleted && i.Status == DocumentStatus.Posted);
+
+        if (!string.IsNullOrWhiteSpace(invoiceNumber))
+        {
+            var term = invoiceNumber.Trim();
+            query = query.Where(i =>
+                EF.Functions.ILike(i.InvoiceNumber, $"%{term}%"));
+        }
+
+        if (!string.IsNullOrWhiteSpace(customer))
+        {
+            var term = customer.Trim();
+            query = query.Where(i =>
+                i.Customer != null &&
+                (EF.Functions.ILike(i.Customer.NameAr, $"%{term}%") ||
+                 (i.Customer.NameEn != null && EF.Functions.ILike(i.Customer.NameEn, $"%{term}%")) ||
+                 EF.Functions.ILike(i.Customer.Code, $"%{term}%")));
+        }
+
+        if (date.HasValue)
+        {
+            var day = date.Value.Date;
+            var next = day.AddDays(1);
+            query = query.Where(i => i.InvoiceDate >= day && i.InvoiceDate < next);
+        }
+
+        var rows = await query
+            .OrderByDescending(i => i.InvoiceDate)
+            .ThenByDescending(i => i.CreatedAt)
+            .Take(max)
+            .ToListAsync();
+
+        return rows.Select(i => new SalesInvoiceSearchResultDto
+        {
+            Id = i.Id,
+            InvoiceNumber = i.InvoiceNumber,
+            CustomerId = i.CustomerId,
+            CustomerName = i.Customer?.NameAr ?? "—",
+            CustomerCode = i.Customer?.Code ?? "—",
+            InvoiceDate = i.InvoiceDate,
+            TotalAmount = i.TotalAmount,
+            PaymentMethod = (int)i.PaymentMethod,
+            IsPos = i.IsPos
+        }).ToList();
+    }
+
     private static SalesInvoiceDto MapToDto(SalesInvoice invoice)
     {
         return new SalesInvoiceDto
@@ -38,6 +94,11 @@ public partial class SalesInvoiceService
             WarehouseName = invoice.Warehouse?.NameAr ?? "—",
             InvoiceDate = invoice.InvoiceDate,
             InvoiceType = (int)invoice.InvoiceType,
+            PaymentMethod = (int)invoice.PaymentMethod,
+            CardApprovalCode = invoice.CardApprovalCode,
+            CardLast4 = invoice.CardLast4,
+            CardNetwork = invoice.CardNetwork,
+            CardTransactionAt = invoice.CardTransactionAt,
             Status = (int)invoice.Status,
             SubTotal = invoice.SubTotal,
             DiscountPercentage = invoice.DiscountPercentage,

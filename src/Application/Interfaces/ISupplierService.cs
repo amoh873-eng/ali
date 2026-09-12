@@ -6,6 +6,10 @@ namespace ERPSystem.Application.Interfaces;
 public interface ISupplierService
 {
     Task<List<SupplierDto>> GetAllAsync();
+
+    /// <summary>بحث في قاعدة البيانات بـ ILike على الكود والاسم (غير حساس للحالة — PostgreSQL).</summary>
+    Task<List<SupplierDto>> SearchAsync(string term);
+
     Task<SupplierDto?> GetByIdAsync(Guid id);
     Task<SupplierDto> CreateAsync(CreateSupplierDto dto);
     Task<SupplierDto> UpdateAsync(UpdateSupplierDto dto);

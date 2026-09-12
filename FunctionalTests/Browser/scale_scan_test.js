@@ -40,7 +40,7 @@ async function simulateScan(page, code) {
 async function readCart(page) {
     return page.evaluate(() => {
         const lines = Array.from(document.querySelectorAll('.pos-line')).map(line => ({
-            name: (line.querySelector('.pos-line-info div') || {}).textContent || '',
+            name: (line.querySelector('.pos-line-name') || {}).textContent || '',
             qtyAttr: (line.querySelector('.pos-qty-box') || {}).getAttribute('value') || '',
             qtyProp: (line.querySelector('.pos-qty-box') || {}).value || '',
             total: (line.querySelector('.pos-line-total') || {}).textContent || ''

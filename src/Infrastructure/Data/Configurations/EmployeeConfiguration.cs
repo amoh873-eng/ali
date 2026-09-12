@@ -21,7 +21,7 @@ public class EmployeeConfiguration : IEntityTypeConfiguration<Employee>
 
         builder.HasIndex(e => e.EmployeeNumber)
             .IsUnique()
-            .HasFilter("[IsDeleted] = 0");
+            .HasFilter("\"IsDeleted\" = false");
 
         builder.Property(e => e.NameAr)
             .IsRequired()

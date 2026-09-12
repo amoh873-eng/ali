@@ -157,6 +157,16 @@ app.UseStatusCodePagesWithReExecute("/not-found", createScopeForStatusCodePages:
 app.UseHttpsRedirection();
 app.UseRequestLocalization(localizationOptions);
 app.UseAuthentication();
+app.Use(async (ctx, next) =>
+{
+    if (ctx.Request.Path == "/_blazor/initializers" && (ctx.User.Identity?.IsAuthenticated != true))
+    {
+        ctx.Response.ContentType = "application/json; charset=utf-8";
+        await ctx.Response.WriteAsync("[]");
+        return;
+    }
+    await next();
+});
 app.UseAuthorization();
 app.UseAntiforgery();
 
@@ -355,7 +365,7 @@ static async Task SeedIdentityAsync(RoleManager<IdentityRole> roleManager, UserM
     try
     {
         // احذف أي claims من نوع "Permission" الموروثة من النظام القديم
-        var orphanClaims = dbContext.Database.ExecuteSqlRaw("DELETE FROM [AspNetRoleClaims] WHERE [ClaimType] = 'Permission'");
+        var orphanClaims = dbContext.Database.ExecuteSqlRaw("DELETE FROM \"AspNetRoleClaims\" WHERE \"ClaimType\" = 'Permission'");
     }
     catch { /* قد لا يوجد الجدول في DB جديدة/اختبارات — تجاهل */ }
 
