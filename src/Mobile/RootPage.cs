@@ -1,8 +1,13 @@
 using System.Text;
+using Microsoft.Maui.Controls;
+using Microsoft.Maui.Controls.Shapes;
+using Microsoft.Maui.Graphics;
+
 namespace ERPSystem.Mobile;
 
 /// <summary>
-/// الصفحة الجذرية: كل الشاشات تُبنى C# وتُتبدَّل عبر Content (نمط بسيط وموثوق).
+/// الصفحة الجذرية — كل الشاشات تُبنى C# وتُتبدَّل عبر Content.
+/// التصميم: خلفية فاتحة + بطاقات بيضاء مستديرة + لوحة نيلي + شرائط حالة + أزرار تعبئة.
 /// </summary>
 public class RootPage : ContentPage
 {
@@ -49,8 +54,7 @@ public class RootPage : ContentPage
     private Entry _pCompetitor;
     private Entry _pPrice;
     private Label _pResult;
-    private Label _eResult;
-    private ScrollView _itemsScroll;
+    private VerticalStackLayout _itemsScroll;
     private ActivityIndicator _spin;
     private List<InvoiceLineDto> _lines = new List<InvoiceLineDto>();
     private List<string> _linesNames = new List<string>();
@@ -65,6 +69,8 @@ public class RootPage : ContentPage
     public RootPage()
     {
         Instance = this;
+        FlowDirection = FlowDirection.RightToLeft;
+        BackgroundColor = Theme.Bg;
         ShowLogin();
     }
 
@@ -73,118 +79,362 @@ public class RootPage : ContentPage
         Content = view;
     }
 
+    // ════ تسجيل الدخول ════
     public void ShowLogin()
     {
-        var stack = new VerticalStackLayout();
-        var title = new Label(); title.Text = "ERP الميداني"; title.FontSize = 30; title.TextColor = Theme.Primary;
-        var subtitle = new Label(); subtitle.Text = "تسجيل الدخول";
-        _email = NewEntry("البريد الإلكتروني");
-        _password = NewEntry("كلمة المرور"); _password.IsPassword = true;
-        var login = NewButton("دخول"); login.Clicked += (sender, e) => OnLoginClicked();
-        _status = new Label(); _status.Text = "";
-        var footer = new Label(); footer.Text = "v1.2 field app · " + Session.BaseUrl;
-        stack.Add(title); stack.Add(subtitle); stack.Add(_email); stack.Add(_password); stack.Add(login); stack.Add(_status); stack.Add(footer);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 18, Padding = new Thickness(28, 44, 28, 28) };
+
+        var brand = new Border
+        {
+            StrokeThickness = 0,
+            BackgroundColor = Theme.Primary,
+            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(20) },
+            WidthRequest = 84,
+            HeightRequest = 84,
+            HorizontalOptions = LayoutOptions.Center
+        };
+        brand.Content = new Label
+        {
+            Text = "ERP",
+            FontSize = 30,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Colors.White,
+            HorizontalTextAlignment = TextAlignment.Center,
+            VerticalTextAlignment = TextAlignment.Center
+        };
+        root.Add(brand);
+
+        root.Add(new Label { Text = "ERP الميداني", FontSize = 26, FontAttributes = FontAttributes.Bold, TextColor = Theme.Ink, HorizontalTextAlignment = TextAlignment.Center });
+        root.Add(new Label { Text = "نظام المبيعات والإدارة الميداني", FontSize = 13, TextColor = Theme.Muted, HorizontalTextAlignment = TextAlignment.Center });
+
+        var form = new VerticalStackLayout { Spacing = 6 };
+        form.Add(Theme.Section("تسجيل الدخول"));
+        _email = Theme.Input("example@company.com");
+        _password = Theme.Input("كلمة المرور");
+        _password.IsPassword = true;
+        form.Add(_email);
+        form.Add(_password);
+
+        var login = Theme.Filled("دخول");
+        login.Clicked += (sender, e) => OnLoginClicked();
+        form.Add(login);
+
+        _status = new Label { Text = "", FontSize = 14, TextColor = Theme.Danger, LineBreakMode = LineBreakMode.WordWrap };
+        form.Add(_status);
+
+        root.Add(Theme.CardView(form));
+        root.Add(new Label { Text = "v1.2 field app · " + Session.BaseUrl, FontSize = 11, TextColor = Theme.Muted, HorizontalTextAlignment = TextAlignment.Center });
+
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
-
+// ════ الرئيسية ════
     public void ShowHome()
     {
-        var stack = new VerticalStackLayout();
-        var title = new Label(); title.Text = "الرئيسية"; title.FontSize = 22; title.TextColor = Theme.Primary;
-        var userLbl = new Label(); userLbl.Text = "المستخدم: " + (string.IsNullOrEmpty(Session.UserEmail) ? "-" : Session.UserEmail);
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+
+        var userName = string.IsNullOrEmpty(Session.UserEmail) ? "مستخدم" : Session.UserEmail;
+        root.Add(new Label { Text = "أهلاً، " + userName, FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Theme.Ink });
+
         var lastSync = LocalStore.LastSync();
-        var syncLbl = new Label();
-        syncLbl.Text = "آخر مزامنة: " + (string.IsNullOrEmpty(lastSync) ? "—" : lastSync);
-        var pendingLbl = new Label();
-        pendingLbl.Text = LocalStore.CountPending() + " طلب بانتظار الإرسال";
-        stack.Add(title); stack.Add(userLbl); stack.Add(syncLbl); stack.Add(pendingLbl);
-        var b1 = NewButton("الأصناف والبحث"); b1.Clicked += (sender, e) => OnItemsClicked();
-        var b2 = NewButton("فاتورة جديدة"); b2.Clicked += (sender, e) => OnInvoiceClicked();
-        var b3 = NewButton("تسجيل الخروج"); b3.Clicked += (sender, e) => OnLogoutClicked();
-        var b4 = NewButton("تحصيل نقدي في العهدة"); b4.Clicked += (sender, e) => OnCustodyClicked();
-        var b5 = NewButton("مردود مبيعات"); b5.Clicked += (sender, e) => ShowReturn();
-        stack.Add(b1); stack.Add(b2); stack.Add(b4); stack.Add(b5); stack.Add(b3);
+        var pending = LocalStore.CountPending();
+        var chips = new HorizontalStackLayout { Spacing = 8 };
+        chips.Add(Theme.Chip("آخر مزامنة: " + (string.IsNullOrEmpty(lastSync) ? "—" : lastSync), Theme.PrimarySoft, Theme.Primary));
+        chips.Add(Theme.Chip(pending + " بانتظار الإرسال", pending > 0 ? Theme.WarningSoft : Theme.SuccessSoft, pending > 0 ? Theme.Warning : Theme.Success));
+        root.Add(chips);
+
+        var grid = new Grid { ColumnSpacing = 12, RowSpacing = 12 };
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        grid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto });
+        var r = 0;
+        var c = 0;
+        void Add(string icon, string title, string sub, Color tint, Action onTap)
+        {
+            grid.Add(MakeActionCard(icon, title, sub, tint, onTap), c, r);
+            c++;
+            if (c == 2) { c = 0; r++; grid.RowDefinitions.Add(new RowDefinition { Height = GridLength.Auto }); }
+        }
+
+        Add("📦", "الأصناف والبحث", "استعراض المخزون والأسعار", Theme.PrimarySoft, OnItemsClicked);
+        Add("🧾", "فاتورة جديدة", "فواتير متعددة الأصناف", Theme.WarningSoft, OnInvoiceClicked);
+        Add("💵", "تحصيل نقدي", "في العهدة", Theme.SuccessSoft, OnCustodyClicked);
+        Add("↩️", "مردود مبيعات", "إرجاع أصناف من فاتورة", Theme.PrimarySoft, ShowReturn);
         if (Session.RolesCsv.Contains("Merchandiser"))
         {
-            var m1 = NewButton("فحص رف (منسّق)"); m1.Clicked += (sender, e) => ShowShelf();
-            var m2 = NewButton("رصد أسعار المنافسين"); m2.Clicked += (sender, e) => ShowPriceCapture();
-            var m3 = NewButton("تحذيرات الانتهاء"); m3.Clicked += (sender, e) => OnWarningsClicked();
-            stack.Add(m1); stack.Add(m2); stack.Add(m3);
+            Add("📋", "فحص رف", "الموقع والكمية", Theme.SuccessSoft, ShowShelf);
+            Add("🏷️", "رصد أسعار", "أسعار المنافسين", Theme.WarningSoft, ShowPriceCapture);
+            Add("⚠️", "تحذيرات الانتهاء", "تواريخ الانتهاء", Theme.DangerSoft, OnWarningsClicked);
         }
-        var sv = new ScrollView(); sv.Content = stack;
+        root.Add(grid);
+
+        var logout = Theme.Ghost("تسجيل الخروج");
+        logout.TextColor = Theme.Danger;
+        logout.BorderColor = Theme.Danger;
+        logout.Clicked += (sender, e) => OnLogoutClicked();
+        root.Add(logout);
+
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
+    private Border MakeActionCard(string icon, string title, string sub, Color tint, Action onTap)
+    {
+        var iconBox = new Border
+        {
+            StrokeThickness = 0,
+            BackgroundColor = tint,
+            WidthRequest = 42,
+            HeightRequest = 42,
+            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(12) },
+            Content = new Label { Text = icon, FontSize = 20, HorizontalTextAlignment = TextAlignment.Center, VerticalTextAlignment = TextAlignment.Center }
+        };
+        var content = new VerticalStackLayout { Spacing = 8 };
+        content.Add(iconBox);
+        content.Add(new Label { Text = title, FontSize = 15, FontAttributes = FontAttributes.Bold, TextColor = Theme.Ink });
+        content.Add(new Label { Text = sub, FontSize = 12, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap });
+
+        var card = new Border
+        {
+            BackgroundColor = Theme.Card,
+            Stroke = Theme.Border,
+            StrokeThickness = 1,
+            StrokeShape = new RoundRectangle { CornerRadius = new CornerRadius(14) },
+            Padding = new Thickness(12),
+            MinimumHeightRequest = 108,
+            Content = content
+        };
+        var tgr = new TapGestureRecognizer();
+        tgr.Tapped += (s, e) => onTap();
+        card.GestureRecognizers.Add(tgr);
+        return card;
+    }
+
+    // ════ أدوات ════
+    private static Label FieldLabel(string text) => new Label { Text = text, FontSize = 13, TextColor = Theme.Muted };
+
+    private Entry NewEntry(string placeholder) => Theme.Input(placeholder);
+
+    private Button NewButton(string text) => Theme.Ghost(text);
+
+    private void Status(Label lbl, string text, bool ok)
+    {
+        lbl.Text = text;
+        lbl.TextColor = ok ? Theme.Success : Theme.Danger;
+    }
+
+    private Button BackButton()
+    {
+        var b = Theme.BackButton();
+        b.Clicked += (sender, e) => OnBackClicked();
+        return b;
+    }
+// ════ الأصناف ════
     public void ShowItems()
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "الأصناف"; title.FontSize = 20; title.TextColor = Theme.Primary;
-        _search = NewEntry("بحث بالاسم أو الكود");
-        var find = NewButton("بحث / تحميل الكل"); find.Clicked += (sender, e) => OnSearchClicked();
-        _itemsResult = new Label(); _itemsResult.Text = "";
-        _spin = new ActivityIndicator(); _spin.Color = Theme.Primary; _spin.IsRunning = false;
-        stack.Add(back); stack.Add(title); stack.Add(_search); stack.Add(find); stack.Add(_itemsResult); stack.Add(_spin);
-        var sv = new ScrollView(); sv.Content = stack;
-        _itemsScroll = sv;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("الأصناف"));
+        root.Add(head);
+
+        var searchRow = new HorizontalStackLayout { Spacing = 8 };
+        _search = Theme.Input("بحث بالاسم أو الكود");
+        searchRow.Add(_search);
+        var find = Theme.Filled("بحث / تحميل");
+        find.FontSize = 14;
+        find.HeightRequest = 42;
+        find.Clicked += (sender, e) => OnSearchClicked();
+        searchRow.Add(find);
+        root.Add(searchRow);
+
+        _itemsResult = new Label { Text = "اكتب كلمة بحث أو اضغط البحث لعرض كل المخزون", FontSize = 13, TextColor = Theme.Muted };
+        root.Add(_itemsResult);
+
+        _spin = new ActivityIndicator { Color = Theme.Primary, IsRunning = false, IsVisible = false };
+        root.Add(_spin);
+
+        _itemsScroll = new VerticalStackLayout { Spacing = 10 };
+        root.Add(_itemsScroll);
+
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
-public void ShowInvoice()
+    private Border ItemCard(ItemDto it)
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "فاتورة مبيعات جديدة"; title.FontSize = 20; title.TextColor = Theme.Primary;
+        var nameRow = new HorizontalStackLayout { Spacing = 8 };
+        nameRow.Add(Theme.Chip(it.Code, Theme.PrimarySoft, Theme.Primary));
+        nameRow.Add(new Label
+        {
+            Text = it.NameAr,
+            FontSize = 15,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Theme.Ink,
+            VerticalTextAlignment = TextAlignment.Center,
+            LineBreakMode = LineBreakMode.WordWrap
+        });
+        var hasStock = double.TryParse(it.CurrentStock, out var stk) && stk > 0;
+        var stockChip = Theme.Chip(hasStock ? "متوفر (" + it.CurrentStock + ")" : "نفد",
+            hasStock ? Theme.SuccessSoft : Theme.DangerSoft,
+            hasStock ? Theme.Success : Theme.Danger);
+        var metaRow = new HorizontalStackLayout { Spacing = 8 };
+        metaRow.Add(new Label
+        {
+            Text = "السعر: " + it.SalePrice,
+            FontSize = 14,
+            FontAttributes = FontAttributes.Bold,
+            TextColor = Theme.Primary,
+            VerticalTextAlignment = TextAlignment.Center
+        });
+        metaRow.Add(stockChip);
+        return Theme.CardView(nameRow, metaRow);
+    }
 
-        _whLbl = new Label(); _whLbl.Text = "المستودع: —";
-        _cuLbl = new Label(); _cuLbl.Text = "العميل: —";
-        _itLbl = new Label(); _itLbl.Text = "الصنف: — (ابحث أولاً)";
-        _whBtn = NewButton("تبديل المستودع"); _whBtn.Clicked += (sender, e) => CycleWarehouse();
-        _cuBtn = NewButton("تبديل العميل"); _cuBtn.Clicked += (sender, e) => CycleCustomer();
-        _itBtn = NewButton("اختيار من نتائج البحث"); _itBtn.Clicked += (sender, e) => CycleItem();
+    private void OnSearchClicked()
+    {
+        var term = Text.EmptyIfNull(_search.Text);
+        _itemsResult.Text = "جارِ التحميل…";
+        _itemsResult.TextColor = Theme.Muted;
+        _spin.IsRunning = true;
+        _spin.IsVisible = true;
+        var t = new Thread(() =>
+        {
+            try
+            {
+                var items = ApiClient.ItemsSync(term);
+                var added = new List<View>();
+                added.Add(new Label { Text = items.Count + " صنف مطابق", FontSize = 13, FontAttributes = FontAttributes.Bold, TextColor = Theme.Muted });
+                foreach (var it in items) added.Add(ItemCard(it));
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    _spin.IsRunning = false;
+                    _spin.IsVisible = false;
+                    _itemsScroll.Children.Clear();
+                    foreach (var v in added) _itemsScroll.Add(v);
+                    _itemsResult.Text = items.Count + " صنف";
+                    _itemsResult.TextColor = Theme.Primary;
+                });
+            }
+            catch (Exception ex)
+            {
+                var msg = ex.Message;
+                Device.BeginInvokeOnMainThread(() =>
+                {
+                    _spin.IsRunning = false;
+                    _spin.IsVisible = false;
+                    _itemsResult.Text = "فشل الجلب: " + msg;
+                    _itemsResult.TextColor = Theme.Danger;
+                });
+            }
+        });
+        t.Start();
+    }
+// ════ الفاتورة ════
+    public void ShowInvoice()
+    {
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
 
-        _invoiceItemSearch = NewEntry("بحث صنف: كود/اسم");
-        var find = NewButton("بحث"); find.Clicked += (sender, e) => OnItemSearchClicked();
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("فاتورة مبيعات"));
+        root.Add(head);
+        root.Add(Theme.P("حدد المستودع والعميل، أضف الأصناف ثم أنشئ الفاتورة"));
 
-        var hQty = new Label(); hQty.Text = "الكمية";
-        _qty = NewEntry("الكمية"); _qty.Text = "1";
-        var hPrice = new Label(); hPrice.Text = "سعر الوحدة (يعبأ تلقائياً)";
-        _price = NewEntry("سعر الوحدة");
-        var addLine = NewButton("➕ إضافة للفاتورة"); addLine.Clicked += (sender, e) => OnAddLineClicked();
-        _linesLbl = new Label(); _linesLbl.Text = "الأصناف المضافة: لا شيء";
-        _subTotalLbl = new Label(); _subTotalLbl.Text = "المجموع: 0";
-        var removeLast = NewButton("حذف آخر سطر"); removeLast.Clicked += (sender, e) => OnRemoveLastClicked();
-        _payLbl = new Label(); _payLbl.Text = "طريقة الدفع: نقدي";
-        var payBtn = NewButton("تبديل طريقة الدفع"); payBtn.Clicked += (sender, e) => CyclePayment();
-        var hNote = new Label(); hNote.Text = "ملاحظة (اختيارية)";
-        _invPhotoPath = NewEntry("صورة النسخة الورقية (مسار ملف اختياري)");
-        _invoiceNote = NewEntry("ملاحظة الفاتورة");
+        _whLbl = new Label { Text = "المستودع: —", FontSize = 14, TextColor = Theme.Ink, VerticalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.TailTruncation };
+        _cuLbl = new Label { Text = "العميل: —", FontSize = 14, TextColor = Theme.Ink, VerticalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.TailTruncation };
+        _whBtn = Theme.Ghost("تبديل");
+        _whBtn.Clicked += (sender, e) => CycleWarehouse();
+        _cuBtn = Theme.Ghost("تبديل");
+        _cuBtn.Clicked += (sender, e) => CycleCustomer();
+        var whV = new VerticalStackLayout { Spacing = 6 };
+        whV.Add(FieldLabel("المستودع"));
+        whV.Add(_whLbl);
+        whV.Add(_whBtn);
+        var cuV = new VerticalStackLayout { Spacing = 6 };
+        cuV.Add(FieldLabel("العميل"));
+        cuV.Add(_cuLbl);
+        cuV.Add(_cuBtn);
+        var pickGrid = new Grid { ColumnSpacing = 12 };
+        pickGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        pickGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        pickGrid.Add(whV, 0, 0);
+        pickGrid.Add(cuV, 1, 0);
+        root.Add(Theme.CardView(Theme.H2("الفاتورة"), pickGrid));
 
-        var create = NewButton("إنشاء الفاتورة"); create.Clicked += (sender, e) => OnCreateClicked();
-        _invoiceResult = new Label(); _invoiceResult.Text = "ُيُحمَّل المستودعات والعملاء والأصناف…";
-        _spin = new ActivityIndicator(); _spin.Color = Theme.Primary; _spin.IsRunning = false;
+        var itCard = new VerticalStackLayout { Spacing = 10 };
+        itCard.Add(FieldLabel("بحث عن صنف بالكود أو الاسم"));
+        var searchRow = new HorizontalStackLayout { Spacing = 8 };
+        _invoiceItemSearch = Theme.Input("كود أو اسم");
+        searchRow.Add(_invoiceItemSearch);
+        var searchBtn = Theme.Filled("بحث");
+        searchBtn.FontSize = 14;
+        searchBtn.HeightRequest = 42;
+        searchBtn.Clicked += (sender, e) => OnItemSearchClicked();
+        searchRow.Add(searchBtn);
+        itCard.Add(searchRow);
+        var itRow = new HorizontalStackLayout { Spacing = 8 };
+        _itLbl = new Label { Text = "الصنف: — (ابحث أولاً)", FontSize = 14, TextColor = Theme.Ink, VerticalTextAlignment = TextAlignment.Center, LineBreakMode = LineBreakMode.TailTruncation };
+        itRow.Add(_itLbl);
+        _itBtn = Theme.Ghost("اختيار");
+        _itBtn.Clicked += (sender, e) => CycleItem();
+        itRow.Add(_itBtn);
+        itCard.Add(itRow);
+        root.Add(Theme.CardView(Theme.H2("الصنف"), itCard));
+
+        var qv = new VerticalStackLayout { Spacing = 6 };
+        qv.Add(FieldLabel("الكمية"));
+        _qty = Theme.Input("الكمية", "1");
+        qv.Add(_qty);
+        var pv = new VerticalStackLayout { Spacing = 6 };
+        pv.Add(FieldLabel("سعر الوحدة"));
+        _price = Theme.Input("سعر الوحدة");
+        pv.Add(_price);
+        var qtyGrid = new Grid { ColumnSpacing = 12 };
+        qtyGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        qtyGrid.ColumnDefinitions.Add(new ColumnDefinition { Width = GridLength.Star });
+        qtyGrid.Add(qv, 0, 0);
+        qtyGrid.Add(pv, 1, 0);
+        var addLine = Theme.Filled("إضافة للفاتورة");
+        addLine.Clicked += (sender, e) => OnAddLineClicked();
+        root.Add(Theme.CardView(Theme.H2("الكمية والسعر"), qtyGrid, addLine));
+
         _lines = new List<InvoiceLineDto>();
         _linesNames = new List<string>();
+        _linesLbl = new Label { Text = "لا أصناف بعد", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+        _subTotalLbl = new Label { Text = "المجموع: 0", FontSize = 20, FontAttributes = FontAttributes.Bold, TextColor = Theme.Primary };
+        var removeLast = Theme.Ghost("حذف آخر سطر");
+        removeLast.TextColor = Theme.Danger;
+        removeLast.BorderColor = Theme.Danger;
+        removeLast.Clicked += (sender, e) => OnRemoveLastClicked();
+        root.Add(Theme.CardView(Theme.H2("أصناف الفاتورة"), _linesLbl, _subTotalLbl, removeLast));
 
-        stack.Add(back); stack.Add(title);
-        stack.Add(_whLbl); stack.Add(_whBtn);
-        stack.Add(_cuLbl); stack.Add(_cuBtn);
-        stack.Add(_invoiceItemSearch); stack.Add(find);
-        stack.Add(_itLbl); stack.Add(_itBtn);
-        stack.Add(hQty); stack.Add(_qty); stack.Add(hPrice); stack.Add(_price); stack.Add(addLine);
-        stack.Add(_linesLbl); stack.Add(_subTotalLbl); stack.Add(removeLast);
-        stack.Add(_payLbl); stack.Add(payBtn);
-        stack.Add(hNote); stack.Add(_invoiceNote);
-        stack.Add(_invPhotoPath);
-        stack.Add(create); stack.Add(_invoiceResult); stack.Add(_spin);
+        _payLbl = new Label { Text = "طريقة الدفع: نقدي", FontSize = 14, FontAttributes = FontAttributes.Bold, TextColor = Theme.Primary, VerticalTextAlignment = TextAlignment.Center };
+        var payBtn = Theme.Ghost("تبديل طريقة الدفع");
+        payBtn.Clicked += (sender, e) => CyclePayment();
+        var payRow = new HorizontalStackLayout { Spacing = 8 };
+        payRow.Add(_payLbl);
+        payRow.Add(payBtn);
+        _invoiceNote = Theme.Input("ملاحظة الفاتورة (اختيارية)");
+        _invPhotoPath = Theme.Input("صورة النسخة الورقية — مسار ملف (اختياري)");
+        root.Add(Theme.CardView(Theme.H2("الدفع والملاحظات"), payRow, _invoiceNote, _invPhotoPath));
 
-        var sv = new ScrollView(); sv.Content = stack;
+        var create = Theme.Filled("إنشاء الفاتورة");
+        create.Clicked += (sender, e) => OnCreateClicked();
+        root.Add(create);
+
+        _invoiceResult = new Label { Text = "يُحمَّل المستودعات والعملاء والأصناف…", FontSize = 14, TextColor = Theme.Muted };
+        root.Add(_invoiceResult);
+
+        _spin = new ActivityIndicator { Color = Theme.Primary, IsRunning = false, IsVisible = false };
+        root.Add(_spin);
+
+        var sv = new ScrollView { Content = root };
         Show(sv);
         PreparePicklistsAsync();
     }
-
-    private void PreparePicklistsAsync()
+private void PreparePicklistsAsync()
     {
         var t = new Thread(() =>
         {
@@ -217,8 +467,8 @@ public void ShowInvoice()
         _custIndex = _custs.Count > 0 ? 0 : -1;
         Device.BeginInvokeOnMainThread(() =>
         {
-            _whBtn.Text = _whs.Count > 0 ? "تبديل المستودع" : "لا مستودعات";
-            _cuBtn.Text = _custs.Count > 0 ? "تبديل العميل" : "لا عملاء";
+            _whBtn.Text = _whs.Count > 0 ? "تبديل" : "لا مستودعات";
+            _cuBtn.Text = _custs.Count > 0 ? "تبديل" : "لا عملاء";
             if (_whs.Count > 0) _whLbl.Text = "المستودع: " + _whs[0].NameAr + " (" + _whs[0].Code + ")";
             if (_custs.Count > 0) _cuLbl.Text = "العميل: " + _custs[0].NameAr + " (" + _custs[0].Code + ")";
             if (_itemIndex >= 0) { _itLbl.Text = "الصنف: " + _itemHits[_itemIndex].NameAr; _price.Text = _itemHits[_itemIndex].SalePrice; }
@@ -321,7 +571,7 @@ public void ShowInvoice()
         else
             for (var i = 0; i < _lines.Count; i++)
                 sb.Append(i + 1).Append(". ").Append(_linesNames[i]).Append(" — سعر ").Append(_lines[i].UnitPrice).Append('\n');
-        _linesLbl.Text = "الأصناف المضافة:\n" + sb.ToString();
+        _linesLbl.Text = sb.ToString();
         var total = 0.0;
         for (var i = 0; i < _lines.Count; i++)
             total += double.Parse(_lines[i].UnitPrice) * double.Parse(_lines[i].Quantity);
@@ -333,36 +583,10 @@ public void ShowInvoice()
     {
         _lines = new List<InvoiceLineDto>();
         _linesNames = new List<string>();
-        _linesLbl.Text = "الأصناف المضافة: لا شيء";
+        _linesLbl.Text = "لا أصناف بعد";
         _subTotalLbl.Text = "المجموع: 0";
     }
-
-    private Entry NewEntry(string placeholder)
-    {
-        var e = new Entry();
-        e.Placeholder = placeholder;
-        return e;
-    }
-
-    private void Status(Label lbl, string text, bool ok)
-    {
-        lbl.Text = text;
-        lbl.TextColor = ok ? Theme.Success : Theme.Danger;
-    }
-
-    private Button NewButton(string text)
-    {
-        var b = new Button();
-        b.Text = text;
-        b.FontSize = 16;
-        b.TextColor = Theme.Ink;
-        b.CornerRadius = 12;
-        b.BorderWidth = 2;
-        b.BorderColor = Theme.Primary;
-        return b;
-    }
-
-    // ── المعالجات ──
+// ── المعالجات ──
     private void OnLoginClicked()
     {
         var email = Text.EmptyIfNull(_email.Text).Trim();
@@ -404,21 +628,34 @@ public void ShowInvoice()
         });
         t.Start();
     }
-
+// ════ التحصيل النقدي ════
     public void ShowCustody()
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "تحصيل نقدي في العهدة"; title.FontSize = 20;
-        var hCu = new Label(); hCu.Text = "معرف العميل (المندوب الحالي هو الحامل)";
-        _custCustomer = NewEntry("معرف العميل");
-        _custAmount = NewEntry("المبلغ");
-        _custNote = NewEntry("ملاحظة");
-        var submit = NewButton("تسجيل التحصيل"); submit.Clicked += (sender, e) => OnCustodyCollectClicked();
-        _custResult = new Label(); _custResult.Text = "";
-        stack.Add(back); stack.Add(title); stack.Add(hCu); stack.Add(_custCustomer);
-        stack.Add(_custAmount); stack.Add(_custNote); stack.Add(submit); stack.Add(_custResult);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("تحصيل نقدي"));
+        root.Add(head);
+        root.Add(Theme.P("يُسجَّل مبلغ محصَّل من العميل في عهدة المندوب الحالي (حساب 1110)"));
+
+        _custCustomer = Theme.Input("معرف العميل");
+        _custAmount = Theme.Input("المبلغ");
+        _custNote = Theme.Input("ملاحظة (اختيارية)");
+        var submit = Theme.Filled("تسجيل التحصيل");
+        submit.Clicked += (sender, e) => OnCustodyCollectClicked();
+        _custResult = new Label { Text = "", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+
+        root.Add(Theme.CardView(
+            FieldLabel("معرف العميل"),
+            _custCustomer,
+            FieldLabel("المبلغ"),
+            _custAmount,
+            FieldLabel("ملاحظة"),
+            _custNote,
+            submit));
+
+        root.Add(_custResult);
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
@@ -429,41 +666,54 @@ public void ShowInvoice()
         var customerId = Text.EmptyIfNull(_custCustomer.Text).Trim();
         var amount = Text.EmptyIfNull(_custAmount.Text).Trim();
         var note = Text.EmptyIfNull(_custNote.Text).Trim();
-        if (string.IsNullOrEmpty(amount)) { _custResult.Text = "أدخل المبلغ"; return; }
+        if (string.IsNullOrEmpty(amount)) { _custResult.Text = "أدخل المبلغ"; _custResult.TextColor = Theme.Danger; return; }
         _custResult.Text = "جارٍ التسجيل…";
+        _custResult.TextColor = Theme.Muted;
         var t = new Thread(() =>
         {
             try
             {
                 var entryNumber = ApiClient.CollectCustodySync(customerId, amount, note);
-                Device.BeginInvokeOnMainThread(() => { _custResult.Text = "تم تسجيل التحصيل ✓ (قيد " + entryNumber + ")"; });
+                Device.BeginInvokeOnMainThread(() => { _custResult.Text = "تم تسجيل التحصيل ✓ (قيد " + entryNumber + ")"; _custResult.TextColor = Theme.Success; });
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _custResult.Text = "فشل: " + msg; });
+                Device.BeginInvokeOnMainThread(() => { _custResult.Text = "فشل: " + msg; _custResult.TextColor = Theme.Danger; });
             }
         });
         t.Start();
     }
-
+// ════ فحص الرف ════
     public void ShowShelf()
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "فحص رف"; title.FontSize = 20;
-        var h1 = new Label(); h1.Text = "معرف الصنف + الموقع + الكمية الملاحَظة";
-        _sItem = NewEntry("معرف الصنف");
-        _sLocation = NewEntry("الموقع/المتجر");
-        _sQty = NewEntry("الكمية الملاحَظة");
-        _sNotes = NewEntry("ملاحظة");
-        var submit = NewButton("تسجيل الفحص"); submit.Clicked += (sender, e) => OnShelfSubmitClicked();
-        var ph = new Label(); ph.Text = "صورة فحص (مسار ملف على الجهاز اختياري)";
-        _sPhotoPath = NewEntry("مثال: D:/photo.jpg");
-        _sResult = new Label(); _sResult.Text = "";
-        stack.Add(back); stack.Add(title); stack.Add(h1); stack.Add(_sItem);
-        stack.Add(_sLocation); stack.Add(_sQty); stack.Add(_sNotes); stack.Add(ph); stack.Add(_sPhotoPath); stack.Add(submit); stack.Add(_sResult);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("فحص رف"));
+        root.Add(head);
+        root.Add(Theme.P("سجّل الصنف والموقع والكمية الملاحَظة في المتجر"));
+
+        _sItem = Theme.Input("معرف الصنف");
+        _sLocation = Theme.Input("الموقع/المتجر");
+        _sQty = Theme.Input("الكمية الملاحَظة");
+        _sNotes = Theme.Input("ملاحظة (اختيارية)");
+        _sPhotoPath = Theme.Input("صورة فحص — مسار ملف (اختياري)");
+        var submit = Theme.Filled("تسجيل الفحص");
+        submit.Clicked += (sender, e) => OnShelfSubmitClicked();
+        _sResult = new Label { Text = "", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+
+        root.Add(Theme.CardView(
+            FieldLabel("معرف الصنف + الموقع + الكمية"),
+            _sItem,
+            _sLocation,
+            _sQty,
+            _sNotes,
+            _sPhotoPath,
+            submit));
+
+        root.Add(_sResult);
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
@@ -473,8 +723,9 @@ public void ShowInvoice()
         var location = Text.EmptyIfNull(_sLocation.Text).Trim();
         var qty = Text.EmptyIfNull(_sQty.Text).Trim();
         var notes = Text.EmptyIfNull(_sNotes.Text).Trim();
-        if (string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(qty)) { _sResult.Text = "أدخل الصنف والكمية"; return; }
+        if (string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(qty)) { _sResult.Text = "أدخل الصنف والكمية"; _sResult.TextColor = Theme.Danger; return; }
         _sResult.Text = "جارٍ الحفظ…";
+        _sResult.TextColor = Theme.Muted;
         var t = new Thread(() =>
         {
             try
@@ -482,30 +733,45 @@ public void ShowInvoice()
                 var photoPath = Text.EmptyIfNull(_sPhotoPath.Text).Trim();
                 var photoB64 = photoPath.Length > 0 ? Convert.ToBase64String(Text.ReadBinaryFile(photoPath)) : "";
                 var id = ApiClient.CreateShelfCheckSync(itemId, location, qty, notes, photoB64);
-                Device.BeginInvokeOnMainThread(() => { _sResult.Text = "تم تسجيل الفحص ✓ (id " + id + ")"; });
+                Device.BeginInvokeOnMainThread(() => { _sResult.Text = "تم تسجيل الفحص ✓ (id " + id + ")"; _sResult.TextColor = Theme.Success; });
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _sResult.Text = "فشل: " + msg; });
+                Device.BeginInvokeOnMainThread(() => { _sResult.Text = "فشل: " + msg; _sResult.TextColor = Theme.Danger; });
             }
         });
         t.Start();
     }
 
+    // ════ رصد الأسعار ════
     public void ShowPriceCapture()
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "رصد سعر منافس"; title.FontSize = 20;
-        _pItem = NewEntry("معرف الصنف");
-        _pCompetitor = NewEntry("اسم المنافس");
-        _pPrice = NewEntry("السعر");
-        var submit = NewButton("حفظ الرصد"); submit.Clicked += (sender, e) => OnPriceSubmitClicked();
-        _pResult = new Label(); _pResult.Text = "";
-        stack.Add(back); stack.Add(title); stack.Add(_pItem); stack.Add(_pCompetitor);
-        stack.Add(_pPrice); stack.Add(submit); stack.Add(_pResult);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("رصد سعر منافس"));
+        root.Add(head);
+        root.Add(Theme.P("سجّل سعر المنافس للصنف المحدد"));
+
+        _pItem = Theme.Input("معرف الصنف");
+        _pCompetitor = Theme.Input("اسم المنافس");
+        _pPrice = Theme.Input("السعر");
+        var submit = Theme.Filled("حفظ الرصد");
+        submit.Clicked += (sender, e) => OnPriceSubmitClicked();
+        _pResult = new Label { Text = "", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+
+        root.Add(Theme.CardView(
+            FieldLabel("معرف الصنف"),
+            _pItem,
+            FieldLabel("اسم المنافس"),
+            _pCompetitor,
+            FieldLabel("السعر الملاحَظ"),
+            _pPrice,
+            submit));
+
+        root.Add(_pResult);
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
@@ -514,19 +780,20 @@ public void ShowInvoice()
         var itemId = Text.EmptyIfNull(_pItem.Text).Trim();
         var competitor = Text.EmptyIfNull(_pCompetitor.Text).Trim();
         var price = Text.EmptyIfNull(_pPrice.Text).Trim();
-        if (string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(price)) { _pResult.Text = "أدخل الصنف والسعر"; return; }
+        if (string.IsNullOrEmpty(itemId) || string.IsNullOrEmpty(price)) { _pResult.Text = "أدخل الصنف والسعر"; _pResult.TextColor = Theme.Danger; return; }
         _pResult.Text = "جارٍ الحفظ…";
+        _pResult.TextColor = Theme.Muted;
         var t = new Thread(() =>
         {
             try
             {
                 var id = ApiClient.CreatePriceCaptureSync(itemId, competitor, price);
-                Device.BeginInvokeOnMainThread(() => { _pResult.Text = "تم الحفظ ✓ (id " + id + ")"; });
+                Device.BeginInvokeOnMainThread(() => { _pResult.Text = "تم الحفظ ✓ (id " + id + ")"; _pResult.TextColor = Theme.Success; });
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _pResult.Text = "فشل: " + msg; });
+                Device.BeginInvokeOnMainThread(() => { _pResult.Text = "فشل: " + msg; _pResult.TextColor = Theme.Danger; });
             }
         });
         t.Start();
@@ -550,20 +817,30 @@ public void ShowInvoice()
         });
         t.Start();
     }
-
+// ════ مردود المبيعات ════
     public void ShowReturn()
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "مردود مبيعات"; title.FontSize = 20; title.TextColor = Theme.Primary;
-        var hint = new Label(); hint.Text = "أدخل رقم الفاتورة الأصلية ليبحث عنها النظام (يتطلب اتصالاً)";
-        _rInvoiceNo = NewEntry("مثال: SI-20260913-0005");
-        var load = NewButton("تحميل الفاتورة"); load.Clicked += (sender, e) => OnReturnLoadClicked();
-        _rResult = new Label(); _rResult.Text = "";
-        _spin = new ActivityIndicator(); _spin.Color = Theme.Primary; _spin.IsRunning = false;
-        stack.Add(back); stack.Add(title); stack.Add(hint); stack.Add(_rInvoiceNo);
-        stack.Add(load); stack.Add(_rResult); stack.Add(_spin);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("مردود مبيعات"));
+        root.Add(head);
+        root.Add(Theme.P("أدخل رقم الفاتورة الأصلية ليبحث النظام عنها ويعود ببنودها (يتطلب اتصالاً)"));
+
+        _rInvoiceNo = Theme.Input("مثال: SI-20260913-0005");
+        var load = Theme.Filled("تحميل الفاتورة");
+        load.Clicked += (sender, e) => OnReturnLoadClicked();
+        _rResult = new Label { Text = "", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+        _spin = new ActivityIndicator { Color = Theme.Primary, IsRunning = false, IsVisible = false };
+
+        root.Add(Theme.CardView(
+            FieldLabel("رقم الفاتورة"),
+            _rInvoiceNo,
+            load));
+
+        root.Add(_rResult);
+        root.Add(_spin);
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
@@ -572,20 +849,22 @@ public void ShowInvoice()
         var no = Text.EmptyIfNull(_rInvoiceNo.Text).Trim();
         if (no.Length == 0) { _rResult.Text = "أدخل رقم الفاتورة"; _rResult.TextColor = Theme.Danger; return; }
         if (!SyncEngine.IsOnline()) { _rResult.Text = "يتطلب المردود اتصالاً بالخادم"; _rResult.TextColor = Theme.Danger; return; }
-        _rResult.Text = "جارٍ البحث…"; _rResult.TextColor = Theme.Ink;
+        _rResult.Text = "جارٍ البحث…";
+        _rResult.TextColor = Theme.Muted;
         _spin.IsRunning = true;
+        _spin.IsVisible = true;
         var t = new Thread(() =>
         {
             try
             {
                 var lookup = ApiClient.ReturnLookupSync(no);
-                Device.BeginInvokeOnMainThread(() => { _spin.IsRunning = false; ShowReturnEditor(lookup); });
+                Device.BeginInvokeOnMainThread(() => { _spin.IsRunning = false; _spin.IsVisible = false; ShowReturnEditor(lookup); });
             }
             catch (Exception ex)
             {
                 var err = JsonLite.Field(ex.Message, "error");
                 var msg = err.Length > 0 ? JsonLite.Unescape(err) : ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _rResult.Text = "فشل: " + msg; _rResult.TextColor = Theme.Danger; _spin.IsRunning = false; });
+                Device.BeginInvokeOnMainThread(() => { _rResult.Text = "فشل: " + msg; _rResult.TextColor = Theme.Danger; _spin.IsRunning = false; _spin.IsVisible = false; });
             }
         });
         t.Start();
@@ -596,39 +875,57 @@ public void ShowInvoice()
         _rLookup = lk;
         _rLines = lk.Lines;
         _rQtys = new List<Entry>();
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = "مردود " + lk.InvoiceNumber; title.FontSize = 20; title.TextColor = Theme.Primary;
-        var info = new Label(); info.Text = "العميل: " + lk.CustomerName + " · المخزن: " + lk.WarehouseName;
-        stack.Add(back); stack.Add(title); stack.Add(info);
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1("مردود " + lk.InvoiceNumber));
+        root.Add(head);
+        root.Add(Theme.P("العميل: " + lk.CustomerName + "  ·  المخزن: " + lk.WarehouseName));
+
         if (lk.Lines.Count == 0)
         {
-            var none = new Label(); none.Text = "لا بنود قابلة للرد في هذه الفاتورة"; none.TextColor = Theme.Danger;
-            stack.Add(none);
+            root.Add(new Label { Text = "لا بنود قابلة للرد في هذه الفاتورة", TextColor = Theme.Danger });
         }
         else
         {
-            var head = new Label(); head.Text = "أدخل كمية الرد لكل بند (اترك 0 لتخطيه):";
-            stack.Add(head);
+            root.Add(Theme.Section("أدخل كمية الرد لكل بند (اترك 0 لتخطيه)"));
             foreach (var line in lk.Lines)
             {
-                var lbl = new Label();
-                lbl.Text = line.Code + " · " + line.NameAr + " — مباع " + line.Quantity + " · باقي " + line.Remaining + " · سعر " + line.UnitPrice;
-                var qty = NewEntry("كمية الرد (0 للتخطي)");
-                qty.Text = "0";
+                var nameRow = new HorizontalStackLayout { Spacing = 8 };
+                nameRow.Add(Theme.Chip(line.Code, Theme.PrimarySoft, Theme.Primary));
+                nameRow.Add(new Label
+                {
+                    Text = line.NameAr,
+                    FontSize = 14,
+                    FontAttributes = FontAttributes.Bold,
+                    TextColor = Theme.Ink,
+                    VerticalTextAlignment = TextAlignment.Center,
+                    LineBreakMode = LineBreakMode.WordWrap
+                });
+                var chipsRow = new HorizontalStackLayout { Spacing = 6 };
+                chipsRow.Add(Theme.Chip("مباع " + line.Quantity, Theme.SuccessSoft, Theme.Success));
+                chipsRow.Add(Theme.Chip("باقي " + line.Remaining, Theme.WarningSoft, Theme.Warning));
+                chipsRow.Add(Theme.Chip("سعر " + line.UnitPrice, Theme.PrimarySoft, Theme.Primary));
+                var qty = Theme.Input("كمية الرد (0 للتخطي)", "0");
                 _rQtys.Add(qty);
-                stack.Add(lbl); stack.Add(qty);
+                root.Add(Theme.CardView(
+                    nameRow,
+                    chipsRow,
+                    FieldLabel("كمية الرد"),
+                    qty));
             }
-            var submit = NewButton("تسجيل المردود"); submit.Clicked += (sender, e) => OnReturnSubmitClicked();
-            stack.Add(submit);
+            var submit = Theme.Filled("تسجيل المردود");
+            submit.Clicked += (sender, e) => OnReturnSubmitClicked();
+            root.Add(submit);
         }
-        _rResult = new Label(); _rResult.Text = "";
-        stack.Add(_rResult);
-        var sv = new ScrollView(); sv.Content = stack;
+
+        _rResult = new Label { Text = "", FontSize = 14, TextColor = Theme.Muted, LineBreakMode = LineBreakMode.WordWrap };
+        root.Add(_rResult);
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
-
-    private void OnReturnSubmitClicked()
+private void OnReturnSubmitClicked()
     {
         var lines = new List<CreateReturnLineDto>();
         for (var i = 0; i < _rLines.Count; i++)
@@ -638,7 +935,8 @@ public void ShowInvoice()
             lines.Add(new CreateReturnLineDto(_rLines[i].ItemId, q));
         }
         if (lines.Count == 0) { _rResult.Text = "حدد كمية رد على الأقل"; _rResult.TextColor = Theme.Danger; return; }
-        _rResult.Text = "جارٍ التسجيل…"; _rResult.TextColor = Theme.Ink;
+        _rResult.Text = "جارٍ التسجيل…";
+        _rResult.TextColor = Theme.Muted;
         var t = new Thread(() =>
         {
             try
@@ -660,18 +958,21 @@ public void ShowInvoice()
         t.Start();
     }
 
+    // ════ شاشة نصية (تحذيرات وغيرها) ════
     private void ShowText(string titleText, string body)
     {
-        var stack = new VerticalStackLayout();
-        var back = NewButton("← رجوع"); back.Clicked += (sender, e) => OnBackClicked();
-        var title = new Label(); title.Text = titleText; title.FontSize = 20;
-        var bodyLbl = new Label(); bodyLbl.Text = body;
-        stack.Add(back); stack.Add(title); stack.Add(bodyLbl);
-        var sv = new ScrollView(); sv.Content = stack;
+        var root = new VerticalStackLayout { Spacing = 14, Padding = new Thickness(16) };
+        var head = new HorizontalStackLayout { Spacing = 10 };
+        head.Add(BackButton());
+        head.Add(Theme.H1(titleText));
+        root.Add(head);
+        root.Add(Theme.CardView(new Label { Text = body, FontSize = 13, TextColor = Theme.Ink, LineBreakMode = LineBreakMode.WordWrap }));
+        var sv = new ScrollView { Content = root };
         Show(sv);
     }
 
-private void OnItemsClicked() => ShowItems();
+    // ════ الانتقالات ════
+    private void OnItemsClicked() => ShowItems();
     private void OnInvoiceClicked() => ShowInvoice();
     private void OnBackClicked() => ShowHome();
 
@@ -679,43 +980,6 @@ private void OnItemsClicked() => ShowItems();
     {
         Session.Logout();
         ShowLogin();
-    }
-
-    private void OnSearchClicked()
-    {
-        var term = Text.EmptyIfNull(_search.Text);
-        _itemsResult.Text = "جارٍ التحميل…"; _itemsResult.TextColor = Theme.Ink;
-        _spin.IsRunning = true;
-        var t = new Thread(() =>
-        {
-            try
-            {
-                var items = ApiClient.ItemsSync(term);
-                var cards = new VerticalStackLayout();
-                var count = new Label(); count.Text = "عدد النتائج: " + items.Count; count.FontSize = 15; count.TextColor = Theme.Primary;
-                cards.Add(count);
-                foreach (var it in items)
-                {
-                    var card = new VerticalStackLayout();
-                    var name = new Label(); name.Text = it.NameAr + "  (" + it.Code + ")"; name.FontSize = 15; name.TextColor = Theme.Primary;
-                    var meta = new Label(); meta.Text = "السعر " + it.SalePrice + "  ·  الكمية " + it.CurrentStock; meta.FontSize = 13;
-                    var rule = Theme.Rule();
-                    card.Add(name); card.Add(meta); card.Add(rule);
-                    cards.Add(card);
-                }
-                Device.BeginInvokeOnMainThread(() =>
-                {
-                    _itemsScroll.Content = cards;
-                    _spin.IsRunning = false;
-                });
-            }
-            catch (Exception ex)
-            {
-                var msg = ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _itemsResult.Text = "فشل الجلب: " + msg; _itemsResult.TextColor = Theme.Danger; _spin.IsRunning = false; });
-            }
-        });
-        t.Start();
     }
 
     private void CyclePayment()
@@ -742,8 +1006,9 @@ private void OnItemsClicked() => ShowItems();
             _invoiceResult.Text = "أضف صنفاً واحداً على الأقل للفاتورة"; _invoiceResult.TextColor = Theme.Danger;
             return;
         }
-        _invoiceResult.Text = "جارٍ الإنشاء…  " + _lines.Count + " سطر"; _invoiceResult.TextColor = Theme.Ink;
+        _invoiceResult.Text = "جارٍ الإنشاء…  " + _lines.Count + " سطر"; _invoiceResult.TextColor = Theme.Muted;
         _spin.IsRunning = true;
+        _spin.IsVisible = true;
         var t = new Thread(() =>
         {
             try
@@ -752,20 +1017,20 @@ private void OnItemsClicked() => ShowItems();
                 {
                     var inv = ApiClient.CreateInvoiceSync(_lines, customerId, warehouseId, _payMethod, note, invPhotoB64);
                     var text2 = "تم الإنشاء ✓ " + inv.InvoiceNumber + " (" + _lines.Count + " أصناف — الإجمالي " + inv.TotalAmount + ")";
-                    Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = text2; _invoiceResult.TextColor = Theme.Success; ResetCartUi(); _spin.IsRunning = false; });
+                    Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = text2; _invoiceResult.TextColor = Theme.Success; ResetCartUi(); _spin.IsRunning = false; _spin.IsVisible = false; });
                 }
                 else
                 {
                     var key2 = Guid.NewGuid().ToString();
                     var payload = ApiClient.MakeInvoicePayload(_lines, customerId, warehouseId, note, key2, _payMethod, invPhotoB64);
                     LocalStore.Enqueue(key2, payload);
-                    Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = "دُوِّن دون اتصال ✓ — سيُرسل عند الاتصال (" + LocalStore.CountPending() + " بانتظار الإرسال)"; _invoiceResult.TextColor = Theme.Success; ResetCartUi(); _spin.IsRunning = false; });
+                    Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = "دُوِّن دون اتصال ✓ — سيُرسل عند الاتصال (" + LocalStore.CountPending() + " بانتظار الإرسال)"; _invoiceResult.TextColor = Theme.Success; ResetCartUi(); _spin.IsRunning = false; _spin.IsVisible = false; });
                 }
             }
             catch (Exception ex)
             {
                 var msg = ex.Message;
-                Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = "فشل الإنشاء: " + msg; _invoiceResult.TextColor = Theme.Danger; _spin.IsRunning = false; });
+                Device.BeginInvokeOnMainThread(() => { _invoiceResult.Text = "فشل الإنشاء: " + msg; _invoiceResult.TextColor = Theme.Danger; _spin.IsRunning = false; _spin.IsVisible = false; });
             }
         });
         t.Start();

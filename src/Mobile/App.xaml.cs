@@ -11,6 +11,12 @@ public partial class App : Application
 
     protected override Window CreateWindow(IActivationState? activationState)
     {
-        return new Window(new AppShell());
+        var window = new Window(new AppShell());
+        window.Title = "ERP الميداني";
+        window.MinimumWidth = 760;
+        window.MinimumHeight = 640;
+        window.Width = 1000;
+        window.Height = 760;
+        return window;
     }
 }
