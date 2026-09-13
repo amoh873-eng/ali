@@ -50,5 +50,8 @@ public enum JournalEntryType
     BankCheckClearance = 14,
 
     /// <summary>ناتج عن ارتداد شيك — عكس الأثر الأول (عودة الدين كما كان)</summary>
-    BankCheckBounce = 15
+    BankCheckBounce = 15,
+
+    /// <summary>ناتج عن تسوية وردية كاشير عند إغلاق الصندوق (فروقات صندوق)</summary>
+    ShiftReconciliation = 16
 }

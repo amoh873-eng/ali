@@ -1,0 +1,144 @@
+@page "/pos/shift-end"
+@attribute [Authorize(Roles = "Pos")]
+@using ERPSystem.Application.DTOs.Shifts
+@using ERPSystem.Application.Interfaces
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<ModuleGuard ModuleKey="Pos">
+<PageTitle>@Loc["ShiftEnd"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["ShiftEnd"]" Icon="@Icons.Material.Filled.DonutLarge" />
+
+@if (_openShift is null)
+{
+    <MudAlert Elevated="true" Severity="Severity.Warning" Class="mb-4" Text="@Loc["NoOpenShift"]" />
+    <MudButton Color="Color.Primary" Variant="Variant.Filled" OnClick="GoStart">@Loc["ShiftStart"]</MudButton>
+}
+else if (_closed)
+{
+    <MudAlert Elevated="true" Severity="Severity.Success" Class="mb-4" Text="@Loc["ShiftClosedOk"]" />
+    @if (_finalVariance != null && _finalVariance != 0m)
+    {
+        <MudAlert Elevated="true" Severity="@(_finalVariance < 0m ? Severity.Error : Severity.Warning)" Class="mb-2"
+                  Text="@(_finalVariance < 0m ? Loc["ShiftShortage"] : Loc["ShiftSurplus"])" />
+    }
+}
+else
+{
+    <MudAlert Elevated="true" Severity="Severity.Info" Class="mb-3" Text="@Loc["CurrentOpenShift"]" />
+    <div class="shift-card">
+        <MudText Typo="Typo.subtitle2" Class="shift-kv">@Loc["StartTimeLabel"]: @_startLabel · @Loc["OpeningFloat"]: <b>@_openShift.OpeningFloatAmount.ToString("N2")</b></MudText>
+        <table class="shift-summary">
+            <tbody>
+                <tr><th>@Loc["CashSalesIn"]</th><td class="sum-sign">+</td><td>@(_summary.CashSales.ToString("N2"))</td></tr>
+                <tr><th>@Loc["CashRefundsIn"]</th><td class="sum-sign">−</td><td>@(_summary.CashRefunds.ToString("N2"))</td></tr>
+                <tr><th>@Loc["FloatsInLabel"]</th><td class="sum-sign">+</td><td>@(_summary.FloatsIn.ToString("N2"))</td></tr>
+                <tr><th>@Loc["FloatsOutLabel"]</th><td class="sum-sign">−</td><td>@(_summary.FloatsOut.ToString("N2"))</td></tr>
+                <tr class="sum-row"><th>@Loc["ExpectedCash"]</th><td></td><td><b>@(_summary.Expected.ToString("N2"))</b></td></tr>
+            </tbody>
+        </table>
+
+        <MudTextField T="string" @bind-Value="_numCounted" Id="shift-counted" Class="mt-3"
+                      Label="@Loc["CountedCash"]" OnInput="ComputeVariance" Required="true" />
+
+        @if (_varianceErr == null)
+        {
+            <MudText Typo="Typo.button" Class="@_varClass">
+                @Loc["Variance"]: @(_variance > 0m ? "+" : "")@(_variance.ToString("N2"))
+                — @(_variance == 0m ? Loc["ShiftBalanced"] : (_variance < 0m ? Loc["ShiftShortage"] : Loc["ShiftSurplus"]))
+            </MudText>
+            @if (_variance != 0m)
+            {
+                <MudText Typo="Typo.caption" Class="mb-1">@Loc["EntryWillBePosted"]</MudText>
+            }
+            <MudButton Disabled="@_busy" Color="@(_variance == 0m ? Color.Primary : (_variance < 0m ? Color.Error : Color.Warning))"
+                       Variant="Variant.Filled" OnClick="CloseShiftAsync" Class="mt-3">@Loc["CloseShift"]</MudButton>
+        }
+        else
+        {
+            <MudText Typo="Typo.caption" Class="shift-variance variance-short mt-2">@_varianceErr</MudText>
+        }
+    </div>
+    @if (_error != null) { <MudAlert Elevated="true" Severity="Severity.Error" Class="mt-3" Text="@_error" /> }
+}
+</ModuleGuard>
+
+@code {
+    [Inject] private ICashierShiftService ShiftService { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    private CashierShiftDto? _openShift;
+    private ShiftSummaryDto _summary = new();
+    private string _numCounted = "";
+    private decimal _variance;
+    private string? _varianceErr;
+    private bool _busy;
+    private bool _closed;
+    private decimal? _finalVariance;
+    private string? _error;
+    private string _startLabel = "";
+
+    private string _varClass => _variance == 0m
+        ? "shift-variance variance-ok"
+        : _variance < 0m ? "shift-variance variance-short" : "shift-variance variance-over";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = await CurrentUserIdAsync();
+        if (userId is null) return;
+        var open = await ShiftService.GetOpenShiftAsync(userId);
+        if (open is null) return;
+        _openShift = open;
+        _startLabel = open.StartTime.ToString("yyyy-MM-dd HH:mm");
+        _summary = await ShiftService.ComputeSummaryAsync(open.Id);
+    }
+
+    private void GoStart() => Nav.NavigateTo("/pos/shift-start");
+
+    private void ComputeVariance(string raw)
+    {
+        _varianceErr = null;
+        if (string.IsNullOrWhiteSpace(raw)) { _variance = 0m; return; }
+        var counted = ParseAmount(raw);
+        if (counted < 0m) { _varianceErr = Loc["ShiftFloatInvalid"]; return; }
+        _variance = counted - _summary.Expected;
+    }
+
+    private async Task CloseShiftAsync()
+    {
+        var userId = await CurrentUserIdAsync();
+        if (userId is null || _openShift is null) return;
+        var counted = ParseAmount(_numCounted);
+        if (counted < 0m) { _varianceErr = Loc["ShiftFloatInvalid"]; return; }
+        _busy = true;
+        try
+        {
+            var closed = await ShiftService.CloseAsync(_openShift.Id, counted, null, userId);
+            _finalVariance = closed.VarianceAmount;
+            _closed = true;
+            _openShift = null;
+            Snackbar.Add(Loc["ShiftClosedOk"], Severity.Success);
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private async Task<string?> CurrentUserIdAsync()
+    {
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            return auth.User.Identity?.Name;
+        }
+        catch { return null; }
+    }
+
+    private static decimal ParseAmount(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return -1m;
+        var norm = raw.Trim().Replace(',', '.');
+        return decimal.TryParse(norm,
+            System.Globalization.NumberStyles.AllowDecimalPoint | System.Globalization.NumberStyles.AllowLeadingSign,
+            System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1m;
+    }
+}

@@ -701,3 +701,16 @@ td.stock-out {
     /* مقاس 58mm: يثبّت عرض الطباعة على عرض الورق الفعلي */
     .pos-receipt.pos-receipt-58 { max-width: 58mm !important; width: 58mm !important; }
 }
+/* ── ورديات الكاشير (Shift Reconciliation) ── */
+.shift-card { border:1px solid var(--erp-border, #d8dbe4); border-radius:12px; padding:18px; background:#fff; }
+.shift-kv { margin-bottom:6px; }
+.shift-summary { border-collapse:collapse; width:auto; min-width:340px; }
+.shift-summary th, .shift-summary td { border:1px solid var(--erp-border, #d8dbe4); padding:6px 12px; text-align:start; }
+.shift-summary .sum-sign { text-align:center; color:#64748B; font-weight:600; width:28px; }
+.shift-summary .sum-row th { font-weight:700; background:#EEF2FF; }
+.shift-variance { font-weight:700; font-size:1.05rem; }
+.variance-ok   { color:#16A34A; }
+.variance-short{ color:#DC2626; }
+.variance-over { color:#F97316; }
+tr.variance-short{ background:#FEE2E2; }
+tr.variance-over { background:#FFF4E0; }

@@ -1,0 +1,92 @@
+@page "/pos/shift-start"
+@attribute [Authorize(Roles = "Pos")]
+@using ERPSystem.Application.DTOs.Shifts
+@using ERPSystem.Application.Interfaces
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+@inject NavigationManager Nav
+
+<ModuleGuard ModuleKey="Pos">
+<PageTitle>@Loc["ShiftStart"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["ShiftStart"]" Icon="@Icons.Material.Filled.EventAvailable" />
+
+@if (_openShift is not null)
+{
+    <div class="shift-card">
+        <MudAlert Elevated="true" Severity="Severity.Success" Class="mb-4">@Loc["CurrentOpenShift"]</MudAlert>
+        <MudText Typo="Typo.subtitle1" Class="shift-kv">@Loc["OpeningFloat"]: <b>@_openShift.OpeningFloatAmount.ToString("N2")</b></MudText>
+        <MudText Typo="Typo.caption" Class="shift-kv">@Loc["StartTimeLabel"]: @_startLabel</MudText>
+        <MudButton Class="mt-4" Color="Color.Primary" Variant="Variant.Filled" OnClick="GoEnd">@Loc["GoShiftEnd"]</MudButton>
+    </div>
+}
+else
+{
+    <MudAlert Elevated="true" Severity="Severity.Warning" Class="mb-4" Text="@Loc["OpenShiftRequired"]" />
+    <div class="shift-card">
+        <MudForm>
+            <MudTextField T="string" @bind-Value="_numOpen" Id="shift-float" Class="mt-2" Label="@Loc["OpeningFloat"]" Required="true" />
+        </MudForm>
+    </div>
+    <MudButton Disabled="@_busy" Color="Color.Primary" Variant="Variant.Filled" OnClick="StartShiftAsync" Class="mt-4">@Loc["StartShift"]</MudButton>
+    @if (_error != null) { <MudAlert Elevated="true" Severity="Severity.Error" Class="mt-4" Text="@_error" /> }
+}
+</ModuleGuard>
+
+@code {
+    [Inject] private ICashierShiftService ShiftService { get; set; } = default!;
+    [Inject] private AuthenticationStateProvider AuthStateProvider { get; set; } = default!;
+    private string _numOpen = "";
+    private string? _error;
+    private bool _busy;
+    private CashierShiftDto? _openShift;
+    private string _startLabel = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        var userId = await CurrentUserIdAsync();
+        if (userId is null) return;
+        _openShift = await ShiftService.GetOpenShiftAsync(userId);
+        if (_openShift != null) _startLabel = _openShift.StartTime.ToString("yyyy-MM-dd HH:mm");
+    }
+
+    private void GoEnd() => Nav.NavigateTo("/pos/shift-end");
+
+    private async Task StartShiftAsync()
+    {
+        var userId = await CurrentUserIdAsync();
+        if (userId is null) return;
+        var amount = ParseAmount(_numOpen);
+        if (amount <= 0m) { _error = Loc["ShiftFloatInvalid"]; return; }
+        _busy = true;
+        try
+        {
+            await ShiftService.StartAsync(amount, userId);
+            Snackbar.Add(Loc["ShiftStarted"], Severity.Success);
+            _openShift = await ShiftService.GetOpenShiftAsync(userId);
+            _startLabel = _openShift?.StartTime.ToString("yyyy-MM-dd HH:mm") ?? "";
+            _numOpen = "";
+            _error = null;
+        }
+        catch (Exception ex) { _error = ex.Message; }
+        finally { _busy = false; }
+    }
+
+    private async Task<string?> CurrentUserIdAsync()
+    {
+        try
+        {
+            var auth = await AuthStateProvider.GetAuthenticationStateAsync();
+            return auth.User.Identity?.Name;
+        }
+        catch { return null; }
+    }
+
+    private static decimal ParseAmount(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return -1m;
+        var norm = raw.Trim().Replace(',', '.');
+        return decimal.TryParse(norm,
+            System.Globalization.NumberStyles.AllowDecimalPoint | System.Globalization.NumberStyles.AllowLeadingSign,
+            System.Globalization.CultureInfo.InvariantCulture, out var v) ? v : -1m;
+    }
+}

@@ -14,6 +14,17 @@
         <a class="erp-nav-btn @(IsActive("/pos") ? "active" : "")" style="--accent:#EC4899" href="/pos">
             <MudIcon Icon="@Icons.Material.Filled.PointOfSale" Class="erp-nav-icon" /> @Loc["Pos"]
         </a>
+        <a class="erp-nav-btn @(IsActive("/pos/shift-start") ? "active" : "")" style="--accent:#22C55E" href="/pos/shift-start">
+            <MudIcon Icon="@Icons.Material.Filled.EventAvailable" Class="erp-nav-icon" /> @Loc["ShiftStart"]
+        </a>
+        <a class="erp-nav-btn @(IsActive("/pos/shift-end") ? "active" : "")" style="--accent:#F97316" href="/pos/shift-end">
+            <MudIcon Icon="@Icons.Material.Filled.DonutLarge" Class="erp-nav-icon" /> @Loc["ShiftEnd"]
+        </a>
+    </AuthorizeView>
+    <AuthorizeView Roles="Admin,SuperAdmin">
+        <a class="erp-nav-btn @(IsActive("/pos/shifts-history") ? "active" : "")" style="--accent:#7C3AED" href="/pos/shifts-history">
+            <MudIcon Icon="@Icons.Material.Filled.History" Class="erp-nav-icon" /> @Loc["ShiftsHistory"]
+        </a>
     </AuthorizeView>
     }
 

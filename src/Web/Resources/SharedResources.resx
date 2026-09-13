@@ -1166,4 +1166,38 @@
   <data name="OverdueSection" xml:space="preserve"><value>شيكات متأخرة بحاجة متابعة</value></data>
   <data name="MonthlyForecast" xml:space="preserve"><value>التوقع الشهري للتدفق النقدي</value></data>
   <data name="CheckParties" xml:space="preserve"><value>الطرف (عميل/مورد)</value></data>
+  <data name="ShiftStart" xml:space="preserve"><value>بدء وردية</value></data>
+  <data name="ShiftEnd" xml:space="preserve"><value>إنهاء الوردية وتسويتها</value></data>
+  <data name="ShiftsHistory" xml:space="preserve"><value>سجل الورديات</value></data>
+  <data name="OpeningFloat" xml:space="preserve"><value>رصيد الفكة الافتتاحي</value></data>
+  <data name="StartShift" xml:space="preserve"><value>بدء الوردية</value></data>
+  <data name="OpenShiftRequired" xml:space="preserve"><value>يجب بدء وردية قبل الشروع بالبيع — أدخل رصيد الفكة الافتتاحي</value></data>
+  <data name="NoOpenShift" xml:space="preserve"><value>لا توجد وردية مفتوحة حالياً لك</value></data>
+  <data name="CurrentOpenShift" xml:space="preserve"><value>ورديتك المفتوحة الحالية</value></data>
+  <data name="CashSalesIn" xml:space="preserve"><value>مبيعات نقدية (POS)</value></data>
+  <data name="CashRefundsIn" xml:space="preserve"><value>مردودات نقدية (POS)</value></data>
+  <data name="FloatsInLabel" xml:space="preserve"><value>إضافات نقد (Float-In)</value></data>
+  <data name="FloatsOutLabel" xml:space="preserve"><value>سحوبات نقد (Cash-Out)</value></data>
+  <data name="ExpectedCash" xml:space="preserve"><value>الرصيد المتوقَّع</value></data>
+  <data name="CountedCash" xml:space="preserve"><value>المبلغ المعدود فعلياً</value></data>
+  <data name="Variance" xml:space="preserve"><value>الفرق (معدود − متوقَّع)</value></data>
+  <data name="ShiftShortage" xml:space="preserve"><value>عجز</value></data>
+  <data name="ShiftSurplus" xml:space="preserve"><value>زيادة</value></data>
+  <data name="ShiftBalanced" xml:space="preserve"><value>متطابق — بلا قيد</value></data>
+  <data name="ConfirmClose" xml:space="preserve"><value>تأكيد الإغلاق وتسوية الفرق</value></data>
+  <data name="EntryWillBePosted" xml:space="preserve"><value>سيُرحَّل قيد فروقات الصندوق (5110) مقابل درج الكاش (1105)</value></data>
+  <data name="ShiftCashier" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="ShiftFloatInvalid" xml:space="preserve"><value>رصيد الفكة يجب أن يكون أكبر من صفر</value></data>
+  <data name="ShiftStarted" xml:space="preserve"><value>تم فتح الوردية</value></data>
+  <data name="GoShiftEnd" xml:space="preserve"><value>الانتقال لإنهاء الوردية</value></data>
+  <data name="StartTimeLabel" xml:space="preserve"><value>وقت البدء</value></data>
+  <data name="Cashier" xml:space="preserve"><value>الكاشير</value></data>
+  <data name="ShiftClosedOk" xml:space="preserve"><value>أُغلقت الوردية وسُجّلت التسوية</value></data>
+  <data name="ShiftEntryNumber" xml:space="preserve"><value>رقم القيد</value></data>
+  <data name="ShiftFinal" xml:space="preserve"><value>النتيجة النهائية</value></data>
+  <data name="CloseShift" xml:space="preserve"><value>تأكيد الإغلاق وتسوية الفرق</value></data>
+  <data name="FilterLabel" xml:space="preserve"><value>مرشّحات</value></data>
+  <data name="FilterCashier" xml:space="preserve"><value>فلترة حسب الكاشير</value></data>
+  <data name="Apply" xml:space="preserve"><value>تطبيق</value></data>
+  <data name="EndTimeLabel" xml:space="preserve"><value>وقت الإغلاق</value></data>
   </root>

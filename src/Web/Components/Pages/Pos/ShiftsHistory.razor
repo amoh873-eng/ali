@@ -1,0 +1,86 @@
+@page "/pos/shifts-history"
+@attribute [Authorize(Roles = "Admin,SuperAdmin")]
+@using ERPSystem.Application.DTOs.Shifts
+@using ERPSystem.Application.Interfaces
+@inject IStringLocalizer<SharedResources> Loc
+@inject ISnackbar Snackbar
+
+<ModuleGuard ModuleKey="Pos">
+<PageTitle>@Loc["ShiftsHistory"] - @Loc["AppName"]</PageTitle>
+<PageHeader Title="@Loc["ShiftsHistory"]" Icon="@Icons.Material.Filled.History" />
+
+<div class="shift-card">
+    <MudText Typo="Typo.subtitle2">@Loc["FilterLabel"]</MudText>
+    <MudTextField T="string" @bind-Value="_filterCashier" Id="shift-filter-cashier" Class="mt-2" Label="@Loc["FilterCashier"]" />
+    <MudDatePicker @bind-Date="_filterFrom" Label="@Loc["From"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+    <MudDatePicker @bind-Date="_filterTo" Label="@Loc["To"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+    <MudButton Color="Color.Primary" Variant="Variant.Outlined" Size="Size.Small" OnClick="LoadAsync" Class="mt-2">@Loc["Apply"]</MudButton>
+</div>
+
+@if (_rows is not null && _rows.Count > 0)
+{
+    <table class="shift-summary" style="width:100%">
+        <thead>
+            <tr>
+                <th>@Loc["StartTimeLabel"]</th>
+                <th>@Loc["EndTimeLabel"]</th>
+                <th>@Loc["ShiftCashier"]</th>
+                <th>@Loc["OpeningFloat"]</th>
+                <th>@Loc["ExpectedCash"]</th>
+                <th>@Loc["Counted"]</th>
+                <th>@Loc["Variance"]</th>
+                <th>@Loc["ShiftEntryNumber"]</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var s in _rows)
+            {
+                <tr class='@(s.VarianceAmount == null || s.VarianceAmount == 0m ? "" : (s.VarianceAmount < 0m ? "variance-short" : "variance-over"))'>
+                    <td>@Fmt(s.StartTime)</td>
+                    <td>@Fmt(s.EndTime)</td>
+                    <td>@s.CashierUserId</td>
+                    <td>@(s.OpeningFloatAmount.ToString("N2"))</td>
+                    <td>@(s.ExpectedCashAmount?.ToString("N2") ?? "-")</td>
+                    <td>@(s.CountedCashAmount?.ToString("N2") ?? "-")</td>
+                    <td><b>@(s.VarianceAmount?.ToString("N2") ?? "-")</b></td>
+                    <td>@s.EntryNumber</td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else if (_rows is not null)
+{
+    <MudAlert Elevated="true" Severity="Severity.Info" Class="mt-3" Text="@Loc["NoData"]" />
+}
+</ModuleGuard>
+
+@code {
+    [Inject] private ICashierShiftService ShiftService { get; set; } = default!;
+    private List<CashierShiftDto>? _rows;
+    private string _filterCashier = "";
+    private DateTime? _filterFrom;
+    private DateTime? _filterTo;
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        try
+        {
+            _rows = await ShiftService.GetHistoryAsync(new CashierShiftFilterDto
+            {
+                Cashier = string.IsNullOrWhiteSpace(_filterCashier) ? null : _filterCashier.Trim(),
+                From = _filterFrom,
+                To = _filterTo
+            });
+        }
+        catch (Exception ex)
+        {
+            Snackbar.Add(ex.Message, Severity.Error);
+            _rows = new List<CashierShiftDto>();
+        }
+    }
+
+    private static string Fmt(DateTime? d) => d?.ToString("yyyy-MM-dd HH:mm") ?? "-";
+}

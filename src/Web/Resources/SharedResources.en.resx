@@ -1165,4 +1165,39 @@
   <data name="OverdueSection" xml:space="preserve"><value>Overdue checks needing follow-up</value></data>
   <data name="MonthlyForecast" xml:space="preserve"><value>Monthly cash-flow forecast</value></data>
   <data name="CheckParties" xml:space="preserve"><value>Party (customer/supplier)</value></data>
+  <data name="ShiftStart" xml:space="preserve"><value>Start Shift</value></data>
+  <data name="ShiftEnd" xml:space="preserve"><value>End &amp; Reconcile Shift</value></data>
+  <data name="ShiftsHistory" xml:space="preserve"><value>Shifts History</value></data>
+  <data name="OpeningFloat" xml:space="preserve"><value>Opening Float</value></data>
+  <data name="StartShift" xml:space="preserve"><value>Start Shift</value></data>
+  <data name="OpenShiftRequired" xml:space="preserve"><value>A shift must be started before selling — enter the opening float</value></data>
+  <data name="NoOpenShift" xml:space="preserve"><value>You have no open shift right now</value></data>
+  <data name="CurrentOpenShift" xml:space="preserve"><value>Your current open shift</value></data>
+  <data name="CashSalesIn" xml:space="preserve"><value>Cash sales (POS)</value></data>
+  <data name="CashRefundsIn" xml:space="preserve"><value>Cash refunds (POS)</value></data>
+  <data name="FloatsInLabel" xml:space="preserve"><value>Float-Ins</value></data>
+  <data name="FloatsOutLabel" xml:space="preserve"><value>Cash-Outs</value></data>
+  <data name="ExpectedCash" xml:space="preserve"><value>Expected cash</value></data>
+  <data name="CountedCash" xml:space="preserve"><value>Counted cash (physical)</value></data>
+  <data name="Variance" xml:space="preserve"><value>Variance (counted − expected)</value></data>
+  <data name="ShiftShortage" xml:space="preserve"><value>Shortage</value></data>
+  <data name="ShiftSurplus" xml:space="preserve"><value>Surplus</value></data>
+  <data name="ShiftBalanced" xml:space="preserve"><value>Balanced — no entry</value></data>
+  <data name="ConfirmClose" xml:space="preserve"><value>Confirm Close &amp; Post Variance</value></data>
+  <data name="EntryWillBePosted" xml:space="preserve"><value>A Cash Over/Short entry (5110) vs till (1105) will be posted</value></data>
+  <data name="ShiftCashier" xml:space="preserve"><value>Cashier</value></data>
+  <data name="ShiftFloatInvalid" xml:space="preserve"><value>Opening float must be greater than zero</value></data>
+  <data name="ShiftStarted" xml:space="preserve"><value>Shift started</value></data>
+  <data name="GoShiftEnd" xml:space="preserve"><value>Go to shift close</value></data>
+  <data name="StartTimeLabel" xml:space="preserve"><value>Start time</value></data>
+  <data name="Cashier" xml:space="preserve"><value>Cashier</value></data>
+  <data name="ShiftClosedOk" xml:space="preserve"><value>Shift closed and reconciled</value></data>
+  <data name="ShiftEntryNumber" xml:space="preserve"><value>Entry number</value></data>
+  <data name="ShiftFinal" xml:space="preserve"><value>Final result</value></data>
+  <data name="CloseShift" xml:space="preserve"><value>Confirm close &amp; post variance</value></data>
+  <data name="Counted" xml:space="preserve"><value>Counted</value></data>
+  <data name="FilterLabel" xml:space="preserve"><value>Filters</value></data>
+  <data name="FilterCashier" xml:space="preserve"><value>Filter by cashier</value></data>
+  <data name="Apply" xml:space="preserve"><value>Apply</value></data>
+  <data name="EndTimeLabel" xml:space="preserve"><value>Close time</value></data>
   </root>

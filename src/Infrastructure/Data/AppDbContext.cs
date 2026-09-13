@@ -216,6 +216,9 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     /// </summary>
     public DbSet<AttendanceRecord> AttendanceRecords => Set<AttendanceRecord>();
 
+    /// <summary>ورديات الكاشير وتسوية درج الكاش.</summary>
+    public DbSet<CashierShift> CashierShifts => Set<CashierShift>();
+
     /// <summary>
     /// Payroll runs table (دورات الرواتب).
     /// </summary>
@@ -326,6 +329,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new ShelfCheckConfiguration());
         modelBuilder.ApplyConfiguration(new ShelfPriceCaptureConfiguration());
         modelBuilder.ApplyConfiguration(new BankCheckConfiguration());
+        modelBuilder.ApplyConfiguration(new CashierShiftConfiguration());
 
         // Concurrency tokens: SQL Server يصنع rowversion تلقائياً.
         // PostgreSQL ليس لديه rowversion — نستخدم عمود bytea صريحاً مع ValueGeneratedNever
@@ -672,6 +676,16 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             {
                 Id = Guid.Parse("15000000-0000-0000-0000-000000000010"),
                 Code = "5200", NameAr = "مصروف رواتب", NameEn = "Salary Expense",
+                AccountType = Domain.Enums.AccountType.Expense,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = expenseRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // ── فروقات الصندوق — عجز/زيادة تسوية وردية الكاشير عند إغلاق الدرج (Debit طبيعياً؛
+            //     الزيادة تُقابَل بدائن على نفس الحساب كتسوية/مكاسب بسيطة) ──
+            new Account
+            {
+                Id = Guid.Parse("15000000-0000-0000-0000-000000000040"),
+                Code = "5110", NameAr = "فروقات الصندوق", NameEn = "Cash Over/Short",
                 AccountType = Domain.Enums.AccountType.Expense,
                 NormalBalance = Domain.Enums.NormalBalance.Debit,
                 ParentAccountId = expenseRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
