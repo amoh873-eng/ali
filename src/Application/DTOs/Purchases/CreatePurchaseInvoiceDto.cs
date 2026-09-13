@@ -23,4 +23,28 @@ public class CreatePurchaseInvoiceDto
 
     [MinLength(1, ErrorMessage = "يجب إضافة بند واحد على الأقل")]
     public List<CreatePurchaseInvoiceLineDto> Lines { get; set; } = new();
+
+    /// <summary>
+    /// أسلوب سداد فاتورة المشتريات: null أو 1 = آجل (يُدين المورد 2200 — الوضع التاريخي)،
+    /// 2 = شيك (تُسجَّل فاتورة على المورد + قيد إصدار شيك يخفض الالتزام فوراً).
+    /// </summary>
+    public int? PaymentMethod { get; set; }
+
+    /// <summary>رقم الشيك المطبوع — مطلوب عندما PaymentMethod = 2.</summary>
+    [StringLength(100)]
+    public string? CheckNumber { get; set; }
+
+    /// <summary>اسم البنك — مطلوب عندما PaymentMethod = 2.</summary>
+    [StringLength(150)]
+    public string? CheckBankName { get; set; }
+
+    /// <summary>الفرع (اختياري).</summary>
+    [StringLength(150)]
+    public string? CheckBranch { get; set; }
+
+    /// <summary>تاريخ كتابة الشيك (افتراضياً تاريخ الفاتورة).</summary>
+    public DateTime? CheckIssueDate { get; set; }
+
+    /// <summary>تاريخ الاستحقاق — مطلوب عندما PaymentMethod = 2.</summary>
+    public DateTime? CheckDueDate { get; set; }
 }

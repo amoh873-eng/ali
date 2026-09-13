@@ -1124,4 +1124,45 @@
   <data name="RepDashTaxSub" xml:space="preserve"><value>Sales tax register</value></data>
   <data name="RepDashCenterSub" xml:space="preserve"><value>Built-in &amp; custom reports</value></data>
   <data name="ReportsDashboardFooter" xml:space="preserve"><value>Reports dashboard — indicators refresh automatically when the page opens</value></data>
+  <data name="BankChecks" xml:space="preserve"><value>Bank Checks</value></data>
+  <data name="BankChecksReport" xml:space="preserve"><value>Bank Checks Report (Due Dates &amp; Amounts)</value></data>
+  <data name="CheckRegister" xml:space="preserve"><value>Register New Check</value></data>
+  <data name="CheckNumber" xml:space="preserve"><value>Check Number</value></data>
+  <data name="CheckBankName" xml:space="preserve"><value>Bank</value></data>
+  <data name="CheckBranch" xml:space="preserve"><value>Branch (optional)</value></data>
+  <data name="CheckAmount" xml:space="preserve"><value>Amount</value></data>
+  <data name="CheckIssueDate" xml:space="preserve"><value>Issue Date (on check)</value></data>
+  <data name="CheckDueDate" xml:space="preserve"><value>Due Date</value></data>
+  <data name="CheckReceivedOrIssuedDate" xml:space="preserve"><value>Received/Issued Date</value></data>
+  <data name="CheckNotes" xml:space="preserve"><value>Notes</value></data>
+  <data name="CheckDirection" xml:space="preserve"><value>Direction</value></data>
+  <data name="CheckParty" xml:space="preserve"><value>Party</value></data>
+  <data name="CheckStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="CheckRelatedInvoice" xml:space="preserve"><value>Related Invoice</value></data>
+  <data name="DirReceived" xml:space="preserve"><value>Received from Customer</value></data>
+  <data name="DirIssued" xml:space="preserve"><value>Issued to Supplier</value></data>
+  <data name="StatusRegistered" xml:space="preserve"><value>Registered (awaiting maturity)</value></data>
+  <data name="StatusDeposited" xml:space="preserve"><value>Deposited for collection</value></data>
+  <data name="StatusCleared" xml:space="preserve"><value>Cleared</value></data>
+  <data name="StatusBounced" xml:space="preserve"><value>Bounced</value></data>
+  <data name="DepositForCollection" xml:space="preserve"><value>Deposit for Collection</value></data>
+  <data name="ClearCheck" xml:space="preserve"><value>Clear Check</value></data>
+  <data name="BounceCheck" xml:space="preserve"><value>Bounce Check</value></data>
+  <data name="CheckOverdue" xml:space="preserve"><value>Overdue</value></data>
+  <data name="CheckDueSoon" xml:space="preserve"><value>Due soon</value></data>
+  <data name="ReportIncoming" xml:space="preserve"><value>Due to us (incoming)</value></data>
+  <data name="ReportOutgoing" xml:space="preserve"><value>Due from us (outgoing)</value></data>
+  <data name="NetExpected" xml:space="preserve"><value>Expected net movement</value></data>
+  <data name="Month" xml:space="preserve"><value>Month</value></data>
+  <data name="PaymentMethod" xml:space="preserve"><value>Payment Method</value></data>
+  <data name="PaymentCash" xml:space="preserve"><value>Cash</value></data>
+  <data name="PaymentCard" xml:space="preserve"><value>Card</value></data>
+  <data name="PaymentOnAccount" xml:space="preserve"><value>On Account</value></data>
+  <data name="PaymentCheck" xml:space="preserve"><value>Check</value></data>
+  <data name="FilterDirection" xml:space="preserve"><value>Direction</value></data>
+  <data name="FilterStatus" xml:space="preserve"><value>Status</value></data>
+  <data name="FilterBoth" xml:space="preserve"><value>All</value></data>
+  <data name="OverdueSection" xml:space="preserve"><value>Overdue checks needing follow-up</value></data>
+  <data name="MonthlyForecast" xml:space="preserve"><value>Monthly cash-flow forecast</value></data>
+  <data name="CheckParties" xml:space="preserve"><value>Party (customer/supplier)</value></data>
   </root>

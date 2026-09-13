@@ -47,11 +47,32 @@ public class CreateSalesInvoiceDto
     public bool IsPos { get; set; }
 
     /// <summary>
-    /// How the sale is settled: 1 = نقدي (Cash), 2 = بطاقة (Card), 3 = آجل (On-Account).
+    /// How the sale is settled: 1 = نقدي (Cash), 2 = بطاقة (Card), 3 = آجل (On-Account), 4 = شيك (Check).
     /// Card sales route the debit to the "Card Receivables" (ذمم البطاقات) account.
+    /// Check sales route the debit to "Checks Receivable" (شيكات برسم التحصيل 1102).
     /// </summary>
-    [Range(1, 3, ErrorMessage = "أسلوب السداد غير صالح")]
+    [Range(1, 4, ErrorMessage = "أسلوب السداد غير صالح")]
     public int PaymentMethod { get; set; } = 1;
+
+    // ── Check payment details (إلزامية للشيك فقط — تُنشئ سجل BankCheck ضمن الفاتورة) ──
+
+    /// <summary>رقم الشيك المطبوع — مطلوب عندما PaymentMethod = 4.</summary>
+    [StringLength(100)]
+    public string? CheckNumber { get; set; }
+
+    /// <summary>اسم البنك — مطلوب عندما PaymentMethod = 4.</summary>
+    [StringLength(150)]
+    public string? CheckBankName { get; set; }
+
+    /// <summary>الفرع (اختياري).</summary>
+    [StringLength(150)]
+    public string? CheckBranch { get; set; }
+
+    /// <summary>تاريخ كتابة الشيك (افتراضياً تاريخ الفاتورة).</summary>
+    public DateTime? CheckIssueDate { get; set; }
+
+    /// <summary>تاريخ الاستحقاق — مطلوب عندما PaymentMethod = 4.</summary>
+    public DateTime? CheckDueDate { get; set; }
 
     // ── Card payment details (إلزامي للبطاقة فقط، وغير جوهري لغيره) ──
     // ⚠️ PCI-DSS: الاتحاد لا يستقبل أبداً رقم البطاقة الكامل/CVV/تاريخ الانتهاء.

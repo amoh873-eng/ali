@@ -1,0 +1,198 @@
+@page "/finance/checks-report"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.BankChecks
+@using ERPSystem.Application.DTOs.Reports
+@using ERPSystem.Domain.Enums
+<ModuleGuard ModuleKey="Finance">
+
+    <PageTitle>@Loc["BankChecksReport"] - @Loc["AppName"]</PageTitle>
+
+    <PageHeader Title="@Loc["BankChecksReport"]" Icon="@Icons.Material.Filled.CalendarMonth" />
+
+    <MudGrid Class="mb-3 align-items-end">
+        <MudItem xs="12" sm="3">
+            <MudDatePicker @bind-Date="_from" Label="@Loc["FromDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="3">
+            <MudDatePicker @bind-Date="_to" Label="@Loc["ToDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+        </MudItem>
+        <MudItem xs="12" sm="2">
+            <MudSelect T="int" @bind-Value="_direction" Label="@Loc["FilterDirection"]" Variant="Variant.Outlined">
+                <MudSelectItem T="int" Value="0">@Loc["FilterBoth"]</MudSelectItem>
+                <MudSelectItem T="int" Value="1">@Loc["DirReceived"]</MudSelectItem>
+                <MudSelectItem T="int" Value="2">@Loc["DirIssued"]</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="2">
+            <MudSelect T="int" @bind-Value="_status" Label="@Loc["FilterStatus"]" Variant="Variant.Outlined">
+                <MudSelectItem T="int" Value="0">@Loc["FilterBoth"]</MudSelectItem>
+                <MudSelectItem T="int" Value="1">@Loc["StatusRegistered"]</MudSelectItem>
+                <MudSelectItem T="int" Value="2">@Loc["StatusDeposited"]</MudSelectItem>
+                <MudSelectItem T="int" Value="3">@Loc["StatusCleared"]</MudSelectItem>
+                <MudSelectItem T="int" Value="4">@Loc["StatusBounced"]</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="12" sm="2">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="LoadAsync" FullWidth="true">@Loc["View"]</MudButton>
+        </MudItem>
+        <MudItem xs="6" sm="1">
+            <MudIconButton Icon="@Icons.Material.Filled.GridView" Size="Size.Small" Color="Color.Primary" OnClick="PrintAsync" />
+        </MudItem>
+        <MudItem xs="6" sm="1">
+            <MudIconButton Icon="@Icons.Material.Filled.TableRows" Size="Size.Small" Color="Color.Success" OnClick="ExcelAsync" />
+        </MudItem>
+    </MudGrid>
+
+    @if (_report is not null)
+    {
+        <MudGrid Class="mb-4">
+            <MudItem xs="12" sm="4">
+                <div class="pa-4 text-center" style="background:#E9F7F0;border-radius:12px;">
+                    <MudText Typo="Typo.subtitle2">@Loc["ReportIncoming"]</MudText>
+                    <MudText Typo="Typo.h5" Style="color:#16A34A;">@_report.IncomingTotal.ToString("N2")</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <div class="pa-4 text-center" style="background:#FDECEC;border-radius:12px;">
+                    <MudText Typo="Typo.subtitle2">@Loc["ReportOutgoing"]</MudText>
+                    <MudText Typo="Typo.h5" Style="color:#DC2626;">@_report.OutgoingTotal.ToString("N2")</MudText>
+                </div>
+            </MudItem>
+            <MudItem xs="12" sm="4">
+                <div class="pa-4 text-center" style="background:#EEF2FF;border-radius:12px;">
+                    <MudText Typo="Typo.subtitle2">@Loc["NetExpected"]</MudText>
+                    <MudText Typo="Typo.h5" Style="color:#4F46E5;">@((_report.IncomingTotal - _report.OutgoingTotal).ToString("N2"))</MudText>
+                </div>
+            </MudItem>
+        </MudGrid>
+
+        <MudText Typo="Typo.h6">@Loc["MonthlyForecast"]</MudText>
+        <div class="pa-3 mb-3">
+            <MudTable T="BankCheckMonthlyBucketDto" Items="_report.Monthly" Hover="true" Dense="true">
+                <HeaderContent>
+                    <MudTh>@Loc["Month"]</MudTh>
+                    <MudTh>@Loc["ReportIncoming"]</MudTh>
+                    <MudTh>@Loc["ReportOutgoing"]</MudTh>
+                    <MudTh>@Loc["NetExpected"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@(context.Year.ToString() + "-" + context.Month.ToString().PadLeft(2, '0'))</MudTd>
+                    <MudTd>@context.Incoming.ToString("N2")</MudTd>
+                    <MudTd>@context.Outgoing.ToString("N2")</MudTd>
+                    <MudTd>@context.Net.ToString("N2")</MudTd>
+                </RowTemplate>
+            </MudTable>
+        </div>
+
+        @if (_report.Overdue.Count > 0)
+        {
+            <MudText Typo="Typo.h6" Style="color:#DC2626;">@Loc["OverdueSection"] (@_report.Overdue.Count)</MudText>
+            <div class="pa-3 mb-3">
+                <MudTable T="BankCheckDto" Items="_report.Overdue" Hover="true" Dense="true">
+                    <HeaderContent>
+                        <MudTh>@Loc["CheckNumber"]</MudTh>
+                        <MudTh>@Loc["CheckParty"]</MudTh>
+                        <MudTh>@Loc["CheckDueDate"]</MudTh>
+                        <MudTh>@Loc["CheckAmount"]</MudTh>
+                        <MudTh>@Loc["CheckStatus"]</MudTh>
+                    </HeaderContent>
+                    <RowTemplate>
+                        <MudTd>@context.CheckNumber</MudTd>
+                        <MudTd>@context.PartyName</MudTd>
+                        <MudTd>@context.DueDate.ToString("yyyy-MM-dd")</MudTd>
+                        <MudTd>@context.Amount.ToString("N2")</MudTd>
+                        <MudTd><MudChip T="BankCheckDto" Color="Color.Error" Class="mud-chip-size-small">@Loc["CheckOverdue"]</MudChip></MudTd>
+                    </RowTemplate>
+                </MudTable>
+            </div>
+        }
+    <MudText Typo="Typo.h6" Class="mt-2">@Loc["BankChecks"]</MudText>
+        <div class="pa-3">
+            <MudTable T="BankCheckDto" Items="_report.Rows" Hover="true" Dense="true" ItemsLoading="!_loaded">
+                <HeaderContent>
+                    <MudTh>@Loc["CheckNumber"]</MudTh>
+                    <MudTh>@Loc["CheckParty"]</MudTh>
+                    <MudTh>@Loc["CheckIssueDate"]</MudTh>
+                    <MudTh>@Loc["CheckDueDate"]</MudTh>
+                    <MudTh>@Loc["CheckAmount"]</MudTh>
+                    <MudTh>@Loc["CheckStatus"]</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.CheckNumber</MudTd>
+                    <MudTd>@context.PartyName</MudTd>
+                    <MudTd>@context.IssueDate.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd>@context.DueDate.ToString("yyyy-MM-dd")</MudTd>
+                    <MudTd>@context.Amount.ToString("N2")</MudTd>
+                    <MudTd>@StatusLabel(context.Status)</MudTd>
+                </RowTemplate>
+                <FooterContent>
+                    <MudTr>
+                        <MudTd colspan="6"><MudText Typo="Typo.subtitle1">@Loc["Total"]: @_report.Rows.Sum(r => r.Amount).ToString("N2")</MudText></MudTd>
+                    </MudTr>
+                </FooterContent>
+                <PagerContent>
+                    <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
+                </PagerContent>
+            </MudTable>
+        </div>
+    }
+
+    </ModuleGuard>
+
+    @code {
+        [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+        [Inject] private IBankCheckService CheckService { get; set; } = default!;
+        [Inject] private IReportService ReportService { get; set; } = default!;
+        [Inject] private IJSRuntime JS { get; set; } = default!;
+
+        private DateTime? _from = DateTime.Today.AddMonths(-1);
+        private DateTime? _to = DateTime.Today.AddMonths(12);
+        private int _direction;
+        private int _status;
+        private BankChecksReportDto? _report;
+        private bool _loaded;
+
+        protected override async Task OnInitializedAsync() => await LoadAsync();
+
+        private async Task LoadAsync()
+        {
+            _loaded = false;
+            _report = await CheckService.ReportAsync(
+                _from, _to,
+                _direction == 1 ? BankCheckDirection.ReceivedFromCustomer : (_direction == 2 ? BankCheckDirection.IssuedToSupplier : null),
+                _status == 0 ? null : (BankCheckStatus)_status);
+            _loaded = true;
+        }
+
+        private string StatusLabel(int status)
+        {
+            if (status == 1) return Loc["StatusRegistered"];
+            if (status == 2) return Loc["StatusDeposited"];
+            if (status == 3) return Loc["StatusCleared"];
+            return Loc["StatusBounced"];
+        }
+
+        private async Task PrintAsync() => await JS.InvokeVoidAsync("eval", "window.print()");
+
+        private async Task ExcelAsync()
+        {
+            if (_report is null) return;
+            var table = new GenericReportTable
+            {
+                TitleAr = Loc["BankChecksReport"],
+                Headers = new List<string> { Loc["Month"], Loc["ReportIncoming"], Loc["ReportOutgoing"], Loc["NetExpected"] },
+                ParamSummary = ""
+            };
+            foreach (var b in _report.Monthly)
+                table.Rows.Add(new List<string> {
+                    b.Year.ToString() + "-" + b.Month.ToString().PadLeft(2, '0'),
+                    b.Incoming.ToString("N2"),
+                    b.Outgoing.ToString("N2"),
+                    b.Net.ToString("N2")
+                });
+            var bytes = ReportService.ExportReportExcel(table);
+            await JS.InvokeVoidAsync("eval",
+                "var a=document.createElement('a');a.href='data:application/vnd.openxmlformats-officedocument.spreadsheetml.sheet;base64," +
+                Convert.ToBase64String(bytes) + "';a.download='checks-report.xlsx';a.click();");
+        }
+    }

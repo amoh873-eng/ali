@@ -29,6 +29,8 @@ public partial class SalesInvoiceService : ISalesInvoiceService
     private const string AccountCardReceivables = "1205";
     // درج الكاش: موقع نقدي منفصل عن الخزنة الرئيسية «الصندوق» — تُرحَّل إليه مبيعات نقطة البيع النقدية
     private const string AccountTillDrawer = "1105";
+    // شيكات برسم التحصيل: شيكات استُلمت من عملاء (أداة دفع مؤجلة) — تُنقل للبنك عند التحصيل
+    private const string AccountChecksReceivable = "1102";
     private const string AccountInventory = "1300";
     private const string AccountSalesTaxPayable = "2100";
     private const string AccountSalesRevenue = "4100";

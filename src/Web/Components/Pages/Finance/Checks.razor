@@ -1,0 +1,143 @@
+@page "/finance/checks"
+@attribute [Authorize(Roles = "Reports")]
+@using ERPSystem.Application.DTOs.BankChecks
+@using ERPSystem.Domain.Enums
+<ModuleGuard ModuleKey="Finance">
+
+    <PageTitle>@Loc["BankChecks"] - @Loc["AppName"]</PageTitle>
+
+    <PageHeader Title="@Loc["BankChecks"]" Icon="@Icons.Material.Filled.RequestQuote" />
+
+    <MudGrid Class="mb-3 align-items-end">
+        <MudItem xs="12" sm="4">
+            <MudSelect T="int" @bind-Value="_direction" Label="@Loc["FilterDirection"]" Variant="Variant.Outlined">
+                <MudSelectItem T="int" Value="0">@Loc["FilterBoth"]</MudSelectItem>
+                <MudSelectItem T="int" Value="1">@Loc["DirReceived"]</MudSelectItem>
+                <MudSelectItem T="int" Value="2">@Loc["DirIssued"]</MudSelectItem>
+            </MudSelect>
+        </MudItem>
+        <MudItem xs="6" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" OnClick="OpenRegisterDialog" StartIcon="@Icons.Material.Filled.AddCircle" FullWidth="true">@Loc["CheckRegister"]</MudButton>
+        </MudItem>
+        <MudItem xs="6" sm="4">
+            <MudButton Variant="Variant.Filled" Color="Color.Secondary" OnClick="LoadAsync" FullWidth="true">@Loc["View"]</MudButton>
+        </MudItem>
+    </MudGrid>
+
+    <MudPaper Elevation="1" Class="pa-4">
+        <MudTable T="BankCheckDto" Items="_checks" Hover="true" Dense="true" ItemsLoading="!_loaded">
+            <HeaderContent>
+                <MudTh>@Loc["CheckNumber"]</MudTh>
+                <MudTh>@Loc["CheckBankName"]</MudTh>
+                <MudTh>@Loc["CheckParty"]</MudTh>
+                <MudTh>@Loc["CheckIssueDate"]</MudTh>
+                <MudTh>@Loc["CheckDueDate"]</MudTh>
+                <MudTh>@Loc["CheckAmount"]</MudTh>
+                <MudTh>@Loc["CheckStatus"]</MudTh>
+                <MudTh>@Loc["CheckRelatedInvoice"]</MudTh>
+                <MudTh></MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.CheckNumber</MudTd>
+                <MudTd>@context.BankName@(context.BranchName is null ? "" : " - " + context.BranchName)</MudTd>
+                <MudTd>@context.PartyName</MudTd>
+                <MudTd>@context.IssueDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.DueDate.ToString("yyyy-MM-dd")</MudTd>
+                <MudTd>@context.Amount.ToString("N2")</MudTd>
+                <MudTd>
+                    @{ var st = StatusChip(context); }
+                    <MudChip T="BankCheckDto" Color="@st.Color" Class="mud-chip-size-small">@st.Label</MudChip>
+                </MudTd>
+                <MudTd>@(context.RelatedInvoiceNumber ?? "—")</MudTd>
+                <MudTd>
+                    @if (context.Status == 1 && context.Direction == 1)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.MoveToInbox" Size="Size.Small" Color="Color.Secondary" OnClick="() => OpenTransition(context, 1)" UserAttributes="@(new Dictionary<string, object> { { "id", "chk-deposit" } })" />
+                    }
+                    @if (context.Status == 1 || context.Status == 2)
+                    {
+                        <MudIconButton Icon="@Icons.Material.Filled.CheckCircle" Size="Size.Small" Color="Color.Success" OnClick="() => OpenTransition(context, 2)" UserAttributes="@(new Dictionary<string, object> { { "id", "chk-clear" } })" />
+                        <MudIconButton Icon="@Icons.Material.Filled.Error" Size="Size.Small" Color="Color.Error" OnClick="() => OpenTransition(context, 3)" UserAttributes="@(new Dictionary<string, object> { { "id", "chk-bounce" } })" />
+                    }
+                </MudTd>
+            </RowTemplate>
+            <FooterContent>
+                <MudTr>
+                    <MudTd colspan="9">
+                        <MudText Typo="Typo.subtitle1">@Loc["Total"]: @_checks.Sum(c => c.Amount).ToString("N2")</MudText>
+                    </MudTd>
+                </MudTr>
+            </FooterContent>
+            <PagerContent>
+                <MudTablePager InfoFormat="@Loc["PagerInfo"]" RowsPerPageString="@Loc["RowsPerPage"]" />
+            </PagerContent>
+        </MudTable>
+    </MudPaper>
+</ModuleGuard>
+
+@code {
+    [Inject] private IStringLocalizer<SharedResources> Loc { get; set; } = default!;
+    [Inject] private IBankCheckService CheckService { get; set; } = default!;
+    [Inject] private ISnackbar Snackbar { get; set; } = default!;
+    [Inject] private IDialogService DialogService { get; set; } = default!;
+
+    private List<BankCheckDto> _checks = new();
+    private bool _loaded;
+    private int _direction;
+
+    private class ChipView
+    {
+        public Color Color;
+        public string Label;
+    }
+
+    protected override async Task OnInitializedAsync() => await LoadAsync();
+
+    private async Task LoadAsync()
+    {
+        _loaded = false;
+        BankCheckDirection? direction = null;
+        if (_direction == 1) direction = BankCheckDirection.ReceivedFromCustomer;
+        else if (_direction == 2) direction = BankCheckDirection.IssuedToSupplier;
+        _checks = await CheckService.ListAsync(direction);
+        _loaded = true;
+    }
+
+    private ChipView StatusChip(BankCheckDto c)
+    {
+        var overdue = (c.Status == 1 || c.Status == 2)
+            && DateOnly.FromDateTime(DateTime.Today) > DateOnly.FromDateTime(c.DueDate);
+        if (overdue && c.Status != 3)
+            return new ChipView { Color = Color.Error, Label = Loc["CheckOverdue"] };
+        if (c.Status == 1)
+            return new ChipView { Color = Color.Primary, Label = Loc["StatusRegistered"] };
+        if (c.Status == 2)
+            return new ChipView { Color = Color.Secondary, Label = Loc["StatusDeposited"] };
+        if (c.Status == 3)
+            return new ChipView { Color = Color.Success, Label = Loc["StatusCleared"] };
+        return new ChipView { Color = Color.Dark, Label = Loc["StatusBounced"] };
+    }
+
+    private async Task OpenRegisterDialog()
+    {
+        var dialog = await DialogService.ShowAsync<CheckFormDialog>(
+            Loc["CheckRegister"], new DialogParameters {},
+            new DialogOptions { MaxWidth = MaxWidth.Medium, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+            await LoadAsync();
+    }
+
+    private async Task OpenTransition(BankCheckDto check, int action)
+    {
+        var parameters = new DialogParameters
+        {
+            ["Check"] = check,
+            ["Action"] = action
+        };
+        var dialog = await DialogService.ShowAsync<CheckTransitionDialog>(
+            Loc["BankChecks"], parameters,
+            new DialogOptions { MaxWidth = MaxWidth.Small, FullWidth = true });
+        if ((await dialog.Result)?.Canceled != true)
+            await LoadAsync();
+    }
+}

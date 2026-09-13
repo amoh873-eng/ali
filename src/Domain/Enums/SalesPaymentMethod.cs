@@ -23,5 +23,8 @@ public enum SalesPaymentMethod
     Card = 2,
 
     /// <summary>بيع آجل — مبلغ مستحق على العميل (On-Account)</summary>
-    OnAccount = 3
+    OnAccount = 3,
+
+    /// <summary>دفع بشيك (مؤجل عادةً) — يُدخل في «شيكات برسم التحصيل» (1102) بدل الصندوق/الذمم</summary>
+    Check = 4
 }

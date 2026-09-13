@@ -325,6 +325,7 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new ShelfParLevelConfiguration());
         modelBuilder.ApplyConfiguration(new ShelfCheckConfiguration());
         modelBuilder.ApplyConfiguration(new ShelfPriceCaptureConfiguration());
+        modelBuilder.ApplyConfiguration(new BankCheckConfiguration());
 
         // Concurrency tokens: SQL Server يصنع rowversion تلقائياً.
         // PostgreSQL ليس لديه rowversion — نستخدم عمود bytea صريحاً مع ValueGeneratedNever
@@ -583,6 +584,16 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
                 NormalBalance = Domain.Enums.NormalBalance.Debit,
                 ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
             },
+            // شيكات برسم التحصيل: شيكات استُلمت من عملاء (أداة دفع مؤجلة) لم تُحصَّل بعد —
+            // أصل قريب من النقد (بحقه عن البنك)؛ يُنقل إلى «البنك» عند التحصيل.
+            new Account
+            {
+                Id = Guid.Parse("11000000-0000-0000-0000-000000000012"),
+                Code = "1102", NameAr = "شيكات برسم التحصيل", NameEn = "Checks Receivable",
+                AccountType = Domain.Enums.AccountType.Asset,
+                NormalBalance = Domain.Enums.NormalBalance.Debit,
+                ParentAccountId = assetsRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
             // ذمم البطاقات: مبيعات أجريت بالبطاقة وتمت من الطرفية لكن البنك لم يسوّيها بعد
             // (مستحق من البنك — أصل، ليس نقداً فورياً). يُدين عند بيع بطاقة بدل الصندوق.
             new Account
@@ -616,6 +627,16 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
             {
                 Id = Guid.Parse("12000000-0000-0000-0000-000000000002"),
                 Code = "2200", NameAr = "الموردون/الدائنون", NameEn = "Accounts Payable",
+                AccountType = Domain.Enums.AccountType.Liability,
+                NormalBalance = Domain.Enums.NormalBalance.Credit,
+                ParentAccountId = liabilitiesRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime
+            },
+            // شيكات برسم السداد: شيكات صُدرت لصالح موردين (التزام مؤجل) لم تُصرف بعد —
+            // التزام قريب من النقد؛ يُنقل إلى «البنك» عند الصرف. (2400 — لأن 2300 محجوز لرواتب مستحقة الدفع)
+            new Account
+            {
+                Id = Guid.Parse("12000000-0000-0000-0000-000000000013"),
+                Code = "2400", NameAr = "شيكات برسم السداد", NameEn = "Checks Payable",
                 AccountType = Domain.Enums.AccountType.Liability,
                 NormalBalance = Domain.Enums.NormalBalance.Credit,
                 ParentAccountId = liabilitiesRoot, IsActive = true, IsSystem = true, CreatedAt = seedTime

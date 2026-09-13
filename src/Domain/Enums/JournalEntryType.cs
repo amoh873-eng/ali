@@ -38,5 +38,17 @@ public enum JournalEntryType
     CashTransfer = 10,
 
     /// <summary>ناتج عن عهدة نقدية بيد مندوب - Rep Cash Custody</summary>
-    CashCustody = 11
+    CashCustody = 11,
+
+    /// <summary>ناتج عن تسجيل شيك (مستلم من عميل أو مصدر لمورد) — يُدخل «برسم التحصيل/السداد»</summary>
+    BankCheckReceipt = 12,
+
+    /// <summary>ناتج عن إيداع شيك مستلم للتحصيل — بلا أثر محاسبي (مرحلة وسيطة فقط)</summary>
+    BankCheckDeposit = 13,
+
+    /// <summary>ناتج عن تحصيل/صرف شيك ناجح — أصبح نقداً في البنك</summary>
+    BankCheckClearance = 14,
+
+    /// <summary>ناتج عن ارتداد شيك — عكس الأثر الأول (عودة الدين كما كان)</summary>
+    BankCheckBounce = 15
 }

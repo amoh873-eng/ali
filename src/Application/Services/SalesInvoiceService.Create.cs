@@ -1,3 +1,4 @@
+using ERPSystem.Application.DTOs.BankChecks;
 using ERPSystem.Application.DTOs.Journal;
 using ERPSystem.Application.DTOs.Sales;
 using ERPSystem.Domain.Entities;
@@ -34,12 +35,24 @@ public partial class SalesInvoiceService
         var paymentMethod = (SalesPaymentMethod)dto.PaymentMethod;
         if (paymentMethod != SalesPaymentMethod.Cash
             && paymentMethod != SalesPaymentMethod.Card
-            && paymentMethod != SalesPaymentMethod.OnAccount)
+            && paymentMethod != SalesPaymentMethod.OnAccount
+            && paymentMethod != SalesPaymentMethod.Check)
             throw new InvalidOperationException("أسلوب السداد غير صالح.");
 
         // إلزامية رقم الموافقة للبطاقة: يمنع تسجيل عملية بطاقة بلا مرجع يمكن مطابقته لاحقاً مع كشف البنك
         if (paymentMethod == SalesPaymentMethod.Card && string.IsNullOrWhiteSpace(dto.CardApprovalCode))
             throw new InvalidOperationException("رقم الموافقة/المرجع مطلوب عند الدفع بالبطاقة — انسخه من إيصال الطرفية.");
+
+        // السداد بشيك: رقم الشيك واسم البنك وتاريخ الاستحقاق إلزامية (شيكات مؤجلة عادةً)
+        if (paymentMethod == SalesPaymentMethod.Check)
+        {
+            if (string.IsNullOrWhiteSpace(dto.CheckNumber) || string.IsNullOrWhiteSpace(dto.CheckBankName))
+                throw new InvalidOperationException("رقم الشيك واسم البنك مطلوبان عند السداد بشيك.");
+            if (dto.CheckDueDate is null)
+                throw new InvalidOperationException("تاريخ استحقاق الشيك مطلوب عند السداد بشيك.");
+            if (DateOnly.FromDateTime(dto.CheckDueDate.Value) < DateOnly.FromDateTime(dto.InvoiceDate))
+                throw new InvalidOperationException("تاريخ استحقاق الشيك لا يمكن أن يسبق تاريخ الفاتورة.");
+        }
 
         // الدمج المنطقي مع نوع الفاتورة: فاتورة آجلة بالطريقة القديمة (InvoiceType=2) تساوي آجل دائماً
         if (type == SalesInvoiceType.OnAccount && paymentMethod == SalesPaymentMethod.Cash)
@@ -112,7 +125,9 @@ public partial class SalesInvoiceService
         var netBeforeTax = invoice.SubTotal - invoice.DiscountAmount;
         invoice.TaxAmount = Math.Round(netBeforeTax * (dto.TaxRate / 100m), 2);
         invoice.TotalAmount = Math.Round(netBeforeTax + invoice.TaxAmount, 2);
-        invoice.PaidAmount = type == SalesInvoiceType.Cash ? invoice.TotalAmount : 0m;
+        invoice.PaidAmount = type == SalesInvoiceType.Cash || paymentMethod == SalesPaymentMethod.Check
+            ? invoice.TotalAmount
+            : 0m;
         invoice.Lines = lines;
 
         _context.Set<SalesInvoice>().Add(invoice);
@@ -161,9 +176,11 @@ public partial class SalesInvoiceService
             ? await GetAccountByCodeAsync(AccountReceivable)
             : paymentMethod == SalesPaymentMethod.Card
                 ? await GetAccountByCodeAsync(AccountCardReceivables)
-                : invoice.IsPos
-                    ? await GetAccountByCodeAsync(AccountTillDrawer) // مبيعات نقطة البيع النقدية → درج الكاش (1105)
-                    : await GetAccountByCodeAsync(AccountCash);     // مبيعات الوحدة النقدية → الخزنة الرئيسية (1100)
+                : paymentMethod == SalesPaymentMethod.Check
+                    ? await GetAccountByCodeAsync(AccountChecksReceivable) // شيك مستلم → «شيكات برسم التحصيل» (1102)
+                    : invoice.IsPos
+                        ? await GetAccountByCodeAsync(AccountTillDrawer) // مبيعات نقطة البيع النقدية → درج الكاش (1105)
+                        : await GetAccountByCodeAsync(AccountCash);     // مبيعات الوحدة النقدية → الخزنة الرئيسية (1100)
         var revenueAccount = await GetAccountByCodeAsync(AccountSalesRevenue);
         var taxPayableAccount = await GetAccountByCodeAsync(AccountSalesTaxPayable);
 
@@ -202,6 +219,30 @@ public partial class SalesInvoiceService
         // 7) تحديث رصيد العميل المكرر (مدين يزيد في نحوه عند البيع الآجل أساساً)
         customer.CurrentBalance += invoice.TotalAmount;
         customer.UpdatedAt = DateTime.UtcNow;
+
+        // 7ب) السداد بشيك: ننشئ سجل الشيك (مستلم من العميل) + قيد فتح «شيكات برسم التحصيل» (1102)
+        //     ذات المُعامَلة: الفاتورة دائمًا تُدين حساب العميل ثم الشيك يخفضه فورًا (صافي = صفر
+        //     شيكًا بدل الدفع النقدي) عبر نفس الوضع الذري في PrepareRegisteredCheckAsync.
+        if (paymentMethod == SalesPaymentMethod.Check)
+        {
+            var checkDto = new CreateBankCheckDto
+            {
+                CheckNumber = dto.CheckNumber ?? string.Empty,
+                BankName = dto.CheckBankName ?? string.Empty,
+                BranchName = dto.CheckBranch,
+                Direction = BankCheckDirection.ReceivedFromCustomer,
+                CustomerId = customer.Id,
+                RelatedInvoiceId = invoice.Id,
+                Amount = invoice.TotalAmount,
+                IssueDate = dto.CheckIssueDate.HasValue ? dto.CheckIssueDate.Value : invoice.InvoiceDate,
+                DueDate = dto.CheckDueDate.HasValue ? dto.CheckDueDate.Value : invoice.InvoiceDate.AddDays(30),
+                ReceivedOrIssuedDate = invoice.InvoiceDate,
+                Notes = dto.Note
+            };
+            var check = await BankCheckService.PrepareRegisteredCheckAsync(
+                _context, _journalService, checkDto, customer, null);
+            _context.Set<BankCheck>().Add(check);
+        }
 
             // SaveChanges واحدة تحفظ كل شيء معاً (ذرية): الفاتورة بنودها حركاتها وقيودها وأرصدتها
             await _context.SaveChangesAsync();

@@ -1125,4 +1125,45 @@
   <data name="RepDashTaxSub" xml:space="preserve"><value>سجل ضريبة المبيعات</value></data>
   <data name="RepDashCenterSub" xml:space="preserve"><value>تقارير جاهزة ومخصصة</value></data>
   <data name="ReportsDashboardFooter" xml:space="preserve"><value>تصميم لوحة التقارير — المؤشرات تُحدَّث تلقائياً عند فتح الصفحة</value></data>
+  <data name="BankChecks" xml:space="preserve"><value>الشيكات البنكية</value></data>
+  <data name="BankChecksReport" xml:space="preserve"><value>تقرير الشيكات (الاستحقاق والمبالغ)</value></data>
+  <data name="CheckRegister" xml:space="preserve"><value>تسجيل شيك جديد</value></data>
+  <data name="CheckNumber" xml:space="preserve"><value>رقم الشيك</value></data>
+  <data name="CheckBankName" xml:space="preserve"><value>البنك</value></data>
+  <data name="CheckBranch" xml:space="preserve"><value>الفرع (اختياري)</value></data>
+  <data name="CheckAmount" xml:space="preserve"><value>المبلغ</value></data>
+  <data name="CheckIssueDate" xml:space="preserve"><value>تاريخ كتابة الشيك</value></data>
+  <data name="CheckDueDate" xml:space="preserve"><value>تاريخ الاستحقاق</value></data>
+  <data name="CheckReceivedOrIssuedDate" xml:space="preserve"><value>تاريخ الدخول/الخروج</value></data>
+  <data name="CheckNotes" xml:space="preserve"><value>ملاحظة</value></data>
+  <data name="CheckDirection" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="CheckParty" xml:space="preserve"><value>الطرف</value></data>
+  <data name="CheckStatus" xml:space="preserve"><value>الحالة</value></data>
+  <data name="CheckRelatedInvoice" xml:space="preserve"><value>الفاتورة المرتبطة</value></data>
+  <data name="DirReceived" xml:space="preserve"><value>مستلم من عميل</value></data>
+  <data name="DirIssued" xml:space="preserve"><value>مصدر لمورد</value></data>
+  <data name="StatusRegistered" xml:space="preserve"><value>مسجّل (بانتظار الاستحقاق)</value></data>
+  <data name="StatusDeposited" xml:space="preserve"><value>أودع للتحصيل</value></data>
+  <data name="StatusCleared" xml:space="preserve"><value>محصَّل/صُرف</value></data>
+  <data name="StatusBounced" xml:space="preserve"><value>مرتد</value></data>
+  <data name="DepositForCollection" xml:space="preserve"><value>إيداع للتحصيل</value></data>
+  <data name="ClearCheck" xml:space="preserve"><value>تحصيل الشيك</value></data>
+  <data name="BounceCheck" xml:space="preserve"><value>ارتداد الشيك</value></data>
+  <data name="CheckOverdue" xml:space="preserve"><value>متأخر</value></data>
+  <data name="CheckDueSoon" xml:space="preserve"><value>يستحق قريباً</value></data>
+  <data name="ReportIncoming" xml:space="preserve"><value>مستحق علينا (وارد)</value></data>
+  <data name="ReportOutgoing" xml:space="preserve"><value>مستحق منا (صادر)</value></data>
+  <data name="NetExpected" xml:space="preserve"><value>صافي التدفق المتوقع</value></data>
+  <data name="Month" xml:space="preserve"><value>الشهر</value></data>
+  <data name="PaymentMethod" xml:space="preserve"><value>طريقة الدفع</value></data>
+  <data name="PaymentCash" xml:space="preserve"><value>نقدي</value></data>
+  <data name="PaymentCard" xml:space="preserve"><value>بطاقة</value></data>
+  <data name="PaymentOnAccount" xml:space="preserve"><value>آجل</value></data>
+  <data name="PaymentCheck" xml:space="preserve"><value>شيك</value></data>
+  <data name="FilterDirection" xml:space="preserve"><value>الاتجاه</value></data>
+  <data name="FilterStatus" xml:space="preserve"><value>الحالة</value></data>
+  <data name="FilterBoth" xml:space="preserve"><value>الكل</value></data>
+  <data name="OverdueSection" xml:space="preserve"><value>شيكات متأخرة بحاجة متابعة</value></data>
+  <data name="MonthlyForecast" xml:space="preserve"><value>التوقع الشهري للتدفق النقدي</value></data>
+  <data name="CheckParties" xml:space="preserve"><value>الطرف (عميل/مورد)</value></data>
   </root>

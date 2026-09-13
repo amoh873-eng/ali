@@ -1,0 +1,64 @@
+@* حوار تنفيذ انتقال حالة على شيك (إيداع للتحصيل / تحصيل / ارتداد) *@
+@using ERPSystem.Application.DTOs.BankChecks
+@inject IStringLocalizer<SharedResources> Loc
+@inject IBankCheckService CheckService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudText Typo="Typo.body2">
+                @_summaryLabel — @Check.CheckNumber · @Check.BankName · مبلغ @Check.Amount.ToString("N2")
+            </MudText>
+            <MudDatePicker @bind-Date="_actionDate" Label="@Loc["Date"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+            <MudTextField @bind-Value="_notes" T="string" Label="@Loc["CheckNotes"]" Lines="2" Variant="Variant.Outlined" />
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@_actionLabel</MudButton>
+    </DialogActions>
+</MudDialog>
+
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    /// <summary>الشيك محل العملية.</summary>
+    [Parameter] public BankCheckDto Check { get; set; } = default!;
+
+    /// <summary>نوع العملية: 1 = إيداع للتحصيل (مستلم فقط)، 2 = تحصيل/صرف، 3 = ارتداد.</summary>
+    [Parameter] public int Action { get; set; } = 2;
+
+    private MudForm? _form;
+    private DateTime? _actionDate = DateTime.Today;
+    private string? _notes;
+    private string? _error;
+
+    private string _actionLabel => Action == 1 ? Loc["DepositForCollection"] : (Action == 2 ? Loc["ClearCheck"] : Loc["BounceCheck"]);
+    private string _summaryLabel => Action == 1 ? Loc["DepositForCollection"] : (Action == 2 ? Loc["ClearCheck"] : Loc["BounceCheck"]);
+
+    private void Cancel() => MudDialog.Cancel();
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+        if (_actionDate is null) { _error = Loc["Date"]; return; }
+
+        _error = null;
+        try
+        {
+            if (Action == 1)
+                await CheckService.DepositAsync(Check.Id, _actionDate ?? DateTime.Today);
+            else if (Action == 2)
+                await CheckService.ClearAsync(Check.Id, _actionDate ?? DateTime.Today, _notes);
+            else
+                await CheckService.BounceAsync(Check.Id, _actionDate ?? DateTime.Today, _notes);
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}

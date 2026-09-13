@@ -1,0 +1,162 @@
+@* نموذج حوار لتسجيل شيك جديد (مستلم من عميل أو مصدر لمورد) *@
+@using System.Globalization
+@using ERPSystem.Application.DTOs.BankChecks
+@using ERPSystem.Application.DTOs.Customers
+@using ERPSystem.Application.DTOs.Purchases
+@inject IStringLocalizer<SharedResources> Loc
+@inject IBankCheckService CheckService
+@inject ICustomerService CustomerService
+@inject ISupplierService SupplierService
+
+<MudDialog>
+    <DialogContent>
+        <MudForm @ref="_form">
+            @if (_error is not null)
+            {
+                <MudAlert Severity="Severity.Error" Class="mb-3">@_error</MudAlert>
+            }
+            <MudGrid>
+                <MudItem xs="12" sm="6">
+                    <MudSelect T="int" @bind-Value="_direction" Label="@Loc["CheckDirection"]" Required="true" Variant="Variant.Outlined">
+                        <MudSelectItem T="int" Value="1">@Loc["DirReceived"]</MudSelectItem>
+                        <MudSelectItem T="int" Value="2">@Loc["DirIssued"]</MudSelectItem>
+                    </MudSelect>
+                </MudItem>
+                @if (_direction == 1)
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Guid" @bind-Value="_partyId" Label="@Loc["Customer"]" Required="true" Variant="Variant.Outlined">
+                            @foreach (var c in _customers)
+                            {
+                                <MudSelectItem T="Guid" Value="@c.Id">@c.Code - @c.NameAr</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+                else
+                {
+                    <MudItem xs="12" sm="6">
+                        <MudSelect T="Guid" @bind-Value="_partyId" Label="@Loc["Supplier"]" Required="true" Variant="Variant.Outlined">
+                            @foreach (var s in _suppliers)
+                            {
+                                <MudSelectItem T="Guid" Value="@s.Id">@s.Code - @s.NameAr</MudSelectItem>
+                            }
+                        </MudSelect>
+                    </MudItem>
+                }
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_checkNumber" Label="@Loc["CheckNumber"]" Required="true" RequiredError="@Loc["CheckNumber"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_bankName" Label="@Loc["CheckBankName"]" Required="true" RequiredError="@Loc["CheckBankName"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_branch" Label="@Loc["CheckBranch"]" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudTextField T="string" @bind-Value="_amountText" Label="@Loc["CheckAmount"]" Required="true" Variant="Variant.Outlined" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_issueDate" Label="@Loc["CheckIssueDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_dueDate" Label="@Loc["CheckDueDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                </MudItem>
+                <MudItem xs="12" sm="6">
+                    <MudDatePicker @bind-Date="_receivedOrIssuedDate" Label="@Loc["CheckReceivedOrIssuedDate"]" Variant="Variant.Outlined" T="DateTime?" AutoClose="true" />
+                </MudItem>
+                <MudItem xs="12">
+                    <MudTextField @bind-Value="_notes" T="string" Label="@Loc["CheckNotes"]" Lines="2" Variant="Variant.Outlined" />
+                </MudItem>
+            </MudGrid>
+        </MudForm>
+    </DialogContent>
+    <DialogActions>
+        <MudButton OnClick="Cancel" Color="Color.Default">@Loc["Cancel"]</MudButton>
+        <MudButton OnClick="SubmitAsync" Variant="Variant.Filled" Color="Color.Primary">@Loc["SaveInvoice"]</MudButton>
+    </DialogActions>
+</MudDialog>
+@code {
+    [CascadingParameter] private IMudDialogInstance MudDialog { get; set; } = default!;
+
+    private MudForm? _form;
+    private List<CustomerDto> _customers = new();
+    private List<SupplierDto> _suppliers = new();
+
+    private int _direction = 1;
+    private Guid _partyId = Guid.Empty;
+    private string _checkNumber = string.Empty;
+    private string _bankName = string.Empty;
+    private string? _branch;
+    private string _amountText = string.Empty;
+    private DateTime? _issueDate = DateTime.Today;
+    private DateTime? _dueDate = DateTime.Today.AddDays(30);
+    private DateTime? _receivedOrIssuedDate = DateTime.Now;
+    private string? _notes;
+    private string? _error;
+
+    protected override async Task OnInitializedAsync()
+    {
+        _customers = await CustomerService.GetAllAsync();
+        _suppliers = await SupplierService.GetAllAsync();
+    }
+
+    private void Cancel() => MudDialog.Cancel();
+
+    /// <summary>تحليل مبلغ رقمي يقبل الشكل العربي والأوروبي والأمريكي (نمط ItemService.BulkImport).</summary>
+    private static decimal ParseAmount(string raw)
+    {
+        if (string.IsNullOrWhiteSpace(raw)) return 0m;
+        var s = raw.Trim()
+            .Replace("\u066C", "")    // فاصل الآلاف العربي
+            .Replace("\u066B", ".")   // الفاصلة العشرية العربية
+            .Replace(" ", "")
+            .Replace("\u00A0", "");
+
+        var hasBoth = s.Contains(',') && s.Contains('.');
+        if (hasBoth)
+        {
+            if (s.LastIndexOf(',') > s.LastIndexOf('.'))
+                s = s.Replace(".", "").Replace(',', '.');
+        }
+        else if (s.Count(c => c == ',') == 1 && s.IndexOf(',') > 0
+                 && s.Length - s.IndexOf(',') - 1 == 3 && s.Contains('.'))
+        {
+            s = s.Replace(",", "");
+        }
+
+        return decimal.TryParse(s,
+            NumberStyles.AllowDecimalPoint | NumberStyles.AllowLeadingSign | NumberStyles.AllowThousands,
+            CultureInfo.InvariantCulture, out var value) ? value : 0m;
+    }
+
+    private async Task SubmitAsync()
+    {
+        await _form!.Validate();
+        if (!_form.IsValid) return;
+        if (_partyId == Guid.Empty) { _error = Loc["CheckParties"]; return; }
+        var parsedAmount = ParseAmount(_amountText);
+        if (parsedAmount <= 0m) { _error = Loc["CheckAmount"]; return; }
+
+        _error = null;
+        try
+        {
+            await CheckService.RegisterAsync(new CreateBankCheckDto
+            {
+                CheckNumber = _checkNumber,
+                BankName = _bankName,
+                BranchName = _branch,
+                Direction = _direction == 1 ? BankCheckDirection.ReceivedFromCustomer : BankCheckDirection.IssuedToSupplier,
+                CustomerId = _direction == 1 ? _partyId : null,
+                SupplierId = _direction == 2 ? _partyId : null,
+                Amount = parsedAmount,
+                IssueDate = _issueDate ?? DateTime.Now,
+                DueDate = _dueDate ?? DateTime.Now.AddDays(30),
+                ReceivedOrIssuedDate = _receivedOrIssuedDate ?? DateTime.Now,
+                Notes = _notes
+            });
+            MudDialog.Close(DialogResult.Ok(true));
+        }
+        catch (Exception ex) { _error = ex.Message; }
+    }
+}

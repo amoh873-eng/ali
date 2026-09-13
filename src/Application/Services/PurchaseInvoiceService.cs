@@ -1,3 +1,4 @@
+using ERPSystem.Application.DTOs.BankChecks;
 using ERPSystem.Application.DTOs.Journal;
 using ERPSystem.Application.DTOs.Purchases;
 using ERPSystem.Application.Interfaces;
@@ -64,6 +65,19 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
         var type = (PurchaseInvoiceType)dto.InvoiceType;
         if (type != PurchaseInvoiceType.Cash && type != PurchaseInvoiceType.OnAccount)
             throw new InvalidOperationException("نوع الفاتورة غير صالح.");
+
+        // السداد بشيك (PaymentMethod = 2): تُرحَّل الفاتورة على المورد كالمعتاد ثم يُخفَّض
+        // الالتزام فوراً بقيد إصدار شيك (مدين المورد / دائن «شيكات برسم السداد» 2300).
+        var isCheckPayment = dto.PaymentMethod == 2;
+        if (isCheckPayment)
+        {
+            if (string.IsNullOrWhiteSpace(dto.CheckNumber) || string.IsNullOrWhiteSpace(dto.CheckBankName))
+                throw new InvalidOperationException("رقم الشيك واسم البنك مطلوبان عند السداد بشيك.");
+            if (dto.CheckDueDate is null)
+                throw new InvalidOperationException("تاريخ استحقاق الشيك مطلوب عند السداد بشيك.");
+            if (DateOnly.FromDateTime(dto.CheckDueDate.Value) < DateOnly.FromDateTime(dto.InvoiceDate))
+                throw new InvalidOperationException("تاريخ استحقاق الشيك لا يمكن أن يسبق تاريخ الفاتورة.");
+        }
 
         var distinctItemIds = dto.Lines.Select(l => l.ItemId).Distinct().ToList();
         if (distinctItemIds.Count != dto.Lines.Count)
@@ -176,7 +190,7 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
 
         var inventoryAccount = await GetAccountByCodeAsync(AccountInventory);
         var creditAccount = await GetAccountByCodeAsync(
-            type == PurchaseInvoiceType.Cash ? AccountCash : AccountPayable);
+            (type == PurchaseInvoiceType.Cash && !isCheckPayment) ? AccountCash : AccountPayable);
 
         var entry = await _journalService.PrepareEntryAsync(
             JournalEntryType.PurchaseInvoice,
@@ -193,6 +207,29 @@ public class PurchaseInvoiceService : IPurchaseInvoiceService
 
         supplier.CurrentBalance += invoice.TotalAmount;
         supplier.UpdatedAt = DateTime.UtcNow;
+
+        // السداد بشيك: سجل الشيك (مصدر لمورد) + قيد إصدار يخفض التزام المورد فوراً
+        // (مدين المورد 2200 / دائن «شيكات برسم السداد» 2300) — نفس المعاملة الذرية.
+        if (isCheckPayment)
+        {
+            var checkDto = new CreateBankCheckDto
+            {
+                CheckNumber = dto.CheckNumber ?? string.Empty,
+                BankName = dto.CheckBankName ?? string.Empty,
+                BranchName = dto.CheckBranch,
+                Direction = BankCheckDirection.IssuedToSupplier,
+                SupplierId = supplier.Id,
+                RelatedInvoiceId = invoice.Id,
+                Amount = invoice.TotalAmount,
+                IssueDate = dto.CheckIssueDate.HasValue ? dto.CheckIssueDate.Value : invoice.InvoiceDate,
+                DueDate = dto.CheckDueDate.HasValue ? dto.CheckDueDate.Value : invoice.InvoiceDate.AddDays(30),
+                ReceivedOrIssuedDate = invoice.InvoiceDate,
+                Notes = dto.Note
+            };
+            var check = await BankCheckService.PrepareRegisteredCheckAsync(
+                _context, _journalService, checkDto, null, supplier);
+            _context.Set<BankCheck>().Add(check);
+        }
 
         await _context.SaveChangesAsync();
         return MapToDto(invoice);
