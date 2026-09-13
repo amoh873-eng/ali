@@ -163,8 +163,8 @@
     private string? _checkNumber;
     private string? _checkBankName;
     private string? _checkBranch;
-    private DateTime? _checkIssueDate;
-    private DateTime? _checkDueDate;
+    private DateTime? _checkIssueDate = DateTime.Today;
+    private DateTime? _checkDueDate = DateTime.Today.AddMonths(1);
     private DateTime? _invoiceDate = DateTime.Today;
     private decimal _discountPercentage;
     private decimal _taxRate = 16;

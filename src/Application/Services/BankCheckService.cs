@@ -88,7 +88,9 @@ public class BankCheckService : IBankCheckService
             UpdatedAt = DateTime.UtcNow
         };
 
-        // فتح القيد: مستلم (مدين 1102 / دائن العميل) — مصدر (مدين المورد / دائن 2300)
+        // فتح القيد:
+        //  مستلم (مدين «فرز التحصيل» 1102 / دائن العميل 1200 – خفض دين العميل)
+        //  مصدر (مدين المورد 2200 – خفض التزامنا / دائن «فرز السداد» 2400 – التزام الشيك)
         var reference = await NumberSequenceHelper.NextAsync(context, "CHK");
         var partyName = received ? customer!.NameAr : supplier!.NameAr;
         var actionLabel = received ? "استلام شيك من عميل" : "إصدار شيك لمورد";
@@ -99,8 +101,8 @@ public class BankCheckService : IBankCheckService
             $"{actionLabel} {check.CheckNumber} - {check.BankName} - {partyName}",
             new List<JournalEntryLegInput>
             {
-                new() { AccountId = checksAccount.Id, DebitAmount = dto.Amount, Note = $"شيك {check.CheckNumber}" },
-                new() { AccountId = partyAccount.Id, CreditAmount = dto.Amount }
+                new() { AccountId = (received ? checksAccount : partyAccount).Id, DebitAmount = dto.Amount, Note = $"شيك {check.CheckNumber}" },
+                new() { AccountId = (received ? partyAccount : checksAccount).Id, CreditAmount = dto.Amount }
             });
 
         check.JournalEntryId = entry.Id;

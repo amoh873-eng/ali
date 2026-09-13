@@ -177,7 +177,9 @@ public partial class SalesInvoiceService
             : paymentMethod == SalesPaymentMethod.Card
                 ? await GetAccountByCodeAsync(AccountCardReceivables)
                 : paymentMethod == SalesPaymentMethod.Check
-                    ? await GetAccountByCodeAsync(AccountChecksReceivable) // شيك مستلم → «شيكات برسم التحصيل» (1102)
+                    ? await GetAccountByCodeAsync(AccountReceivable)
+                    // الشيك يُدين «ذمم العملاء» هنا وقيد تسجيل الشيك (1102/1200) يسويه فوراً في
+                    // نفس المعاملة — فلا يُدين 1102 مرتين (كان يفعل ذلك سابقاً).
                     : invoice.IsPos
                         ? await GetAccountByCodeAsync(AccountTillDrawer) // مبيعات نقطة البيع النقدية → درج الكاش (1105)
                         : await GetAccountByCodeAsync(AccountCash);     // مبيعات الوحدة النقدية → الخزنة الرئيسية (1100)
