@@ -61,24 +61,41 @@ dotnet workload install maui-android
 > أو تنفيذ البناء على جهاز تطوير آخر (خطوات 3 و4 و5 هي نفسها في كل مكان).
 
 ## 5) عنوان الخادم من داخل التطبيق على الهاتف
-المحلي `localhost` لا يعمل على الهاتف. عدّل في `src/Mobile/Session.cs` سطر العنوان إلى IP جهازك:
+- **تلقائياً الآن**: `Session.cs` يختار من نفسه — على Android يستخدم `http://192.168.1.254:5187`
+  (IP هذا الجهاز الحالي)، وعلى سطح المكتب يعود لـ `localhost`.
+- إن اختلف IP جهازك (استعلم بأمر `ipconfig`)، عدّل السطر:
 
 ```csharp
-public static string BaseUrl = "http://192.168.1.254:5187";
+public static string BaseUrl = DeviceInfo.Platform == DevicePlatform.Android
+    ? "http://192.168.1.254:5187"   // ← غيّره إلى IP جهازك
+    : (Environment.GetEnvironmentVariable("ERP_API_URL") ?? "http://localhost:5187");
 ```
 
 ## 6) البناء والتثبيت
-### أ) بالكابل (أسـهل — USB Debugging مفعّل على الهاتف)
+> هدف Android الكامل هو `net10.0-android36.0` (وليس المختصر).
+> على هذا الجهاز التزمت هذه الأوامر الناجحة فعلياً (SDK في `C:\Users\User az\AppData\Local\Android\Sdk`
+> وJDK 25 مفروض عبر تجاوز فحص النسخة لأن `jar` مفقود من JDK 21 المثبت):
+
+### أ) بالكابل (USB Debugging مفعّل على الهاتف)
 ```powershell
-dotnet build -f net10.0-android -t:Run -c Debug
+dotnet build -f net10.0-android36.0 -t:Run -c Debug "-p:AndroidSdkDirectory=C:\Users\User az\AppData\Local\Android\Sdk" "-p:JavaSdkDirectory=D:\Program Files\Microsoft\jdk-25.0.4.101-hotspot" "-p:LatestSupportedJavaVersion=25.0.99"
 ```
-### ب) ملف APK تنصّبه يدوياً
+
+### ب) ملف APK تنصّبه يدوياً (المسار المُنتج فعلياً الآن)
 ```powershell
-dotnet publish -f net10.0-android -c Release
+dotnet publish src/Mobile/ERPSystem.Mobile.csproj -f net10.0-android36.0 -c Release -p:AndroidPackageFormats=apk `
+ "-p:AndroidSdkDirectory=C:\Users\User az\AppData\Local\Android\Sdk" `
+ "-p:JavaSdkDirectory=D:\Program Files\Microsoft\jdk-25.0.4.101-hotspot" `
+ "-p:LatestSupportedJavaVersion=25.0.99" -p:RunAOTCompilation=false -p:PublishTrimmed=false
 ```
-سيُنتج ملف التثبيت في:
-`src/Mobile/bin/Release/net10.0-android/publish/*.apk`
+
+الناتج الموقّع جاهز الآن في:
+`src/Mobile/bin/Release/net10.0-android36.0/publish/com.erpsystem.mobile-Signed.apk` (~61 ميغا)
 — انسخه للهاتف وثبّته (سمح "مصادر غير معروفة" إن طُلب).
+
+> لماذا `-p:AndroidPackageFormats=apk`؟ لأن bundletool الافتراضي يفشل هنا بخطأ
+> (Invalid dex file indices) ناتج عن البيئة؛ إنتاج APK مباشر يتجاوزه.
+> لإعادة بناء سطح المكتب فقط: `dotnet build -f net10.0-windows10.0.19041.0`.
 
 ## 7) الدخول
 - سجّل الدخول بـ `smoke@erp.com / Test@1234` (دور منسّق) أو أي حساب أعليته.
