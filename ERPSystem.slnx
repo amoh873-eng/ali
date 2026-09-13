@@ -12,6 +12,12 @@
   <Folder Name="/src/Web/">
     <Project Path="src/Web/ERPSystem.Web.csproj" />
   </Folder>
+  <Folder Name="/src/Api/">
+    <Project Path="src/Api/ERPSystem.Api.csproj" />
+  </Folder>
+  <Folder Name="/src/Mobile/">
+    <Project Path="src/Mobile/ERPSystem.Mobile.csproj" />
+  </Folder>
   <Folder Name="/tests/">
     <Project Path="tests/ERPSystem.Tests/ERPSystem.Tests.csproj" />
   </Folder>

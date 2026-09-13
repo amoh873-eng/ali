@@ -1,0 +1,90 @@
+@page "/sales/reps-custody"
+@attribute [Authorize(Roles = "Sales,Admin,SuperAdmin")]
+@using ERPSystem.Application.DTOs.RepCustody
+@using ERPSystem.Application.Interfaces
+@using ERPSystem.Domain.Enums
+@inject IRepCustodyService CustodyService
+@inject ISnackbar Snackbar
+
+@* تسوية عهدة المندوبين: رصيد كل مندوب الحالي + تأكيد استلام يؤدي قيد تصفير ذري *@
+<div class="recon-page">
+    <div class="recon-header">
+        <div class="recon-title">
+            <MudText Typo="Typo.h6" Style="font-weight:800;">تسوية عهدة المندوبين</MudText>
+            <MudText Typo="Typo.body2" Class="recon-muted">رصيد عهدة كل مندوب (تحصيل ميداني − تسليم) — «تأكيد استلام» ينشئ قيداً محاسبياً متوازناً ذرياً</MudText>
+        </div>
+        <div class="recon-actions">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_busy">تحديث</MudButton>
+        </div>
+    </div>
+
+    <MudPaper Class="recon-table-paper" Elevation="0" Outlined="true">
+        @if (_balances.Count == 0)
+        {
+            <MudText Class="recon-muted" Style="padding:24px;">لا توجد عهود حالياً</MudText>
+        }
+        else
+        {
+            <MudTable Items="_balances" Dense="true" Hover="true" Striped="true">
+                <HeaderContent>
+                    <MudTh>المندوب</MudTh>
+                    <MudTh>رصيد العهدة الحالي</MudTh>
+                    <MudTh>إجراء</MudTh>
+                </HeaderContent>
+                <RowTemplate>
+                    <MudTd>@context.RepUserId</MudTd>
+                    <MudTd Style="font-weight:700;">@context.Balance.ToString("N2")</MudTd>
+                    <MudTd>
+                        @if (context.Balance > 0m)
+                        {
+                            <MudButton Variant="Variant.Filled" Color="Color.Primary" Size="Size.Small" OnClick="@(() => ConfirmDelivery(context))">تأكيد استلام</MudButton>
+                        }
+                    </MudTd>
+                </RowTemplate>
+            </MudTable>
+        }
+    </MudPaper>
+</div>
+@code {
+    private List<RepCustodyBalanceDto> _balances = new();
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (_busy) return;
+        _busy = true;
+        try
+        {
+            _balances = await CustodyService.GetBalancesAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+
+    private async Task ConfirmDelivery(RepCustodyBalanceDto b)
+    {
+        if (_busy) return;
+        _busy = true;
+        try
+        {
+            var dto = new CreateRepCustodyDto
+            {
+                Effect = RepCustodyEffect.Delivery,
+                RepUserId = b.RepUserId,
+                Amount = b.Balance,
+                Notes = "تسليم عهدة للمكتب",
+                Timestamp = DateTime.Now
+            };
+            await CustodyService.CreateAsync(dto, string.Empty);
+            Snackbar.Add($"تم تأكيد الاستلام ✓ (عهدة {b.RepUserId})");
+            await LoadAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+}

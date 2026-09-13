@@ -256,6 +256,18 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
     /// <summary>تحويلات النقد بين الخزنة الرئيسية ودرج الكاش (Cash Drawer Transactions).</summary>
     public DbSet<CashDrawerTransaction> CashDrawerTransactions => Set<CashDrawerTransaction>();
 
+    /// <summary>عهدة نقدية بيد المندوبين (Rep Cash Custody): تحصيل ميداني وتسليم للمكتب.</summary>
+    public DbSet<RepCashCustody> RepCashCustody => Set<RepCashCustody>();
+
+    /// <summary>حد الرف المستهدَف لمنسّق الرفوف.</summary>
+    public DbSet<ShelfParLevel> ShelfParLevels => Set<ShelfParLevel>();
+
+    /// <summary>فحوصات الرفوف الميدانية.</summary>
+    public DbSet<ShelfCheck> ShelfChecks => Set<ShelfCheck>();
+
+    /// <summary>رصد أسعار المنافسين.</summary>
+    public DbSet<ShelfPriceCapture> ShelfPriceCaptures => Set<ShelfPriceCapture>();
+
     /// <summary>
     /// Configures the model using Fluent API from configuration classes.
     /// Keeps OnModelCreating clean by delegating each entity's config to its own class.
@@ -309,6 +321,10 @@ public class AppDbContext : IdentityDbContext<IdentityUser>
         modelBuilder.ApplyConfiguration(new StockBatchConfiguration());
         modelBuilder.ApplyConfiguration(new HeldSaleConfiguration());
         modelBuilder.ApplyConfiguration(new CashDrawerTransactionConfiguration());
+        modelBuilder.ApplyConfiguration(new RepCashCustodyConfiguration());
+        modelBuilder.ApplyConfiguration(new ShelfParLevelConfiguration());
+        modelBuilder.ApplyConfiguration(new ShelfCheckConfiguration());
+        modelBuilder.ApplyConfiguration(new ShelfPriceCaptureConfiguration());
 
         // Concurrency tokens: SQL Server يصنع rowversion تلقائياً.
         // PostgreSQL ليس لديه rowversion — نستخدم عمود bytea صريحاً مع ValueGeneratedNever

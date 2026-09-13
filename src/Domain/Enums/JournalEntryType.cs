@@ -35,5 +35,8 @@ public enum JournalEntryType
     StockWriteOff = 9,
 
     /// <summary>ناتج عن تحويل نقد بين الخزنة ودرج الكاش - Cash Transfer</summary>
-    CashTransfer = 10
+    CashTransfer = 10,
+
+    /// <summary>ناتج عن عهدة نقدية بيد مندوب - Rep Cash Custody</summary>
+    CashCustody = 11
 }

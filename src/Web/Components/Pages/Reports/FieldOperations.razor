@@ -1,0 +1,93 @@
+@page "/reports/field-operations"
+@attribute [Authorize(Roles = "Admin,SuperAdmin,Reports,Sales")]
+@using ERPSystem.Application.DTOs.Shelf
+@using ERPSystem.Application.DTOs.RepCustody
+@using ERPSystem.Application.Interfaces
+@inject IShelfService ShelfService
+@inject IRepCustodyService CustodyService
+@inject ISnackbar Snackbar
+
+@* لوحة المدير: نشاط الجوال الميداني + حالة العهود + تكرار نفاد الأرفف *@
+<div class="recon-page">
+    <div class="recon-header">
+        <div class="recon-title">
+            <MudText Typo="Typo.h6" Style="font-weight:800;">العمليات الميدانية — لوحة المدير</MudText>
+            <MudText Typo="Typo.body2" Class="recon-muted">نشاط المستخدمين (فحوصات/أرصدة/تحصيلات) + عهود المندوبين + مؤشرات نفاد الرفوف المتكرر</MudText>
+        </div>
+        <div class="recon-actions">
+            <MudButton Variant="Variant.Filled" Color="Color.Primary" StartIcon="@Icons.Material.Filled.Refresh" OnClick="LoadAsync" Disabled="_busy">تحديث</MudButton>
+        </div>
+    </div>
+
+    <MudPaper Elevation="0" Outlined="true" Class="recon-table-paper">
+        <MudText Typo="Typo.subtitle2" Style="font-weight:700;">1. نشاط الجوال الميداني (فحوصات / رصد أسعار / تحصيلات)</MudText>
+        <MudTable Items="_activity" Dense="true" Hover="true" Striped="true">
+            <HeaderContent>
+                <MudTh>المستخدم</MudTh><MudTh>فحوصات رف</MudTh><MudTh>رصد أسعار</MudTh><MudTh>تحصيلات</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.UserId</MudTd>
+                <MudTd>@context.ShelfChecks</MudTd>
+                <MudTd>@context.PriceCaptures</MudTd>
+                <MudTd>@context.RepCollections</MudTd>
+            </RowTemplate>
+        </MudTable>
+        @if (_activity.Count == 0) { <MudText Class="recon-muted" Style="padding:12px;">لا نشاط ميداني بعد</MudText> }
+    </MudPaper>
+
+    <MudPaper Elevation="0" Outlined="true" Class="recon-table-paper">
+        <MudText Typo="Typo.subtitle2" Style="font-weight:700;">2. حالة عهدة المندوبين (رصيد حالي)</MudText>
+        <MudTable Items="_balances" Dense="true" Hover="true" Striped="true">
+            <HeaderContent>
+                <MudTh>المندوب</MudTh><MudTh>رصيد العهدة</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.RepUserId</MudTd>
+                <MudTd Style="font-weight:700;">@context.Balance.ToString("N2")</MudTd>
+            </RowTemplate>
+        </MudTable>
+        @if (_balances.Count == 0) { <MudText Class="recon-muted" Style="padding:12px;">لا عهود حالياً</MudText> }
+    </MudPaper>
+
+    <MudPaper Elevation="0" Outlined="true" Class="recon-table-paper">
+        <MudText Typo="Typo.subtitle2" Style="font-weight:700;">3. تكرار النفاد تحت حد الرف (مؤشر مشكلة تزويد متكررة)</MudText>
+        <MudTable Items="_shortfalls" Dense="true" Hover="true" Striped="true">
+            <HeaderContent>
+                <MudTh>الموقع</MudTh><MudTh>الصنف</MudTh><MudTh>الحد</MudTh><MudTh>مرات تحت الحد</MudTh><MudTh>متوسط الملاحَظ</MudTh>
+            </HeaderContent>
+            <RowTemplate>
+                <MudTd>@context.Location</MudTd>
+                <MudTd>@context.ItemId</MudTd>
+                <MudTd>@context.ParLevel.ToString("N2")</MudTd>
+                <MudTd>@context.BelowCount</MudTd>
+                <MudTd>@context.AvgObserved.ToString("N2")</MudTd>
+            </RowTemplate>
+        </MudTable>
+        @if (_shortfalls.Count == 0) { <MudText Class="recon-muted" Style="padding:12px;">لا نفاد متكرر تحت الحد حالياً</MudText> }
+    </MudPaper>
+</div>
+@code {
+    private List<ShelfFieldActivityDto> _activity = new();
+    private List<RepCustodyBalanceDto> _balances = new();
+    private List<ShelfShortfallDto> _shortfalls = new();
+    private bool _busy;
+
+    protected override async Task OnInitializedAsync()
+    {
+        await LoadAsync();
+    }
+
+    private async Task LoadAsync()
+    {
+        if (_busy) return;
+        _busy = true;
+        try
+        {
+            _activity = await ShelfService.GetFieldActivityAsync();
+            _shortfalls = await ShelfService.GetShortfallsAsync();
+            _balances = await CustodyService.GetBalancesAsync();
+        }
+        catch (Exception ex) { Snackbar.Add(ex.Message, Severity.Error); }
+        finally { _busy = false; }
+    }
+}

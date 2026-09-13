@@ -81,6 +81,10 @@ builder.Services.AddHostedService<LowStockNotificationService>();
 builder.Services.AddHostedService<ExpiryNotificationService>();
 builder.Services.AddScoped<ErrorNotifierService>();
 builder.Services.AddScoped<UpdateService>();
+// عهدة مندوبي المبيعات (المرحلة 3) — حساب عام 1110 ببعد تحليلي RepUserId
+builder.Services.AddScoped<ERPSystem.Application.Interfaces.IRepCustodyService, ERPSystem.Application.Services.RepCustodyService>();
+builder.Services.AddScoped<ERPSystem.Application.Interfaces.IShelfService, ERPSystem.Application.Services.ShelfService>();
+builder.Services.AddScoped<Microsoft.EntityFrameworkCore.DbContext>(p => p.GetRequiredService<ERPSystem.Infrastructure.Data.AppDbContext>());
 
 // Part G: health checks — use simple manual checks to avoid extra package; detailed check via /health/detailed uses these types
 builder.Services.AddHealthChecks()
